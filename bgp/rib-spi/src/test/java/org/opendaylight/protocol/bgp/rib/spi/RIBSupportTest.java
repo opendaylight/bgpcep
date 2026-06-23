@@ -195,6 +195,16 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     }
 
     @Test
+    public void requiresWithdrawalOnReplace() {
+        final var before = route("1.2.3.4/32", "before");
+
+        assertTrue(ribSupportTestImp.requiresWithdrawalOnReplace(before, route("1.2.3.5/32", "before")));
+        assertFalse(ribSupportTestImp.requiresWithdrawalOnReplace(before, route("1.2.3.4/32", "after")));
+        assertFalse(ribSupportTestImp.requiresWithdrawalOnReplace(before, route("1.2.3.4/32", null)));
+        assertFalse(ribSupportTestImp.requiresWithdrawalOnReplace(before, route("1.2.3.4/32", "before")));
+    }
+
+    @Test
     public void routePath() {
         assertEquals(LOC_RIB_TARGET.node(ROUTES_IDENTIFIER)
                         .node(Ipv4Routes.QNAME).node(Ipv4Route.QNAME).node(PREFIX_NII),
@@ -251,5 +261,20 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
                 new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreach).build()).build();
         assertEquals(new UpdateBuilder().setAttributes(attMpU).build(),
                ribSupportTestImp.buildUpdate(Set.of(), routes, attr));
+    }
+
+    private MapEntryNode route(final String prefix, final String attribute) {
+        final var attributesId = ribSupportTestImp.routeAttributesIdentifier();
+        final var builder = ImmutableNodes.newMapEntryBuilder()
+            .withNodeIdentifier(NodeIdentifierWithPredicates.of(Ipv4Route.QNAME,
+                QName.create(Ipv4Route.QNAME, "route-key"), "test-route"))
+            .withChild(ImmutableNodes.leafNode(QName.create(Ipv4Route.QNAME, "prefix"), prefix));
+        if (attribute != null) {
+            builder.withChild(ImmutableNodes.newContainerBuilder()
+                .withNodeIdentifier(attributesId)
+                .withChild(ImmutableNodes.leafNode(QName.create(attributesId.getNodeType(), "test"), attribute))
+                .build());
+        }
+        return builder.build();
     }
 }

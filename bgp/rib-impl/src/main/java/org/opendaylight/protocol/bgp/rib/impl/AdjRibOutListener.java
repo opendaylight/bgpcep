@@ -136,10 +136,22 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
                 break;
             case APPEARED:
             case SUBTREE_MODIFIED:
-            case WRITE:
-                update = advertise((MapEntryNode) route.getDataAfter());
+            case WRITE: {
+                final var before = (MapEntryNode) route.dataBefore();
+                final var after = (MapEntryNode) route.getDataAfter();
+                // When a route keeps its route-key but its NLRI content changes (e.g. an application-rib IP route
+                // re-advertised with a different prefix), the change surfaces here as an in-place modification rather
+                // than a delete+write. The peer would keep the superseded NLRI, so withdraw it before advertising the
+                // replacement.
+                if (before != null && support.requiresWithdrawalOnReplace(before, after)) {
+                    final var replaced = withdraw(before);
+                    LOG.debug("Withdrawing superseded route {}", replaced);
+                    session.write(replaced);
+                }
+                update = advertise(after);
                 LOG.debug("Advertising routes {}", update);
                 break;
+            }
             default:
                 LOG.warn("Ignoring unhandled modification type {}", route.modificationType());
                 return;

@@ -22,13 +22,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.junit.Test;
+import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupportTest;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.labeled.unicast.LabelStackBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.bgp.rib.rib.loc.rib.tables.routes.VpnIpv4RoutesCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.bgp.rib.rib.loc.rib.tables.routes.VpnIpv4RoutesCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.ipv4.rev180329.l3vpn.ipv4.destination.VpnIpv4DestinationBuilder;
@@ -39,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRoute;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRouteKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -148,6 +154,22 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesC
     }
 
     @Test
+    public void testRequiresWithdrawalOnReplace() {
+        final var base = createRoutes(ROUTES).iterator().next();
+        final var same = createRoutes(routes(IPV4_PREFIX, 355, DISTINGUISHER)).iterator().next();
+        final var labelChanged = createRoutes(routes(IPV4_PREFIX, 900, DISTINGUISHER)).iterator().next();
+        final var prefixChanged = createRoutes(routes(new IpPrefix(new Ipv4Prefix("34.1.23.0/24")), 355,
+            DISTINGUISHER)).iterator().next();
+        final var distinguisherChanged = createRoutes(routes(IPV4_PREFIX, 355,
+            RouteDistinguisherUtil.parseRouteDistinguisher("1.2.3.4:259"))).iterator().next();
+
+        assertFalse(ribSupport.requiresWithdrawalOnReplace(base, labelChanged));
+        assertTrue(ribSupport.requiresWithdrawalOnReplace(base, prefixChanged));
+        assertTrue(ribSupport.requiresWithdrawalOnReplace(base, distinguisherChanged));
+        assertFalse(ribSupport.requiresWithdrawalOnReplace(base, same));
+    }
+
+    @Test
     public void testChangedRoutes() {
         final Routes emptyCase = new VpnIpv4RoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
@@ -163,5 +185,17 @@ public class VpnIpv4RIBSupportTest extends AbstractRIBSupportTest<VpnIpv4RoutesC
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
         final Collection<DataTreeCandidateNode> result = ribSupport.changedRoutes(tree);
         assertFalse(result.isEmpty());
+    }
+
+    private static VpnIpv4Routes routes(final IpPrefix prefix, final long label,
+            final RouteDistinguisher distinguisher) {
+        final var route = new VpnRouteBuilder(ROUTE)
+            .setPrefix(prefix)
+            .setLabelStack(List.of(new LabelStackBuilder()
+                .setLabelValue(new MplsLabel(Uint32.valueOf(label)))
+                .build()))
+            .setRouteDistinguisher(distinguisher)
+            .build();
+        return new VpnIpv4RoutesBuilder().setVpnRoute(Map.of(route.key(), route)).build();
     }
 }

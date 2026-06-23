@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
@@ -105,6 +107,14 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
 
     private List<VpnDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(this::extractVpnDestination).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean requiresWithdrawalOnReplace(final @NonNull MapEntryNode before, final @NonNull MapEntryNode after) {
+        // A new label stack replaces the binding for the same VPN route. Only a change to the RD or prefix leaves a
+        // previously-advertised route which needs to be withdrawn. The path-id is part of the route list key.
+        return !Objects.equals(extractRouteDistinguisher(before), extractRouteDistinguisher(after))
+            || !Objects.equals(extractPrefix(before), extractPrefix(after));
     }
 
     @Override

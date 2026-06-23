@@ -276,6 +276,35 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
         return createRouteListArgument(NON_PATH_ID_VALUE, routeKey);
     }
 
+    /**
+     * Determine whether an in-place route modification requires the previous route to be explicitly withdrawn.
+     *
+     * <p>An in-place modification is one whose list key is unchanged. Application RIB route-keys are user-assigned,
+     * though, and therefore do not necessarily identify the NLRI carried by the route. If any route content other
+     * than attributes changes, the old NLRI may no longer be advertised and has to be withdrawn explicitly. An
+     * attribute-only update advertises the same NLRI and replaces its previous attributes at the peer.
+     * Implementations should override this method when their NLRI has more specific replacement semantics.
+     *
+     * @param before route as it was before the modification
+     * @param after route as it is after the modification
+     * @return {@code true} if {@code before} must be withdrawn before advertising {@code after}
+     */
+    default boolean requiresWithdrawalOnReplace(final @NonNull MapEntryNode before, final @NonNull MapEntryNode after) {
+        final var attributesId = routeAttributesIdentifier();
+        return containsChangedRouteContent(before, after, attributesId)
+            || containsChangedRouteContent(after, before, attributesId);
+    }
+
+    private static boolean containsChangedRouteContent(final MapEntryNode first, final MapEntryNode second,
+            final NodeIdentifier attributesId) {
+        for (var child : first.body()) {
+            if (!attributesId.equals(child.name()) && !child.equals(second.childByArg(child.name()))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     default @NonNull NodeIdentifierWithPredicates toAddPathListArgument(
             final @NonNull NodeIdentifierWithPredicates routeListKey) {
         return createRouteListArgument(extractPathId(routeListKey), extractRouteKey(routeListKey));

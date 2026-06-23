@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -114,6 +115,14 @@ abstract class AbstractLabeledUnicastRIBSupport<
 
     protected List<CLabeledUnicastDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(this::extractCLabeledUnicastDestination).collect(Collectors.toList());
+    }
+
+    @Override
+    public boolean requiresWithdrawalOnReplace(final @NonNull MapEntryNode before, final @NonNull MapEntryNode after) {
+        // Advertising a new label stack for the same prefix rebinds the label at the peer, so only a prefix change
+        // leaves an old route which needs to be withdrawn. The path-id cannot change during an in-place modification
+        // because it is part of the route list key.
+        return !Objects.equals(before.childByArg(prefixNid()), after.childByArg(prefixNid()));
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode labeledUnicast) {
