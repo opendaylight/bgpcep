@@ -68,9 +68,7 @@ final class BaseRouteEntry implements RouteEntry {
 
     @Override
     public boolean selectBest(final RIBSupport ribSupport, final long localAs) {
-        /*
-         * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
-         */
+        // FIXME: optimize flaps by making sure we consider stability of currently-selected route.
         final var selector = new BasePathSelector(localAs);
 
         // Select the best route.
@@ -83,15 +81,16 @@ final class BaseRouteEntry implements RouteEntry {
 
         // Get the newly-selected best path.
         final var newBestPath = selector.result();
-        final boolean modified = newBestPath == null || !newBestPath.equals(bestPath);
-        if (modified) {
-            if (offsets.isEmpty()) {
-                removedBestPath = bestPath;
-            }
-            LOG.trace("Previous best {}, current best {}", bestPath, newBestPath);
-            bestPath = newBestPath;
+        if (newBestPath != null && newBestPath.equals(bestPath)) {
+            return false;
         }
-        return modified;
+
+        if (offsets.isEmpty()) {
+            removedBestPath = bestPath;
+        }
+        LOG.trace("Previous best {}, current best {}", bestPath, newBestPath);
+        bestPath = newBestPath;
+        return true;
     }
 
     @Override
@@ -118,6 +117,12 @@ final class BaseRouteEntry implements RouteEntry {
     private void setRoute(final RouterId routerId, final MapEntryNode route, final int offset) {
         offsets.setValue(values, offset, route);
         LOG.trace("Added route {} from {}", route, routerId);
+
+        final var localBest = bestPath;
+        if (localBest != null && routerId.equals(localBest.getRouterId())) {
+            bestPath = null;
+            LOG.trace("Invalidated best route {} from {}", localBest, routerId);
+        }
     }
 
     @Override
