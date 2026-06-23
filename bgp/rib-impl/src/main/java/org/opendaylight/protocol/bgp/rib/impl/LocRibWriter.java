@@ -69,6 +69,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
+import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -330,7 +331,11 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
 
                     final var routeAfter = route.getDataAfter();
                     verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
-                    entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
+                    if (route.modificationType() == ModificationType.SUBTREE_MODIFIED) {
+                        entry.updateRoute(routerId, pathId, (MapEntryNode) routeAfter);
+                    } else {
+                        entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
+                    }
                     totalPathsCounter.increment();
                 }
                 default -> throw new IllegalStateException("Unhandled route modification " + route);
