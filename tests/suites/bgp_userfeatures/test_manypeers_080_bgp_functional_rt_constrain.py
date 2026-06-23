@@ -61,9 +61,11 @@ class TestBgpfunctionalRtConstrain:
     def test_bgp_functional_rt_constrain(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
             # Configures bgp application peer.
-        templated_requests.put_templated_request(
-            f"{RT_CONSTRAIN_DIR}/app_peer", RT_CONSTRAIN_APP_PEER_MAPPING, json=False
-        )
+            templated_requests.put_templated_request(
+                f"{RT_CONSTRAIN_DIR}/app_peer",
+                RT_CONSTRAIN_APP_PEER_MAPPING,
+                json=False,
+            )
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"

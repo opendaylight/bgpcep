@@ -39,13 +39,15 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Ensure statistics are not updated before interval expiration**
 
             Tests the dynamic reconfiguration of PCEP statistics timer value. \
             Verifies that when the timer value is increased, the statistics \
             are not updated before the newly defined interval elapses.
-        """)
+        """
+        )
     )
     def test_no_premature_update(self, allure_step_with_separate_logging):
 

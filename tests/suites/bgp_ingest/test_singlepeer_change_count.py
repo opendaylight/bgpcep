@@ -36,8 +36,8 @@ WITHDRAW = 0
 )
 @pytest.mark.run(order=3)
 class TestSinglePeerChangeCountMixed(BaseTestSinglePeerChangeCount):
-    test_description = (
-        textwrap.dedent("""
+    test_description = textwrap.dedent(
+        """
             **This suite uses play.py as single iBGP peer.**
 
             The suite only looks at example-ipv4-topology, so RIB is not \
@@ -64,5 +64,5 @@ class TestSinglePeerChangeCountMixed(BaseTestSinglePeerChangeCount):
             affected test cases will wait for max time. Reconsider \
             if zero increase is allowed as stable, higher number of repetitions \
             should be required.
-        """)
+        """
     )

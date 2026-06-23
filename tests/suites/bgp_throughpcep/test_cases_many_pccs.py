@@ -17,7 +17,6 @@ import pytest
 from suites.base_test_cases import BaseTestCases
 
 
-
 LSPS = 400
 PCCS = 150
 PCEP_READY_VERIFY_TIMEOUT = 180
@@ -49,8 +48,8 @@ log = logging.getLogger(__name__)
 )
 @pytest.mark.run(order=13)
 class TestCasesManyPccs(BaseTestCases):
-    test_description = (
-        textwrap.dedent("""
+    test_description = textwrap.dedent(
+        """
             **ODL acts as a translation layer between PCEP capable devices and \
             users employing RESTCONF.**
 
@@ -116,5 +115,5 @@ class TestCasesManyPccs(BaseTestCases):
             **UPDATER_TIMEOUT:** If updater stops itself if running more than \
             this time.
             (Set this limit according to your performance target.)
-        """)
+        """
     )

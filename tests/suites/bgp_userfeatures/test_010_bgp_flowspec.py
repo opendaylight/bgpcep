@@ -36,7 +36,8 @@ FLOWSPEC_URL = (
     "/rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/"
     "tables=bgp-types:ipv4-address-family,"
     "bgp-flowspec:flowspec-subsequent-address-family/"
-    "bgp-flowspec:flowspec-routes?content=nonconfig")
+    "bgp-flowspec:flowspec-routes?content=nonconfig"
+)
 RIB_INSTANCE = "example-bgp-rib"
 PROTOCOL_OPENCONFIG = RIB_INSTANCE
 EMPTY_LIST = tuple()

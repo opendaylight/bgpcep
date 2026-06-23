@@ -37,8 +37,8 @@ PREFILL = 10
 )
 @pytest.mark.run(order=10)
 class TestManyPeersPrefixCountMixed(BaseTestManyPeerPrefixCount):
-    test_description = (
-        textwrap.dedent("""
+    test_description = textwrap.dedent(
+        """
             **This suite uses play.py as many iBGP peers.**
 
             The suite only looks at example-ipv4-topology, so RIB is not \
@@ -60,5 +60,5 @@ class TestManyPeersPrefixCountMixed(BaseTestManyPeerPrefixCount):
             The prefix counting is quite heavyweight and may induce large \
             variation in time. Try the other version of the suite \
             (test_singlepeer_change_count.py) to get better precision.
-        """)
+        """
     )
