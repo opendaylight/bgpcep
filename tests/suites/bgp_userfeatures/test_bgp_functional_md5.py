@@ -73,12 +73,14 @@ class TestBgpFunctionalMd5:
         log.info(f"Updated tmp/exa-md5.cfg config:\n{stdout}")
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **This suite tests tcpmd5 connection of bgp peer.**
 
             It uses odl and exabgp as bgp peer. No routes are advertized, \
             simple peer presence in the datastore is tested.
-        """)
+        """
+        )
     )
     def test_bgp_functional_md5(self, allure_step_with_separate_logging):
 

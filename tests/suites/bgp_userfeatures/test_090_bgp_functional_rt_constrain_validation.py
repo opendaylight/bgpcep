@@ -126,7 +126,8 @@ class TestBgpfunctionalRtConstrainValidation:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test for bgp - route-target-constrain safi**
 
             This suite tests advertising rt-constrain routes to odl. For advertising \
@@ -138,7 +139,8 @@ class TestBgpfunctionalRtConstrainValidation:
             route and it is checked that odl doesn't advertize l3vpn route to it. \
             Then second peer removes RT and it is checked that second peer withdrew RT \
             route and that odl withdrew l3vpn route from it.
-        """)
+        """
+        )
     )
     def test_bgp_functional_rt_constrain_validation(
         self, allure_step_with_separate_logging
