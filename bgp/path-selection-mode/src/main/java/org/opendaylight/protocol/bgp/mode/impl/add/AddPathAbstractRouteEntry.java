@@ -11,8 +11,10 @@ import static com.google.common.base.Verify.verifyNotNull;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
@@ -90,6 +92,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
     private List<AddPathBestPath> bestPathRemoved;
     private List<AddPathBestPath> newBestPathToBeAdvertised;
     private List<Uint32> removedPathsId;
+    private Set<RouteKey> changedRouteKeys;
 
     private long pathIdCounter = 0L;
     private boolean isNonAddPathBestPathNew;
@@ -121,8 +124,19 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
     }
 
     @Override
+    public final int updateRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
+        final var offset = addRoute(routerId, remotePathId, route);
+        if (changedRouteKeys == null) {
+            changedRouteKeys = new HashSet<>();
+        }
+        changedRouteKeys.add(new RouteKey(routerId, remotePathId));
+        return offset;
+    }
+
+    @Override
     public final boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
         final var key = new RouteKey(routerId, remotePathId);
+        // changedRouteKeys is cleared on each selectBest(), so a stale key left here is harmless.
         final int offset = offsets.offsetOf(key);
         final var pathId = offsets.getValue(pathsId, offset);
         values = offsets.removeValue(values, offset, EMPTY_VALUES);
@@ -227,20 +241,32 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
     private boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
         isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
         filterRemovedPaths(newBestPathList);
-        if (bestPathRemoved != null && !bestPathRemoved.isEmpty()
-                || newBestPathList != null
-                && !newBestPathList.equals(bestPath)) {
+        final var bestRouteChanged = changedRouteKeys != null && newBestPathList.stream()
+            .map(AddPathBestPath::getRouteKey)
+            .anyMatch(changedRouteKeys::contains);
+        final var bestPathChanged = !newBestPathList.equals(bestPath);
+        final var isBestPathUpdateRequired = bestPathRemoved != null && !bestPathRemoved.isEmpty()
+            || bestPathChanged || bestRouteChanged;
+        if (isBestPathUpdateRequired) {
             if (bestPath != null) {
                 newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
                 newBestPathToBeAdvertised.removeAll(bestPath);
+                if (bestRouteChanged) {
+                    for (final var path : newBestPathList) {
+                        if (changedRouteKeys.contains(path.getRouteKey())
+                                && !newBestPathToBeAdvertised.contains(path)) {
+                            newBestPathToBeAdvertised.add(path);
+                        }
+                    }
+                }
             } else {
                 newBestPathToBeAdvertised = newBestPathList;
             }
             bestPath = newBestPathList;
             LOG.trace("Actual Best {}, removed best {}", bestPath, bestPathRemoved);
-            return true;
         }
-        return false;
+        changedRouteKeys = null;
+        return isBestPathUpdateRequired;
     }
 
     private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
