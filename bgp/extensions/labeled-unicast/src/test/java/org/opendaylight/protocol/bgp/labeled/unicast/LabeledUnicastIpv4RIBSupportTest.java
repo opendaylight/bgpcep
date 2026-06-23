@@ -180,6 +180,22 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
     }
 
     @Test
+    public void testRequiresWithdrawalOnReplace() {
+        final var base = createRoutes(ROUTES).iterator().next();
+        final var same = createRoutes(routes(IPV4_PREFIX, 355)).iterator().next();
+        final var labelChanged = createRoutes(routes(IPV4_PREFIX, 900)).iterator().next();
+        final var prefixChanged = createRoutes(routes(new IpPrefix(new Ipv4Prefix("10.0.1.0/24")), 355))
+            .iterator().next();
+
+        // A label-stack change on a route whose key stays stable must trigger a withdrawal of the old NLRI.
+        assertTrue(ribSupport.requiresWithdrawalOnReplace(base, labelChanged));
+        // A prefix change with the same label must also trigger a withdrawal: the prefix is part of the NLRI.
+        assertTrue(ribSupport.requiresWithdrawalOnReplace(base, prefixChanged));
+        // An identical replacement (same prefix and labels) must not.
+        assertFalse(ribSupport.requiresWithdrawalOnReplace(base, same));
+    }
+
+    @Test
     public void testChangedRoutes() {
         final Routes emptyCase = new LabeledUnicastRoutesCaseBuilder().build();
         DataTreeCandidateNode tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(),
@@ -195,5 +211,15 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
         tree = DataTreeCandidates.fromNormalizedNode(getRoutePath(), createRoutes(routes)).getRootNode();
         final Collection<DataTreeCandidateNode> result = ribSupport.changedRoutes(tree);
         assertFalse(result.isEmpty());
+    }
+
+    private static LabeledUnicastRoutes routes(final IpPrefix prefix, final long label) {
+        final var route = new LabeledUnicastRouteBuilder()
+            .withKey(ROUTE_KEY)
+            .setPrefix(prefix)
+            .setPathId(PATH_ID)
+            .setLabelStack(List.of(new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(label))).build()))
+            .setAttributes(new AttributesBuilder().build()).build();
+        return new LabeledUnicastRoutesBuilder().setLabeledUnicastRoute(Map.of(route.key(), route)).build();
     }
 }
