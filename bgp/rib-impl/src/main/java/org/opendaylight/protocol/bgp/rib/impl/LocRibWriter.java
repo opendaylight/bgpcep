@@ -323,8 +323,12 @@ final class LocRibWriter
 
                     final var routeAfter = route.getDataAfter();
                     verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
-                    entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
-                    totalPathsCounter.increment();
+                    if (route.dataBefore() == null) {
+                        entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
+                        totalPathsCounter.increment();
+                    } else {
+                        entry.updateRoute(routerId, pathId, (MapEntryNode) routeAfter);
+                    }
                 }
                 default -> throw new IllegalStateException("Unhandled route modification " + route);
             }

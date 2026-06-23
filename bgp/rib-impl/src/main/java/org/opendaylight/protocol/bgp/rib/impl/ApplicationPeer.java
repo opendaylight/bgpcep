@@ -277,7 +277,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
                 }
                 case WRITE -> processRouteWrite(child, childIdentifier, tx);
                 default -> {
-                    // FIXME: no-op?
+                    // FIXME: BGPCEP-1113: Handle nested APPEARED and DISAPPEARED route events.
                 }
             }
         }
@@ -287,6 +287,9 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
             final YangInstanceIdentifier childIdentifier, final DOMDataTreeWriteTransaction tx) {
         final var dataAfter = child.dataAfter();
         if (dataAfter != null) {
+            // FIXME: BGPCEP-1113: Validate the configured route key against the canonical NLRI and reconcile
+            // multiple entries mapping to the same on-wire route before writing. Processing each entry independently
+            // can withdraw an advertisement still represented by another entry or make replacement order-dependent.
             LOG.trace("App peer -> AdjRibsIn path : {}", childIdentifier);
             LOG.trace("App peer -> AdjRibsIn data : {}", dataAfter);
             tx.put(LogicalDatastoreType.OPERATIONAL, childIdentifier, dataAfter);
