@@ -276,6 +276,25 @@ public interface RIBSupport<C extends Routes & DataObject & ChoiceIn<Tables>, S 
         return createRouteListArgument(NON_PATH_ID_VALUE, routeKey);
     }
 
+    /**
+     * Determine whether an in-place modification of a route (i.e. one whose list key is unchanged) requires the
+     * previous route to be explicitly withdrawn before the new one is advertised. This is the case for AFI/SAFIs
+     * whose on-wire NLRI identity is derived from route content beyond the route-key, notably BGP Labeled Unicast,
+     * where the label stack is part of the NLRI. For such routes, replacing the content while keeping the route-key
+     * stable (e.g. an application-rib route updated with a new label stack) changes the advertised NLRI, so the
+     * superseded NLRI must be withdrawn or the peer would retain it as a separate route.
+     *
+     * <p>For AFI/SAFIs keyed solely by the prefix the replacement is implicit at the peer, hence the default returns
+     * {@code false}.
+     *
+     * @param before route as it was before the modification
+     * @param after route as it is after the modification
+     * @return {@code true} if {@code before} must be withdrawn before advertising {@code after}
+     */
+    default boolean requiresWithdrawalOnReplace(final @NonNull MapEntryNode before, final @NonNull MapEntryNode after) {
+        return false;
+    }
+
     default @NonNull NodeIdentifierWithPredicates toAddPathListArgument(
             final @NonNull NodeIdentifierWithPredicates routeListKey) {
         return createRouteListArgument(extractPathId(routeListKey), extractRouteKey(routeListKey));
