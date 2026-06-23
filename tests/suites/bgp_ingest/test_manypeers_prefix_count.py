@@ -37,8 +37,8 @@ PREFILL = None
 )
 @pytest.mark.run(order=10)
 class TestManyPeersPrefixCountMixed(BaseTestManyPeerPrefixCount):
-    test_description = (
-        textwrap.dedent("""
+    test_description = textwrap.dedent(
+        """
             **This suite uses play.py processes as multiple iBGP peers.**
 
             This is analogue of single peer performance suite, which uses many \
@@ -87,5 +87,5 @@ class TestManyPeersPrefixCountMixed(BaseTestManyPeerPrefixCount):
 
             **Advanced TODO:** Give manager ability to start pushing on trigger \
             long after connections are established.
-        """)
+        """
     )

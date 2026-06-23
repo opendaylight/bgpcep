@@ -44,7 +44,8 @@ OPENCONFIG_RIB_URI = (
     f"http://{ODL_IP}:{RESTCONF_PORT}/rests/data/"
     f"openconfig-network-instance:network-instances/network-instance=global-bgp/"
     f"openconfig-network-instance:protocols/"
-    f"protocol=openconfig-policy-types%3ABGP,example-bgp-rib")
+    f"protocol=openconfig-policy-types%3ABGP,example-bgp-rib"
+)
 NPATHS_SELM = "n-paths"
 ALLPATHS_SELM = "all-paths"
 ADDPATHCAP_SR = "send\\/receive"
@@ -174,13 +175,15 @@ class TestBgpfunctionalMultipath:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test suite for bgp - n-path and all-path selection**
 
             This suite tests n-path and all-path selection policy. \
             It uses odl and exabgp as bgp peers. Routes advertized from \
             odl are configured via application peer.
-        """)
+        """
+        )
     )
     def test_bgp_functional_multipath(self, allure_step_with_separate_logging):
 

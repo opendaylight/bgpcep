@@ -57,20 +57,24 @@ log = logging.getLogger(__name__)
 class TestBgpfunctionalRtConstrain:
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test suite for bgp - route-target-constrain safi**
 
             This suite tests advertising rt-constrain routes to odl. For advertising \
             from peer, play.py is used, sending hex messages to odl. For advertising \
             to app-peer, we are sending post requests with routes in xml.
-        """)
+        """
+        )
     )
     def test_bgp_functional_rt_constrain(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging("step_configure_app_peer"):
             # Configures bgp application peer.
-        templated_requests.put_templated_request(
-            f"{RT_CONSTRAIN_DIR}/app_peer", RT_CONSTRAIN_APP_PEER_MAPPING, json=False
-        )
+            templated_requests.put_templated_request(
+                f"{RT_CONSTRAIN_DIR}/app_peer",
+                RT_CONSTRAIN_APP_PEER_MAPPING,
+                json=False,
+            )
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"

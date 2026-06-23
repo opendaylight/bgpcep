@@ -48,8 +48,8 @@ log = logging.getLogger(__name__)
 )
 @pytest.mark.run(order=12)
 class TestCasesSinglePcc(BaseTestCases):
-    test_description = (
-        textwrap.dedent("""
+    test_description = textwrap.dedent(
+        """
             **ODL acts as a translation layer between PCEP capable devices and \
             users employing RESTCONF.**
 
@@ -112,5 +112,5 @@ class TestCasesSinglePcc(BaseTestCases):
             Balance precision with overhead.
             **UPDATER_TIMEOUT:** If updater stops itself if running more than \
             this time. (Set this limit according to your performance target.)
-        """)
+        """
     )

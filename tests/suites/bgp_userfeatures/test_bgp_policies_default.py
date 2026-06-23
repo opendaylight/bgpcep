@@ -112,7 +112,8 @@ class TestBgpPoliciesDefault:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Functional test for bgp routing policies**
 
             This suite uses 7 peers: *app peer*, *2x rr-client*, *2x ebgp*, \
@@ -120,7 +121,8 @@ class TestBgpPoliciesDefault:
             respective configurations. Peers 1,2,4,5 are testing multiple ipv4 \
             routes with additional arguments. Peers 3,6 have ipv4 and ipv6 \
             mpls-labeled routes.
-        """)
+        """
+        )
     )
     def test_bgp_policies_default(self, allure_step_with_separate_logging):
 

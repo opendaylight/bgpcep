@@ -40,13 +40,15 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Ensure system works properly with big topologies \
             (100 sessions / 40k LSPs)**
 
             Tests that module for PCEP statistics is able to correctly handle large \
             number of connected PCC devices and reported LSPs.
-        """)
+        """
+        )
     )
     def test_large_scale_topology(self, allure_step_with_separate_logging):
 

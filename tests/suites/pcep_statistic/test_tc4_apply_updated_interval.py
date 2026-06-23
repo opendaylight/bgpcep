@@ -40,7 +40,8 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Ensure interval parameters are applied when PCC is connected**
 
             Tests dynamic reconfiguration of the PCEP statistics timer value. \
@@ -48,7 +49,8 @@ class TestPcepUser:
             between statistics updates is applied immediately. It validates \
             that the next statistics update occurs successfully after \
             the new timer value elapses.
-        """)
+        """
+        )
     )
     def test_apply_updated_interval(self, allure_step_with_separate_logging):
 

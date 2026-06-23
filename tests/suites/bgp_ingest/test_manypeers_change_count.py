@@ -37,8 +37,8 @@ PREFILL = None
 )
 @pytest.mark.run(order=6)
 class TestManyPeersChangeCountMixed(BaseTestManyPeerChangeCount):
-    test_description = (
-        textwrap.dedent("""
+    test_description = textwrap.dedent(
+        """
             **BGP performance of ingesting from many iBGP peers**
 
             Data change counter is used. This suite uses play.py processes as \
@@ -82,5 +82,5 @@ class TestManyPeersChangeCountMixed(BaseTestManyPeerChangeCount):
 
             **Advanced TODO:** Give manager ability to start pushing on trigger \
             long after connections are established.
-        """)
+        """
     )

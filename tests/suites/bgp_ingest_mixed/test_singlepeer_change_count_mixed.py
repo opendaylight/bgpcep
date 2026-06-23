@@ -36,8 +36,8 @@ PREFILL = 10
 )
 @pytest.mark.run(order=3)
 class TestSinglePeerChangeCountMixed(BaseTestSinglePeerChangeCount):
-    test_description = (
-        textwrap.dedent("""
+    test_description = textwrap.dedent(
+        """
             **BGP performance of ingesting from 1 iBGP peer.**
 
             Data change counter is used. This suite uses play.py as single iBGP \
@@ -60,5 +60,5 @@ class TestSinglePeerChangeCountMixed(BaseTestSinglePeerChangeCount):
             *https://wiki.opendaylight.org/view/BGP_LS_PCEP:User_Guide#BGP_Peer*
             *http://docs.opendaylight.org/en/stable-boron/user-guide/\
             bgp-user-guide.html#bgp-peering*
-        """)
+        """
     )

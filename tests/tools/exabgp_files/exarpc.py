@@ -16,6 +16,7 @@ from socketserver import ThreadingMixIn
 
 class ThreadedXMLRPCServer(ThreadingMixIn, SimpleXMLRPCServer):
     """Multi-threaded XMLRPC Server."""
+
     pass
 
 
@@ -214,7 +215,7 @@ def handle_keepalive(storage, msg):
     """
     logging.debug("Handling KeepAlive with")
     with storage as s:
-            logging.debug("storage {}".format(s))
+        logging.debug("storage {}".format(s))
     _increment_counter(storage, "keepalive")
 
 
@@ -256,7 +257,7 @@ def handle_json_update(storage, jdata):
     """
     logging.debug("Handling Json Update with")
     with storage as s:
-            logging.debug("storage {}".format(s))
+        logging.debug("storage {}".format(s))
     _increment_counter(storage, "update")
     _store_last_received_message(storage, "update", jdata)
 
@@ -272,7 +273,7 @@ def handle_json_state(storage, jdata):
     """
     logging.debug("Handling Json State with")
     with storage as s:
-            logging.debug("storage {}".format(s))
+        logging.debug("storage {}".format(s))
 
 
 def handle_json_refresh(storage, jdata):
@@ -343,6 +344,7 @@ def exa_msg_handler(storage, data, encoder):
     else:
         logging.error("Ignoring received data, unknown encoder: {}".format(encoder))
 
+
 def worker_loop(storage, msg_queue, encoder):
     while True:
         data = msg_queue.get()
@@ -354,6 +356,7 @@ def worker_loop(storage, msg_queue, encoder):
             logging.error("Worker exception: {}".format(e))
         finally:
             msg_queue.task_done()
+
 
 def main(*argv):
     """This script is used as i/o api for communication with exabgp
@@ -382,7 +385,7 @@ def main(*argv):
     logging.basicConfig(
         filename=in_args.logfile,
         level=in_args.loglevel,
-        format='%(asctime)s %(levelname)s: %(message)s'
+        format="%(asctime)s %(levelname)s: %(message)s",
     )
 
     storage = ExaStorage()
@@ -394,8 +397,7 @@ def main(*argv):
 
     msg_queue = queue.Queue()
     t_worker = threading.Thread(
-        target=worker_loop,
-        args=(storage, msg_queue, in_args.encoder)
+        target=worker_loop, args=(storage, msg_queue, in_args.encoder)
     )
     t_worker.daemon = True
     t_worker.start()

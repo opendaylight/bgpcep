@@ -60,7 +60,8 @@ class TestBgpAppPeerPrefixCount:
     last_change_count_single = 1
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **BGP performance of ingesting 1 BGP peer from 1 BGP application \
             peer**
 
@@ -90,7 +91,8 @@ class TestBgpAppPeerPrefixCount:
             from BGP application peer via restconf
             **Bug 4791** - BGPSessionImpl: Failed to send message Update logged \
             even all UPDATE mesages received by iBGP peer
-        """)
+        """
+        )
     )
     def test_bgp_app_single_peer_prfix_count(self, allure_step_with_separate_logging):
         with allure_step_with_separate_logging(

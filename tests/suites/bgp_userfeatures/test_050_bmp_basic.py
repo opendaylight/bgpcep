@@ -44,7 +44,8 @@ class TestBmpBasic:
     bmp_mock_process = None
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **This is a basic test for bgp monitoring protocol feature.**
 
             After the feature odl-bgpcep-bmp installation, the port 12345 \
@@ -54,7 +55,8 @@ class TestBmpBasic:
             simulates 1 peer with 1 router, which means it advertizes one peer \
             ipv4 address towards odl. As a result one route should appear in the \
             *rests/data/bmp-monitor:bmp-monitor?content=nonconfig*.
-        """)
+        """
+        )
     )
     def test_bmp_basic(self, allure_step_with_separate_logging):
 
