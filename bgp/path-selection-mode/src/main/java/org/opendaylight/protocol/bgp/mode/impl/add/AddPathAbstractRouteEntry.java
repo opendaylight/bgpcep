@@ -11,8 +11,10 @@ import static com.google.common.base.Verify.verifyNotNull;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
@@ -92,6 +94,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private List<AddPathBestPath> bestPathRemoved;
     private List<AddPathBestPath> newBestPathToBeAdvertised;
     private List<Uint32> removedPathsId;
+    private Set<RouteKey> changedRouteKeys;
 
     private long pathIdCounter = 0L;
     private boolean isNonAddPathBestPathNew;
@@ -107,6 +110,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     public final int addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
         final RouteKey key = new RouteKey(routerId, remotePathId);
         int offset = this.offsets.offsetOf(key);
+        final MapEntryNode oldRoute = offset < 0 ? null : this.offsets.getValue(this.values, offset);
         if (offset < 0) {
             final RouteKeyOffsets newOffsets = this.offsets.with(key);
             offset = newOffsets.offsetOf(key);
@@ -118,6 +122,12 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
             this.offsets.setValue(this.pathsId, offset, Uint32.valueOf(++this.pathIdCounter));
         }
         this.offsets.setValue(this.values, offset, route);
+        if (oldRoute != null && !route.equals(oldRoute)) {
+            if (this.changedRouteKeys == null) {
+                this.changedRouteKeys = new HashSet<>();
+            }
+            this.changedRouteKeys.add(key);
+        }
         LOG.trace("Added route {} from {}", route, routerId);
         return offset;
     }
@@ -230,20 +240,38 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject & 
     private boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
         this.isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
         filterRemovedPaths(newBestPathList);
-        if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty()
-                || newBestPathList != null
-                && !newBestPathList.equals(this.bestPath)) {
+        final boolean bestRouteChanged = this.changedRouteKeys != null && newBestPathList.stream()
+            .map(AddPathBestPath::getRouteKey)
+            .anyMatch(this.changedRouteKeys::contains);
+        final var bestPathChanged = !newBestPathList.equals(this.bestPath);
+        if (this.bestPathRemoved != null && !this.bestPathRemoved.isEmpty() || bestPathChanged || bestRouteChanged) {
             if (this.bestPath != null) {
                 this.newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
                 this.newBestPathToBeAdvertised.removeAll(this.bestPath);
+                if (bestRouteChanged) {
+                    for (final AddPathBestPath path : newBestPathList) {
+                        if (this.changedRouteKeys.contains(path.getRouteKey())
+                                && !this.newBestPathToBeAdvertised.contains(path)) {
+                            this.newBestPathToBeAdvertised.add(path);
+                        }
+                    }
+                }
             } else {
                 this.newBestPathToBeAdvertised = newBestPathList;
             }
             this.bestPath = newBestPathList;
+            clearChangedRouteKeys();
             LOG.trace("Actual Best {}, removed best {}", this.bestPath, this.bestPathRemoved);
             return true;
         }
+        clearChangedRouteKeys();
         return false;
+    }
+
+    private void clearChangedRouteKeys() {
+        if (this.changedRouteKeys != null) {
+            this.changedRouteKeys.clear();
+        }
     }
 
     private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
