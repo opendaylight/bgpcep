@@ -50,6 +50,7 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
+import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
@@ -177,6 +178,32 @@ public class LabeledUnicastIpv4RIBSupportTest extends AbstractRIBSupportTest<Lab
     @Test
     public void testRoutesListClass() {
         assertEquals(LabeledUnicastRoute.class, ribSupport.routesListClass());
+    }
+
+    @Test
+    public void testRequiresWithdrawalOnReplace() {
+        final MapEntryNode base = createRoutes(ROUTES).iterator().next();
+        final MapEntryNode same = createRoutes(routes(IPV4_PREFIX, 355)).iterator().next();
+        final MapEntryNode labelChanged = createRoutes(routes(IPV4_PREFIX, 900)).iterator().next();
+        final MapEntryNode prefixChanged =
+            createRoutes(routes(new IpPrefix(new Ipv4Prefix("10.0.1.0/24")), 355)).iterator().next();
+
+        // A label-stack change on a route whose key stays stable must trigger a withdrawal of the old NLRI.
+        assertTrue(ribSupport.requiresWithdrawalOnReplace(base, labelChanged));
+        // A prefix change with the same label must also trigger a withdrawal: the prefix is part of the NLRI.
+        assertTrue(ribSupport.requiresWithdrawalOnReplace(base, prefixChanged));
+        // An identical replacement (same prefix and labels) must not.
+        assertFalse(ribSupport.requiresWithdrawalOnReplace(base, same));
+    }
+
+    private static LabeledUnicastRoutes routes(final IpPrefix prefix, final long label) {
+        final LabeledUnicastRoute route = new LabeledUnicastRouteBuilder()
+            .withKey(ROUTE_KEY)
+            .setPrefix(prefix)
+            .setPathId(PATH_ID)
+            .setLabelStack(List.of(new LabelStackBuilder().setLabelValue(new MplsLabel(Uint32.valueOf(label))).build()))
+            .setAttributes(new AttributesBuilder().build()).build();
+        return new LabeledUnicastRoutesBuilder().setLabeledUnicastRoute(Map.of(route.key(), route)).build();
     }
 
     @Test
