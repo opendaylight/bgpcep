@@ -125,7 +125,8 @@ class TestIbgpPeersBasic:
         )
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             Test suite performs basic BGP functional test cases for BGP application \
             peer operations and checks for IP4 topology updates and updates towards \
             BGP peer as follows:
@@ -152,7 +153,8 @@ class TestIbgpPeersBasic:
             default cluster-id and second cluster-id from first peers configuration.
 
             For polices see: *https://wiki.opendaylight.org/view/BGP_LS_PCEP:BGP*
-        """)
+        """
+        )
     )
     def test_ibgp_peers_basic(self, allure_step_with_separate_logging):
 
