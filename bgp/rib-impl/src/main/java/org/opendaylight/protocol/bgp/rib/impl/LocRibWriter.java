@@ -301,8 +301,12 @@ final class LocRibWriter
                         entry = createEntry(routeKey);
                     }
 
-                    entry.addRoute(routerId, pathId, routeAfter);
-                    totalPathsCounter.increment();
+                    if (route.dataBefore() == null) {
+                        entry.addRoute(routerId, pathId, routeAfter);
+                        totalPathsCounter.increment();
+                    } else {
+                        entry.updateRoute(routerId, pathId, routeAfter);
+                    }
                     yield entry;
                 }
             };
