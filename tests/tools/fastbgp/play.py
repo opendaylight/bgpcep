@@ -944,7 +944,7 @@ class MessageGenerator(object):
             bgp_identifier = self.bgp_identifier_default
 
         # Marker
-        marker_hex = b"\xFF" * 16
+        marker_hex = b"\xff" * 16
 
         # Type
         type = 1
@@ -1294,7 +1294,7 @@ class MessageGenerator(object):
         ls_nlri.update(ls_nlri_params)
 
         # Marker
-        marker_hex = b"\xFF" * 16
+        marker_hex = b"\xff" * 16
 
         # Type
         type = 2
@@ -1520,7 +1520,7 @@ class MessageGenerator(object):
         """
 
         # Marker
-        marker_hex = b"\xFF" * 16
+        marker_hex = b"\xff" * 16
 
         # Type
         type = 3
@@ -1599,7 +1599,7 @@ class MessageGenerator(object):
         """
 
         # Marker
-        marker_hex = b"\xFF" * 16
+        marker_hex = b"\xff" * 16
 
         # Type
         type = 4
@@ -2479,7 +2479,7 @@ class Rpcs:
         self.queues = sendqueues
         self.storages = storages
 
-    def send(self, text, peer_id = 0):
+    def send(self, text, peer_id=0):
         """Data to be sent
 
         Arguments:
@@ -2488,7 +2488,7 @@ class Rpcs:
         """
         self.queues[peer_id].put(text)
 
-    def get(self, text="", peer_id = 0):
+    def get(self, text="", peer_id=0):
         """Reads data form the storage
 
         - returns stored data or an empty string, at the moment only
@@ -2503,7 +2503,7 @@ class Rpcs:
         with self.storages[peer_id] as stor:
             return stor.get(text, "")
 
-    def clean(self, text="", peer_id = None):
+    def clean(self, text="", peer_id=None):
         """Cleans data form the storage
 
         Arguments:
@@ -2521,7 +2521,6 @@ class Rpcs:
                 with storage as stor:
                     if text in stor:
                         del stor[text]
-
 
 
 def threaded_job(arguments):

@@ -36,8 +36,8 @@ PREFILL = 10
 )
 @pytest.mark.run(order=2)
 class TestSinglePeerPrefixCount(BaseTestSinglePeerPrefixCount):
-    test_description = (
-        textwrap.dedent("""
+    test_description = textwrap.dedent(
+        """
             **This suite uses play.py as single iBGP peer.**
 
             The suite only looks at example-ipv4-topology, so RIB is not \
@@ -59,5 +59,5 @@ class TestSinglePeerPrefixCount(BaseTestSinglePeerPrefixCount):
             would be required. The prefix counting is quite heavyweight and may \
             induce large variation in time. Try the other version of the suite \
             (test_singlepeer_change_count.py) to get better precision.
-        """)
+        """
     )

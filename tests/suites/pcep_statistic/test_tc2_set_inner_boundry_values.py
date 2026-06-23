@@ -37,13 +37,15 @@ class TestPcepUser:
     pcc_mock_process = None
 
     @allure.description(
-        textwrap.dedent("""
+        textwrap.dedent(
+            """
             **Ensure system allows to set inner boundary values for delay interval**
 
             Tests that PCEP statistics timer can be updated to valid boundary \
             values. It tries to set the minimal and maximal allowed values \
             and expects a success response from ODL.
-        """)
+        """
+        )
     )
     def test_set_inner_boundry_values(self, allure_step_with_separate_logging):
 
