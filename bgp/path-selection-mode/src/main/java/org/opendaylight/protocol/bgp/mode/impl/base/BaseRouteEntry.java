@@ -59,6 +59,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S e
     private MapEntryNode[] values = EMPTY_VALUES;
     private BaseBestPath bestPath = null;
     private BaseBestPath removedBestPath;
+    private boolean bestRouteChanged;
 
     @Override
     public boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
@@ -90,7 +91,7 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S e
 
         // Get the newly-selected best path.
         final BaseBestPath newBestPath = selector.result();
-        final boolean modified = newBestPath == null || !newBestPath.equals(bestPath);
+        final boolean modified = newBestPath == null || !newBestPath.equals(bestPath) || bestRouteChanged;
         if (modified) {
             if (offsets.isEmpty()) {
                 removedBestPath = bestPath;
@@ -98,12 +99,14 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S e
             LOG.trace("Previous best {}, current best {}", bestPath, newBestPath);
             bestPath = newBestPath;
         }
+        bestRouteChanged = false;
         return modified;
     }
 
     @Override
     public int addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
         int offset = offsets.offsetOf(routerId);
+        final MapEntryNode oldRoute = offset < 0 ? null : offsets.getValue(values, offset);
         if (offset < 0) {
             final RouterIdOffsets newOffsets = offsets.with(routerId);
             offset = newOffsets.offsetOf(routerId);
@@ -113,6 +116,9 @@ final class BaseRouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S e
         }
 
         offsets.setValue(values, offset, route);
+        if (bestPath != null && bestPath.getRouterId().equals(routerId) && !route.equals(oldRoute)) {
+            bestRouteChanged = true;
+        }
         LOG.trace("Added route {} from {}", route, routerId);
         return offset;
     }
