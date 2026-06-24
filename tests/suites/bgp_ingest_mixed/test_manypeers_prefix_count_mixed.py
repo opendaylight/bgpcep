@@ -14,6 +14,7 @@ import textwrap
 import pytest
 
 from suites.base_test_manypeers_prefix_count import BaseTestManyPeerPrefixCount
+from suites.suite_order import SuiteOrder
 
 
 COUNT_PREFIX_COUNT_MANY = 200_000
@@ -35,7 +36,7 @@ PREFILL = 10
     "bgp_peers_count, count_prefix_count_many, insert, withdraw, prefill",
     [(BGP_PEERS_COUNT, COUNT_PREFIX_COUNT_MANY, INSERT, WITHDRAW, PREFILL)],
 )
-@pytest.mark.run(order=10)
+@pytest.mark.run(order=SuiteOrder.BGP_INGEST_MIXED_MANYPEERS_PREFIX_COUNT)
 class TestManyPeersPrefixCountMixed(BaseTestManyPeerPrefixCount):
     test_description = textwrap.dedent(
         """

@@ -20,6 +20,7 @@ from libraries import infra
 from libraries import templated_requests
 from libraries import utils
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 BGP_PEERS_COUNT = 70
@@ -61,7 +62,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
-@pytest.mark.run(order=74)
+@pytest.mark.run(order=SuiteOrder.BGP_USER_MANY_RT_CONSTRAIN_VALIDATION)
 class TestBgpfunctionalRtConstrainValidation:
 
     def start_bgp_peer(self, ip, as_number, port, multiplicity, filename):

@@ -20,6 +20,7 @@ from libraries import infra
 from libraries import templated_requests
 from libraries import utils
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 TOOLS_IP = variables.TOOLS_IP
@@ -39,7 +40,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.run(order=38)
+@pytest.mark.run(order=SuiteOrder.BGP_USER_BMP)
 class TestBmpBasic:
     bmp_mock_process = None
 

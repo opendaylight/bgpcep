@@ -19,6 +19,7 @@ from libraries import bgp
 from libraries import prefix_counting
 from libraries import utils
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 PREFIXES_COUNT = 300_000
@@ -53,7 +54,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
-@pytest.mark.run(order=1)
+@pytest.mark.run(order=SuiteOrder.BGP_INGEST_PC_SHM_300K)
 class TestSinglePeer300KRoutes:
     bgp_speaker_process = None
 

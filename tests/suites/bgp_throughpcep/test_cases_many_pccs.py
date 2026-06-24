@@ -15,6 +15,7 @@ import textwrap
 import pytest
 
 from suites.base_test_cases import BaseTestCases
+from suites.suite_order import SuiteOrder
 
 
 LSPS = 400
@@ -46,7 +47,7 @@ log = logging.getLogger(__name__)
         )
     ],
 )
-@pytest.mark.run(order=13)
+@pytest.mark.run(order=SuiteOrder.BGP_THROUGHPCEP_MANY_PCCS)
 class TestCasesManyPccs(BaseTestCases):
     test_description = textwrap.dedent(
         """

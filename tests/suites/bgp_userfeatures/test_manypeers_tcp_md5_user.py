@@ -21,6 +21,7 @@ from libraries import utils
 from libraries import templated_requests
 from variables.tcpmd5user.titanium import variables as tcpmd5_variables
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 PCCS = 150
@@ -41,7 +42,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
-@pytest.mark.run(order=76)
+@pytest.mark.run(order=SuiteOrder.BGP_USER_MANY_TCP_MD5)
 class TestTcpMd5User:
     pcep_mock_process = None
 
