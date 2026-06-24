@@ -13,6 +13,7 @@ import pytest
 import textwrap
 
 from suites.base_test_singlepeer_prefix_count import BaseTestSinglePeerPrefixCount
+from suites.suite_order import SuiteOrder
 
 
 COUNT_PREFIX_COUNT_SINGLE = 600_000
@@ -33,7 +34,7 @@ PREFILL = 0
     "count_prefix_count_single, insert, withdraw, prefill",
     [(COUNT_PREFIX_COUNT_SINGLE, INSERT, WITHDRAW, PREFILL)],
 )
-@pytest.mark.run(order=2)
+@pytest.mark.run(order=SuiteOrder.BGP_INGEST_SINGLEPEER_PREFIX_COUNT)
 class TestSinglePeerPrefixCount(BaseTestSinglePeerPrefixCount):
     test_description = textwrap.dedent(
         """

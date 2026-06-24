@@ -16,6 +16,7 @@ import time
 from libraries import pcep
 from libraries import utils
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 DEFAULT_PCEP_STATS_UPDATE_INTERVAL = variables.DEFAULT_PCEP_STATS_UPDATE_INTERVAL
@@ -37,7 +38,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_pcep_pcc_mock_processes")
-@pytest.mark.run(order=82)
+@pytest.mark.run(order=SuiteOrder.PCEP_STAT_TC6)
 class TestPcepUser:
     pcc_mock_process = None
 
