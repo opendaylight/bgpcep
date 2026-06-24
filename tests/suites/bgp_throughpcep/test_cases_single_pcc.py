@@ -15,6 +15,7 @@ import logging
 import pytest
 
 from suites.base_test_cases import BaseTestCases
+from suites.suite_order import SuiteOrder
 
 
 LSPS = 65535
@@ -46,7 +47,7 @@ log = logging.getLogger(__name__)
         )
     ],
 )
-@pytest.mark.run(order=12)
+@pytest.mark.run(order=SuiteOrder.BGP_THROUGHPCEP_SINGLE_PCC)
 class TestCasesSinglePcc(BaseTestCases):
     test_description = textwrap.dedent(
         """
