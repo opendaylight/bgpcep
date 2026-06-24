@@ -14,6 +14,7 @@ import pytest
 
 from libraries import pcep
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 BELOW_MIN_TIMER_VALUE = 0
@@ -33,7 +34,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.run(order=79)
+@pytest.mark.run(order=SuiteOrder.PCEP_STAT_TC3)
 class TestPcepUser:
     pcc_mock_process = None
 

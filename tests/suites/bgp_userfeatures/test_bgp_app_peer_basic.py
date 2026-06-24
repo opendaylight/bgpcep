@@ -20,6 +20,7 @@ from libraries import infra
 from libraries import templated_requests
 from libraries import utils
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 ODL_IP = variables.ODL_IP
@@ -93,7 +94,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
 @pytest.mark.usefixtures("teardown_kill_all_running_bgp_app_peer_script_processes")
-@pytest.mark.run(order=43)
+@pytest.mark.run(order=SuiteOrder.BGP_USER_APP_PEER)
 class TestBgpAppPeerBasic:
     bgp_peer_process = None
 
