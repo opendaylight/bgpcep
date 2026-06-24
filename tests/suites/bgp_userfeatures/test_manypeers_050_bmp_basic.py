@@ -20,6 +20,7 @@ from libraries import infra
 from libraries import templated_requests
 from libraries import utils
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 BMP_ROUTERS_COUNT = 1
@@ -41,7 +42,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("preconditions")
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
-@pytest.mark.run(order=59)
+@pytest.mark.run(order=SuiteOrder.BGP_USER_MANY_BMP)
 class TestBmpBasic:
     bmp_mock_process = None
 
