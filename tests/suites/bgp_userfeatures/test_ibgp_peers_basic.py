@@ -21,6 +21,7 @@ from libraries import templated_requests
 from libraries import prefix_counting
 from libraries import utils
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 ODL_IP = variables.ODL_IP
@@ -54,7 +55,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
-@pytest.mark.run(order=47)
+@pytest.mark.run(order=SuiteOrder.BGP_USER_IBGP_PEERS)
 class TestIbgpPeersBasic:
     bgp_peer1_process = None
     bgp_peer2_process = None

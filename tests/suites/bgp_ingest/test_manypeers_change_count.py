@@ -14,6 +14,7 @@ import textwrap
 import pytest
 
 from suites.base_test_manypeers_change_count import BaseTestManyPeerChangeCount
+from suites.suite_order import SuiteOrder
 
 
 COUNT_CHANGE_COUNT_MANY = 600_000
@@ -35,7 +36,7 @@ PREFILL = None
     "bgp_peers_count, count_change_count_many, insert, withdraw, prefill",
     [(BGP_PEERS_COUNT, COUNT_CHANGE_COUNT_MANY, INSERT, WITHDRAW, PREFILL)],
 )
-@pytest.mark.run(order=6)
+@pytest.mark.run(order=SuiteOrder.BGP_INGEST_MANYPEERS_CHANGE_COUNT)
 class TestManyPeersChangeCountMixed(BaseTestManyPeerChangeCount):
     test_description = textwrap.dedent(
         """

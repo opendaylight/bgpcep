@@ -20,6 +20,7 @@ from libraries import infra
 from libraries import templated_requests
 from libraries import utils
 from libraries.variables import variables
+from suites.suite_order import SuiteOrder
 
 
 ODL_IP = variables.ODL_IP
@@ -49,7 +50,7 @@ log = logging.getLogger(__name__)
 @pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
 @pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_exabgp_processes")
-@pytest.mark.run(order=51)
+@pytest.mark.run(order=SuiteOrder.BGP_USER_ROUTE_REF)
 class TestBgpfunctionalRouteRef:
     exabgp_process = None
 
