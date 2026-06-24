@@ -14,6 +14,7 @@ import textwrap
 import pytest
 
 from suites.base_test_singlepeer_change_count import BaseTestSinglePeerChangeCount
+from suites.suite_order import SuiteOrder
 
 
 COUNT_CHANGE_COUNT_SINGLE = 600_000
@@ -34,7 +35,7 @@ WITHDRAW = 0
     "count_change_count_single, insert, withdraw, prefill",
     [(COUNT_CHANGE_COUNT_SINGLE, INSERT, WITHDRAW, PREFILL)],
 )
-@pytest.mark.run(order=3)
+@pytest.mark.run(order=SuiteOrder.BGP_INGEST_SINGLEPEER_CHANGE_COUNT)
 class TestSinglePeerChangeCountMixed(BaseTestSinglePeerChangeCount):
     test_description = textwrap.dedent(
         """
