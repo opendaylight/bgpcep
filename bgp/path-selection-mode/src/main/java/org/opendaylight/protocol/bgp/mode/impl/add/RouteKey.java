@@ -42,15 +42,8 @@ final class RouteKey implements Comparable<RouteKey>, Immutable {
 
     @Override
     public boolean equals(final @Nullable Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof RouteKey)) {
-            return false;
-        }
-
-        final RouteKey other = (RouteKey) obj;
-        return remotePathId == other.remotePathId && routerId.equals(other.routerId);
+        return this == obj || obj instanceof RouteKey other
+            && remotePathId == other.remotePathId && routerId.equals(other.routerId);
     }
 
     @Override
