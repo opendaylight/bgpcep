@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4b3ed8ed_c6269f45",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-06-25T07:55:22Z",
+      "side": 1,
+      "message": "registerPeer() now invokes listeners synchronously, but BGPPeer calls it while holding synchronized (BGPPeer.this). The new listener enters synchronized LocRibWriter.onPeerAdded(), while a concurrent LocRibWriter.onDataTreeChanged() can already hold the writer lock and call synchronized peer.refreshRibOut(). That creates a BGPPeer -\u003e LocRibWriter / LocRibWriter -\u003e BGPPeer lock-order inversion and can deadlock.",
+      "revId": "d8a92ef4b4d97d9452919f09a51fc5f30276fbc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
