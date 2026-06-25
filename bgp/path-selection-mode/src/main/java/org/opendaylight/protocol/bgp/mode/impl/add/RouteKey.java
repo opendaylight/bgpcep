@@ -52,8 +52,7 @@ final class RouteKey implements Comparable<RouteKey>, Immutable {
 
     @Override
     public int compareTo(final RouteKey otherRouteKey) {
-        int cmp;
-        return (cmp = routerId.compareTo(otherRouteKey.routerId)) != 0 ? cmp
-                : Long.compare(remotePathId, otherRouteKey.remotePathId);
+        final int cmp = routerId.compareTo(otherRouteKey.routerId);
+        return cmp != 0 ? cmp : Long.compare(remotePathId, otherRouteKey.remotePathId);
     }
 }
