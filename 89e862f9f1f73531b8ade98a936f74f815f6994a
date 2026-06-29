@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f339f371_f3ec5cbd",
+        "filename": "bgp/extensions/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/AbstractLabeledUnicastRIBSupport.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-06-29T13:16:30Z",
+      "side": 1,
+      "message": "interface params are already @NonNull",
+      "parentUuid": "865d6988_1d3e7df1",
+      "revId": "89e862f9f1f73531b8ade98a936f74f815f6994a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fee76024_973d0f70",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a9919c98_0752198b",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-06-29T13:16:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fee76024_973d0f70",
+      "revId": "89e862f9f1f73531b8ade98a936f74f815f6994a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4e1d98bf_366ad252",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-06-29T12:01:05Z",
       "side": 1,
       "message": "getFirst()",
+      "revId": "89e862f9f1f73531b8ade98a936f74f815f6994a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f6554e3_764576c7",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/add/all/paths/AllPathsRouteEntryTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-06-29T13:16:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4e1d98bf_366ad252",
       "revId": "89e862f9f1f73531b8ade98a936f74f815f6994a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
