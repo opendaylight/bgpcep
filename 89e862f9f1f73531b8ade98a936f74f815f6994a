@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "865d6988_1d3e7df1",
+        "filename": "bgp/extensions/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/AbstractLabeledUnicastRIBSupport.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 9136
+      },
+      "writtenOn": "2026-06-29T12:01:05Z",
+      "side": 1,
+      "message": "Missing @NonNull",
+      "revId": "89e862f9f1f73531b8ade98a936f74f815f6994a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fee76024_973d0f70",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 9136
+      },
+      "writtenOn": "2026-06-29T12:01:05Z",
+      "side": 1,
+      "message": "Either use var or boolean in the code added, do not mix it. (bestPathChanged)",
+      "revId": "89e862f9f1f73531b8ade98a936f74f815f6994a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4e1d98bf_366ad252",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/add/all/paths/AllPathsRouteEntryTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 9136
+      },
+      "writtenOn": "2026-06-29T12:01:05Z",
+      "side": 1,
+      "message": "getFirst()",
+      "revId": "89e862f9f1f73531b8ade98a936f74f815f6994a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
