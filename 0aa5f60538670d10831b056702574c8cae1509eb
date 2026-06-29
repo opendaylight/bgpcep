@@ -39,6 +39,30 @@
       },
       "revId": "0aa5f60538670d10831b056702574c8cae1509eb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fe580eb_a30ac251",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-06-29T11:58:22Z",
+      "side": 1,
+      "message": "Correct, DOMDataBroker.createMergingTransactionChain() is used here, but each peer creates its own instance in [BGPPeer#onSessionUp](https://github.com/opendaylight/bgpcep/blob/v2.0.0/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java#L377). In toPeer.refreshRibOut we build and commit one transaction per peer, each on its own MergingTransactionChain, so no two commit transactions here share the same instance of MergingTransactionChain.",
+      "parentUuid": "a899540f_5702ea1a",
+      "range": {
+        "startLine": 356,
+        "startChar": 12,
+        "endLine": 357,
+        "endChar": 54
+      },
+      "revId": "0aa5f60538670d10831b056702574c8cae1509eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
