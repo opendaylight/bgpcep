@@ -22,24 +22,36 @@ public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @GuardedBy("this")
     private final HashMap<PeerId, Peer> peers = new HashMap<>();
 
-    private ImmutableList<Peer> peersList;
-    private ImmutableList<Peer> peersFilteredList;
+    @GuardedBy("this")
+    private ImmutableList<Peer> peersList = ImmutableList.of();
+    @GuardedBy("this")
+    private ImmutableList<Peer> peersFilteredList = ImmutableList.of();
 
     @Override
-    public synchronized Registration registerPeer(final Peer peer) {
-        peers.put(peer.getPeerId(), peer);
-        peersList = ImmutableList.copyOf(peers.values());
-        peersFilteredList = peers.values().stream()
-                .filter(p1 -> p1.getRole() != PeerRole.Internal)
-                .collect(ImmutableList.toImmutableList());
+    public Registration registerPeer(final Peer peer) {
+        final var peerId = peer.getPeerId();
+        synchronized (this) {
+            peers.put(peerId, peer);
+            rebuildSnapshots();
+        }
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (BGPPeerTrackerImpl.this) {
-                    peers.remove(peer.getPeerId());
+                    if (peers.remove(peerId, peer)) {
+                        rebuildSnapshots();
+                    }
                 }
             }
         };
+    }
+
+    @GuardedBy("this")
+    private void rebuildSnapshots() {
+        peersList = ImmutableList.copyOf(peers.values());
+        peersFilteredList = peers.values().stream()
+            .filter(peer -> PeerRole.Internal != peer.getRole())
+            .collect(ImmutableList.toImmutableList());
     }
 
     @Override
