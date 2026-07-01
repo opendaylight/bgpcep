@@ -16,6 +16,52 @@
       "message": "Comparing attributes is an inherently slow operation, which effectively means we are trading CPU cycles for memory.\n\nHaving 70 peers certainly does not qualify as a typical deployment scenario and we can reasonably require heap to be adjusted accordingly.",
       "revId": "7f3e3dee0858ec8f5dbc226fcdb33c09e1fc0d4f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0363217_28396a1b",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/entry/AbstractAdvertizedRoute.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-07-01T10:10:22Z",
+      "side": 1,
+      "message": "oh, come on, really?!",
+      "range": {
+        "startLine": 29,
+        "startChar": 77,
+        "endLine": 29,
+        "endChar": 79
+      },
+      "revId": "7f3e3dee0858ec8f5dbc226fcdb33c09e1fc0d4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44ba7cc9_cb32b354",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/entry/AbstractAdvertizedRoute.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-07-01T10:10:22Z",
+      "side": 1,
+      "message": "TOCTOU: concurrent invocations will result in two routes being created",
+      "range": {
+        "startLine": 107,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 30
+      },
+      "revId": "7f3e3dee0858ec8f5dbc226fcdb33c09e1fc0d4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
