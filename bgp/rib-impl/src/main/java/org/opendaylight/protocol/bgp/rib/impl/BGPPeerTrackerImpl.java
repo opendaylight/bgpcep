@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
@@ -22,38 +23,50 @@ import org.opendaylight.yangtools.concepts.Registration;
 public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @GuardedBy("this")
     private final Map<PeerId, Peer> peers = new HashMap<>();
-    private ImmutableList<Peer> peersList;
-    private ImmutableList<Peer> peersFilteredList;
+    @GuardedBy("this")
+    private ImmutableList<Peer> peersList = ImmutableList.of();
+    @GuardedBy("this")
+    private ImmutableList<Peer> peersFilteredList = ImmutableList.of();
 
     @Override
-    public synchronized Registration registerPeer(final Peer peer) {
-        this.peers.put(peer.getPeerId(), peer);
-        this.peersList = ImmutableList.copyOf(this.peers.values());
-        this.peersFilteredList = this.peers.values().stream()
-                .filter(p1 -> p1.getRole() != PeerRole.Internal)
-                .collect(ImmutableList.toImmutableList());
+    public Registration registerPeer(final Peer peer) {
+        final var peerId = peer.getPeerId();
+        synchronized (this) {
+            peers.put(peerId, peer);
+            rebuildSnapshots();
+        }
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (BGPPeerTrackerImpl.this) {
-                    BGPPeerTrackerImpl.this.peers.remove(peer.getPeerId());
+                    if (peers.remove(peerId, peer)) {
+                        rebuildSnapshots();
+                    }
                 }
             }
         };
     }
 
+    @Holding("this")
+    private void rebuildSnapshots() {
+        peersList = ImmutableList.copyOf(peers.values());
+        peersFilteredList = peers.values().stream()
+            .filter(peer -> PeerRole.Internal != peer.getRole())
+            .collect(ImmutableList.toImmutableList());
+    }
+
     @Override
     public synchronized Peer getPeer(final PeerId peerId) {
-        return this.peers.get(peerId);
+        return peers.get(peerId);
     }
 
     @Override
     public synchronized List<Peer> getPeers() {
-        return this.peersList;
+        return peersList;
     }
 
     @Override
     public synchronized List<Peer> getNonInternalPeers() {
-        return this.peersFilteredList;
+        return peersFilteredList;
     }
 }
