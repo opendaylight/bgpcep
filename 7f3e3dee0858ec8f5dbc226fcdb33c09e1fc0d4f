@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e80a7373_b41a478c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 11
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-07-01T10:07:33Z",
+      "side": 1,
+      "message": "Comparing attributes is an inherently slow operation, which effectively means we are trading CPU cycles for memory.\n\nHaving 70 peers certainly does not qualify as a typical deployment scenario and we can reasonably require heap to be adjusted accordingly.",
+      "revId": "7f3e3dee0858ec8f5dbc226fcdb33c09e1fc0d4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
