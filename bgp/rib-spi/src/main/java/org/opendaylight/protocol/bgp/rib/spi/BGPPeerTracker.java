@@ -24,7 +24,7 @@ public interface BGPPeerTracker {
      * @param peer Peer
      * @return registration tickets
      */
-    Registration registerPeer(@NonNull Peer peer);
+    @NonNull Registration registerPeer(@NonNull Peer peer);
 
     /**
      * Returns Peer.
