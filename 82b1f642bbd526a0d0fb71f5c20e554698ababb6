@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfeaf42a_f65f5868",
+        "filename": "tests/suites/bgp_userfeatures/test_tcp_md5_user.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-07-01T12:03:22Z",
+      "side": 1,
+      "message": "Just a quick clarification — shouldn\u0027t this be marked as `functional` rather than performance?\n\nIt\u0027s a single-PCC/single-LSP auth test that (I think?) mirrors test_pcepuser.py, which is functional+single_device.\n\nAlso the test_manypeers_tcp_md5_user.py seems like the performance variant. As performance it\u0027s excluded from both the default smoke run and any -m functional runs.\n\n(just asking for clarification)",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 24
+      },
+      "revId": "82b1f642bbd526a0d0fb71f5c20e554698ababb6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
