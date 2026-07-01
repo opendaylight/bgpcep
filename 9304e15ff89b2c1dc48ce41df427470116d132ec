@@ -50,6 +50,23 @@
       "message": "Make removeRegistration() recompute peersList/peersFilteredList from peers (same as registerPeer does), or store an immutable Map snapshot rebuilt on both add and remove.",
       "revId": "9304e15ff89b2c1dc48ce41df427470116d132ec",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2ba7f5dc_aa1fa7b5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 146,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-01T11:57:46Z",
+      "side": 1,
+      "message": "here, are we sending two messages? can we combine them?",
+      "revId": "9304e15ff89b2c1dc48ce41df427470116d132ec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
