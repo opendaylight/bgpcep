@@ -23,7 +23,7 @@ public interface BGPPeerTracker {
      * @param peer Peer
      * @return registration tickets
      */
-    Registration registerPeer(@NonNull Peer peer);
+    @NonNull Registration registerPeer(@NonNull Peer peer);
 
     /**
      * Returns Peer.
@@ -34,18 +34,16 @@ public interface BGPPeerTracker {
     @Nullable Peer getPeer(@NonNull PeerId peerId);
 
     /**
-     * Returns map of PeerId per PeerRole.
-     * Role with none peerId will be filtered.
+     * Returns all registered peers.
      *
-     * @return Returns map of Peer group by PeerRole
+     * @return all registered peers
      */
     @NonNull List<Peer> getPeers();
 
     /**
-     * Returns map of PeerId per PeerRole, filtering internal Peers.
-     * Role with none peerId will be filtered.
+     * Returns all registered peers except those with the Internal role.
      *
-     * @return Returns map of Peer group by PeerRole
+     * @return all registered non-internal peers
      */
     @NonNull List<Peer> getNonInternalPeers();
 }
