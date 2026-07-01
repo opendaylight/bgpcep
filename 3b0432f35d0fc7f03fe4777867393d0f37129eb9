@@ -55,6 +55,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f7f844cd_252703d3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-01T11:48:18Z",
+      "side": 1,
+      "message": "Commit: 3b0432f35d\nIssue: removeRegistration() only does peers.remove(...) and never recomputes peersList/peersFilteredList — an unregistered peer keeps appearing in\n  getPeers()/getNonInternalPeers() until some other peer next registers. Pre-existing, but this commit adds a new, easy-to-hit trigger for it (see next row) and is\n  already restructuring this exact method.\nSeverity: Major\nRecommendation: Recompute peersList/peersFilteredList from peers inside removeRegistration(), same as registerPeer() does.",
+      "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a6fffb97_6ec65b19",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
         "patchSetId": 6
