@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
@@ -30,21 +32,19 @@ public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     private final Map<PeerId, Peer> peers = new HashMap<>();
     @GuardedBy("this")
     private final List<Consumer<Peer>> peerAddedListeners = new ArrayList<>();
-
-    private ImmutableList<Peer> peersList;
-    private ImmutableList<Peer> peersFilteredList;
+    @GuardedBy("this")
+    private ImmutableList<Peer> peersList = ImmutableList.of();
+    @GuardedBy("this")
+    private ImmutableList<Peer> peersFilteredList = ImmutableList.of();
 
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public Registration registerPeer(final Peer peer) {
+    public @NonNull Registration registerPeer(final Peer peer) {
         final List<Consumer<Peer>> listeners;
         synchronized (this) {
-            this.peers.put(peer.getPeerId(), peer);
-            this.peersList = ImmutableList.copyOf(this.peers.values());
-            this.peersFilteredList = this.peers.values().stream()
-                .filter(p1 -> p1.getRole() != PeerRole.Internal)
-                .collect(ImmutableList.toImmutableList());
-            listeners = ImmutableList.copyOf(this.peerAddedListeners);
+            peers.put(peer.getPeerId(), peer);
+            rebuildSnapshots();
+            listeners = ImmutableList.copyOf(peerAddedListeners);
         }
         // Notify outside the lock so a listener may call back into this tracker without risking a deadlock.
         for (final var listener : listeners) {
@@ -60,10 +60,19 @@ public final class BGPPeerTrackerImpl implements BGPPeerTracker {
             @Override
             protected void removeRegistration() {
                 synchronized (BGPPeerTrackerImpl.this) {
-                    BGPPeerTrackerImpl.this.peers.remove(peer.getPeerId());
+                    peers.remove(peer.getPeerId());
+                    rebuildSnapshots();
                 }
             }
         };
+    }
+
+    @Holding("this")
+    private void rebuildSnapshots() {
+        peersList = ImmutableList.copyOf(peers.values());
+        peersFilteredList = peers.values().stream()
+            .filter(peer -> PeerRole.Internal != peer.getRole())
+            .collect(ImmutableList.toImmutableList());
     }
 
     @Override
@@ -83,16 +92,16 @@ public final class BGPPeerTrackerImpl implements BGPPeerTracker {
 
     @Override
     public synchronized Peer getPeer(final PeerId peerId) {
-        return this.peers.get(peerId);
+        return peers.get(peerId);
     }
 
     @Override
     public synchronized List<Peer> getPeers() {
-        return this.peersList;
+        return peersList;
     }
 
     @Override
     public synchronized List<Peer> getNonInternalPeers() {
-        return this.peersFilteredList;
+        return peersFilteredList;
     }
 }
