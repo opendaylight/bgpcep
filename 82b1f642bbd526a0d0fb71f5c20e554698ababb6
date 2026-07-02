@@ -22,6 +22,30 @@
       },
       "revId": "82b1f642bbd526a0d0fb71f5c20e554698ababb6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "09607e69_38650eb0",
+        "filename": "tests/suites/bgp_userfeatures/test_tcp_md5_user.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-02T11:31:08Z",
+      "side": 1,
+      "message": "Yes, you are right.",
+      "parentUuid": "cfeaf42a_f65f5868",
+      "range": {
+        "startLine": 34,
+        "startChar": 0,
+        "endLine": 34,
+        "endChar": 24
+      },
+      "revId": "82b1f642bbd526a0d0fb71f5c20e554698ababb6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
