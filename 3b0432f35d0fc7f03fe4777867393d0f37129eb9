@@ -87,6 +87,42 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71723b2d_2e29db7e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-03T09:08:44Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "e0dc804f_432dc18e",
+      "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6a88ba4_20c10a09",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-03T09:08:44Z",
+      "side": 1,
+      "message": "Resolved in separate task:\nhttps://git.opendaylight.org/gerrit/c/bgpcep/+/123831",
+      "parentUuid": "f7f844cd_252703d3",
+      "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a6fffb97_6ec65b19",
@@ -100,6 +136,24 @@
       "writtenOn": "2026-07-01T11:26:59Z",
       "side": 1,
       "message": "less 4 spaces, please",
+      "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "231cb771_40fc1584",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-03T09:08:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a6fffb97_6ec65b19",
       "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -121,6 +175,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dee85b80_68af77e3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-03T09:08:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ea9d931a_67f68db3",
+      "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "64104785_ab96ec11",
@@ -138,6 +210,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd5cd123_020c48d8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-03T09:08:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64104785_ab96ec11",
+      "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "688bd635_81416a7b",
@@ -151,6 +241,24 @@
       "writtenOn": "2026-07-01T11:26:59Z",
       "side": 1,
       "message": "I do not think its a ticket",
+      "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8b56603c_e337749f",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPPeerTracker.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-03T09:08:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "688bd635_81416a7b",
       "revId": "3b0432f35d0fc7f03fe4777867393d0f37129eb9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
