@@ -87,6 +87,30 @@
       },
       "revId": "0aa5f60538670d10831b056702574c8cae1509eb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27b7af6a_bfd929ee",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-06T09:13:14Z",
+      "side": 1,
+      "message": "Yes, this change does make the peers depend on each other.\n\nTheir transaction chains are separate, but they all commit into the same single operational data store. Into one client object (DistributedDataStoreClientBehavior, [ClientIdentifier \u003d member-1-datastore-operational-fe-0](https://github.com/opendaylight/controller/blob/71a102971e51ce90a8e5d3445fa3f400e3c141f7/opendaylight/md-sal/sal-distributed-datastore/src/main/java/org/opendaylight/controller/cluster/databroker/actors/dds/DistributedDataStoreClientBehavior.java#L30)). It assigns data to a shard by module (resolveShardForPath → ModuleShardBackendResolver), and bgp-rib has no shard of its own, so the whole RIB lands in shard-default-operational. A parallelStream fan‑out to N peers thus becomes N large commits hitting that one shard at once.\n\nThe heap dump of the run without this commit (70 peers × 100k prefixes) shows the effect: ~7.1M uncommitted ModifiedNode objects. Essentially every peer\u0027s changes held in memory at once. All reachable from that one DistributedDataStoreClientBehavior instance. The store cannot commit them fast enough:\n```\nCommitLocalTransactionRequest{target\u003dmember-1-datastore-operational-fe-0-chn-97-txn-1-0, sequence\u003d0, replyTo\u003dActor[pekko://opendaylight-cluster-data/user/$b#-1743899114], coordinated\u003dfalse} timed out after 120.342806066 seconds. The backend for default is not available\n```\n\nSo the dependency reflects the one data‑store instance every peer already commits through.",
+      "parentUuid": "a501258c_3926de8b",
+      "range": {
+        "startLine": 356,
+        "startChar": 12,
+        "endLine": 357,
+        "endChar": 54
+      },
+      "revId": "0aa5f60538670d10831b056702574c8cae1509eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
