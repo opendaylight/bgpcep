@@ -33,6 +33,24 @@
       "message": "Please add @Holding(\"this\") annotation here",
       "revId": "b4d515b71e925e8e19665fb12df7c2d58eb43925",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0a501bfd_4e15be6e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-06T13:34:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cde20870_72a5ee52",
+      "revId": "b4d515b71e925e8e19665fb12df7c2d58eb43925",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
