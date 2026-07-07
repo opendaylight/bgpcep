@@ -128,6 +128,30 @@
       },
       "revId": "7f3e3dee0858ec8f5dbc226fcdb33c09e1fc0d4f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73fa60b0_1fe3c7d7",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/entry/AbstractAdvertizedRoute.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-07-07T19:59:30Z",
+      "side": 1,
+      "message": "you would think, but now you have just introduced a scalability problem: every route update requires taking a lock, which is expensive.",
+      "parentUuid": "cbcd0e56_ba5d6380",
+      "range": {
+        "startLine": 107,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 30
+      },
+      "revId": "7f3e3dee0858ec8f5dbc226fcdb33c09e1fc0d4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
