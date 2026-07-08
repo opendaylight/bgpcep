@@ -59,7 +59,7 @@ public final class NetworkTopologyConfigFileProcessor extends AbstractConfigFile
             final NormalizedNode dto) {
         final var networkTopology = (ContainerNode) dto;
         final var topologies = (MapNode) networkTopology.childByArg(new NodeIdentifier(Topology.QNAME));
-        if (networkTopology == null) {
+        if (topologies == null) {
             return CommitInfo.emptyFluentFuture();
         }
 
