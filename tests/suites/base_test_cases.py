@@ -13,10 +13,10 @@ import logging
 
 import allure
 
-from libraries import infra
+import controller_testlib.infra
+import controller_testlib.ssh_utils
+import controller_testlib.utils
 from libraries import pcep
-from libraries import ssh_utils
-from libraries import utils
 from libraries.variables import variables
 
 
@@ -46,7 +46,9 @@ class BaseTestCases:
 
     def check_stability(self):
         updated_hop = "2.2.2.2/32"
-        utils.wait_until_function_pass(90, 5, pcep.check_empty_pcep_topology)
+        controller_testlib.utils.wait_until_function_pass(
+            90, 5, pcep.check_empty_pcep_topology
+        )
         self.pcc_mock_process = pcep.start_pcc_mock(
             pcc=self.pccs,
             local_address=ODL_IP,
@@ -66,7 +68,7 @@ class BaseTestCases:
             timeout=self.updater_timeout,
         )
         pcep.check_updater_response(stdout, self.total_lsps, False)
-        utils.wait_until_function_returns_value(
+        controller_testlib.utils.wait_until_function_returns_value(
             30, 1, self.total_lsps, pcep.get_pcep_topology_hop_count, updated_hop
         )
         pcep.stop_pcc_mock_process(self.pcc_mock_process)
@@ -94,7 +96,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_topology_precondition"):
             # Verify that within timeout, PCEP topology is present, with no PCC
             # connected.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 pcep_ready_verify_timeout, 1, pcep.check_empty_pcep_topology
             )
 
@@ -130,7 +132,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_1"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -157,7 +159,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_2"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -184,7 +186,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_3"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -211,7 +213,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_4"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -238,7 +240,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_5"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -265,7 +267,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_6"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -292,7 +294,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_7"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -319,7 +321,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_8"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -346,7 +348,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_9"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -373,7 +375,7 @@ class BaseTestCases:
         with allure_step_with_separate_logging("step_verify_10"):
             # Verify that within timeout, the correct number of new hops is in PCEP
             # topology.
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -399,7 +401,7 @@ class BaseTestCases:
                 tunnel_no=2,
             )
             pcep.check_updater_response(stdout, self.total_lsps, True)
-            utils.wait_until_function_returns_value(
+            controller_testlib.utils.wait_until_function_returns_value(
                 pcep_ready_verify_timeout,
                 1,
                 self.total_lsps,
@@ -422,42 +424,42 @@ class BaseTestCases:
                 # Start two instances of pcep mock simulator one on ODL host and one
                 # on TOOLS host. If both of these hosts, ODL and TOOLS are the same,
                 # then this step is skipped
-                ssh_utils.ssh_put_file(
+                controller_testlib.ssh_utils.ssh_put_file(
                     local_file_path="build_tools/pcep-pcc-mock.jar",
                     remot_file_path="/tmp/pcep-pcc-mock.jar",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
                     password=TOOLS_PASSWD,
                 )
-                self.ssh_handler = ssh_utils.ssh_start_command(
+                self.ssh_handler = controller_testlib.ssh_utils.ssh_start_command(
                     f"java -jar /tmp/pcep-pcc-mock.jar --local-address {TOOLS_IP} "
                     f"--remote-address {ODL_IP} --pcc {pccs} --lsp {lsps}",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
                     password=TOOLS_PASSWD,
                 )
-                utils.wait_until_function_returns_value(
+                controller_testlib.utils.wait_until_function_returns_value(
                     pcep_ready_verify_timeout,
                     1,
                     2 * self.total_lsps,
                     pcep.get_pcep_topology_hop_count,
                     "1.1.1.1/32",
                 )
-                ssh_utils.ssh_put_file(
+                controller_testlib.ssh_utils.ssh_put_file(
                     local_file_path="tools/pcep_updater/updater.py",
                     remot_file_path="/tmp/updater.py",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
                     password=TOOLS_PASSWD,
                 )
-                ssh_utils.ssh_put_file(
-                    local_file_path="libraries/AuthStandalone.py",
+                controller_testlib.ssh_utils.ssh_put_file(
+                    local_file_path="tools/pcep_updater/AuthStandalone.py",
                     remot_file_path="/tmp/AuthStandalone.py",
                     host=TOOLS_IP,
                     username=TOOLS_USER,
                     password=TOOLS_PASSWD,
                 )
-                stdout, stderr = ssh_utils.ssh_run_command(
+                stdout, stderr = controller_testlib.ssh_utils.ssh_run_command(
                     f"taskset 0x00000001 python3 /tmp/updater.py  "
                     f"--odladdress '{ODL_IP}' --pccaddress '{TOOLS_IP}' "
                     f"--user 'admin' --password 'admin' --hop '11.11.11.11/32' "
@@ -473,20 +475,20 @@ class BaseTestCases:
                     f"Expected message {expected_log_message=} was not found in "
                     f"{stdout=}"
                 )
-                utils.wait_until_function_returns_value(
+                controller_testlib.utils.wait_until_function_returns_value(
                     updater_timeout,
                     1,
                     2 * self.total_lsps,
                     pcep.get_pcep_topology_hop_count,
                     "11.11.11.11/32",
                 )
-                ssh_utils.ssh_stop_command(self.ssh_handler)
+                controller_testlib.ssh_utils.ssh_stop_command(self.ssh_handler)
 
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
             # Send ctrl+c to pcc-mock, see prompt again within timeout.
             pcep.stop_pcc_mock_process(self.pcc_mock_process)
             pcep.kill_all_pcc_mock_simulators(gracefully=False)
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 pcep_ready_verify_timeout, 5, pcep.check_empty_pcep_topology
             )
 
@@ -496,7 +498,7 @@ class BaseTestCases:
             # Flapping PCEP sessions and perform LSP updates within flapping.
             updated_hop = "2.2.2.2/32"
             for _ in range(15):
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     pcep_ready_verify_timeout, 5, pcep.check_empty_pcep_topology
                 )
                 self.pcc_mock_process = pcep.start_pcc_mock(
@@ -520,7 +522,7 @@ class BaseTestCases:
                     timeout=updater_timeout,
                 )
                 pcep.check_updater_response(stdout, self.total_lsps, False)
-                utils.wait_until_function_returns_value(
+                controller_testlib.utils.wait_until_function_returns_value(
                     60,
                     5,
                     self.total_lsps,
@@ -535,7 +537,7 @@ class BaseTestCases:
         ):
             # Flapping PCEP sessions and perform LSP updates alongside flapping.
             updated_hop = "2.2.2.2/32"
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 pcep_ready_verify_timeout, 5, pcep.check_empty_pcep_topology
             )
             pcc_mock_script_process = pcep.start_pcc_mock_with_flapping(
@@ -549,7 +551,7 @@ class BaseTestCases:
             for _ in range(10):
                 hop = self.get_next_hop()
                 # Check if pcep-pcc-mock.jar file is running
-                rc, output = infra.shell(
+                rc, output = controller_testlib.infra.shell(
                     "ps -fu $WHOAMI | grep 'pcep-pcc-mock.jar' | grep -v 'grep' | "
                     "awk '{print $2}'"
                 )
@@ -566,27 +568,27 @@ class BaseTestCases:
                         timeout=updater_timeout,
                     )
                     pcep.check_updater_response(stdout, self.total_lsps, True)
-            infra.stop_process(pcc_mock_script_process)
+            controller_testlib.infra.stop_process(pcc_mock_script_process)
             pcep.kill_all_pcc_mock_simulators(gracefully=False)
             self.check_stability()
 
         with allure_step_with_separate_logging("step_download_pccmock_log"):
             # Transfer pcc-mock output from tmp dir to results.
-            infra.shell(
+            controller_testlib.infra.shell(
                 f"mv tmp/{LOG_NAME} results/{LOG_NAME}",
                 check_rc=True,
             )
-            infra.shell(
+            controller_testlib.infra.shell(
                 f"mv tmp/serial_execution.log results/serial_execution.log",
                 check_rc=True,
             )
-            infra.shell(
+            controller_testlib.infra.shell(
                 f"mv tmp/throughpcep_parallel_Execution.log "
                 f"results/throughpcep_parallel_Execution.log",
                 check_rc=True,
             )
         with allure_step_with_separate_logging("step_topology_postcondition"):
             # Verify that within timeout, PCEP topology contains no PCCs again.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 pcep_ready_verify_timeout, 5, pcep.check_empty_pcep_topology
             )

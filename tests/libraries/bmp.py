@@ -10,7 +10,7 @@
 import logging
 import subprocess
 
-from libraries import infra
+import controller_testlib.infra
 from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP
@@ -52,7 +52,7 @@ def start_bmp_mock(
 
     command_parts.append(f"2>&1 | tee tmp/{log_file_name}")
 
-    process = infra.shell(
+    process = controller_testlib.infra.shell(
         " ".join(command_parts), use_shell=True, run_in_background=True
     )
 
@@ -69,6 +69,6 @@ def stop_bmp_mock_process(process: subprocess.Popen):
         None
     """
 
-    pid = infra.get_children_processes_pids(process, "java")[0]
+    pid = controller_testlib.infra.get_children_processes_pids(process, "java")[0]
     log.info(f"Killing bgp bmp mock process with PID {pid}")
-    infra.stop_process_by_pid(pid, gracefully=True)
+    controller_testlib.infra.stop_process_by_pid(pid, gracefully=True)

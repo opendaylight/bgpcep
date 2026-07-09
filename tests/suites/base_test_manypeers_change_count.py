@@ -13,11 +13,12 @@ import logging
 
 import allure
 
+import controller_testlib.karaf
+import controller_testlib.utils
+import controller_testlib.infra
 from libraries import bgp
 from libraries import change_counter
-from libraries import infra
 from libraries import prefix_counting
-from libraries import utils
 from libraries.variables import variables
 
 
@@ -74,7 +75,7 @@ class BaseTestManyPeerChangeCount:
         ):
             # Wait for example-ipv4-topology to come up and empty. Give large
             # timeout for case when BGP boots slower than restconf.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 120, 1, prefix_counting.check_ipv4_topology_is_empty
             )
 
@@ -105,15 +106,17 @@ class BaseTestManyPeerChangeCount:
         with allure_step_with_separate_logging("step_check_data_change_counter_ready"):
             # Data change counter might have been slower to start than ipv4
             # topology, wait for it.
-            utils.wait_until_function_pass(5, 1, change_counter.get_change_count)
+            controller_testlib.utils.wait_until_function_pass(
+                5, 1, change_counter.get_change_count
+            )
 
         with allure_step_with_separate_logging("step_change_karaf_logging_levels"):
             # We may want to set more verbose logging here after configuration is
             # done.
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {KARAF_BGPCEP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {KARAF_PROTOCOL_LOG_LEVEL} org.opendaylight.protocol"
             )
 
@@ -155,7 +158,7 @@ class BaseTestManyPeerChangeCount:
             # Abort the Python speakers.
             self.store_change_count()
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name="play.py.out", target_file_name="manypeers_cc_play.log"
             )
 
@@ -178,10 +181,10 @@ class BaseTestManyPeerChangeCount:
 
         with allure_step_with_separate_logging("step_restore_karaf_logging_levels"):
             # Set logging on bgpcep and protocol to the global value.
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {KARAF_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {KARAF_LOG_LEVEL} org.opendaylight.protocol"
             )
 

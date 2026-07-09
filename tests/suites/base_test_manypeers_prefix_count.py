@@ -13,10 +13,10 @@ import logging
 
 import allure
 
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from libraries import prefix_counting
-from libraries import utils
 from libraries.variables import variables
 
 
@@ -69,7 +69,7 @@ class BaseTestManyPeerPrefixCount:
         ):
             # Wait for example-ipv4-topology to come up and empty. Give large
             # timeout for case when BGP boots slower than restconf.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 120, 1, prefix_counting.check_ipv4_topology_is_empty
             )
 
@@ -89,10 +89,10 @@ class BaseTestManyPeerPrefixCount:
         with allure_step_with_separate_logging("step_change_karaf_logging_levels"):
             # We may want to set more verbose logging here after configuration is
             # done.
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {KARAF_BGPCEP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {KARAF_PROTOCOL_LOG_LEVEL} org.opendaylight.protocol"
             )
 
@@ -152,10 +152,10 @@ class BaseTestManyPeerPrefixCount:
 
         with allure_step_with_separate_logging("step_restore_karaf_logging_levels"):
             # Set logging on bgpcep and protocol to the global value.
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {KARAF_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {KARAF_LOG_LEVEL} org.opendaylight.protocol"
             )
 

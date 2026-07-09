@@ -13,9 +13,9 @@ import allure
 import pytest
 import time
 
-from libraries import infra
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import pcep
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -58,8 +58,12 @@ class TestPcepUser:
         ):
             # To be able to track time of the last pcep stats update we
             # need to check it in logs with at least DEBUG level.
-            infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.bgpcep")
-            infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.protocol")
+            controller_testlib.karaf.execute_karaf_command(
+                f"log:set DEBUG org.opendaylight.bgpcep"
+            )
+            controller_testlib.karaf.execute_karaf_command(
+                f"log:set DEBUG org.opendaylight.protocol"
+            )
 
         with allure_step_with_separate_logging("step_start_pcc_mock"):
             # Starts PCC mocks simulator.
@@ -88,7 +92,7 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_present"):
             # Verifies that get-stat RPC does return statistics.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 5, 0.1, pcep.get_statistics, pcc_ip=TOOLS_IP, verify_response=True
             )
 
@@ -100,5 +104,9 @@ class TestPcepUser:
             "step_change_karaf_logging_levels_to_default"
         ):
             # Return logging level back to default INFO value.
-            infra.execute_karaf_command(f"log:set INFO org.opendaylight.bgpcep")
-            infra.execute_karaf_command(f"log:set INFO org.opendaylight.protocol")
+            controller_testlib.karaf.execute_karaf_command(
+                f"log:set INFO org.opendaylight.bgpcep"
+            )
+            controller_testlib.karaf.execute_karaf_command(
+                f"log:set INFO org.opendaylight.protocol"
+            )

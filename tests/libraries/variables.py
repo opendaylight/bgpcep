@@ -8,11 +8,10 @@
 # These variables are considered global and immutable, so their names are in ALL_CAPS.
 #
 
-from pydantic_settings import BaseSettings
-from pydantic import computed_field
+from netconf_testlib.variables import Variables as NetconfVariables
 
 
-class Variables(BaseSettings):
+class Variables(NetconfVariables):
     """
     Defines all global test settings, which can be overridden by environment
     variables.
@@ -20,22 +19,10 @@ class Variables(BaseSettings):
 
     BGP_TOOL_PORT: int = 17900
     ODL_BGP_PORT: int = 1790
-    ODL_IP: str = "127.0.0.1"
-    ODL_USER: str = "admin"
-    ODL_PASSWORD: str = "admin"
     RESTCONF_PORT: int = 8181
     RESTCONF_ROOT: str = "rests"
-
-    @computed_field
-    @property
-    def REST_API(self) -> str:
-        """Computes the RESTCONF data API root URI."""
-        return f"{self.RESTCONF_ROOT}/data"
-
-    TOOLS_IP: str = "127.0.1.0"
     TOOLS_USER: str = "admin"
     TOOLS_PASSWORD: str = "admin"
-    KARAF_LOG_LEVEL: str = "INFO"
     TEST_DURATION_MULTIPLIER: int = 1
     TOPOLOGY_URL: str = "rests/data/network-topology:network-topology/topology"
     DEFAULT_PCEP_STATS_UPDATE_INTERVAL: int = 5

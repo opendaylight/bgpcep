@@ -15,10 +15,11 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bmp
-from libraries import infra
-from libraries import templated_requests
-from libraries import utils
+from netconf_testlib import templated_requests
+from netconf_testlib import cluster as netconf_cluster
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -63,14 +64,25 @@ class TestBmpBasic:
 
         with allure_step_with_separate_logging("step_verify_BMP_feature"):
             # Verifies if feature is up.
-            utils.wait_until_function_pass(
-                180,
+            controller_testlib.utils.wait_until_function_pass(
+                5,
                 5,
                 templated_requests.get_templated_request,
                 BGP_BMP_FEAT_DIR,
                 mapping=None,
                 json=True,
                 verify=True,
+            )
+
+        with allure_step_with_separate_logging("step_verify_datastore_ready"):
+            # netconf_cluster.is_netconf_mount_datastore_ready() is real NETCONF
+            # logic (mount points depend on the backing shard being ready) that
+            # itself delegates the shard-leader check to controller_testlib -
+            # bgpcep only imports netconf_testlib here, never controller_testlib
+            # directly. Example shard status until this is wired to a real
+            # cluster-admin/jolokia query.
+            assert netconf_cluster.is_netconf_mount_datastore_ready(
+                {"leader": "member-1"}
             )
 
         with allure_step_with_separate_logging("step_start_bmp_mock"):
@@ -80,7 +92,7 @@ class TestBmpBasic:
         with allure_step_with_separate_logging("step_verify_data_reported"):
             # Verifies if the tool reported expected data.
             mapping = {"TOOL_IP": TOOLS_IP}
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 3,
                 2,
                 templated_requests.get_templated_request,
@@ -96,4 +108,6 @@ class TestBmpBasic:
 
         with allure_step_with_separate_logging("step_archive_bgp_bmp_mock_logs"):
             # Archives bgp bmp mock tool log ouput.
-            infra.shell(f"mv tmp/{BMP_LOG_FILE} results/{BMP_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"mv tmp/{BMP_LOG_FILE} results/{BMP_LOG_FILE}"
+            )
