@@ -33,6 +33,40 @@
       "message": "recheck",
       "revId": "4ae95391d6ac6816172ac5319471f81be169f7fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "077f1123_aa82b957",
+        "filename": "config-loader/topology-config-loader/src/test/java/org/opendaylight/bgpcep/config/loader/topology/NetworkTopologyConfigFileProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-09T08:30:32Z",
+      "side": 1,
+      "message": "rename to networkTopology for both clarity and to match the variable name in NetworkTopologyConfigFileProcessor",
+      "revId": "4ae95391d6ac6816172ac5319471f81be169f7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "93153afe_bc9a146d",
+        "filename": "config-loader/topology-config-loader/src/test/java/org/opendaylight/bgpcep/config/loader/topology/NetworkTopologyConfigFileProcessorTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-09T08:30:32Z",
+      "side": 1,
+      "message": "the try block adds nothing here since it never calls init()/start()",
+      "revId": "4ae95391d6ac6816172ac5319471f81be169f7fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
