@@ -61,6 +61,7 @@
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
         <maven.install.skip>true</maven.install.skip>
+        <netconf.version>12.0.0-SNAPSHOT</netconf.version>
     </properties>
 
     <build>
@@ -177,7 +178,34 @@
                                             <directory>${project.basedir}/tests/build_tools</directory>
                                             <followSymlinks>false</followSymlinks>
                                         </fileset>
+                                        <fileset>
+                                            <directory>${project.basedir}/tests/netconf_testlib</directory>
+                                            <followSymlinks>false</followSymlinks>
+                                        </fileset>
                                     </filesets>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack-netconf-testlib</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.opendaylight.netconf</groupId>
+                                            <artifactId>netconf-testlib</artifactId>
+                                            <version>${netconf.version}</version>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.basedir}/tests</outputDirectory>
                                 </configuration>
                             </execution>
                         </executions>
@@ -233,7 +261,7 @@
                                     </target>
                                 </configuration>
                             </execution>
-                        </executions>
+                          </executions>
                     </plugin>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
