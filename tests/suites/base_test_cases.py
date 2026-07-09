@@ -13,9 +13,9 @@ import logging
 
 import allure
 
-from libraries import infra
+from controller_testlib import infra
 from libraries import pcep
-from libraries import ssh_utils
+from controller_testlib import ssh_utils
 from libraries import utils
 from libraries.variables import variables
 

@@ -16,8 +16,8 @@ import pytest
 
 from libraries import bgp
 from libraries import flowspec
-from libraries import infra
-from libraries import templated_requests
+from controller_testlib import infra
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -35,7 +35,7 @@ EXP1 = "bgp_flowspec_manypeers"
 CFG2 = "bgp-flowspec-redirect-manypeers.cfg"
 EXP2 = "bgp_flowspec_redirect_manypeers"
 FLOWSPEC_URL = (
-    "/rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/"
+    "/restconf/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/"
     "tables=bgp-types:ipv4-address-family,"
     "bgp-flowspec:flowspec-subsequent-address-family/"
     "bgp-flowspec:flowspec-routes?content=nonconfig"
@@ -64,12 +64,12 @@ class TestBgpFlowspec:
             template_path=f"{BGP_VARIABLES_FOLDER}/bgp-flowspec-manypeers.j2",
             mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT},
         )
-        infra.save_to_a_file(f"tmp/{CFG1}", config)
+        infra.save_text_to_a_file(f"tmp/{CFG1}", config)
         config = utils.render_jinja_template(
             template_path=f"{BGP_VARIABLES_FOLDER}/bgp-flowspec-redirect-manypeers.j2",
             mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT},
         )
-        infra.save_to_a_file(f"tmp/{CFG2}", config)
+        infra.save_text_to_a_file(f"tmp/{CFG2}", config)
 
     def setup_test_case(self, cfg_file: str):
         flowspec.verify_flowspec_data_is_empty()

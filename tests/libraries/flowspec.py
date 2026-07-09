@@ -8,7 +8,7 @@
 
 import logging
 
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 

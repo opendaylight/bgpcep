@@ -16,8 +16,9 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
-from libraries import templated_requests
+from controller_testlib import infra
+from controller_testlib import karaf
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -81,7 +82,7 @@ class TestBgpfunctionalRouteRef:
     def verify_cli_output_count(self, notification_count, update_count, receive_count):
         """Checks notification and update count from odl-bgpcep-bgp-cli.
         odl-bgpcep-bgp-cli is only avaiable on versions oxygen and above."""
-        stdout, stderror = infra.execute_karaf_command(
+        stdout, stderror = karaf.execute_karaf_command(
             f"bgp:operational-state -rib example-bgp-rib -neighbor {TOOLS_IP}"
         )
         stdout = stdout.replace("│", "|").replace("─", "-")

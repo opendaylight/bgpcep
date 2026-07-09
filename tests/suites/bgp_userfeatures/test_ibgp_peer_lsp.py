@@ -16,8 +16,9 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
-from libraries import templated_requests
+from controller_testlib import infra
+from controller_testlib import karaf
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -98,7 +99,7 @@ class TestIbgpPeerLsp:
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer"):
             # Connect BGP peer with advertising the routes without mandatory
             # params like LOC_PREF.
-            infra.log_message_to_karaf(
+            karaf.log_message_to_karaf(
                 (
                     "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, "
                     "and should be thrown when missing mandatory attributes."

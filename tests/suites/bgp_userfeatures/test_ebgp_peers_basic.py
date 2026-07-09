@@ -16,8 +16,9 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
-from libraries import templated_requests
+from controller_testlib import infra
+from controller_testlib import karaf
+from netconf_testlib import templated_requests
 from libraries import prefix_counting
 from libraries import utils
 from libraries.variables import variables
@@ -109,11 +110,11 @@ class TestEbgpPeersBasic:
 
     def setup_everything(self):
         """Configure karaf logging level"""
-        infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
-        infra.execute_karaf_command(
+        karaf.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
+        karaf.execute_karaf_command(
             f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
         )
-        infra.execute_karaf_command(
+        karaf.execute_karaf_command(
             f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
         )
 

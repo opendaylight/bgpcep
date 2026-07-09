@@ -12,7 +12,7 @@ import time
 
 import requests
 
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP
@@ -53,7 +53,7 @@ def get_change_count(data_change_counter: str = "data-change-counter") -> int:
         int: Number of changes observed by the specific change counter.
     """
     response = templated_requests.get_from_uri(
-        uri=f"rests/data/data-change-counter:{data_change_counter}?content=nonconfig",
+        uri=f"restconf/data/data-change-counter:{data_change_counter}?content=nonconfig",
         expected_code=200,
     )
     change_count = response.json()["data-change-counter:data-change-counter"][

@@ -10,7 +10,7 @@
 import logging
 import subprocess
 
-from libraries import infra
+from controller_testlib import infra
 from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP

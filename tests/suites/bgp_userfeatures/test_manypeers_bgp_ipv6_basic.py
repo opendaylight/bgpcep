@@ -17,9 +17,9 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
-from libraries import karaf
-from libraries import templated_requests
+from controller_testlib import infra
+from controller_testlib import karaf
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -107,7 +107,7 @@ class TestBgpIpv6Basic:
             },
             filters={"format_ip": self.format_ip},
         )
-        infra.save_to_a_file(f"tmp/{config_file}.cfg", config)
+        infra.save_text_to_a_file(f"tmp/{config_file}.cfg", config)
         rc, stdout = infra.shell(f"cat tmp/{config_file}.cfg")
         log.info(stdout)
 

@@ -11,7 +11,7 @@ which should include "json" and "requests" Python modules.
 
 *_Using_Session keywords take the same kwargs as requests.Session.request,
 but instead of method and URL, they take "session" created by
-Init_Session keyword and URI (without "/rests/").
+Init_Session keyword and URI (without "/restconf/").
 
 Due to performance of TCP on some systems, two session strategies are available.
 reuse=True reuses the same requests.Session, which possibly means
@@ -23,7 +23,7 @@ causing the new session to take another TCP port.
 This has good performance, but may perhaps lead to port starvation in some cases.
 
 TODO: Put "RESTCONF" to more places,
-as URIs not starting with /rests/ are not supported yet.
+as URIs not starting with /restconf/ are not supported yet.
 """
 
 # Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
@@ -81,7 +81,7 @@ class _BasicReusingSession(object):
 
     def __init__(self, ip, username="", password="", port="8181"):
         """Initialize session using hardcoded text data, remember credentials."""
-        self.rest_prefix = "http://" + ip + ":" + port + "/rests/"
+        self.rest_prefix = "http://" + ip + ":" + port + "/restconf/"
         self.session = requests.Session()
         if username:
             self.session.auth = (username, password)  # May work with non-string values
@@ -101,7 +101,7 @@ class _BasicClosingSession(object):
 
     def __init__(self, ip, username="", password="", port="8181"):
         """Prepare session initialization data using hardcoded text, remember credentials."""
-        self.rest_prefix = "http://" + ip + ":" + port + "/rests/"
+        self.rest_prefix = "http://" + ip + ":" + port + "/restconf/"
         if username:
             self.auth = (username, password)  # May work with non-string values
         else:
