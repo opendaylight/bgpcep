@@ -17,7 +17,7 @@ import pytest
 
 from libraries import bgp
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -83,7 +83,7 @@ class TestBgpfunctionalMultipath:
                 "ADDPATH": add_path,
             },
         )
-        infra.save_to_a_file(f"tmp/{DEFAUTL_RPC_CFG}", config)
+        infra.save_text_to_a_file(f"tmp/{DEFAUTL_RPC_CFG}", config)
         rc, stdout = infra.shell(f"cat tmp/{DEFAUTL_RPC_CFG}")
         log.info(stdout)
 

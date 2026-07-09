@@ -18,7 +18,7 @@ import requests
 
 from libraries import AuthStandalone
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from variables.pcepuser.titanium import variables as pcep_variables

@@ -17,7 +17,7 @@ import pytest
 
 from libraries import bgp
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -93,7 +93,7 @@ class TestBasic:
 
     def verify_number_of_speaker_connections(self, how_many):
         """Run ss command parse it for number of established connections."""
-        count = infra.count_port_occurences(BGP_TOOL_PORT, "ESTAB", "python")
+        count = infra.count_port_occurrences(BGP_TOOL_PORT, "ESTAB", "python")
         assert (
             count == how_many
         ), f"Number of found occurences of bgp speaker process port {count} "

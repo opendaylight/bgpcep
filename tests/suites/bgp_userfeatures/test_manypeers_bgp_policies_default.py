@@ -17,7 +17,7 @@ import pytest
 
 from libraries import bgp
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -73,7 +73,7 @@ class TestBgpPoliciesDefault:
                     "ADDPATH": "disable",
                 },
             )
-            infra.save_to_a_file(f"tmp/exabgp{i+1}.cfg", config)
+            infra.save_text_to_a_file(f"tmp/exabgp{i+1}.cfg", config)
 
     def verify_rib_status(self):
         """Verify output from effective-rib-in for each of the 6 exabgp peers

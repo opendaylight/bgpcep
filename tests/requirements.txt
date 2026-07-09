@@ -1,3 +1,8 @@
+--extra-index-url http://127.0.0.1:8081/repository/pypi-local/simple/
+--trusted-host 127.0.0.1
+odl-netconf-testlib==0.1.10
+odl-controller-testlib==0.1.6
+
 allure-pytest==2.14.3
 Counter==1.0.0
 exabgp==4.2.25

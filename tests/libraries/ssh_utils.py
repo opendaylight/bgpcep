@@ -10,43 +10,15 @@ import logging
 from contextlib import contextmanager
 
 import paramiko
+import controller_testlib.ssh_utils
 
 from libraries.RemoteSSHSessionHandler import RemoteSSHSessionHandler
 
 log = logging.getLogger(__name__)
 
-
-def create_ssh_client(
-    hostname: str, port: int, username: str, password: str, timeout: int = 10
-) -> paramiko.SSHClient:
-    """Opens SSH connection to remote server.
-
-    Args:
-        hostname (str): Target server hostname or ip address.
-        port (int): Port used for ssh conenction.
-        username (str): username used to log in to the ssh server
-        password (str): password used to log in to the ssh server
-        timeout (int): Connection timeout in seconds.
-
-    Returns:
-        paramiko.SSHClient: Connected SSH client.
-    """
-    ssh_client = paramiko.SSHClient()
-    ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-
-    try:
-        ssh_client.connect(
-            hostname=hostname,
-            port=port,
-            username=username,
-            password=password,
-            look_for_keys=False,
-            allow_agent=False,
-            timeout=timeout,
-        )
-        return ssh_client
-    except Exception as e:
-        raise ConnectionError(f"Failed to connect to {hostname}:{port} - {e}")
+# Re-exported so open_ssh_connection() below keeps working, but the origin is
+# explicit here rather than hidden behind a bare-name import.
+create_ssh_client = controller_testlib.ssh_utils.create_ssh_client
 
 
 @contextmanager
