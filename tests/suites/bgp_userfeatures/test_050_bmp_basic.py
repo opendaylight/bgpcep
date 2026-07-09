@@ -17,7 +17,7 @@ import pytest
 
 from libraries import bmp
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -64,7 +64,7 @@ class TestBmpBasic:
         with allure_step_with_separate_logging("step_verify_BMP_feature"):
             # Verifies if feature is up.
             utils.wait_until_function_pass(
-                180,
+                5,
                 5,
                 templated_requests.get_templated_request,
                 BGP_BMP_FEAT_DIR,

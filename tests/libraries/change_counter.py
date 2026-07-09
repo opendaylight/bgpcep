@@ -12,7 +12,7 @@ import time
 
 import requests
 
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP
