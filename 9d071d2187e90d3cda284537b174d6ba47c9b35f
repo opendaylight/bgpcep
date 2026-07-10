@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c5a8628e_8184932d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T07:54:09Z",
+      "side": 1,
+      "message": "sessionUp is read outside the synchronized block - there\u0027s no guarantee the callback thread sees the latest value here. Consider making the field volatile OR annotate the field with guardedBy and comment here that this is intentionally left like this as a fast-path to skip registration.",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b7dec60_25e6a639",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T07:54:09Z",
+      "side": 1,
+      "message": "restates the log just above - can be removed",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f5372445_66097b10",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T07:54:09Z",
+      "side": 1,
+      "message": "The @Nonnull annotations here are inconsistent. The method registerPeer() above doesn\u0027t re-declare them. Pick one convention and stick with it.",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ba908d49_44ad3723",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T07:54:09Z",
+      "side": 1,
+      "message": "any reason why we use FQN here instead of importing it?",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "81789ecf_f85b8f0e",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T07:54:09Z",
+      "side": 1,
+      "message": "the method name can be shortened",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71aec4e9_c0386c44",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T07:54:09Z",
+      "side": 1,
+      "message": "Testing with anyList() doesn\u0027t actually cover the bug - anyList() also matches an empty list. So initializeRibOut(dep, []) would pass the test while still exhibiting the same defect. Capture the argument and assert that the list is actually non-empty.",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f193deb_f17591a1",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPPeerTracker.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T07:54:09Z",
+      "side": 1,
+      "message": "This interface is an SPI. Right now we only have 1 implementation which overrides this method, so the no-op body here is never accessed. However in the future if someone implements another tracker and forgets to override this method, they will silently drop every listener WITH NO ERROR. Remove the default implementation so that any tracker has to override it.",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
