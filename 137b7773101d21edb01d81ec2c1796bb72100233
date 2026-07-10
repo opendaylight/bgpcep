@@ -35,6 +35,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "262d8aea_b1e2ef38",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-10T15:21:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fb69b86_5a6358fc",
+      "revId": "137b7773101d21edb01d81ec2c1796bb72100233",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca58e54c_53705fee",
@@ -52,6 +70,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d710008b_b9d1b374",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-10T15:21:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca58e54c_53705fee",
+      "revId": "137b7773101d21edb01d81ec2c1796bb72100233",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23319330_443dec1b",
@@ -65,6 +101,24 @@
       "writtenOn": "2026-07-10T10:21:00Z",
       "side": 1,
       "message": "you can drop the \"this\" so it\u0027s consistent with the rest of the codebase",
+      "revId": "137b7773101d21edb01d81ec2c1796bb72100233",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "045a3814_72d2cc56",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-10T15:21:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23319330_443dec1b",
       "revId": "137b7773101d21edb01d81ec2c1796bb72100233",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
