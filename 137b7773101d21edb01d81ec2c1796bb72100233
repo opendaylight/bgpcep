@@ -16,6 +16,57 @@
       "message": "recheck",
       "revId": "137b7773101d21edb01d81ec2c1796bb72100233",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3fb69b86_5a6358fc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T10:21:00Z",
+      "side": 1,
+      "message": "Add a unit-test for the fix. Like registering two peers,\nclosing one peer\u0027s Registration, then asserting it no longer appears in getPeers() or getNonInternalPeers() (and that an internal peer is excluded from it)",
+      "revId": "137b7773101d21edb01d81ec2c1796bb72100233",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ca58e54c_53705fee",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T10:21:00Z",
+      "side": 1,
+      "message": "Both fields are left uninitialized (null) until the first \"registerPeer()\" triggers \"rebuildSnapshots()\". But the interface declares the getters as @NonNull. So a call before any peer has registered returns \"null\" and NPE, breaking the @NonNull contract. Here\u0027s a good place to fix that. Initializing to ImmutableList.of() should be sufficient. Also annotate these fields with @GuardedBy(\"this\").",
+      "revId": "137b7773101d21edb01d81ec2c1796bb72100233",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23319330_443dec1b",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-10T10:21:00Z",
+      "side": 1,
+      "message": "you can drop the \"this\" so it\u0027s consistent with the rest of the codebase",
+      "revId": "137b7773101d21edb01d81ec2c1796bb72100233",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
