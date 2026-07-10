@@ -54,6 +54,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "6080ae6a_c5a9d81a",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-10T08:03:25Z",
+      "side": 1,
+      "message": "maybe try to consider naming convention like in other projects - according to the ticket",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "feb059ba_0917ac1f",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
         "patchSetId": 9
@@ -65,6 +82,30 @@
       "writtenOn": "2026-07-10T08:00:12Z",
       "side": 1,
       "message": "why not use var for mock()? (also on L-142)",
+      "range": {
+        "startLine": 130,
+        "startChar": 14,
+        "endLine": 130,
+        "endChar": 41
+      },
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5ebb7774_66ef1576",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-10T08:03:25Z",
+      "side": 1,
+      "message": "we can avoid manual mocking by using proper mockito class annotation",
+      "parentUuid": "feb059ba_0917ac1f",
       "range": {
         "startLine": 130,
         "startChar": 14,
