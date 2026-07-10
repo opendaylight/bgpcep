@@ -35,6 +35,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b42019dd_872f602d",
+        "filename": "bgp/extensions/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LabeledUnicastIpv4RIBSupportTest.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-10T11:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "fb4ec350_bc25ee2a",
+      "revId": "8dadbf86ef554f7bca0b9863b99a4fe3f86104bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5284eaa6_104e75f0",
@@ -48,6 +66,24 @@
       "writtenOn": "2026-07-10T10:02:21Z",
       "side": 1,
       "message": "clearChangedRouteKeys() is called on both paths here. Can it be moved so it\u0027s called only once?",
+      "revId": "8dadbf86ef554f7bca0b9863b99a4fe3f86104bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4e2c10ba_11d0aad1",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-10T11:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5284eaa6_104e75f0",
       "revId": "8dadbf86ef554f7bca0b9863b99a4fe3f86104bf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -69,6 +105,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "82dc271b_12690fa4",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-10T11:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "271299d9_d1a1f625",
+      "revId": "8dadbf86ef554f7bca0b9863b99a4fe3f86104bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8ce5475a_41c5a8e4",
@@ -86,6 +140,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5f3a7cde_4beff450",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/base/BaseRouteEntryTest.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-10T11:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ce5475a_41c5a8e4",
+      "revId": "8dadbf86ef554f7bca0b9863b99a4fe3f86104bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "62ad7f5d_5992aef7",
@@ -99,6 +171,24 @@
       "writtenOn": "2026-07-10T10:02:21Z",
       "side": 1,
       "message": "advertized.getFirst()",
+      "revId": "8dadbf86ef554f7bca0b9863b99a4fe3f86104bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4fff5a95_7ccc7095",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/base/BaseRouteEntryTest.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-10T11:47:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62ad7f5d_5992aef7",
       "revId": "8dadbf86ef554f7bca0b9863b99a4fe3f86104bf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
