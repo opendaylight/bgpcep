@@ -92,6 +92,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "f9297e22_e9e392c0",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-07-10T07:57:48Z",
+      "side": 1,
+      "message": "Sorry, we were doing review at same time, I didn\u0027t see Tibor\u0027s comment when posting",
+      "parentUuid": "159249ea_702ed683",
+      "range": {
+        "startLine": 132,
+        "startChar": 16,
+        "endLine": 132,
+        "endChar": 64
+      },
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "81789ecf_f85b8f0e",
