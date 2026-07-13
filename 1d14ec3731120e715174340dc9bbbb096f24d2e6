@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ea582671_a8cc626c",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/add/all/paths/AllPathsRouteEntryTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-07-13T07:57:52Z",
+      "side": 1,
+      "message": "Raw use of parameterized class, in AdjRibOutListenerTest you used RIBSupport\u003c?, ?\u003e, use it also here",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 22
+      },
+      "revId": "1d14ec3731120e715174340dc9bbbb096f24d2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d712f54_26060b27",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/base/BaseRouteEntryTest.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-07-13T07:57:52Z",
+      "side": 1,
+      "message": "Here too",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 22
+      },
+      "revId": "1d14ec3731120e715174340dc9bbbb096f24d2e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
