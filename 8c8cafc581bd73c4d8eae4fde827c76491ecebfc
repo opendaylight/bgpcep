@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "747a7830_7de9b8b4",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-13T11:59:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "27d042de_abe58037",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6e00e2a7_08e400b3",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-13T11:12:34Z",
       "side": 1,
       "message": "Since this is just 1 line of code and it\u0027s called from a single place, inline it there. This wrapper method is redundant.",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a82986e_6263c85e",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-13T11:59:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6e00e2a7_08e400b3",
       "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -52,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5af4f2ab_dc91a592",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-13T11:59:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0057b6e7_8ba50811",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "44c7592d_a8b5cf9e",
@@ -69,6 +123,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa8ef2b9_0db0209e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-13T11:59:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "44c7592d_a8b5cf9e",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1186ee16_7173a23a",
@@ -82,6 +154,24 @@
       "writtenOn": "2026-07-13T11:12:34Z",
       "side": 1,
       "message": "The test naming is inconsistent. Here the tests don\u0027t carry the \"test\" prefix, however the tests added in AllPathsRouteEntryTest do. Please pick one convention and stick to it everywhere.",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ddb57497_50f8de16",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListenerTest.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-13T11:59:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1186ee16_7173a23a",
       "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
