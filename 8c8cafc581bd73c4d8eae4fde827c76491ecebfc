@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "27d042de_abe58037",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T11:12:34Z",
+      "side": 1,
+      "message": "\"removeRoute()\" doesn\u0027t touch \"changedRouteKeys\" at all. Right now it\u0027s not a bug, since the removed keys won\u0027t appear in the new best-path list AND the set is cleared on selectBest(). However it might be a good idea to add a comment so we can keep it in mind if the lifecycle should ever change.. something like \"cleared on each selection, so stale keys are harmless\"",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e00e2a7_08e400b3",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T11:12:34Z",
+      "side": 1,
+      "message": "Since this is just 1 line of code and it\u0027s called from a single place, inline it there. This wrapper method is redundant.",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0057b6e7_8ba50811",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T11:12:34Z",
+      "side": 1,
+      "message": "can be \"var\" here and below",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "44c7592d_a8b5cf9e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T11:12:34Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1186ee16_7173a23a",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListenerTest.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T11:12:34Z",
+      "side": 1,
+      "message": "The test naming is inconsistent. Here the tests don\u0027t carry the \"test\" prefix, however the tests added in AllPathsRouteEntryTest do. Please pick one convention and stick to it everywhere.",
+      "revId": "8c8cafc581bd73c4d8eae4fde827c76491ecebfc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
