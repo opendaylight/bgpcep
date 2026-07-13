@@ -297,14 +297,16 @@ on the same page, within a node that initiated the tunnel:
       <reported-lsp>
        <name>foo</name>
        <lsp>
-        <operational>down</operational>
-        <sync>false</sync>
         <ignore>false</ignore>
         <plsp-id>1</plsp-id>
-        <create>false</create>
-        <administrative>true</administrative>
-        <remove>false</remove>
-        <delegate>true</delegate>
+        <lsp-flags>
+         <operational>down</operational>
+         <sync>false</sync>
+         <create>false</create>
+         <administrative>true</administrative>
+         <remove>false</remove>
+         <delegate>true</delegate>
+        </lsp-flags>
         <processing-rule>false</processing-rule>
         <tlvs>
         <lsp-identifiers>
