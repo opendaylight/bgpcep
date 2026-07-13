@@ -16,6 +16,74 @@
       "message": "recheck",
       "revId": "2d306365a2229133ec0f13cab91f0b79a09c018b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "73036acd_800df943",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T10:55:42Z",
+      "side": 1,
+      "message": "Missing @NonNull on parameter. Also consider annotating the nullability of the return value as well. Seems to me that it could be @NonNull.",
+      "revId": "2d306365a2229133ec0f13cab91f0b79a09c018b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ab25ec0_964ccbbe",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T10:55:42Z",
+      "side": 1,
+      "message": "Please decide which convention you want.. either use \"this.\" everywhere, or nowhere. This half-and-half approach is ugly. I suggest removing it.",
+      "revId": "2d306365a2229133ec0f13cab91f0b79a09c018b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "97a83318_73415180",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImplTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T10:55:42Z",
+      "side": 1,
+      "message": "The convention is MockitoJUnitRunner.StrictStubs.class, which can be used here as well.",
+      "revId": "2d306365a2229133ec0f13cab91f0b79a09c018b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "dbfe757a_0dac7bad",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImplTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-13T10:55:42Z",
+      "side": 1,
+      "message": "Try to make the method names more concise if possible. Here and below",
+      "revId": "2d306365a2229133ec0f13cab91f0b79a09c018b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
