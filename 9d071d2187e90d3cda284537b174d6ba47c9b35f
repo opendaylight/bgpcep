@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "3798bd70_da28cd79",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 521,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Thanks, fixed with adding volatile to sessionUp attribute.",
+      "parentUuid": "c5a8628e_8184932d",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6b7dec60_25e6a639",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-10T07:54:09Z",
       "side": 1,
       "message": "restates the log just above - can be removed",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "dca1d854_32ecf881",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b7dec60_25e6a639",
       "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -52,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9a2e268b_98eb3028",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Fixed by adding annotation to other methods.\nhttps://wiki.eclipse.org/JDT_Core/Null_Analysis/Null_Contracts#Null_Contract_Inheritance",
+      "parentUuid": "f5372445_66097b10",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "6080ae6a_c5a9d81a",
@@ -65,6 +119,24 @@
       "writtenOn": "2026-07-10T08:03:25Z",
       "side": 1,
       "message": "maybe try to consider naming convention like in other projects - according to the ticket",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9b27b4b7_4ed2198a",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6080ae6a_c5a9d81a",
       "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -106,6 +178,30 @@
       "side": 1,
       "message": "we can avoid manual mocking by using proper mockito class annotation",
       "parentUuid": "feb059ba_0917ac1f",
+      "range": {
+        "startLine": 130,
+        "startChar": 14,
+        "endLine": 130,
+        "endChar": 41
+      },
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71cda79d_52bc7e50",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Fixed with mockito annotation.",
+      "parentUuid": "5ebb7774_66ef1576",
       "range": {
         "startLine": 130,
         "startChar": 14,
@@ -180,6 +276,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d3a5d5d7_a44d0d30",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba908d49_44ad3723",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "81789ecf_f85b8f0e",
@@ -193,6 +307,24 @@
       "writtenOn": "2026-07-10T07:54:09Z",
       "side": 1,
       "message": "the method name can be shortened",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "608059fc_ff01d3f7",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81789ecf_f85b8f0e",
       "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -214,6 +346,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "38084acd_f9f78226",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriterNewPeerInitTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71aec4e9_c0386c44",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1f193deb_f17591a1",
@@ -227,6 +377,24 @@
       "writtenOn": "2026-07-10T07:54:09Z",
       "side": 1,
       "message": "This interface is an SPI. Right now we only have 1 implementation which overrides this method, so the no-op body here is never accessed. However in the future if someone implements another tracker and forgets to override this method, they will silently drop every listener WITH NO ERROR. Remove the default implementation so that any tracker has to override it.",
+      "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a632f908_cfce7d7a",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPPeerTracker.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-13T13:27:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f193deb_f17591a1",
       "revId": "9d071d2187e90d3cda284537b174d6ba47c9b35f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
