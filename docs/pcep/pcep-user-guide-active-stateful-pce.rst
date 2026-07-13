@@ -455,11 +455,14 @@ LSP-DB API
          |  |           +--ro bottom-of-stack?   boolean
          |  |           +--ro time-to-live?      uint8
          |  +--ro plsp-id?           plsp-id
-         |  +--ro delegate?          boolean
-         |  +--ro sync?              boolean
-         |  +--ro remove?            boolean
-         |  +--ro administrative?    boolean
-         |  +--ro operational?       operational-status
+         |  +--ro lsp-flags
+         |     +--ro delegate?          boolean
+         |     +--ro sync?              boolean
+         |     +--ro remove?            boolean
+         |     +--ro administrative?    boolean
+         |     +--ro operational?       operational-status
+         |     +--ro create?            boolean
+         |     +--ro pce-allocation?    boolean
          +--ro path-setup-type
             +--ro pst?   uint8
 
@@ -481,7 +484,7 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
 
       .. code-block:: xml
          :linenos:
-         :emphasize-lines: 2,4,5,8,12,14,15,16,17,18,20,24,25,26,28,29,32,36
+         :emphasize-lines: 2,4,5,8,12,14,16,17,18,19,21,26,27,28,30,31,34,38
 
          <node>
             <node-id>pcc://43.43.43.43</node-id>
@@ -496,13 +499,15 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
                <reported-lsp>
                   <name>foo</name>
                   <lsp>
-                     <operational>up</operational>
-                     <sync>true</sync>
                      <plsp-id>1</plsp-id>
-                     <create>false</create>
-                     <administrative>true</administrative>
-                     <remove>false</remove>
-                     <delegate>true</delegate>
+                     <lsp-flags>
+                        <operational>up</operational>
+                        <sync>true</sync>
+                        <create>false</create>
+                        <administrative>true</administrative>
+                        <remove>false</remove>
+                        <delegate>true</delegate>
+                     </lsp-flags>
                      <tlvs>
                         <lsp-identifiers>
                            <ipv4>
@@ -552,7 +557,9 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
 
       @line 12: **name** - Textual representation of LPS's name.
 
-      @line 14: **operational** - Represent operational status of the LSP:
+      @line 14: **plsp-id** - A PCEP-specific identifier for the LSP. It is assigned by PCC and it is constant for a lifetime of a PCEP session.
+
+      @line 16: **operational** - Represent operational status of the LSP:
 
          * *down* - not active.
          * *up* - signaled.
@@ -560,29 +567,27 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
          * *going-down* - LSP is being torn down, resources are being released.
          * *going-up* - LSP is being signaled.
 
-      @line 15: **sync** - The flag set by PCC during LSPs State Synchronization.
+      @line 17: **sync** - The flag set by PCC during LSPs State Synchronization.
 
-      @line 16: **plsp-id** - A PCEP-specific identifier for the LSP. It is assigned by PCC and it is constant for a lifetime of a PCEP session.
+      @line 18: **create** - The *false* indicates that LSP is PCC-initiated.
 
-      @line 17: **create** - The *false* indicates that LSP is PCC-initiated.
+      @line 19: **administrative** - The flag indicates target operational status of the LSP.
 
-      @line 18: **administrative** - The flag indicates target operational status of the LSP.
+      @line 21: **delegate** - The delegate flag indicates that the PCC is delegating the LSP to the PCE.
 
-      @line 20: **delegate** - The delegate flag indicates that the PCC is delegating the LSP to the PCE.
+      @line 26: **ipv4-tunnel-sender-address** - Contains the sender node's IP address.
 
-      @line 24: **ipv4-tunnel-sender-address** - Contains the sender node's IP address.
+      @line 27: **ipv4-tunnel-endpoint-address** - Contains the egress node's IP address.
 
-      @line 25: **ipv4-tunnel-endpoint-address** - Contains the egress node's IP address.
+      @line 28: **ipv4-extended-tunnel-id** - The *Extended Tunnel ID* identifier.
 
-      @line 26: **ipv4-extended-tunnel-id** - The *Extended Tunnel ID* identifier.
+      @line 30: **tunnel-id** - The *Tunnel ID* identifier.
 
-      @line 28: **tunnel-id** - The *Tunnel ID* identifier.
+      @line 31: **lsp-id** - The *LSP ID* identifier.
 
-      @line 29: **lsp-id** - The *LSP ID* identifier.
+      @line 34: **path-name** - The symbolic name for the LSP.
 
-      @line 32: **path-name** - The symbolic name for the LSP.
-
-      @line 36: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
+      @line 38: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
 
    .. tab:: JSON
 
@@ -590,7 +595,7 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
 
       .. code-block:: json
          :linenos:
-         :emphasize-lines: 3,5,6,9,13,15,16,17,18,19,21,25,26,27,29,30,33,37
+         :emphasize-lines: 3,5,6,9,13,15,17,18,19,20,22,27,28,29,31,32,35,39
 
          {
              "node": {
@@ -606,13 +611,15 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
                      "reported-lsp": {
                          "name": "foo",
                          "lsp": {
-                             "operational": "up",
-                             "sync": true,
                              "plsp-id": 1,
-                             "create": false,
-                             "administrative": true,
-                             "remove": false,
-                             "delegate": true,
+                             "lsp-flags": {
+                                 "operational": "up",
+                                 "sync": true,
+                                 "create": false,
+                                 "administrative": true,
+                                 "remove": false,
+                                 "delegate": true
+                             },
                              "tlvs": {
                                  "lsp-identifiers": {
                                      "ipv4": {
@@ -663,7 +670,9 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
 
       @line 13: **name** - Textual representation of LPS's name.
 
-      @line 15: **operational** - Represent operational status of the LSP:
+      @line 15: **plsp-id** - A PCEP-specific identifier for the LSP. It is assigned by PCC and it is constant for a lifetime of a PCEP session.
+
+      @line 17: **operational** - Represent operational status of the LSP:
 
          * *down* - not active.
          * *up* - signaled.
@@ -671,29 +680,27 @@ In a next example, there is one PCEP session with PCC identified by its IP addre
          * *going-down* - LSP is being torn down, resources are being released.
          * *going-up* - LSP is being signaled.
 
-      @line 16: **sync** - The flag set by PCC during LSPs State Synchronization.
+      @line 18: **sync** - The flag set by PCC during LSPs State Synchronization.
 
-      @line 17: **plsp-id** - A PCEP-specific identifier for the LSP. It is assigned by PCC and it is constant for a lifetime of a PCEP session.
+      @line 19: **create** - The *false* indicates that LSP is PCC-initiated.
 
-      @line 18: **create** - The *false* indicates that LSP is PCC-initiated.
+      @line 20: **administrative** - The flag indicates target operational status of the LSP.
 
-      @line 19: **administrative** - The flag indicates target operational status of the LSP.
+      @line 22: **delegate** - The delegate flag indicates that the PCC is delegating the LSP to the PCE.
 
-      @line 21: **delegate** - The delegate flag indicates that the PCC is delegating the LSP to the PCE.
+      @line 27: **ipv4-tunnel-sender-address** - Contains the sender node's IP address.
 
-      @line 25: **ipv4-tunnel-sender-address** - Contains the sender node's IP address.
+      @line 28: **ipv4-tunnel-endpoint-address** - Contains the egress node's IP address.
 
-      @line 26: **ipv4-tunnel-endpoint-address** - Contains the egress node's IP address.
+      @line 29: **ipv4-extended-tunnel-id** - The *Extended Tunnel ID* identifier.
 
-      @line 27: **ipv4-extended-tunnel-id** - The *Extended Tunnel ID* identifier.
-
-      @line 29: **tunnel-id** - The *Tunnel ID* identifier.
+      @line 31: **tunnel-id** - The *Tunnel ID* identifier.
 
       @line 30: **lsp-id** - The *LSP ID* identifier.
 
-      @line 33: **path-name** - The symbolic name for the LSP.
+      @line 35: **path-name** - The symbolic name for the LSP.
 
-      @line 37: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
+      @line 39: **ero** - The *Explicit Route Object* is encoding the path of the TE LSP through the network.
 
 LSP Delegation
 ''''''''''''''
@@ -725,15 +732,17 @@ Following RPC example illustrates a request for the LSP delegation give up:
 
       .. code-block:: xml
          :linenos:
-         :emphasize-lines: 2,3,6,10
+         :emphasize-lines: 2,3,7,8,12
 
-         <input>
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
             <node>pcc://43.43.43.43</node>
             <name>foo</name>
             <arguments>
                <lsp xmlns:stateful="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-                  <delegate>false</delegate>
-                  <administrative>true</administrative>
+                  <lsp-flags>
+                     <delegate>false</delegate>
+                     <administrative>true</administrative>
+                  </lsp-flags>
                   <tlvs>
                      <symbolic-path-name>
                         <path-name>Zm9v</path-name>
@@ -748,9 +757,11 @@ Following RPC example illustrates a request for the LSP delegation give up:
 
       @line 3: **name** The name of the LSP.
 
-      @line 6: **delegate** - Delegation flag set *false* in order to return the LSP delegation.
+      @line 7: **delegate** - Delegation flag set *false* in order to return the LSP delegation.
 
-      @line 10: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
+      @line 8: **administrative** - The flag indicates target operational status of the LSP.
+
+      @line 12: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
 
    .. tab:: JSON
 
@@ -760,7 +771,7 @@ Following RPC example illustrates a request for the LSP delegation give up:
 
       .. code-block:: json
          :linenos:
-         :emphasize-lines: 3,4,7,11
+         :emphasize-lines: 3,4,7,8,12
 
          {
              "input": {
@@ -768,8 +779,10 @@ Following RPC example illustrates a request for the LSP delegation give up:
                  "name": "foo",
                  "arguments": {
                      "lsp": {
-                         "delegate": false,
-                         "administrative": true,
+                         "lsp-flags": {
+                             "delegate": false,
+                             "administrative": true
+                         },
                          "tlvs": {
                              "symbolic-path-name": {
                                  "path-name": "Zm9v"
@@ -787,7 +800,9 @@ Following RPC example illustrates a request for the LSP delegation give up:
 
       @line 7: **delegate** - Delegation flag set *false* in order to return the LSP delegation.
 
-      @line 11: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
+      @line 8: **administrative** - The flag indicates target operational status of the LSP.
+
+      @line 12: **path-name** - The Symbolic Path Name TLV must be present when sending a request to give up the delegation.
 
 LSP Update
 ''''''''''
@@ -819,15 +834,17 @@ Following RPC example shows a request for the LSP update:
 
       .. code-block:: xml
          :linenos:
-         :emphasize-lines: 2,3,6,7,9
+         :emphasize-lines: 2,3,7,8,11
 
          <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
             <node>pcc://43.43.43.43</node>
             <name>foo</name>
             <arguments>
                <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-                  <delegate>true</delegate>
-                  <administrative>true</administrative>
+                  <lsp-flags>
+                     <delegate>true</delegate>
+                     <administrative>true</administrative>
+                  </lsp-flags>
                </lsp>
                <ero>
                   <subobject>
@@ -857,11 +874,11 @@ Following RPC example shows a request for the LSP update:
 
       @line 3: **name** The name of the LSP to be updated.
 
-      @line 6: **delegate** - Delegation flag set *true* in order to keep the LSP control.
+      @line 7: **delegate** - Delegation flag set *true* in order to keep the LSP control.
 
-      @line 7: **administrative** - Desired administrative status of the LSP is active.
+      @line 8: **administrative** - Desired administrative status of the LSP is active.
 
-      @line 9: **ero** - This LSP attribute is changed.
+      @line 11: **ero** - This LSP attribute is changed.
 
    .. tab:: JSON
 
@@ -871,7 +888,7 @@ Following RPC example shows a request for the LSP update:
 
       .. code-block:: json
          :linenos:
-         :emphasize-lines: 3,4,7,8,10
+         :emphasize-lines: 3,4,8,9,12
 
          {
              "input": {
@@ -879,8 +896,10 @@ Following RPC example shows a request for the LSP update:
                  "name": "foo",
                  "arguments": {
                      "lsp": {
-                         "delegate": true,
-                         "administrative": true
+                         "lsp-flags": {
+                             "delegate": true,
+                             "administrative": true
+                         }
                      },
                      "ero": {
                          "subobject": [
@@ -913,11 +932,11 @@ Following RPC example shows a request for the LSP update:
 
       @line 4: **name** The name of the LSP to be updated.
 
-      @line 7: **delegate** - Delegation flag set *true* in order to keep the LSP control.
+      @line 8: **delegate** - Delegation flag set *true* in order to keep the LSP control.
 
-      @line 8: **administrative** - Desired administrative status of the LSP is active.
+      @line 9: **administrative** - Desired administrative status of the LSP is active.
 
-      @line 10: **ero** - This LSP attribute is changed.
+      @line 12: **ero** - This LSP attribute is changed.
 
 PCE-initiated LSP Setup
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -958,15 +977,17 @@ Following RPC example shows a request for the LSP initiation:
 
       .. code-block:: xml
          :linenos:
-         :emphasize-lines: 2,3,9,15
+         :emphasize-lines: 2,3,11,17
 
          <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
             <node>pcc://43.43.43.43</node>
             <name>update-tunel</name>
             <arguments>
                <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-                  <delegate>true</delegate>
-                  <administrative>true</administrative>
+                  <lsp-flags>
+                     <delegate>true</delegate>
+                     <administrative>true</administrative>
+                  </lsp-flags>
                </lsp>
                <endpoints-obj>
                   <ipv4>
@@ -1002,9 +1023,9 @@ Following RPC example shows a request for the LSP initiation:
 
       @line 3: **name** The name of the LSP to be created.
 
-      @line 9: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
+      @line 11: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
 
-      @line 15: **ero** - The *ERO* object is mandatory for LSP initiation request.
+      @line 17: **ero** - The *ERO* object is mandatory for LSP initiation request.
 
    .. tab:: JSON
 
@@ -1014,7 +1035,7 @@ Following RPC example shows a request for the LSP initiation:
 
       .. code-block:: json
          :linenos:
-         :emphasize-lines: 3,4,10,16
+         :emphasize-lines: 3,4,12,18
 
          {
              "input": {
@@ -1022,8 +1043,10 @@ Following RPC example shows a request for the LSP initiation:
                  "name": "update-tunel",
                  "arguments": {
                      "lsp": {
-                         "delegate": true,
-                         "administrative": true
+                         "lsp-flags": {
+                             "delegate": true,
+                             "administrative": true
+                         }
                      },
                      "endpoints-obj": {
                          "ipv4": {
@@ -1062,9 +1085,9 @@ Following RPC example shows a request for the LSP initiation:
 
       @line 4: **name** The name of the LSP to be created.
 
-      @line 10: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
+      @line 12: **endpoints-obj** - The *END-POINT* Object is mandatory for an instantiation request of an RSVP-signaled LSP. It contains source and destination addresses for provisioning the LSP.
 
-      @line 16: **ero** - The *ERO* object is mandatory for LSP initiation request.
+      @line 18: **ero** - The *ERO* object is mandatory for LSP initiation request.
 
 LSP Deletion
 ''''''''''''
@@ -1160,15 +1183,17 @@ Following RPC example illustrates a request for the LSP delegation:
 
       .. code-block:: xml
          :linenos:
-         :emphasize-lines: 2,3,6,10
+         :emphasize-lines: 2,3,7,8,12
 
-         <input>
+         <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
             <node>pcc://43.43.43.43</node>
             <name>update-tunel</name>
             <arguments>
                <lsp xmlns:stateful="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-                  <delegate>true</delegate>
-                  <administrative>true</administrative>
+                  <lsp-flags>
+                     <delegate>true</delegate>
+                     <administrative>true</administrative>
+                  </lsp-flags>
                   <tlvs>
                      <symbolic-path-name>
                         <path-name>dXBkYXRlLXR1bmVs</path-name>
@@ -1183,9 +1208,11 @@ Following RPC example illustrates a request for the LSP delegation:
 
       @line 3: **name** The name of the LSP.
 
-      @line 6: **delegate** - *Delegation* flag set *true* in order to take the LSP delegation.
+      @line 7: **delegate** - *Delegation* flag set *true* in order to take the LSP delegation.
 
-      @line 10: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
+      @line 8: **administrative** - The flag indicates target operational status of the LSP.
+
+      @line 12: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
 
    .. tab:: JSON
 
@@ -1195,7 +1222,7 @@ Following RPC example illustrates a request for the LSP delegation:
 
       .. code-block:: json
          :linenos:
-         :emphasize-lines: 3,4,7,11
+         :emphasize-lines: 3,4,7,8,12
 
          {
              "input": {
@@ -1203,8 +1230,10 @@ Following RPC example illustrates a request for the LSP delegation:
                  "name": "update-tunel",
                  "arguments": {
                      "lsp": {
-                         "delegate": true,
-                         "administrative": true,
+                         "lsp-flags": {
+                             "delegate": true,
+                             "administrative": true
+                         },
                          "tlvs": {
                              "symbolic-path-name": {
                                  "path-name": "dXBkYXRlLXR1bmVs"
@@ -1222,7 +1251,9 @@ Following RPC example illustrates a request for the LSP delegation:
 
       @line 7: **delegate** - *Delegation* flag set *true* in order to take the LSP delegation.
 
-      @line 11: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
+      @line 8: **administrative** - The flag indicates target operational status of the LSP.
+
+      @line 12: **path-name** - The *Symbolic Path Name* TLV must be present when sending a request to take a delegation.
 
 Segment Routing
 ^^^^^^^^^^^^^^^
@@ -1274,15 +1305,17 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
 
       .. code-block:: xml
          :linenos:
-         :emphasize-lines: 16,21,22,23
+         :emphasize-lines: 7,8,18,23,24,25
 
          <input xmlns="urn:opendaylight:params:xml:ns:yang:topology:pcep">
             <node>pcc://43.43.43.43</node>
             <name>sr-path</name>
             <arguments>
                <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-                  <delegate>true</delegate>
-                  <administrative>true</administrative>
+                  <lsp-flags>
+                     <delegate>true</delegate>
+                     <administrative>true</administrative>
+                  </lsp-flags>
                </lsp>
                <endpoints-obj>
                   <ipv4>
@@ -1306,13 +1339,13 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
             <network-topology-ref xmlns:topo="urn:TBD:params:xml:ns:yang:network-topology">/topo:network-topology/topo:topology[topo:topology-id="pcep-topology"]</network-topology-ref>
          </input>
 
-      @line 16: **path-setup-type** - Set *1* for SR-TE LSP
+      @line 18: **path-setup-type** - Set *1* for SR-TE LSP
 
-      @line 21: **ipv4-node-id** - The SR-ERO subobject represents *IPv4 Node ID* NAI.
+      @line 23: **ipv4-node-id** - The SR-ERO subobject represents *IPv4 Node ID* NAI.
 
-      @line 22: **m-flag** - The SID value represents an MPLS label.
+      @line 24: **m-flag** - The SID value represents an MPLS label.
 
-      @line 23: **sid** - The Segment Identifier.
+      @line 25: **sid** - The Segment Identifier.
 
    .. tab:: JSON
 
@@ -1322,7 +1355,7 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
 
       .. code-block:: json
          :linenos:
-         :emphasize-lines: 17,22,23,24
+         :emphasize-lines: 8,9,19,24,25,26
 
          {
              "input": {
@@ -1330,8 +1363,10 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
                  "name": "sr-path",
                  "arguments": {
                      "lsp": {
-                         "delegate": true,
-                         "administrative": true
+                         "lsp-flags": {
+                             "delegate": true,
+                             "administrative": true
+                         }
                      },
                      "endpoints-obj": {
                          "ipv4": {
@@ -1356,13 +1391,13 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
              }
          }
 
-@line 17: **path-setup-type** - Set *1* for SR-TE LSP
+@line 19: **path-setup-type** - Set *1* for SR-TE LSP
 
-@line 22: **ipv4-node-id** - The SR-ERO subobject represents *IPv4 Node ID* NAI.
+@line 24: **ipv4-node-id** - The SR-ERO subobject represents *IPv4 Node ID* NAI.
 
-@line 23: **m-flag** - The SID value represents an MPLS label.
+@line 25: **m-flag** - The SID value represents an MPLS label.
 
-@line 24: **sid** - The Segment Identifier.
+@line 26: **sid** - The Segment Identifier.
 
 -----
 
