@@ -1,1 +1,1 @@
-rests/operations/network-topology-pcep:add-lsp
+restconf/operations/network-topology-pcep:add-lsp

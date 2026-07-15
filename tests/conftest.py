@@ -26,7 +26,7 @@ KARAF_LOG_LEVEL = variables.KARAF_LOG_LEVEL
 ODL_FEATRUES = [
     "odl-integration-compatible-with-all",
     "odl-infrautils-ready, odl-restconf-all",
-    "odl-restconf-nb-rfc8040, odl-jolokia",
+    "odl-restconf-nb, odl-jolokia",
     "odl-bgpcep-data-change-counter",
     "odl-bgpcep-bgp",
     "odl-bgpcep-bgp-config-example",

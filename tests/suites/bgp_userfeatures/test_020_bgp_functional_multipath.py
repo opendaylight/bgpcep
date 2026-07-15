@@ -17,7 +17,7 @@ import pytest
 
 from libraries import bgp
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -42,7 +42,7 @@ DEFAULT_MAPPING = {"ODLIP": ODL_IP, "EXAIP": TOOLS_IP, "NPATHS": N_PATHS_VALUE}
 PATH_ID_LIST = (1, 2, 3)
 NEXT_HOP_PREF = "100.100.100."
 OPENCONFIG_RIB_URI = (
-    f"http://{ODL_IP}:{RESTCONF_PORT}/rests/data/"
+    f"http://{ODL_IP}:{RESTCONF_PORT}/restconf/data/"
     f"openconfig-network-instance:network-instances/network-instance=global-bgp/"
     f"openconfig-network-instance:protocols/"
     f"protocol=openconfig-policy-types%3ABGP,example-bgp-rib"
@@ -142,7 +142,7 @@ class TestBgpfunctionalMultipath:
 
     def log_loc_rib_operational(self):
         rsp = templated_requests.get_from_uri(
-            f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib?content=nonconfig"
+            f"restconf/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib?content=nonconfig"
         )
         log.info(rsp.json())
 

@@ -1,1 +1,1 @@
-rests/data/network-topology:network-topology/topology=example-ipv6-topology
+restconf/data/network-topology:network-topology/topology=example-ipv6-topology
