@@ -152,6 +152,30 @@
       },
       "revId": "7f3e3dee0858ec8f5dbc226fcdb33c09e1fc0d4f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "274e70e2_8a296774",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/entry/AbstractAdvertizedRoute.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-15T09:29:38Z",
+      "side": 1,
+      "message": "The lock is gone. Since the previous patch \"Limit in-flight AdjRibsOut updates\" replaced the parallelStream() fan-out with a sequential loop, the cache no longer needs synchronization and I have removed it. Every call to sharedRouteEntry now happens under the LocRibWriter lock, one at a time, so the method is never called concurrently.",
+      "parentUuid": "73fa60b0_1fe3c7d7",
+      "range": {
+        "startLine": 107,
+        "startChar": 12,
+        "endLine": 107,
+        "endChar": 30
+      },
+      "revId": "7f3e3dee0858ec8f5dbc226fcdb33c09e1fc0d4f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
