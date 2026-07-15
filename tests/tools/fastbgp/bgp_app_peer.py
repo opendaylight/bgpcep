@@ -29,13 +29,13 @@ def _build_url(odl_ip, port, uri):
 
         :param port: controller's restconf port
 
-        :param uri: URI without /rests/ to complete URL
+        :param uri: URI without /restconf/ to complete URL
 
     Returns:
         :returns url: full restconf url corresponding to params
     """
 
-    url = "http://" + str(odl_ip) + ":" + port + "/rests/" + uri
+    url = "http://" + str(odl_ip) + ":" + port + "/restconf/" + uri
     return url
 
 
@@ -122,7 +122,7 @@ def send_request(
 
         :param port: controller's restconf port
 
-        :param uri: URI without /rests/ to complete URL
+        :param uri: URI without /restconf/ to complete URL
 
         :param auth: authentication credentials
 
@@ -181,7 +181,7 @@ def get_prefixes(
 
         :param port: controller's restconf port
 
-        :param uri: URI without /rests/ to complete URL
+        :param uri: URI without /restconf/ to complete URL
 
         :param auth: authentication tupple as (user, password)
 
@@ -197,7 +197,7 @@ def get_prefixes(
         :returns None
     """
 
-    logger.info("Get all prefixes from %s:%s/rests/%s", odl_ip, port, uri)
+    logger.info("Get all prefixes from %s:%s/restconf/%s", odl_ip, port, uri)
     rsp = send_request("GET", odl_ip, port, uri, auth)
     if rsp is not None:
         s = rsp.text
@@ -234,7 +234,7 @@ def post_prefixes(
 
         :param port: controller's restconf port
 
-        :param uri: URI without /rests/ to complete URL
+        :param uri: URI without /restconf/ to complete URL
 
         :param auth: authentication tupple as (user, password)
 
@@ -252,7 +252,7 @@ def post_prefixes(
         :returns None
     """
     logger.info(
-        "Post %s prefix(es) in a single request (starting from %s/%s) into %s:%s/rests/%s",
+        "Post %s prefix(es) in a single request (starting from %s/%s) into %s:%s/restconf/%s",
         count,
         prefix_base,
         prefix_len,
@@ -284,7 +284,7 @@ def put_prefixes(
 
         :param port: controller's restconf port
 
-        :param uri: URI without /rests/ to complete URL
+        :param uri: URI without /restconf/ to complete URL
 
         :param auth: authentication tupple as (user, password)
 
@@ -301,7 +301,7 @@ def put_prefixes(
     """
     uri_add_prefix = f"{uri}/{_uri_suffix_ipv4_routes}"
     logger.info(
-        "Put %s prefix(es) in a single request (starting from %s/%s) into %s:%s/rests/%s",
+        "Put %s prefix(es) in a single request (starting from %s/%s) into %s:%s/restconf/%s",
         count,
         prefix_base,
         prefix_len,
@@ -339,7 +339,7 @@ def add_prefixes(
 
         :param port: controller's restconf port
 
-        :param uri: URI without /rests/ to complete URL
+        :param uri: URI without /restconf/ to complete URL
 
         :param auth: authentication tupple as (user, password)
 
@@ -355,7 +355,7 @@ def add_prefixes(
         :returns None
     """
     logger.info(
-        "Add %s prefixes (starting from %s/%s) into %s:%s/rests/%s",
+        "Add %s prefixes (starting from %s/%s) into %s:%s/restconf/%s",
         count,
         prefix_base,
         prefix_len,
@@ -368,7 +368,7 @@ def add_prefixes(
     for prefix_index in range(count):
         prefix = prefix_base + prefix_index * prefix_gap
         logger.info(
-            "Adding prefix %s/%s to %s:%s/rests/%s",
+            "Adding prefix %s/%s to %s:%s/restconf/%s",
             prefix,
             prefix_len,
             odl_ip,
@@ -399,7 +399,7 @@ def delete_prefixes(
 
         :param port: controller's restconf port
 
-        :param uri: URI without /rests/ to complete URL
+        :param uri: URI without /restconf/ to complete URL
 
         :param auth: authentication tupple as (user, password)
 
@@ -415,7 +415,7 @@ def delete_prefixes(
         :returns None
     """
     logger.info(
-        "Delete %s prefix(es) (starting from %s/%s) from %s:%s/rests/%s",
+        "Delete %s prefix(es) (starting from %s/%s) from %s:%s/restconf/%s",
         count,
         prefix_base,
         prefix_len,
@@ -429,7 +429,7 @@ def delete_prefixes(
     for prefix_index in range(count):
         prefix = prefix_base + prefix_index * prefix_gap
         logger.info(
-            "Deleting prefix %s/%s/%s from %s:%s/rests/%s",
+            "Deleting prefix %s/%s/%s from %s:%s/restconf/%s",
             prefix,
             prefix_len,
             partkey,
@@ -464,7 +464,7 @@ def delete_all_prefixes(
 
         :param port: controller's restconf port
 
-        :param uri: URI without /rests/ to complete URL
+        :param uri: URI without /restconf/ to complete URL
 
         :param auth: authentication tupple as (user, password)
 
@@ -479,7 +479,7 @@ def delete_all_prefixes(
     Returns:
         :returns None
     """
-    logger.info("Delete all prefixes from %s:%s/rests/%s", odl_ip, port, uri)
+    logger.info("Delete all prefixes from %s:%s/restconf/%s", odl_ip, port, uri)
     uri_del_all_prefixes = f"{uri}/{_uri_suffix_ipv4_routes}"
     send_request(
         "DELETE", odl_ip, port, uri_del_all_prefixes, auth, expect_status_code=[204]

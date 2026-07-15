@@ -1,1 +1,1 @@
-rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib
+restconf/data/bgp-rib:bgp-rib/rib=example-bgp-rib

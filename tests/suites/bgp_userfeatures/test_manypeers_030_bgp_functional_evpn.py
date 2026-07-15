@@ -17,7 +17,7 @@ import pytest
 
 from libraries import bgp
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -32,18 +32,18 @@ BGP_DIR = "variables/bgpfunctional"
 EVPN_DIR = "variables/bgpfunctional/l2vpn_evpn"
 RIB_NAME = "example-bgp-rib"
 EVPN_CONF_URL = (
-    f"rests/data/bgp-rib:application-rib={ODL_IP}"
+    f"restconf/data/bgp-rib:application-rib={ODL_IP}"
     f"/tables=odl-bgp-evpn%3Al2vpn-address-family,"
     f"odl-bgp-evpn%3Aevpn-subsequent-address-family/odl-bgp-evpn:evpn-routes"
 )
 EVPN_LOC_RIB = (
-    f"rests/data/bgp-rib:bgp-rib/rib={RIB_NAME}/loc-rib/"
+    f"restconf/data/bgp-rib:bgp-rib/rib={RIB_NAME}/loc-rib/"
     f"tables=odl-bgp-evpn%3Al2vpn-address-family,"
     f"odl-bgp-evpn%3Aevpn-subsequent-address-family/"
     f"odl-bgp-evpn:evpn-routes?content=nonconfig"
 )
 EVPN_FAMILY_LOC_RIB = (
-    f"rests/data/bgp-rib:bgp-rib/rib={RIB_NAME}/loc-rib/"
+    f"restconf/data/bgp-rib:bgp-rib/rib={RIB_NAME}/loc-rib/"
     f"tables=odl-bgp-evpn%3Al2vpn-address-family,"
     f"odl-bgp-evpn%3Aevpn-subsequent-address-family?content=nonconfig"
 )

@@ -17,7 +17,7 @@ import pytest
 from libraries import bgp
 from libraries import flowspec
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -35,7 +35,7 @@ EXP1 = "bgp_flowspec_manypeers"
 CFG2 = "bgp-flowspec-redirect-manypeers.cfg"
 EXP2 = "bgp_flowspec_redirect_manypeers"
 FLOWSPEC_URL = (
-    "/rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/"
+    "/restconf/data/bgp-rib:bgp-rib/rib=example-bgp-rib/loc-rib/"
     "tables=bgp-types:ipv4-address-family,"
     "bgp-flowspec:flowspec-subsequent-address-family/"
     "bgp-flowspec:flowspec-routes?content=nonconfig"

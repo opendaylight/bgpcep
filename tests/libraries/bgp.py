@@ -14,7 +14,7 @@ import ipaddr
 import requests
 
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.BgpRpcClient import BgpRpcClient
 from libraries.variables import variables
@@ -523,7 +523,7 @@ def verify_bgp_speaker_connected(
         speaker_ips = [speaker_ips]
     for speaker_ip in speaker_ips:
         templated_requests.get_from_uri(
-            f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
+            f"restconf/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
             f"peer=bgp:%2F%2F{speaker_ip}?content=nonconfig",
             expected_code=expected_response_code,
         )
@@ -624,7 +624,7 @@ def verify_exabgp_connection(
         exabgp_ips = [exabgp_ips]
     for exabgp_ip in exabgp_ips:
         uri = (
-            "rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
+            "restconf/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
             f"peer=bgp%3A%2F%2F{exabgp_ip}?content=nonconfig"
         )
         templated_requests.get_from_uri(uri, expected_code=expected_code)
@@ -725,7 +725,7 @@ def verify_gobgp_connection(gobgp_ip: str, expect_connected: bool = True):
         else templated_requests.DENIED_STATUS_CODE
     )
     uri = (
-        f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
+        f"restconf/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
         f"peer=bgp%3A%2F%2F{gobgp_ip}?content=nonconfig"
     )
     templated_requests.get_from_uri(uri, expected_code=expected_code)
@@ -1004,7 +1004,7 @@ def verify_two_hex_messages_are_equal(hex1: str, hex2: str):
 
 
 def check_example_bgp_rib_does_not_contain(substr: str):
-    uri = f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib?content=nonconfig"
+    uri = f"restconf/data/bgp-rib:bgp-rib/rib=example-bgp-rib?content=nonconfig"
     response = templated_requests.get_from_uri(uri)
     assert substr not in response.text, (
         f"Did not expect {substr} to be present in example-bgp-rib config:\n"

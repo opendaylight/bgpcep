@@ -18,7 +18,7 @@ import requests
 
 from libraries import AuthStandalone
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from variables.pcepuser.titanium import variables as pcep_variables
@@ -55,7 +55,7 @@ def get_pcep_topology() -> requests.Response:
     Returns:
         requests.Response:: Pcep topology
     """
-    rest_session = AuthStandalone.Init_Session(ODL_IP, "admin", "admin")
+    rest_session = AuthStandalone.Init_Session(ODL_IP, "admin", "admin", port="8182")
     resp = AuthStandalone.Get_Using_Session(
         rest_session,
         (
@@ -85,7 +85,7 @@ def get_path_computation_client() -> requests.Response:
         requests.Response:: Path computation client.
     """
     uri = (
-        f"rests/data/network-topology:network-topology/topology=pcep-topology/"
+        f"restconf/data/network-topology:network-topology/topology=pcep-topology/"
         f"node=pcc:%2F%2F{TOOLS_IP}/"
         f"network-topology-pcep:path-computation-client?content=nonconfig"
     )
@@ -358,7 +358,7 @@ def operate_xml_lsp_return_json(uri_part: str, xml_data: str) -> requests.Respon
     Returns:
         requests.Response: POST request response.
     """
-    uri_path = f"/rests/operations/{uri_part}"
+    uri_path = f"/restconf/operations/{uri_part}"
     response = templated_requests.post_to_uri(
         uri_path, None, xml_data, expected_code=templated_requests.ALLOWED_STATUS_CODES
     )

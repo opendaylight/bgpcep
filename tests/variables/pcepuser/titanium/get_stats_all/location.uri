@@ -1,1 +1,1 @@
-rests/operations/pcep-topology-stats-rpc:get-stats
+restconf/operations/pcep-topology-stats-rpc:get-stats

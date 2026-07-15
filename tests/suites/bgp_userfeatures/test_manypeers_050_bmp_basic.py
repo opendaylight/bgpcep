@@ -17,7 +17,7 @@ import pytest
 
 from libraries import bmp
 from libraries import infra
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -65,7 +65,7 @@ class TestBmpBasic:
             test suite it simulates 20 peer with 1 router, which means it \
             advertizes twenty peers ipv4 address towards odl. As a result \
             twnety peers and one router should appear in the \
-            *rests/data/bmp-monitor:bmp-monitor?content=nonconfig*.
+            *restconf/data/bmp-monitor:bmp-monitor?content=nonconfig*.
         """
         )
     )
