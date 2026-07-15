@@ -156,6 +156,31 @@
             <properties>
                 <tox.args>-- -m "smoke and not performance"</tox.args>
             </properties>
+            <!-- netconf-testlib (unpacked below) is published to a locally running Nexus 3
+                 instance rather than nexus.opendaylight.org; see netconf-parent's
+                 distributionManagement for the matching deploy configuration. -->
+            <repositories>
+                <repository>
+                    <id>nexus-local-releases</id>
+                    <url>http://localhost:8081/repository/maven-releases/</url>
+                    <releases>
+                        <enabled>true</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>false</enabled>
+                    </snapshots>
+                </repository>
+                <repository>
+                    <id>nexus-local-snapshots</id>
+                    <url>http://localhost:8081/repository/maven-snapshots/</url>
+                    <releases>
+                        <enabled>false</enabled>
+                    </releases>
+                    <snapshots>
+                        <enabled>true</enabled>
+                    </snapshots>
+                </repository>
+            </repositories>
             <build>
                 <plugins>
                     <plugin>
