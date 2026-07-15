@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "1bf33a9e_d95005f4",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImplTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-15T10:56:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95214ae2_641f54ed",
+      "revId": "9c1d4d94d135994b683dda04fd8db42bab13f0da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "ca51bf49_83aa54af",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-15T08:02:21Z",
       "side": 1,
       "message": "assertTrue? try to limit hamcrest usage, IIRC we are trying to limit it and removing where possible (search for other commits)",
+      "revId": "9c1d4d94d135994b683dda04fd8db42bab13f0da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b25e97e6_af6a4171",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImplTest.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-15T10:56:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ca51bf49_83aa54af",
       "revId": "9c1d4d94d135994b683dda04fd8db42bab13f0da",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
