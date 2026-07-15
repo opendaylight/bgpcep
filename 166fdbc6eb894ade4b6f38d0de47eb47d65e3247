@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62a46422_87919c0e",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-15T06:47:25Z",
+      "side": 1,
+      "message": "do not use `this` when not needed..",
+      "revId": "166fdbc6eb894ade4b6f38d0de47eb47d65e3247",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17975b77_0f192a16",
+        "filename": "bgp/path-selection-mode/src/test/java/org/opendaylight/protocol/bgp/mode/impl/add/all/paths/AllPathsRouteEntryTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-15T06:47:25Z",
+      "side": 1,
+      "message": "can you document tests?",
+      "revId": "166fdbc6eb894ade4b6f38d0de47eb47d65e3247",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "36aacd9b_ca03e2b2",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListenerTest.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-15T06:47:25Z",
+      "side": 1,
+      "message": "this should be @Before startUp() method?",
+      "revId": "166fdbc6eb894ade4b6f38d0de47eb47d65e3247",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2eae7bd6_6bdc25cb",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 280,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-15T06:47:25Z",
+      "side": 1,
+      "message": "Can you add one line header?",
+      "revId": "166fdbc6eb894ade4b6f38d0de47eb47d65e3247",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
