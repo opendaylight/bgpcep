@@ -15,9 +15,9 @@ import textwrap
 import allure
 import pytest
 
-from libraries import infra
+from controller_testlib import infra
 from libraries import utils
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from variables.tcpmd5user.titanium import variables as tcpmd5_variables
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder

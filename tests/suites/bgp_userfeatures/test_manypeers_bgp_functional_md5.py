@@ -16,8 +16,8 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
-from libraries import templated_requests
+from controller_testlib import infra
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -80,7 +80,7 @@ class TestBgpFunctionalMd5:
                 "PASSWORD": MD5_SAME_PASSWD,
             },
         )
-        infra.save_to_a_file(f"tmp/exa-md5.cfg", config)
+        infra.save_text_to_a_file(f"tmp/exa-md5.cfg", config)
 
     @allure.description(
         textwrap.dedent(

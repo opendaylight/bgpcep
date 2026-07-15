@@ -17,8 +17,8 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
-from libraries import templated_requests
+from controller_testlib import infra
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -109,7 +109,7 @@ class TestBgpfunctionalL3Vpn:
             "bgp-l3vpn-ipv4-manypeers.j2",
             mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT},
         )
-        infra.save_to_a_file(f"tmp/{L3VPN_EXA_CFG}", config)
+        infra.save_text_to_a_file(f"tmp/{L3VPN_EXA_CFG}", config)
 
     @allure.description(
         textwrap.dedent(

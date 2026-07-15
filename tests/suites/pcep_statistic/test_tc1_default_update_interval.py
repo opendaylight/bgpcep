@@ -13,7 +13,8 @@ import allure
 import pytest
 import time
 
-from libraries import infra
+from controller_testlib import infra
+from controller_testlib import karaf
 from libraries import pcep
 from libraries import utils
 from libraries.variables import variables
@@ -58,8 +59,8 @@ class TestPcepUser:
         ):
             # To be able to track time of the last pcep stats update we
             # need to check it in logs with at least DEBUG level.
-            infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.bgpcep")
-            infra.execute_karaf_command(f"log:set DEBUG org.opendaylight.protocol")
+            karaf.execute_karaf_command(f"log:set DEBUG org.opendaylight.bgpcep")
+            karaf.execute_karaf_command(f"log:set DEBUG org.opendaylight.protocol")
 
         with allure_step_with_separate_logging("step_start_pcc_mock"):
             # Starts PCC mocks simulator.
@@ -100,5 +101,5 @@ class TestPcepUser:
             "step_change_karaf_logging_levels_to_default"
         ):
             # Return logging level back to default INFO value.
-            infra.execute_karaf_command(f"log:set INFO org.opendaylight.bgpcep")
-            infra.execute_karaf_command(f"log:set INFO org.opendaylight.protocol")
+            karaf.execute_karaf_command(f"log:set INFO org.opendaylight.bgpcep")
+            karaf.execute_karaf_command(f"log:set INFO org.opendaylight.protocol")

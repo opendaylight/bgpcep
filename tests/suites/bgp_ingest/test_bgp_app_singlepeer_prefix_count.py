@@ -16,7 +16,7 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
+from controller_testlib import infra
 from libraries import prefix_counting
 from libraries import utils
 from libraries.variables import variables

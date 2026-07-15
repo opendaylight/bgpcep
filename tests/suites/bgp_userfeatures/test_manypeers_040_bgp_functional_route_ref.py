@@ -16,8 +16,9 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
-from libraries import templated_requests
+from controller_testlib import infra
+from controller_testlib import karaf
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -66,7 +67,7 @@ class TestBgpfunctionalRouteRef:
                 "ADDPATH": "disable",
             },
         )
-        infra.save_to_a_file(f"tmp/{BGP_CFG_NAME}", config)
+        infra.save_text_to_a_file(f"tmp/{BGP_CFG_NAME}", config)
         rc, stdout = infra.shell(f"cat tmp/{BGP_CFG_NAME}")
         log.info(stdout)
 
@@ -88,7 +89,7 @@ class TestBgpfunctionalRouteRef:
     ):
         """Checks notification and update count from odl-bgpcep-bgp-cli.
         odl-bgpcep-bgp-cli is only avaiable on versions oxygen and above."""
-        stdout, stderror = infra.execute_karaf_command(
+        stdout, stderror = karaf.execute_karaf_command(
             f"bgp:operational-state -rib example-bgp-rib -neighbor 127.0.1.{peer_id}"
         )
         stdout = stdout.replace("│", "|").replace("─", "-")

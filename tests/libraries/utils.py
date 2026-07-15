@@ -16,8 +16,8 @@ from typing import Any, Generator, List, Tuple
 
 from jinja2 import Environment, FileSystemLoader
 
-from libraries import infra
-from libraries import norm_json
+from controller_testlib import infra
+from controller_testlib import norm_json
 
 log = logging.getLogger(__name__)
 

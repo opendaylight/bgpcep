@@ -155,6 +155,8 @@
             </activation>
             <properties>
                 <tox.args>-- -m "smoke and not performance"</tox.args>
+                <skip.pytest>false</skip.pytest>
+                <controller.version>14.0.0-SNAPSHOT</controller.version>
             </properties>
             <!-- netconf-testlib (unpacked below) is published to a locally running Nexus 3
                  instance rather than nexus.opendaylight.org; see netconf-parent's
@@ -207,6 +209,10 @@
                                             <directory>${project.basedir}/tests/netconf_testlib</directory>
                                             <followSymlinks>false</followSymlinks>
                                         </fileset>
+                                        <fileset>
+                                            <directory>${project.basedir}/tests/controller_testlib</directory>
+                                            <followSymlinks>false</followSymlinks>
+                                        </fileset>
                                     </filesets>
                                 </configuration>
                             </execution>
@@ -228,6 +234,25 @@
                                             <groupId>org.opendaylight.netconf</groupId>
                                             <artifactId>netconf-testlib</artifactId>
                                             <version>${netconf.version}</version>
+                                            <includes>netconf_testlib/**</includes>
+                                        </artifactItem>
+                                    </artifactItems>
+                                    <outputDirectory>${project.basedir}/tests</outputDirectory>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>unpack-controller-testlib</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.opendaylight.controller</groupId>
+                                            <artifactId>controller-testlib</artifactId>
+                                            <version>${controller.version}</version>
+                                            <includes>controller_testlib/**</includes>
                                         </artifactItem>
                                     </artifactItems>
                                     <outputDirectory>${project.basedir}/tests</outputDirectory>
@@ -299,6 +324,7 @@
                                     <goal>exec</goal>
                                 </goals>
                                 <configuration>
+                                    <skip>${skip.pytest}</skip>
                                     <executable>tox</executable>
                                     <commandlineArgs>-e pytest ${tox.args}</commandlineArgs>
                                     <workingDirectory>${project.basedir}/tests</workingDirectory>

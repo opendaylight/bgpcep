@@ -15,7 +15,8 @@ import allure
 
 from libraries import bgp
 from libraries import change_counter
-from libraries import infra
+from controller_testlib import infra
+from controller_testlib import karaf
 from libraries import prefix_counting
 from libraries import utils
 from libraries.variables import variables
@@ -110,10 +111,10 @@ class BaseTestManyPeerChangeCount:
         with allure_step_with_separate_logging("step_change_karaf_logging_levels"):
             # We may want to set more verbose logging here after configuration is
             # done.
-            infra.execute_karaf_command(
+            karaf.execute_karaf_command(
                 f"log:set {KARAF_BGPCEP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            karaf.execute_karaf_command(
                 f"log:set {KARAF_PROTOCOL_LOG_LEVEL} org.opendaylight.protocol"
             )
 
@@ -178,10 +179,10 @@ class BaseTestManyPeerChangeCount:
 
         with allure_step_with_separate_logging("step_restore_karaf_logging_levels"):
             # Set logging on bgpcep and protocol to the global value.
-            infra.execute_karaf_command(
+            karaf.execute_karaf_command(
                 f"log:set {KARAF_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            karaf.execute_karaf_command(
                 f"log:set {KARAF_LOG_LEVEL} org.opendaylight.protocol"
             )
 

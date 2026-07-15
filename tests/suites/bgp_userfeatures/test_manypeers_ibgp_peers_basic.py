@@ -18,9 +18,10 @@ import allure
 import pytest
 
 from libraries import bgp
-from libraries import infra
+from controller_testlib import infra
+from controller_testlib import karaf
 from libraries import prefix_counting
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -200,11 +201,11 @@ class TestIbgpPeersBasic:
 
         with allure_step_with_separate_logging("step_test_suite_setup"):
             # Configure karaf logging level.
-            infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
-            infra.execute_karaf_command(
+            karaf.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
+            karaf.execute_karaf_command(
                 f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            karaf.execute_karaf_command(
                 f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
             )
 

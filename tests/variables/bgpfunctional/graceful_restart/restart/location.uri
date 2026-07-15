@@ -1,1 +1,1 @@
-rests/operations/bgp-peer-rpc:restart-gracefully
+restconf/operations/bgp-peer-rpc:restart-gracefully

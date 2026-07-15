@@ -15,7 +15,7 @@ import allure
 
 from libraries import bgp
 from libraries import change_counter
-from libraries import infra
+from controller_testlib import infra
 from libraries import prefix_counting
 from libraries import utils
 from libraries.variables import variables
