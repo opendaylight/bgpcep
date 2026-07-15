@@ -111,6 +111,30 @@
       },
       "revId": "0aa5f60538670d10831b056702574c8cae1509eb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "46ac5225_fbdb5506",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-15T09:01:19Z",
+      "side": 1,
+      "message": "The updated patch removes the dependency between peers, so my earlier answer no longer applies. Each peer now waits only for its own previous commit, tracked per PeerId. Within one fan-out no peer waits for another. A wait can only happen in the next walkThrough batch, when that peer\u0027s previous commit has not completed yet. With a datastore that keeps up, the future is already complete by then and nothing waits.\n  \nWhen the datastore falls behind, the sequential loop makes a wait on one peer delay the peers after it, so each peer has at most one unfinished commit. This is intended, the writer slows down to the speed of the datastore instead of creating transactions faster than they can be committed.",
+      "parentUuid": "27b7af6a_bfd929ee",
+      "range": {
+        "startLine": 356,
+        "startChar": 12,
+        "endLine": 357,
+        "endChar": 54
+      },
+      "revId": "0aa5f60538670d10831b056702574c8cae1509eb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
