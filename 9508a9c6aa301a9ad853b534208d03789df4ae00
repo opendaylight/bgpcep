@@ -1,6 +1,40 @@
 {
   "comments": [
     {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e848540_f1cee93f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-15T07:06:49Z",
+      "side": 1,
+      "message": "Fix",
+      "revId": "9508a9c6aa301a9ad853b534208d03789df4ae00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "75416873_3c253ea9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-15T07:06:49Z",
+      "side": 1,
+      "message": "Address remaining.. we do not know what\u0027s previous patch .. add its hash?",
+      "revId": "9508a9c6aa301a9ad853b534208d03789df4ae00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": false,
       "key": {
         "uuid": "f9ce969f_bdcd054a",
