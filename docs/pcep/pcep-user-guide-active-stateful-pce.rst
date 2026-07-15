@@ -1423,8 +1423,10 @@ Following RPC example illustrates a request for the SR-TE LSP update including m
             <name>update-tunnel</name>
             <arguments>
                <lsp xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
-                  <delegate>true</delegate>
-                  <administrative>true</administrative>
+                  <lsp-flags>
+                     <delegate>true</delegate>
+                     <administrative>true</administrative>
+                  </lsp-flags>
                </lsp>
                <path-setup-type xmlns="urn:opendaylight:params:xml:ns:yang:pcep:ietf:stateful">
                   <pst>1</pst>
@@ -1464,8 +1466,10 @@ Following RPC example illustrates a request for the SR-TE LSP update including m
                  "name": "foo",
                  "arguments": {
                      "lsp": {
-                         "delegate": true,
-                         "administrative": true
+                         "lsp-flags": {
+                             "delegate": true,
+                             "administrative": true
+                         }
                      },
                      "path-setup-type": {
                          "pst": 1
