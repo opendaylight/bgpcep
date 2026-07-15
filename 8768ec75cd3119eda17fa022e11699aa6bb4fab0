@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "9b31f381_690b2008",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-15T07:48:44Z",
+      "side": 1,
+      "message": "remove or reword, now its not used in one place only anymore and probably with volatile we have fix it?",
+      "revId": "8768ec75cd3119eda17fa022e11699aa6bb4fab0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "eb4bc073_aa24c85a",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
         "patchSetId": 10
