@@ -18,7 +18,7 @@ import pytest
 
 from libraries import infra
 from libraries import pcep
-from libraries import templated_requests
+from netconf_testlib import templated_requests
 from libraries import utils
 from variables.pcepuser.titanium import variables as pcep_variables
 from libraries.variables import variables

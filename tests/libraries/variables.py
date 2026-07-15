@@ -37,7 +37,7 @@ class Variables(BaseSettings):
     TOOLS_PASSWORD: str = "admin"
     KARAF_LOG_LEVEL: str = "INFO"
     TEST_DURATION_MULTIPLIER: int = 1
-    TOPOLOGY_URL: str = "rests/data/network-topology:network-topology/topology"
+    TOPOLOGY_URL: str = "restconf/data/network-topology:network-topology/topology"
     DEFAULT_PCEP_STATS_UPDATE_INTERVAL: int = 5
     MAX_HTTP_RESPONSE_BODY_LOG_SIZE: int = 500
 
