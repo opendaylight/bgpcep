@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8c0d5f0_2b961b01",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-16T10:29:32Z",
+      "side": 1,
+      "message": "I believe we\u0027re trying to transition away from using \"this\". It might require a separate cleanup-patch in the future, but in the meantime clean at least the newly-added code. Here and below.",
+      "revId": "f4d7f2123285c1964a9004ee92733417855b28db",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
