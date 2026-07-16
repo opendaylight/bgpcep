@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "4ac0617a_8a9c5a6a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-16T07:58:00Z",
+      "side": 1,
+      "message": "I think this is meant to be removed or reworked to track peer state. I rather added another user here instead.",
+      "parentUuid": "9b31f381_690b2008",
+      "revId": "8768ec75cd3119eda17fa022e11699aa6bb4fab0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "eb4bc073_aa24c85a",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-15T07:44:18Z",
       "side": 1,
       "message": "The registration callback is attached with MoreExecutors.directExecutor() while initializeAdjRibOutTables() holds the BGPPeer monitor (@Holding(\"this\"), line\n507). Per Guava\u0027s contract, if the commit future is already complete when addCallback() runs, the callback executes inline on the calling thread — which still holds the monitor. registerPeer → onPeerAdded then acquires the LocRibWriter lock under the BGPPeer lock, the exact BGPPeer → LocRibWriter inversion against\nonDataTreeChanged → refreshRibOut (LocRibWriter → BGPPeer) that this commit sets out to eliminate. Whether the deadlock is possible depends purely on commit-completion timing.\n\nPass an executor that always dispatches, e.g. io.netty.util.concurrent.GlobalEventExecutor.INSTANCE (already used in this bundle). Do not use the\nsession\u0027s channel event loop — onPeerAdded performs the full per-table route dump and would block I/O for all peers on that loop.",
+      "revId": "8768ec75cd3119eda17fa022e11699aa6bb4fab0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "07c95634_dab11c30",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-16T07:58:00Z",
+      "side": 1,
+      "message": "Thanks, donne by adding GlobalEventExecutor.",
+      "parentUuid": "eb4bc073_aa24c85a",
       "revId": "8768ec75cd3119eda17fa022e11699aa6bb4fab0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -52,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2a159be3_23b5c03d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-16T07:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "96760932_e2336069",
+      "revId": "8768ec75cd3119eda17fa022e11699aa6bb4fab0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5809cee3_8e9daf1e",
@@ -69,6 +123,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3079f7a_1386482d",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-16T07:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5809cee3_8e9daf1e",
+      "revId": "8768ec75cd3119eda17fa022e11699aa6bb4fab0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "90bf1a64_a92ae898",
@@ -82,6 +154,24 @@
       "writtenOn": "2026-07-15T07:44:18Z",
       "side": 1,
       "message": "var",
+      "revId": "8768ec75cd3119eda17fa022e11699aa6bb4fab0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "658b5be3_052067f4",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-16T07:58:00Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90bf1a64_a92ae898",
       "revId": "8768ec75cd3119eda17fa022e11699aa6bb4fab0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
