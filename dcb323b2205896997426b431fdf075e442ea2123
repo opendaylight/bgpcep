@@ -16,6 +16,24 @@
       "message": "The executor switch (directExecutor() to GlobalEventExecutor.INSTANCE) is the actual mechanism that prevents the callback from running inline under the BGPPeer monitor. But the test stubs addCallback(any(FutureCallback.class), any(Executor.class)) and later runs registration.get().run() on the test thread, outside any lock. It therefore passes regardless of which executor production uses — reverting to directExecutor() would reintroduce the inline-under-lock deadlock while this test stayed green.",
       "revId": "dcb323b2205896997426b431fdf075e442ea2123",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "726ded2b_1ccc3a93",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-17T09:58:48Z",
+      "side": 1,
+      "message": "Thanks, done.",
+      "parentUuid": "75031f78_a2d7ef19",
+      "revId": "dcb323b2205896997426b431fdf075e442ea2123",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
