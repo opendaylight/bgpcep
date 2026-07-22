@@ -33,6 +33,23 @@
       "message": "recheck",
       "revId": "cb3e412462a8b1e3987aabd6e5b2a8d8c375cd58",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "893bcd1d_a432ce1c",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-07-22T08:56:56Z",
+      "side": 1,
+      "message": "Why did we go back to any(Executor.class) here? The any(GlobalEventExecutor.class) was there to make sure the actual logic runs on GlobalEventExecutor and not directExecutor (which caused the inline-under-lock deadlock). Right now if anyone changes the production code from using GlobalEventExecutor back to directExecutor this test will still pass.",
+      "revId": "cb3e412462a8b1e3987aabd6e5b2a8d8c375cd58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
