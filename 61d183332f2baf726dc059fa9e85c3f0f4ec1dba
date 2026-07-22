@@ -16,6 +16,24 @@
       "message": "We can leak the current Peer here.. if any one of these invoked listeners throws, the call ends the method without returning the Registration. But the peer is already in the peers list. The peer will also never get cleaned afterwards and all future best-path updates will be advertised to him pointlessly. Also if one listener throws, the others won\u0027t be invoked at all here..",
       "revId": "61d183332f2baf726dc059fa9e85c3f0f4ec1dba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f8fb7d20_6fe132ef",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-07-22T08:25:08Z",
+      "side": 1,
+      "message": "Thanks, resolved.",
+      "parentUuid": "cc516d8a_53dd2e54",
+      "revId": "61d183332f2baf726dc059fa9e85c3f0f4ec1dba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
