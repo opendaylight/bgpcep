@@ -15,6 +15,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
@@ -37,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -67,6 +69,11 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
     private final boolean mpSupport;
     private final Registration registerDataTreeChangeListener;
     private final LongAdder prefixesSentCounter = new LongAdder();
+    // Sends this peer's BGP UPDATEs. session.write() can block in ChannelOutputLimiter.ensureWritable()
+    // until this peer's channel drains, so that wait runs on this peer's own thread instead of the shared
+    // MD-SAL notification-dispatcher, where it would stall every other peer's updates too.
+    private final ExecutorService executor;
+
     private boolean initalState;
 
     private AdjRibOutListener(final PeerId peerId, final YangInstanceIdentifier ribId, final CodecsRegistry registry,
@@ -76,6 +83,8 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
         this.support = requireNonNull(support);
         codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
+        executor = SpecialExecutors.newBlockingBoundedFastThreadPool(1, 10_000,
+            "bgp-adj-rib-out-" + peerId.getValue(), AdjRibOutListener.class);
         final YangInstanceIdentifier adjRibOutId = ribId.node(PEER_NID).node(IdentifierUtils.domPeerId(peerId))
                 .node(ADJRIBOUT_NID).node(TABLES_NID).node(support.tablesKey());
         /*
@@ -105,7 +114,17 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
     }
 
     @Override
-    public void onDataTreeChanged(final List<DataTreeCandidate> changes) {
+    public void onDataTreeChanged(final @NonNull List<DataTreeCandidate> changes) {
+        if (executor.isShutdown()) {
+            LOG.trace("Executor closed, ignoring received data change {} to AdjRibOutListener", changes);
+            return;
+        }
+        // Called on a thread shared by every data tree change listener in the controller. Processing can
+        // block in ChannelOutputLimiter, so the batch is handed over to this listener's own thread.
+        executor.execute(() -> processChanges(changes));
+    }
+
+    private void processChanges(final List<DataTreeCandidate> changes) {
         LOG.debug("Data change received for AdjRibOut {}", changes);
         for (var tc : changes) {
             LOG.trace("Change {} type {}", tc.getRootNode(), tc.getRootNode().modificationType());
@@ -199,6 +218,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
 
     public void close() {
         registerDataTreeChangeListener.close();
+        executor.shutdown();
     }
 
     boolean isMpSupported() {

@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.timeout;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Before;
@@ -78,6 +80,7 @@ import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.util.concurrent.FastThreadPoolExecutor;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -109,6 +112,8 @@ public class Bgpcep1078Test extends AbstractRIBTestSetup {
     private Peer fourthPeer;
     @Mock
     private BGPSession session;
+    @Mock
+    private BGPSessionImpl limiterSession;
     private BGPPeerTracker peerTracker;
     private List<Peer> fannedOutPeers;
     private LocRibWriter<?, ?> locRibWriter;
@@ -333,6 +338,46 @@ public class Bgpcep1078Test extends AbstractRIBTestSetup {
         final var order = inOrder(fannedOutPeers.toArray());
         for (final var peer : fannedOutPeers) {
             order.verify(peer).refreshRibOut(any(RouteEntryDependenciesContainer.class), anyList(), anyList());
+        }
+    }
+
+    /*
+     * onDataTreeChanged hands the change to the listener's executor. The message travels through the real limiter
+     * to the session, where the write blocks. onDataTreeChanged returns while that write is blocked, so the
+     * executor thread carries the wait, not the caller. Without the executor the call would block inline.
+     */
+    @Test
+    public void testAdjRibOutListenerDoesNotBlockCaller() throws Exception {
+        final var writeReached = new CountDownLatch(1);
+        final var releaseWrite = new CountDownLatch(1);
+        doAnswer(inv -> {
+            writeReached.countDown();
+            // Block the session write until the test releases it, so the test can observe whether the caller
+            // thread is stuck in this write or was freed. Released in the finally block.
+            releaseWrite.await();
+            return null;
+        }).when(limiterSession).write(any(Notification.class));
+        doNothing().when(limiterSession).flush();
+
+        final var limiter = new ChannelOutputLimiter(limiterSession);
+        final var listener = AdjRibOutListener.create(new PeerId("bgp://10.0.0.5"), getRib().getYangRibId(),
+            getRib().getCodecsRegistry(), getRib().getRibExtensions().getRIBSupport(TABLES_KEY),
+            getRib().getService(), limiter, false);
+
+        final var caller = Executors.newSingleThreadExecutor();
+        try {
+            final var returned = caller.submit(() -> listener.onDataTreeChanged(List.of()));
+            // The message reached limiterSession.write(...) through the real limiter and is blocked there.
+            assertTrue("listener did not reach the blocked write", writeReached.await(5, TimeUnit.SECONDS));
+            // The executor added to AdjRibOutListener runs the processing, so onDataTreeChanged does not block the
+            // caller thread. It returns while limiterSession.write(...) is blocked. Without that executor the call
+            // would block here.
+            returned.get(5, TimeUnit.SECONDS);
+        } finally {
+            // Release the blocked write so the executor thread finishes and terminates on close instead of leaking.
+            releaseWrite.countDown();
+            listener.close();
+            caller.shutdownNow();
         }
     }
 
