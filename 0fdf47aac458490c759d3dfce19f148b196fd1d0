@@ -16,6 +16,24 @@
       "message": "why so old? move just before signoffby",
       "revId": "0fdf47aac458490c759d3dfce19f148b196fd1d0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "417d4545_ba61518e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-07-23T08:48:21Z",
+      "side": 1,
+      "message": "I forgot to move it again - change-id is automatically added always between assisted by and signed off by sections.\n\nSorry - I used to never change LLM version on purpose, I didn\u0027t notice that in claude it gave me no choice and switched automatically to higher version.",
+      "parentUuid": "4dbc5ec5_91b2f637",
+      "revId": "0fdf47aac458490c759d3dfce19f148b196fd1d0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
