@@ -71,6 +71,7 @@ def set_bgp_neighbours(
     peer_port: int = 17900,
     rib_instance: str = "example-bgp-rib",
     passive_mode: bool = True,
+    rr_client: bool = False,
 ):
     """Sets multiple BGP neighbours in ODL using RESTCONF.
 
@@ -88,11 +89,15 @@ def set_bgp_neighbours(
         passive_mode (bool): If set to true BGP session
             should be initiated by BGP neighbour,
             otherwise it should be initiated by ODL.
+        rr_client (bool): If set to true the neighbours are configured as
+            route-reflector clients, so ODL reflects the routes received from
+            one client to all the others.
 
     Returns:
         None
     """
     passive_mode_mapping = "true" if passive_mode else "false"
+    rr_client_mapping = "true" if rr_client else "false"
     for i in range(count):
         ip_address = str(ipaddr.IPAddress(first_neighbour_ip) + i)
         mapping = {
@@ -100,10 +105,11 @@ def set_bgp_neighbours(
             "HOLDTIME": holdtime,
             "PEER_PORT": peer_port,
             "PASSIVE_MODE": passive_mode_mapping,
+            "RR_CLIENT": rr_client_mapping,
             "BGP_RIB_OPENCONFIG": rib_instance,
         }
         templated_requests.put_templated_request(
-            "variables/bgpuser/bgp_peer", mapping, json=False
+            "variables/bgpuser/ibgp_peers", mapping, json=False
         )
 
 
