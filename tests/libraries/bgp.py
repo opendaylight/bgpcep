@@ -107,6 +107,59 @@ def set_bgp_neighbours(
         )
 
 
+def set_bgp_rr_client_neighbours(
+    first_neighbour_ip: str,
+    count: int,
+    holdtime: int = 180,
+    peer_port: int = 17900,
+    rib_instance: str = "example-bgp-rib",
+    passive_mode: bool = True,
+    rr_client: bool = True,
+):
+    """Sets multiple iBGP route-reflector-client neighbours in ODL.
+
+    Same as set_bgp_neighbours, except it uses the ibgp_peers template which
+    exposes the route-reflector-client flag. When configured as route reflector
+    clients, ODL reflects routes received from one client to all the others,
+    so each peer ends up receiving the prefixes advertised by the rest.
+
+    IP addresses are assigned to these neighbours sequentially
+    (Eg. 127.0.0.1, 127.0.0.2, ...). Each neighbour shares the same settings,
+    except for the ip address.
+
+    Args:
+        first_neighbour_ip (str): First ip address from sequention
+            used for first neigbour settings.
+        count (int): Number of BGP neighours to be set in ODL.
+        holdtime (int): BGP session hold-time in seconds.
+        peer_port (int): BGP peer port number.
+        rib_instance (str): BGP RIB isntance name.
+        passive_mode (bool): If set to true BGP session
+            should be initiated by BGP neighbour,
+            otherwise it should be initiated by ODL.
+        rr_client (bool): If set to true the neighbours are configured as
+            route reflector clients.
+
+    Returns:
+        None
+    """
+    passive_mode_mapping = "true" if passive_mode else "false"
+    rr_client_mapping = "true" if rr_client else "false"
+    for i in range(count):
+        ip_address = str(ipaddr.IPAddress(first_neighbour_ip) + i)
+        mapping = {
+            "IP": ip_address,
+            "HOLDTIME": holdtime,
+            "PEER_PORT": peer_port,
+            "PASSIVE_MODE": passive_mode_mapping,
+            "RR_CLIENT": rr_client_mapping,
+            "BGP_RIB_OPENCONFIG": rib_instance,
+        }
+        templated_requests.put_templated_request(
+            "variables/bgpuser/ibgp_peers", mapping, json=False
+        )
+
+
 def set_bgp_peer_group_members(
     peer_group_name: str,
     first_neighbour_ip: str,

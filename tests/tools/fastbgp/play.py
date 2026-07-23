@@ -2572,13 +2572,20 @@ def threaded_job(arguments):
 
     try:
         # Create threads
-        for t in thread_args:
+        for index, t in enumerate(thread_args, start=1):
             storage = SafeDict()
             peers_storages.append(storage)
             rpcqueue = queue.Queue()
             rpcqueues.append(rpcqueue)
+            # Name each peer thread so its log lines are tagged with a stable,
+            # per-peer label (formatted as "BGP-Dummy-<n>:" by the logger). This
+            # lets suites grep the log for individual peers' received-prefix
+            # counters.
             threading.Thread(
-                target=job, args=(t, rpcqueue, storage), daemon=True
+                target=job,
+                args=(t, rpcqueue, storage),
+                name=f"Dummy-{index}",
+                daemon=True,
             ).start()
     except Exception:
         print("Error: unable to start thread.")
