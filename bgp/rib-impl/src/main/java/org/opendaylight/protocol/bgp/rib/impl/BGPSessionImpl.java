@@ -122,6 +122,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
+    private final BGPMessageToByteEncoder encoder;
     private final BGPSessionStateImpl sessionState;
     private final GracefulRestartCapability gracefulCapability;
     private final LlGracefulRestartCapability llGracefulCapability;
@@ -140,6 +141,8 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         this.channel = requireNonNull(channel);
         limiter = new ChannelOutputLimiter(this);
         this.channel.pipeline().addLast(limiter);
+        encoder = requireNonNull(this.channel.pipeline().get(BGPMessageToByteEncoder.class),
+            "Channel pipeline has no BGP message encoder");
 
         final int remoteHoldTimer = remoteOpen.getHoldTimer().toJava();
         final int holdTimerValue = Math.min(remoteHoldTimer, localHoldTimer);
@@ -369,7 +372,11 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     @SuppressWarnings("checkstyle:illegalCatch")
     synchronized void write(final Notification<?> msg) {
         try {
-            writeEpilogue(channel.write(msg), msg);
+            // Encode here rather than in the pipeline. For a write coming from another thread netty adds
+            // MessageSizeEstimator.size(msg) to the pending bytes of the channel. No estimator is set on the
+            // channel, so DefaultMessageSizeEstimator applies and returns a flat 8 bytes for anything that is
+            // not a ByteBuf. The watermark then does not see what the queued messages really cost.
+            writeEpilogue(channel.write(encoder.encodeToBuffer(channel.alloc(), msg)), msg);
         } catch (final Exception e) {
             LOG.warn("Message {} was not sent.", msg, e);
         }
@@ -385,6 +392,15 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         return channel.isWritable();
     }
 
+    /**
+     * Sends a single message and flushes it. Unlike {@link #write(Notification)} this leaves the encoding to
+     * the pipeline, so the message counts as the 8 byte estimate rather than its real size. Nothing piles up
+     * here to make that matter. The write is refused on a channel which is not writable and every message is
+     * flushed right away.
+     *
+     * @param msg message to send
+     * @return future of the write, already failed if the channel cannot take it
+     */
     synchronized ChannelFuture writeAndFlush(final Notification<?> msg) {
         if (channel.isWritable()) {
             return writeEpilogue(channel.writeAndFlush(msg), msg);

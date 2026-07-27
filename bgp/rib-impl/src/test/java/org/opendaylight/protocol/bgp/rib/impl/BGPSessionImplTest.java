@@ -23,6 +23,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.UnpooledByteBufAllocator;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -34,9 +36,11 @@ import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -44,6 +48,7 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.spi.State;
@@ -154,6 +159,9 @@ public class BGPSessionImplTest {
             doReturn(null).when(pipeline).replace(ArgumentMatchers.<Class<ChannelHandler>>any(), any(String.class),
                 any(ChannelHandler.class));
             doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
+            // BGPSessionImpl encodes outgoing messages itself, so it looks the encoder up in the pipeline
+            doReturn(new BGPMessageToByteEncoder(ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+                .orElseThrow().getMessageRegistry())).when(pipeline).get(BGPMessageToByteEncoder.class);
             final ChannelFuture futureChannel = mock(ChannelFuture.class);
             doReturn(null).when(futureChannel).addListener(any());
             doReturn(futureChannel).when(speakerListener).close();
@@ -252,5 +260,35 @@ public class BGPSessionImplTest {
         verify(bgpSession).writeAndFlush(any(Notification.class));
         verify(bgpSession).terminate(any(BGPDocumentedException.class));
         verify(mockListener).onSessionTerminated(bgpSession, new BGPTerminationReason(BGPError.CEASE));
+    }
+
+    /*
+     * write() is called from a peer's AdjRibOutListener thread, never from the event loop. When the write does
+     * not come from the event loop netty adds MessageSizeEstimator.size(msg) to the pending bytes of the
+     * channel, and that is a flat 8 bytes for anything that is not a ByteBuf. Handing the channel an already
+     * encoded message is what makes the watermark count the bytes the message really occupies.
+     */
+    @Test
+    public void testWriteHandsChannelAnEncodedBuffer() {
+        final var future = mock(ChannelFuture.class);
+        doReturn(null).when(future).addListener(any());
+        doReturn(future).when(speakerListener).write(any());
+        doReturn(UnpooledByteBufAllocator.DEFAULT).when(speakerListener).alloc();
+
+        bgpSession.write(new UpdateBuilder().build());
+
+        final var written = ArgumentCaptor.forClass(Object.class);
+        verify(speakerListener).write(written.capture());
+        final var value = written.getValue();
+        assertTrue("Channel was handed " + value.getClass() + ", not an encoded buffer", value instanceof ByteBuf);
+        final var buf = (ByteBuf) value;
+        try {
+            // An empty update is the 19 byte header, a 2 byte withdrawn routes length and a 2 byte path
+            // attributes length, both zero.
+            assertEquals(23, buf.readableBytes());
+        } finally {
+            // The mock kept the buffer, so the test releases it instead of netty.
+            buf.release();
+        }
     }
 }
