@@ -353,11 +353,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
 
     @Holding("this")
     private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification<?> msg) {
+        // Do not name the message here. The listener would hold it until netty writes the bytes to the socket,
+        // which for a peer that stopped reading is until its channel drains. BGPMessageToByteEncoder logs it.
         future.addListener((ChannelFutureListener) f -> {
             if (f.isSuccess()) {
-                LOG.trace("Message {} sent to socket {}", msg, channel);
+                LOG.trace("Message sent to socket {}", channel);
             } else {
-                LOG.warn("Failed to send message {} to socket {}", msg, channel, f.cause());
+                LOG.warn("Failed to send message to socket {}", channel, f.cause());
             }
         });
         lastMessageSentAt = System.nanoTime();
