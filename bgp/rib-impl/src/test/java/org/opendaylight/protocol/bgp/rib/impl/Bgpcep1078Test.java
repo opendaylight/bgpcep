@@ -27,6 +27,8 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.SettableFuture;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,6 +61,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.Ipv4RoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.routes.ipv4.routes.Ipv4RouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPrefBuilder;
@@ -114,6 +118,10 @@ public class Bgpcep1078Test extends AbstractRIBTestSetup {
     private BGPSession session;
     @Mock
     private BGPSessionImpl limiterSession;
+    @Mock
+    private ChannelHandlerContext limiterContext;
+    @Mock
+    private Channel limiterChannel;
     private BGPPeerTracker peerTracker;
     private List<Peer> fannedOutPeers;
     private LocRibWriter<?, ?> locRibWriter;
@@ -358,6 +366,8 @@ public class Bgpcep1078Test extends AbstractRIBTestSetup {
             return null;
         }).when(limiterSession).write(any(Notification.class));
         doNothing().when(limiterSession).flush();
+        // The limiter asks the session before every write, a mock reports itself unwritable by default.
+        doReturn(true).when(limiterSession).isWritable();
 
         final var limiter = new ChannelOutputLimiter(limiterSession);
         final var listener = AdjRibOutListener.create(new PeerId("bgp://10.0.0.5"), getRib().getYangRibId(),
@@ -378,6 +388,40 @@ public class Bgpcep1078Test extends AbstractRIBTestSetup {
             releaseWrite.countDown();
             listener.close();
             caller.shutdownNow();
+        }
+    }
+
+    /*
+     * The session reports itself unwritable and no writability event is delivered. A write method has to wait. It
+     * reaches the session once the session reports itself writable and the event fires.
+     */
+    @Test
+    public void testLimiterWaitsOnCurrentChannelState() throws Exception {
+        final var writable = new AtomicBoolean(false);
+        doAnswer(inv -> writable.get()).when(limiterSession).isWritable();
+        doNothing().when(limiterSession).write(any(Notification.class));
+        doNothing().when(limiterSession).flush();
+        doReturn(limiterChannel).when(limiterContext).channel();
+        doReturn(true).when(limiterChannel).isWritable();
+        // The limiter passes the event on to the rest of the pipeline
+        doReturn(limiterContext).when(limiterContext).fireChannelWritabilityChanged();
+
+        final var limiter = new ChannelOutputLimiter(limiterSession);
+        final var writer = Executors.newSingleThreadExecutor();
+        try {
+            final var written = writer.submit(() -> limiter.write(new UpdateBuilder().build()));
+            // No event was delivered, the state of the channel is all the limiter has to go on
+            verify(limiterSession, after(500).never()).write(any(Notification.class));
+            assertFalse(written.isDone());
+
+            // Now the channel reports itself writable again and the event wakes the waiting writer up
+            writable.set(true);
+            limiter.channelWritabilityChanged(limiterContext);
+
+            written.get(5, TimeUnit.SECONDS);
+            verify(limiterSession).write(any(Notification.class));
+        } finally {
+            writer.shutdownNow();
         }
     }
 
