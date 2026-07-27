@@ -402,6 +402,15 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     }
 
     /**
+     * Returns whether the channel can accept more data.
+     *
+     * @return {@code true} if the channel is writable
+     */
+    boolean isWritable() {
+        return channel.isWritable();
+    }
+
+    /**
      * Closes BGP session from the parent with given reason. A message needs to be sent, but parent doesn't have to be
      * modified, because he initiated the closing. (To prevent concurrent modification exception).
      *
