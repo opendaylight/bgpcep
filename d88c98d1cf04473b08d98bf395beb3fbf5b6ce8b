@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "74cec0a9_ed9322f1",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "Probably we do not need to create this function as we have `set_bgp_neighbours` and  that function could be updated to use `variables/bgpuser/ibgp_peers` template and to add `rr_client` function param with default value as `False`",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c99ec9a_a404ecba",
+        "filename": "tests/suites/base_test_manypeers_peercount.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "Already in robot tests, there seems to be the incorrect calculation. https://github.com/opendaylight/integration-test/blob/901c7e139945b436d95a44b3b592904c3d7a4f9f/csit/suites/bgpcep/bgpingest/manypeers_peercount.robot#L121 It is substracting the same value `count_peer_count_many ` from orignal value `count_peer_count_many ` so this would be always zero. Instead the second number should be number of prefixes per one peer. Please correct this calculation.\nSo it would be something like `count_peer_count_many - (count_peer_count_many // bgp_peers_count) // bgp_peers_count`",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2e0ef0f6_5ace20f7",
+        "filename": "tests/suites/base_test_manypeers_peercount.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "Maybe instead of Dummy it might be better name `BGP-Peer-{index}`",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7108337a_a75a6bc4",
+        "filename": "tests/suites/base_test_manypeers_peercount.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "This I am not sure why there is 2, why not singular log line stating number of received prefixes by peer is not enough. It is also in the original robot tests, but possibly only single line is enough.",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60117c26_90af5ce5",
+        "filename": "tests/suites/bgp_ingest/test_manypeers_peercount.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "I believe this will not be a part of the final change. \n`Tame placeholder scale values for local iteration. To be revisited`\n`# (together with the Jenkins sandbox findings) before the suite is finalised.`\nBut I would keep the original robot tests value. (Except for peers count which would be updated to 20 according to the other comment)",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "45b77ef5_a7062f6c",
+        "filename": "tests/suites/bgp_ingest/test_manypeers_peercount.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "This could be kept as `300_000` as in https://github.com/opendaylight/integration-test/blob/901c7e139945b436d95a44b3b592904c3d7a4f9f/csit/suites/bgpcep/bgpingest/manypeers_peercount.robot#L51",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "434167a3_1a705b3d",
+        "filename": "tests/suites/bgp_ingest/test_manypeers_peercount.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "Could you increase this count to 20? In a separate commit. We need to be able to handle at least 20 peers for manypeers scenarios.",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80d4c5ae_77b87bea",
+        "filename": "tests/suites/bgp_ingest/test_manypeers_peercount.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "This comment paragraph can be removed since there is no separation between ODL System and Tools System. running on seperate VM.",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f018120d_43c65589",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 2587,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-27T14:30:41Z",
+      "side": 1,
+      "message": "Maybe instead of Dummy we could name it as `Peer-{index}`",
+      "revId": "d88c98d1cf04473b08d98bf395beb3fbf5b6ce8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
