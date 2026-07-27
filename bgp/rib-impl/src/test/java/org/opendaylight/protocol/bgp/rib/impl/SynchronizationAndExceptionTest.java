@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +57,7 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -195,6 +197,9 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
                 any(String.class),
                 any(ChannelHandler.class));
         doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
+        // BGPSessionImpl encodes outgoing messages itself, so it looks the encoder up in the pipeline
+        doReturn(new BGPMessageToByteEncoder(ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
+            .orElseThrow().getMessageRegistry())).when(pipeline).get(BGPMessageToByteEncoder.class);
         final ChannelFuture futureChannel = mock(ChannelFuture.class);
         doReturn(null).when(futureChannel).addListener(any());
         doReturn(futureChannel).when(speakerListener).close();
