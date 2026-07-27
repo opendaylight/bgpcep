@@ -353,11 +353,13 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
 
     @Holding("this")
     private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification<?> msg) {
+        // Log the type, not msg, so the listener does not hold the message until the channel drains.
+        final var msgType = msg.implementedInterface();
         future.addListener((ChannelFutureListener) f -> {
             if (f.isSuccess()) {
-                LOG.trace("Message {} sent to socket {}", msg, channel);
+                LOG.trace("Message {} sent to socket {}", msgType, channel);
             } else {
-                LOG.warn("Failed to send message {} to socket {}", msg, channel, f.cause());
+                LOG.warn("Failed to send message {} to socket {}", msgType, channel, f.cause());
             }
         });
         lastMessageSentAt = System.nanoTime();
