@@ -350,13 +350,17 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
 
     @Holding("this")
     private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification<?> msg) {
+        // We usually do not have tracing enabled nor do we face failures: allow the message to be garbage-collected
+        // early unless there is real interest in it.
+        final var msgToLog = LOG.isTraceEnabled() ? msg : msg.implementedInterface().getSimpleName();
         future.addListener((ChannelFutureListener) f -> {
             if (f.isSuccess()) {
-                LOG.trace("Message {} sent to socket {}", msg, channel);
+                LOG.trace("Message {} sent to socket {}", msgToLog, channel);
             } else {
-                LOG.warn("Failed to send message {} to socket {}", msg, channel, f.cause());
+                LOG.warn("Failed to send message {} to socket {}", msgToLog, channel, f.cause());
             }
         });
+
         lastMessageSentAt = System.nanoTime();
         sessionState.messageSent(msg);
         return future;
