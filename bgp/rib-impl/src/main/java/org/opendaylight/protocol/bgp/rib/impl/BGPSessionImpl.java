@@ -375,6 +375,16 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         }
     }
 
+    /**
+     * Returns whether the channel can accept more data. This reads the channel, so unlike the
+     * {@code channelWritabilityChanged} event it does not wait for the event loop to deliver anything.
+     *
+     * @return {@code true} if the channel is writable
+     */
+    boolean isWritable() {
+        return channel.isWritable();
+    }
+
     synchronized ChannelFuture writeAndFlush(final Notification<?> msg) {
         if (channel.isWritable()) {
             return writeEpilogue(channel.writeAndFlush(msg), msg);

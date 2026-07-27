@@ -63,6 +63,8 @@ public final class BgpPeerRpcTest {
         final ChannelOutputLimiter limiter = new ChannelOutputLimiter(session);
 
         doReturn(limiter).when(session).getLimiter();
+        // The limiter asks the session before every write, a mock reports itself unwritable by default
+        doReturn(true).when(session).isWritable();
         doReturn(future).when(session).writeAndFlush(any(Notification.class));
 
         doReturn(true).when(future).isSuccess();

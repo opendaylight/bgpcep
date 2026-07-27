@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -25,17 +26,27 @@ import org.slf4j.LoggerFactory;
 public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     private static final Logger LOG = LoggerFactory.getLogger(ChannelOutputLimiter.class);
     private final BGPSessionImpl session;
-    private volatile boolean blocked;
+    private volatile boolean inactive;
 
     ChannelOutputLimiter(final BGPSessionImpl session) {
         this.session = requireNonNull(session);
     }
 
+    /**
+     * Returns whether a write has to wait. An inactive channel never reports itself writable again, so writes
+     * are let through to fail on the write instead of waiting for a state which never comes.
+     */
+    private boolean isBlocked() {
+        return !inactive && !session.isWritable();
+    }
+
     private void ensureWritable() {
-        if (blocked) {
+        // Ask the channel every time. A flag maintained by channelWritabilityChanged reports the channel full
+        // only once netty runs that event, which is queued behind the writes already issued.
+        if (isBlocked()) {
             LOG.trace("Blocked slow path tripped on session {}", session);
             synchronized (this) {
-                while (blocked) {
+                while (isBlocked()) {
                     try {
                         LOG.debug("Waiting for session {} to become writable", session);
                         flush();
@@ -64,15 +75,16 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
         session.flush();
     }
 
+    @SuppressFBWarnings(value = "NN_NAKED_NOTIFY",
+        justification = "Locking here stops this notification from landing in ensureWritable() between its "
+            + "check and its wait(). Lost there, it leaves the writer asleep on a writable channel.")
     @Override
     public void channelWritabilityChanged(final ChannelHandlerContext ctx) throws Exception {
         final boolean w = ctx.channel().isWritable();
+        LOG.debug("Writes on session {} {}", session, w ? "unblocked" : "blocked");
 
-        synchronized (this) {
-            blocked = !w;
-            LOG.debug("Writes on session {} {}", session, w ? "unblocked" : "blocked");
-
-            if (w) {
+        if (w) {
+            synchronized (this) {
                 notifyAll();
             }
         }
@@ -83,7 +95,7 @@ public final class ChannelOutputLimiter extends ChannelInboundHandlerAdapter {
     @Override
     public void channelInactive(final ChannelHandlerContext ctx) throws Exception {
         synchronized (this) {
-            blocked = false;
+            inactive = true;
             notifyAll();
         }
 
