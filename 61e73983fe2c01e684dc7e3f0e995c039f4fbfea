@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "84888a15_e8d98d12",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-28T07:53:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5871a4fc_0ee3d69f",
+      "revId": "61e73983fe2c01e684dc7e3f0e995c039f4fbfea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "28c7d0c2_e539d0d5",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-27T13:53:18Z",
       "side": 1,
       "message": "can we use something from: https://docs.opendaylight.org/en/stable-vanadium/release-notes/upgrade-process.html#md-sal-impacts?",
+      "revId": "61e73983fe2c01e684dc7e3f0e995c039f4fbfea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "794ae5be_90f08ae0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-07-28T07:53:39Z",
+      "side": 1,
+      "message": "This listener is a DOMDataTreeChangeListener operating on DataTreeCandidateNode, so the ModificationType here is `yang.data.tree.api.ModificationType`, not the binding DataObjectModification.ModificationType that MDSAL-889 deprecated. The new DataObjectWritten/DataObjectModified/DataObjectDeleted hierarchy is binding-only and doesn\u0027t apply at the DOM layer",
+      "parentUuid": "28c7d0c2_e539d0d5",
       "revId": "61e73983fe2c01e684dc7e3f0e995c039f4fbfea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
