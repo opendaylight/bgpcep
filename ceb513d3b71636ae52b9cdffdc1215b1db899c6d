@@ -34,6 +34,24 @@
       "parentUuid": "3759aaa1_f7c38432",
       "revId": "ceb513d3b71636ae52b9cdffdc1215b1db899c6d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d94a1983_4bd56d29",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-28T08:04:45Z",
+      "side": 1,
+      "message": "consult that in zulip, other maintainer are giving -1 for having it here 😊",
+      "parentUuid": "db8909d2_317340b5",
+      "revId": "ceb513d3b71636ae52b9cdffdc1215b1db899c6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
