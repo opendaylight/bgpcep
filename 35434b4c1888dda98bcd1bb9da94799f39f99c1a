@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "57e1bef5_bbc5efa6",
+        "filename": "tests/suites/base_test_manypeers_peercount.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-29T12:31:09Z",
+      "side": 1,
+      "message": "Could this be moved to the previous commit directly, to use this calculation from the beginning?",
+      "revId": "35434b4c1888dda98bcd1bb9da94799f39f99c1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
