@@ -20,7 +20,7 @@ from suites.suite_order import SuiteOrder
 # COUNT_PEER_COUNT_MANY must stay divisible by BGP_PEERS_COUNT so that the
 # expected per-peer received-prefix count is exact.
 COUNT_PEER_COUNT_MANY = 300_000
-BGP_PEERS_COUNT = 2
+BGP_PEERS_COUNT = 20
 INSERT = None
 WITHDRAW = None
 PREFILL = None

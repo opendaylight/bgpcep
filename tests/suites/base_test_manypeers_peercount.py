@@ -61,8 +61,20 @@ class BaseTestManyPeerPeerCount:
         if test_description:
             allure.dynamic.description(test_description)
 
-        bgp_filling_timeout = TEST_DURATION_MULTIPLIER * (
-            count_peer_count_many * 9.0 / 10_000 + 40
+        # Route-reflector clients make ODL reflect every peer's routes to all
+        # the others, so the topology fill time grows with the peer count: a
+        # 2-peer run fills in seconds, but 20 peers were still filling when an
+        # un-scaled timeout expired. Scale by the peer count, mirroring the
+        # original Robot suite (which multiplied its filling timeout by
+        # MULTIPLICITY).
+        bgp_filling_timeout = (
+            TEST_DURATION_MULTIPLIER
+            * bgp_peers_count
+            * (
+                count_peer_count_many * 6.0 / 10_000
+                + CHECK_PERIOD_PEER_COUNT_MANY * (REPETITIONS_PEER_COUNT_MANY + 1)
+            )
+            + 20
         )
         bgp_emptying_timeout = bgp_filling_timeout * 3 / 4
 
