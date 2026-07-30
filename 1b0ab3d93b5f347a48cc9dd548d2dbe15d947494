@@ -16,6 +16,24 @@
       "message": "In here to use the calculation from the second commit.",
       "revId": "1b0ab3d93b5f347a48cc9dd548d2dbe15d947494",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f3b8950e_1ddc9ad6",
+        "filename": "tests/suites/base_test_manypeers_peercount.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-07-30T07:41:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e302956_fbcb0aa7",
+      "revId": "1b0ab3d93b5f347a48cc9dd548d2dbe15d947494",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
