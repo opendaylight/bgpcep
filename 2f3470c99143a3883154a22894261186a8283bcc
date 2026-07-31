@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0d12905e_5bc2b46d",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerShutdownTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-31T08:32:01Z",
+      "side": 1,
+      "message": "junit 5?",
+      "revId": "2f3470c99143a3883154a22894261186a8283bcc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0a0cc759_c44c83ca",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerShutdownTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-07-31T08:32:01Z",
+      "side": 1,
+      "message": "public?",
+      "revId": "2f3470c99143a3883154a22894261186a8283bcc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
