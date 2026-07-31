@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -470,23 +469,46 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
-    // FIXME: make this asynchronous?
+    /**
+     * Releases the RIB-out chain. Optionally waits for the submitted future before closing.
+     * This wait has to be asynchronous, so it does not block, because a potential
+     * {@link BGPPeer#onRibOutChainFailed} callback needs the same lock. Assigns {@code null} to
+     * {@code ribOutChain} so no further writes can be issued.
+     *
+     * @param isWaitForSubmitted if true, wait for submitted future before closing binding chain. if false, don't wait.
+     */
+    @VisibleForTesting
     final synchronized void releaseRibOutChain(final boolean isWaitForSubmitted) {
-        if (isWaitForSubmitted) {
-            if (submitted != null) {
-                try {
-                    submitted.get();
-                } catch (final InterruptedException | ExecutionException throwable) {
-                    LOG.error("Write routes failed", throwable);
-                }
-            }
+        final var chain = ribOutChain;
+        if (chain == null) {
+            return;
+        }
+        ribOutChain = null;
+
+        final var last = isWaitForSubmitted ? submitted : null;
+        submitted = null;
+        if (last == null || last.isDone()) {
+            closeRibOutChain(chain);
+            return;
         }
 
-        if (ribOutChain != null) {
-            LOG.info("Closing peer chain {}", getPeerId());
-            ribOutChain.close();
-            ribOutChain = null;
-        }
+        last.addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                LOG.trace("Successful submitted before chain close");
+                closeRibOutChain(chain);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Write routes failed", throwable);
+            }
+        }, MoreExecutors.directExecutor());
+    }
+
+    private void closeRibOutChain(final DOMTransactionChain chain) {
+        LOG.info("Closing peer chain {}", getPeerId());
+        chain.close();
     }
 
     final synchronized void createDomChain() {
