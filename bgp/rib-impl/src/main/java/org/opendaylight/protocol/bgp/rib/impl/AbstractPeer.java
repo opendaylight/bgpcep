@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -472,21 +471,28 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     // FIXME: make this asynchronous?
     final synchronized void releaseRibOutChain(final boolean isWaitForSubmitted) {
-        if (isWaitForSubmitted) {
-            if (submitted != null) {
-                try {
-                    submitted.get();
-                } catch (final InterruptedException | ExecutionException throwable) {
-                    LOG.error("Write routes failed", throwable);
-                }
-            }
+        final var chain = ribOutChain;
+        if (chain == null) {
+            return;
+        }
+        // Detach first: initializeRibOut()/refreshRibOut() check for null, so no further writes can be issued
+        ribOutChain = null;
+
+        final var last = isWaitForSubmitted ? submitted : null;
+        submitted = null;
+        if (last == null || last.isDone()) {
+            closeRibOutChain(chain);
+            return;
         }
 
-        if (ribOutChain != null) {
-            LOG.info("Closing peer chain {}", getPeerId());
-            ribOutChain.close();
-            ribOutChain = null;
-        }
+        // We must not block here: this method runs with the peer lock held, and the chain's own failure callback
+        // (onRibOutChainFailed) needs that same lock, waiting for the commit to settle deadlocks the two.
+        last.addListener(() -> closeRibOutChain(chain), MoreExecutors.directExecutor());
+    }
+
+    private void closeRibOutChain(final DOMTransactionChain chain) {
+        LOG.info("Closing peer chain {}", getPeerId());
+        chain.close();
     }
 
     final synchronized void createDomChain() {
