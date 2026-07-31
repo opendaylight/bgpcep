@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -469,23 +468,50 @@ abstract class AbstractPeer extends BGPPeerStateImpl implements BGPRouteEntryImp
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
-    // FIXME: make this asynchronous?
+    /**
+     * Releases the RIB-out chain. Optionally waits for the submitted future before closing.
+     * This wait has to be asynchronous, so it does not block, because a potential
+     * {@link BGPPeer#onRibOutChainFailed} callback needs the same lock. Assigns {@code null} to
+     * {@code ribOutChain} so no further writes can be issued.
+     *
+     * @param isWaitForSubmitted if true, wait for submitted future before closing binding chain. if false, don't wait.
+     */
+    @VisibleForTesting
     final synchronized void releaseRibOutChain(final boolean isWaitForSubmitted) {
-        if (isWaitForSubmitted) {
-            if (submitted != null) {
-                try {
-                    submitted.get();
-                } catch (final InterruptedException | ExecutionException throwable) {
+        // take ownership of the chain
+        final var chain = ribOutChain;
+        if (chain == null) {
+            return;
+        }
+        ribOutChain = null;
+
+        // take ownership of the last committed transaction
+        final var last = submitted;
+        submitted = null;
+
+        // decide whether to close the chain immediately: the isDone() check is a pure optimization
+        if (isWaitForSubmitted && last != null && !last.isDone()) {
+            LOG.trace("Deferring chain close until after {} is done", last);
+            last.addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    LOG.trace("Successful submitted before chain close");
+                    closeRibOutChain(chain);
+                }
+
+                @Override
+                public void onFailure(final Throwable throwable) {
                     LOG.error("Write routes failed", throwable);
                 }
-            }
+            }, MoreExecutors.directExecutor());
+        } else {
+            closeRibOutChain(chain);
         }
+    }
 
-        if (ribOutChain != null) {
-            LOG.info("Closing peer chain {}", getPeerId());
-            ribOutChain.close();
-            ribOutChain = null;
-        }
+    private void closeRibOutChain(final DOMTransactionChain chain) {
+        LOG.info("Closing peer chain {}", getPeerId());
+        chain.close();
     }
 
     final synchronized void createDomChain() {
