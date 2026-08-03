@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "2319cfcc_77ac510c",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerShutdownTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 9074
+      },
+      "writtenOn": "2026-08-03T08:03:09Z",
+      "side": 1,
+      "message": "I need to extend AbstractRIBTestSetup for setup logic and it\u0027s using junit 4, so can\u0027t use junit 5 here",
+      "parentUuid": "0d12905e_5bc2b46d",
+      "revId": "2f3470c99143a3883154a22894261186a8283bcc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "0a0cc759_c44c83ca",
         "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerShutdownTest.java",
         "patchSetId": 1
@@ -31,6 +49,24 @@
       "writtenOn": "2026-07-31T08:32:01Z",
       "side": 1,
       "message": "public?",
+      "revId": "2f3470c99143a3883154a22894261186a8283bcc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2cd831a6_e1417300",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerShutdownTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 65,
+      "author": {
+        "id": 9074
+      },
+      "writtenOn": "2026-08-03T08:03:09Z",
+      "side": 1,
+      "message": "I need to extend AbstractRIBTestSetup for setup logic and it\u0027s using junit 4, so can\u0027t use junit 5 here",
+      "parentUuid": "0a0cc759_c44c83ca",
       "revId": "2f3470c99143a3883154a22894261186a8283bcc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
