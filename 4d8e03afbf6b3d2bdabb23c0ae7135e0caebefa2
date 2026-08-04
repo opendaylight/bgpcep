@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8000743e_390c537c",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-08-04T14:02:08Z",
+      "side": 1,
+      "message": "PeerRole.Internal !\u003d peer -\u003e peer.getRole()",
+      "revId": "4d8e03afbf6b3d2bdabb23c0ae7135e0caebefa2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
