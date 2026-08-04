@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "097089c4_144a40f9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractPeer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 474,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-08-04T13:55:29Z",
+      "side": 1,
+      "message": "var?",
+      "revId": "666383e89425ca735dbf2347d4d42a8a19193d9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bc0a6703_4aa64920",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractPeer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 479,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-08-04T13:55:29Z",
+      "side": 1,
+      "message": "why using this.?",
+      "revId": "666383e89425ca735dbf2347d4d42a8a19193d9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80a57430_e472680f",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerShutdownTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-08-04T13:55:29Z",
+      "side": 1,
+      "message": "document test case",
+      "revId": "666383e89425ca735dbf2347d4d42a8a19193d9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "92d89733_4249babb",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerShutdownTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-08-04T13:55:29Z",
+      "side": 1,
+      "message": "static?",
+      "revId": "666383e89425ca735dbf2347d4d42a8a19193d9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4ce13e8_07d721de",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerShutdownTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-08-04T13:55:29Z",
+      "side": 1,
+      "message": "var?",
+      "revId": "666383e89425ca735dbf2347d4d42a8a19193d9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
