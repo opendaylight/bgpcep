@@ -3,6 +3,23 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "5ec74add_9f3041d2",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-06T13:08:07Z",
+      "side": 1,
+      "message": "Are we sure that what the comment says happens at 10 000 batches IS the actual logic the executor uses? Doesn\u0027t it just fallback to execute on the caller\u0027s thread? Please investigate.",
+      "revId": "6acb1b65abeff7df24274a5f632c069ec7205a1a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "07b2ffa9_0e06ebd3",
         "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
         "patchSetId": 12
