@@ -17,7 +17,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.tlv.AssociationRangeTlvParser;
@@ -83,7 +83,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class PCEPTlvParserTest {
+class PCEPTlvParserTest {
     private static final byte[] NO_PATH_VECTOR_BYTES = {
         0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, (byte) 0xa7
     };

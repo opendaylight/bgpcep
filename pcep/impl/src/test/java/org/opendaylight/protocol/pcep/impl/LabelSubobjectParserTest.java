@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.subobject.GeneralizedLabelParser;
 import org.opendaylight.protocol.pcep.parser.subobject.Type1LabelParser;
@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabelBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class LabelSubobjectParserTest {
+class LabelSubobjectParserTest {
 
     private static final byte[] GENERALIZED_LABEL_BYTES = {
         (byte) 0x80, 0x02, 0x00, 0x04, 0x12, 0x00, 0x25, (byte) 0xFF

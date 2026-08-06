@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -21,11 +21,13 @@ import com.google.common.base.Ticker;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import org.eclipse.jdt.annotation.NonNull;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
@@ -42,15 +44,16 @@ import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     private static final @NonNull Uint16 MAX_UNKNOWN_MESSAGES = Uint16.valueOf(20);
 
     private DefaultPCEPSessionNegotiator serverSession;
     private DefaultPCEPSessionNegotiator tlsSessionNegotiator;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         final var localPrefs = new OpenBuilder().setKeepalive(Uint8.ONE).build();
         serverSession = new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 channel, listener, Uint8.ONE, localPrefs, MAX_UNKNOWN_MESSAGES);
@@ -63,7 +66,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * establish pce session for the 2nd time.
      */
     @Test
-    public void testSessionCharsAccBoth() {
+    void testSessionCharsAccBoth() {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof Open);
@@ -78,7 +81,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * Establish PCEPS TLS connection with peer.
      */
     @Test
-    public void testEstablishTLS() {
+    void testEstablishTLS() {
         final DefaultPCEPSessionNegotiator negotiator =
             new DefaultPCEPSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 channel, listener, Uint8.ONE, new OpenBuilder().setKeepalive(Uint8.ONE).build(),
@@ -99,7 +102,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * As Tls is not configured properly, PCE will send error PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.
      */
     @Test
-    public void testFailedToEstablishTLS() {
+    void testFailedToEstablishTLS() {
         tlsSessionNegotiator.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof Starttls);
@@ -117,7 +120,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * As PCE does not receive expected message (StartTLS), error PCEPErrors.NON_STARTTLS_MSG_RCVD is send.
      */
     @Test
-    public void testTLSUnexpectedMessage() {
+    void testTLSUnexpectedMessage() {
         tlsSessionNegotiator.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof Starttls);
@@ -135,7 +138,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * Mock PCE does not accept session characteristics the first time.
      */
     @Test
-    public void testSessionCharsAccMe() {
+    void testSessionCharsAccMe() {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof Open);
@@ -157,7 +160,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * @throws Exception exception
      */
     @Test
-    public void testErrorOneOne() throws Exception {
+    void testErrorOneOne() throws Exception {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof Open);
@@ -179,7 +182,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * @throws Exception exception
      */
     @Test
-    public void testErrorOneSeven() throws Exception {
+    void testErrorOneSeven() throws Exception {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof Open);
@@ -201,7 +204,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
      * @throws InterruptedException exception
      */
     @Test
-    public void testErrorOneTwo() throws Exception {
+    void testErrorOneTwo() throws Exception {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
         assertTrue(msgsSend.get(0) instanceof OpenMessage);
@@ -217,7 +220,7 @@ public class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testUnknownMessage() {
+    void testUnknownMessage() {
         final Ticker ticker = mock(Ticker.class);
         doReturn(
             // session create

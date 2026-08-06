@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.subobject.Srv6RroSubobjectParser;
 import org.opendaylight.protocol.util.ByteArray;
@@ -29,7 +29,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class Srv6RroSubobjectParserTest {
+class Srv6RroSubobjectParserTest {
 
     private static final byte[] SRV6_RRO_SUBOBJECT_WITH_SRV6_SID = {
         0x28, 0x18, 0x20, 0x02,
@@ -90,7 +90,7 @@ public class Srv6RroSubobjectParserTest {
 
     private Srv6RroSubobjectParser parser;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         parser = new Srv6RroSubobjectParser();
     }
