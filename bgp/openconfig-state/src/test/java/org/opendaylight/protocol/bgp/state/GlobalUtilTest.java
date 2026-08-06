@@ -7,27 +7,27 @@
  */
 package org.opendaylight.protocol.bgp.state;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.state.StateProviderImplTest.TABLES_KEY;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class GlobalUtilTest {
+@ExtendWith(MockitoExtension.class)
+class GlobalUtilTest {
     @Mock
     private BGPRibState ribState;
     @Mock
     private BGPTableTypeRegistryConsumer tableRegistry;
 
     @Test
-    public void testNonSupportedAfiSafi() {
+    void testNonSupportedAfiSafi() {
         doReturn(null).when(tableRegistry).getAfiSafiType(eq(TABLES_KEY));
         assertNull(GlobalUtil.buildAfiSafi(ribState, TABLES_KEY, tableRegistry));
     }

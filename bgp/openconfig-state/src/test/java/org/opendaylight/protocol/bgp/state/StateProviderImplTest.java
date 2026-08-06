@@ -145,6 +145,7 @@ import org.opendaylight.yangtools.yang.common.Uint64;
 import org.slf4j.LoggerFactory;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class StateProviderImplTest extends AbstractDataBrokerTest {
     private final LongAdder totalPathsCounter = new LongAdder();
     private final LongAdder totalPrefixesCounter = new LongAdder();
