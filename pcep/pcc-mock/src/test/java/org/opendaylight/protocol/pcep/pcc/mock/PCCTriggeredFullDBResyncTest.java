@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.netty.channel.Channel;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.impl.PCEPStatefulCapability;
@@ -30,10 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class PCCTriggeredFullDBResyncTest extends PCCMockCommon {
+class PCCTriggeredFullDBResyncTest extends PCCMockCommon {
 
     @Test
-    public void testSessionTriggeredFullDBReSync() throws Exception {
+    void testSessionTriggeredFullDBReSync() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final int lspQuantity = 3;
         final Uint64 numberOflspAndDBv = Uint64.valueOf(lspQuantity);
