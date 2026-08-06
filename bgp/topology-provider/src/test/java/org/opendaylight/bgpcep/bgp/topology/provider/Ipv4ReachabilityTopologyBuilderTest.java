@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
     static final Uint32 PATH_ID = Uint32.ONE;

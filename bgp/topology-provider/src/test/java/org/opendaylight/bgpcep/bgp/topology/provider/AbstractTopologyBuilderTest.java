@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public abstract class AbstractTopologyBuilderTest extends AbstractConcurrentDataBrokerTest {
     static final TopologyId TEST_TOPOLOGY_ID = new TopologyId("test-topo");
     static final RibReference LOC_RIB_REF = new DefaultRibReference(DataObjectIdentifier.builder(BgpRib.class)
