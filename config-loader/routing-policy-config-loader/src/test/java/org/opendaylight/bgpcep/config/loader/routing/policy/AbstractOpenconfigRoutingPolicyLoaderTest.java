@@ -17,6 +17,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AbstractOpenconfigRoutingPolicyLoaderTest extends AbstractConfigLoaderTest {
     private static final DataObjectIdentifier<RoutingPolicy> ROUTING_POLICY_IID =
         DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build();

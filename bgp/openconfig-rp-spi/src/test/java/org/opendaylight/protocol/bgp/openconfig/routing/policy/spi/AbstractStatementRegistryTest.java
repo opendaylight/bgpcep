@@ -24,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AbstractStatementRegistryTest extends AbstractOpenconfigRoutingPolicyLoaderTest {
     public static final long LOCAL_AS = 8;
     public static final Ipv4AddressNoZone IPV4 = new Ipv4AddressNoZone("1.2.3.4");
