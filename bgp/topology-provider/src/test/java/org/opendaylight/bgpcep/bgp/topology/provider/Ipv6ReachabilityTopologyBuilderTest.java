@@ -43,6 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.nt.l3.unicast.igp.topology.rev131021.Node1;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
     private static final String ROUTE_IP6PREFIX = "2001:db8:a::123/64";
