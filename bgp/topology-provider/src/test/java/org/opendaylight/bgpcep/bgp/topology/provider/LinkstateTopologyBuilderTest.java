@@ -114,6 +114,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
 
     private static final String ROUTER_1_ID = "127.0.0.1";
