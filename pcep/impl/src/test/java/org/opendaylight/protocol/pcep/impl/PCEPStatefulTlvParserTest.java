@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.tlv.LSPIdentifierIpv4TlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.LSPIdentifierIpv6TlvParser;
@@ -63,7 +63,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class PCEPStatefulTlvParserTest {
+class PCEPStatefulTlvParserTest {
 
     private static final byte[] STATEFUL_BYTES = { 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01 };
     private static final byte[] STATEFUL_SYNC_OPT_BYTES = new byte[]{ 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x33 };

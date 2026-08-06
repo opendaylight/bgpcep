@@ -7,16 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.object.PCEPLspObjectParser;
@@ -63,7 +63,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class PCEPStatefulObjectParserTest {
+class PCEPStatefulObjectParserTest {
     private static final Uint64 DB_VERSION = Uint64.valueOf("0102030405060708", 16);
     private static final byte[] SPEAKER_ID = {0x01, 0x02, 0x03, 0x04};
 
@@ -71,7 +71,7 @@ public class PCEPStatefulObjectParserTest {
     private final TlvRegistry tlvRegistry = ctx.getTlvHandlerRegistry();
     private final VendorInformationTlvRegistry viTlvRegistry = ctx.getVendorInformationTlvRegistry();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         new BaseParserExtensionActivator().start(ctx);
     }

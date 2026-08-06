@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.subobject.SrEroSubobjectParser;
 import org.opendaylight.protocol.util.ByteArray;
@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.NaiType;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class SrEroSubobjectParserTest {
+class SrEroSubobjectParserTest {
 
     private static final byte[] SR_ERO_SUBOBJECT_WITH_IPV4_NODEID = {
         0x24,0x0c,(byte) 0x10,0x00,
@@ -97,7 +97,7 @@ public class SrEroSubobjectParserTest {
 
     private SrEroSubobjectParser parser;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         parser = new SrEroSubobjectParser();
     }
