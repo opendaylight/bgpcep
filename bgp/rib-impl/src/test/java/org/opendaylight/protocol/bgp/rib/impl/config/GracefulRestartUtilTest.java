@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
 import com.google.common.collect.ImmutableList;
@@ -19,11 +19,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.spi.MultiprotocolCapabilitiesUtil;
@@ -50,8 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class GracefulRestartUtilTest {
+@ExtendWith(MockitoExtension.class)
+class GracefulRestartUtilTest {
 
     private static final int RESTART_TIME = 5;
     private static final Uint24 STALE_TIME = new Uint24(Uint32.TEN);
@@ -85,15 +84,13 @@ public class GracefulRestartUtilTest {
     @Mock
     private BGPTableTypeRegistryConsumer tableRegistry;
 
-
-    @Before
-    public void setUp() {
+    private void mockTableKeys() {
         doReturn(IPV4_KEY).when(tableRegistry).getTableKey(IPV4UNICAST.VALUE);
         doReturn(IPV6_KEY).when(tableRegistry).getTableKey(IPV6UNICAST.VALUE);
     }
 
     @Test
-    public void getGracefulCapabilityTest() {
+    void getGracefulCapabilityTest() {
         final Map<TablesKey, Boolean> gracefulMap = new HashMap<>();
         gracefulMap.put(IPV4_KEY, true);
         gracefulMap.put(IPV6_KEY, false);
@@ -114,7 +111,8 @@ public class GracefulRestartUtilTest {
     }
 
     @Test
-    public void getGracefulTablesTest() {
+    void getGracefulTablesTest() {
+        mockTableKeys();
         final Set<TablesKey> gracefulTables = GracefulRestartUtil.getGracefulTables(AFISAFIS, tableRegistry);
         assertEquals(2, gracefulTables.size());
         assertTrue(gracefulTables.contains(IPV4_KEY));
@@ -122,7 +120,7 @@ public class GracefulRestartUtilTest {
     }
 
     @Test
-    public void getGracefulBgpParametersTest() {
+    void getGracefulBgpParametersTest() {
         final OptionalCapabilities cap1 = new OptionalCapabilitiesBuilder()
                 .setCParameters(BgpExtendedMessageUtil.EXTENDED_MESSAGE_CAPABILITY).build();
         final OptionalCapabilities cap2 = new OptionalCapabilitiesBuilder()
@@ -158,7 +156,7 @@ public class GracefulRestartUtilTest {
     }
 
     @Test
-    public void getLlGracefulCapabilityTest() {
+    void getLlGracefulCapabilityTest() {
         CParameters capability = GracefulRestartUtil.getLlGracefulCapability(
             Map.of(IPV4_KEY, STALE_TIME, IPV6_KEY, STALE_TIME), IPV4_KEY::equals);
         final CParameters1 params = capability.augmentation(CParameters1.class);
@@ -176,7 +174,8 @@ public class GracefulRestartUtilTest {
     }
 
     @Test
-    public void getLlGracefulTimersTest() {
+    void getLlGracefulTimersTest() {
+        doReturn(IPV4_KEY).when(tableRegistry).getTableKey(IPV4UNICAST.VALUE);
         assertEquals(Map.of(IPV4_KEY, STALE_TIME), GracefulRestartUtil.getLlGracefulTimers(List.of(new AfiSafiBuilder()
             .setAfiSafiName(IPV4UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()
@@ -195,7 +194,7 @@ public class GracefulRestartUtilTest {
     }
 
     @Test
-    public void getLlGracefulTimersDisabledTest() {
+    void getLlGracefulTimersDisabledTest() {
         assertEquals(Map.of(), GracefulRestartUtil.getLlGracefulTimers(List.of(new AfiSafiBuilder()
             .setAfiSafiName(IPV4UNICAST.VALUE)
             .setGracefulRestart(new GracefulRestartBuilder()

@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 
-public class TerminationReasonTest {
+class TerminationReasonTest {
 
     @Test
-    public void testTerminationReason() {
+    void testTerminationReason() {
         assertEquals(BGPError.BAD_PEER_AS.toString(), new BGPTerminationReason(BGPError.BAD_PEER_AS)
                 .getErrorMessage());
         assertEquals("BGPTerminationReason{error=BAD_PEER_AS}",

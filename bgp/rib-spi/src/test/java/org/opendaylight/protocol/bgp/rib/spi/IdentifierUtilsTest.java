@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.LOCRIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBQNames.PEER_ID_QNAME;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
-public class IdentifierUtilsTest {
+class IdentifierUtilsTest {
     private static final QName TABLES_KEY_QNAME = QName.create(Tables.QNAME, "tables-key").intern();
     private static final TablesKey TK = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private static final PeerId PEER_ID = new PeerId("127.0.0.1");
@@ -43,37 +43,37 @@ public class IdentifierUtilsTest {
     }
 
     @Test
-    public void testPeerPath() throws Exception {
+    void testPeerPath() throws Exception {
         final YangInstanceIdentifier result = IdentifierUtils.peerPath(YII_PEER);
         assertEquals(YII_PEER, result);
     }
 
     @Test
-    public void testPeerKey() throws Exception {
+    void testPeerKey() throws Exception {
         final NodeIdentifierWithPredicates result = IdentifierUtils.peerKey(YII_PEER);
         assertEquals(NIWP_PEER, result);
     }
 
     @Test
-    public void testPeerId() throws Exception {
+    void testPeerId() throws Exception {
         final PeerId result = IdentifierUtils.peerId(NIWP_PEER);
         assertEquals(PEER_ID, result);
     }
 
     @Test
-    public void testPeerKeyToPeerId() throws Exception {
+    void testPeerKeyToPeerId() throws Exception {
         final PeerId result = IdentifierUtils.peerKeyToPeerId(YII_PEER);
         assertEquals(PEER_ID, result);
     }
 
     @Test
-    public void testTableKey() throws Exception {
+    void testTableKey() throws Exception {
         final NodeIdentifierWithPredicates result = IdentifierUtils.tableKey(YII_TABLE);
         assertEquals(NIWP_TABLE, result);
     }
 
     @Test
-    public void testDomPeerId() throws Exception {
+    void testDomPeerId() throws Exception {
         final NodeIdentifierWithPredicates result = IdentifierUtils.domPeerId(PEER_ID);
         assertEquals(NIWP_PEER, result);
     }

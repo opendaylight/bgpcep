@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Collections;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
@@ -31,14 +31,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
-public class BgpPeerUtilTest {
+class BgpPeerUtilTest {
     private static final TablesKey IPV4_TABLE_KEY =
         new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private static final TablesKey IPV6_TABLE_KEY =
         new TablesKey(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
     @Test
-    public void createIpv4EORTest() {
+    void createIpv4EORTest() {
         final Update endOfRib = BgpPeerUtil.createEndOfRib(IPV4_TABLE_KEY);
         assertNull(endOfRib.getNlri());
         assertNull(endOfRib.getWithdrawnRoutes());
@@ -46,7 +46,7 @@ public class BgpPeerUtilTest {
     }
 
     @Test
-    public void createNonIpv4EORTest() {
+    void createNonIpv4EORTest() {
         final Update endOfRib = BgpPeerUtil.createEndOfRib(IPV6_TABLE_KEY);
         assertNull(endOfRib.getNlri());
         assertNull(endOfRib.getWithdrawnRoutes());
@@ -62,7 +62,7 @@ public class BgpPeerUtilTest {
     }
 
     @Test
-    public void isEndOfTableTest() {
+    void isEndOfTableTest() {
         final Update ipv4EOT = new UpdateBuilder().build();
         final MpUnreachNlri ipv6EOTnlri = new MpUnreachNlriBuilder()
                 .setAfi(IPV6_TABLE_KEY.getAfi())

@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -35,8 +35,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -72,7 +72,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class BGPSessionImplTest {
+class BGPSessionImplTest {
     private static final Uint16 HOLD_TIMER = Uint16.valueOf(3);
     private static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(30));
     private static final Ipv4AddressNoZone BGP_ID = new Ipv4AddressNoZone("1.1.1.2");
@@ -99,8 +99,8 @@ public class BGPSessionImplTest {
 
     private SimpleSessionListener listener;
 
-    @Before
-    public void setUp() throws UnknownHostException, Exception {
+    @BeforeEach
+    void setUp() throws UnknownHostException, Exception {
         try (var mock = MockitoAnnotations.openMocks(this)) {
 
             final var capa = new ArrayList<OptionalCapabilities>();
@@ -165,7 +165,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testBGPSession() throws BGPDocumentedException {
+    void testBGPSession() throws BGPDocumentedException {
         bgpSession.sessionUp();
         assertEquals(State.UP, bgpSession.getState());
         assertEquals(AS_NUMBER, bgpSession.getAsNumber());
@@ -187,7 +187,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testHandleOpenMsg() throws BGPDocumentedException {
+    void testHandleOpenMsg() throws BGPDocumentedException {
         bgpSession.handleMessage(classicOpen);
         assertEquals(State.IDLE, bgpSession.getState());
         assertEquals(1, receivedMsgs.size());
@@ -199,7 +199,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testHandleNotifyMsg() throws BGPDocumentedException {
+    void testHandleNotifyMsg() throws BGPDocumentedException {
         bgpSession.handleMessage(new NotifyBuilder().setErrorCode(BGPError.BAD_BGP_ID.getCode())
                 .setErrorSubcode(BGPError.BAD_BGP_ID.getSubcode()).build());
         assertEquals(State.IDLE, bgpSession.getState());
@@ -207,7 +207,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testEndOfInput() throws InterruptedException {
+    void testEndOfInput() throws InterruptedException {
         bgpSession.sessionUp();
         assertEquals(State.UP, listener.getState());
         bgpSession.endOfInput();
@@ -215,7 +215,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testHoldTimerExpire() throws InterruptedException {
+    void testHoldTimerExpire() throws InterruptedException {
         bgpSession.sessionUp();
         checkIdleState(listener);
         assertEquals(3, receivedMsgs.size());
@@ -227,7 +227,7 @@ public class BGPSessionImplTest {
     }
 
     @Test
-    public void testSessionRecoveryOnException() throws Exception {
+    void testSessionRecoveryOnException() throws Exception {
         final BGPSessionListener mockListener = mock(BGPSessionListener.class);
         final IllegalStateException mockedEx = new IllegalStateException("Mocked runtime exception.");
 

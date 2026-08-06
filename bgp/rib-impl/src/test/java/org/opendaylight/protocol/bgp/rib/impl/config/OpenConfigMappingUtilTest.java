@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static junit.framework.TestCase.assertFalse;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.AFI_SAFI;
 import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.MD5_PASSWORD;
@@ -29,12 +29,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
@@ -105,8 +103,8 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@RunWith(MockitoJUnitRunner.class)
-public class OpenConfigMappingUtilTest {
+@ExtendWith(MockitoExtension.class)
+class OpenConfigMappingUtilTest {
     private static final Neighbor NEIGHBOR = createNeighborExpected(NEIGHBOR_ADDRESS);
     private static final Neighbor EMPTY_NEIGHBOR = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).build();
 
@@ -156,22 +154,18 @@ public class OpenConfigMappingUtilTest {
     @Mock
     private RIB rib;
 
-    @Before
-    public void setUp() {
+    private void mockIpv4AndIpv6TableTypes() {
         doReturn(BGP_TABLE_TYPE_IPV4).when(tableTypeRegistry).getTableType(IPV4UNICAST.VALUE);
         doReturn(BGP_TABLE_TYPE_IPV6).when(tableTypeRegistry).getTableType(IPV6UNICAST.VALUE);
-        doReturn(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE))
-            .when(tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.VALUE);
-        doReturn(AS).when(rib).getLocalAs();
     }
 
     @Test
-    public void testGetRibInstanceName() {
+    void testGetRibInstanceName() {
         assertEquals(KEY, OpenConfigMappingUtil.getRibInstanceName(BGP_II));
     }
 
     @Test
-    public void testGetHoldTimer() {
+    void testGetHoldTimer() {
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getHoldTimer(NEIGHBOR, null));
         assertEquals(HOLDTIMER, OpenConfigMappingUtil.getHoldTimer(EMPTY_NEIGHBOR, null));
 
@@ -185,7 +179,8 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetRemotePeerAs() {
+    void testGetRemotePeerAs() {
+        doReturn(AS).when(rib).getLocalAs();
         final ConfigBuilder configBuilder = new ConfigBuilder();
         assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(NEIGHBOR.getConfig(), null, null));
         assertEquals(AS, OpenConfigMappingUtil.getRemotePeerAs(configBuilder.build(), null, rib.getLocalAs()));
@@ -199,14 +194,14 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetLocalPeerAs() {
+    void testGetLocalPeerAs() {
         final ConfigBuilder configBuilder = new ConfigBuilder();
         assertEquals(GLOBAL_AS,OpenConfigMappingUtil.getLocalPeerAs(null, GLOBAL_AS));
         assertEquals(AS, OpenConfigMappingUtil.getLocalPeerAs(configBuilder.setLocalAs(AS).build(), GLOBAL_AS));
     }
 
     @Test
-    public void testIsActive() {
+    void testIsActive() {
         final TransportBuilder builder = new TransportBuilder();
         assertTrue(OpenConfigMappingUtil.isActive(EMPTY_NEIGHBOR, null));
         assertTrue(OpenConfigMappingUtil.isActive(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
@@ -223,7 +218,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetRetryTimer() {
+    void testGetRetryTimer() {
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(), OpenConfigMappingUtil.getRetryTimer(NEIGHBOR, null));
         assertEquals(DEFAULT_TIMERS.toBigInteger().intValue(),
                 OpenConfigMappingUtil.getRetryTimer(EMPTY_NEIGHBOR, null));
@@ -240,7 +235,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetNeighborKey() {
+    void testGetNeighborKey() {
         assertArrayEquals(MD5_PASSWORD.getBytes(StandardCharsets.US_ASCII),
             OpenConfigMappingUtil.getNeighborKey(NEIGHBOR).asMap().get(IetfInetUtil.inetAddressFor(NEIGHBOR_ADDRESS)));
         assertNull(OpenConfigMappingUtil.getNeighborKey(EMPTY_NEIGHBOR));
@@ -249,14 +244,14 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetNeighborInstanceIdentifier() {
+    void testGetNeighborInstanceIdentifier() {
         assertEquals(BGP_II.toBuilder().child(Neighbors.class).child(Neighbor.class, NEIGHBOR_KEY).build(),
             OpenConfigMappingUtil.getNeighborInstanceIdentifier(BGP_II, NEIGHBOR_KEY));
 
     }
 
     @Test
-    public void testGetPort() {
+    void testGetPort() {
         final TransportBuilder transport = new TransportBuilder();
         assertEquals(PORT, OpenConfigMappingUtil.getPort(NEIGHBOR, null));
         assertEquals(PORT, OpenConfigMappingUtil.getPort(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
@@ -282,7 +277,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetLocalAddress() {
+    void testGetLocalAddress() {
         assertNull(OpenConfigMappingUtil.getLocalAddress(null));
         final TransportBuilder transport = new TransportBuilder();
         assertNull(OpenConfigMappingUtil.getLocalAddress(transport.build()));
@@ -296,7 +291,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetAfiSafiWithDefault() {
+    void testGetAfiSafiWithDefault() {
         final AfiSafi v4afi = new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE).build();
         final ImmutableMap<AfiSafiKey, AfiSafi> defaultValue = ImmutableMap.of(v4afi.key(), v4afi);
         assertEquals(defaultValue, OpenConfigMappingUtil.getAfiSafiWithDefault(null, true));
@@ -323,7 +318,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetGlobalClusterIdentifier() {
+    void testGetGlobalClusterIdentifier() {
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base
                 .ConfigBuilder configBuilder = new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009
                 .bgp.global.base.ConfigBuilder();
@@ -338,7 +333,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void testGetNeighborClusterIdentifier() {
+    void testGetNeighborClusterIdentifier() {
 
         assertNull(OpenConfigMappingUtil.getNeighborClusterIdentifier(null, null));
 
@@ -359,7 +354,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void isAppNeighbor() {
+    void isAppNeighbor() {
         assertFalse(OpenConfigMappingUtil.isApplicationPeer(new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
                 .setConfig(new ConfigBuilder().build()).build()));
         final Neighbor neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
@@ -370,7 +365,8 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void toPathSelectionMode() {
+    void toPathSelectionMode() {
+        mockIpv4AndIpv6TableTypes();
         final List<AfiSafi> families = new ArrayList<>();
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE)
             .addAugmentation(new GlobalAddPathsConfigBuilder().setSendMax(N_PATHS).build()).build());
@@ -389,28 +385,31 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void toPeerRole() {
+    void toPeerRole() {
         Neighbor neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS).setConfig(new ConfigBuilder()
                 .setPeerType(PeerType.EXTERNAL).build()).build();
         PeerRole peerRoleResult = OpenConfigMappingUtil.toPeerRole(neighbor);
-        Assert.assertEquals(PeerRole.Ebgp, peerRoleResult);
+        assertEquals(PeerRole.Ebgp, peerRoleResult);
 
         neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
             .setConfig(new ConfigBuilder().setPeerType(PeerType.INTERNAL).build())
             .build();
         peerRoleResult = OpenConfigMappingUtil.toPeerRole(neighbor);
-        Assert.assertEquals(PeerRole.Ibgp, peerRoleResult);
+        assertEquals(PeerRole.Ibgp, peerRoleResult);
 
         neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
             .setRouteReflector(new RouteReflectorBuilder().setConfig(
                     new org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp
                 .neighbor.group.route.reflector.ConfigBuilder().setRouteReflectorClient(true).build()).build()).build();
         peerRoleResult = OpenConfigMappingUtil.toPeerRole(neighbor);
-        Assert.assertEquals(PeerRole.RrClient, peerRoleResult);
+        assertEquals(PeerRole.RrClient, peerRoleResult);
     }
 
     @Test
-    public void toAddPathCapability() {
+    void toAddPathCapability() {
+        mockIpv4AndIpv6TableTypes();
+        doReturn(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE))
+            .when(tableTypeRegistry).getTableType(IPV6LABELLEDUNICAST.VALUE);
         final List<AfiSafi> families = new ArrayList<>();
         families.add(new AfiSafiBuilder().setAfiSafiName(IPV4UNICAST.VALUE)
             .addAugmentation(new NeighborAddPathsConfigBuilder()
@@ -425,7 +424,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void getGracefulRestartTimerTest() {
+    void getGracefulRestartTimerTest() {
         final int neighborTimer = 5;
         final int peerGroupTimer = 10;
         Neighbor neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS)
@@ -460,7 +459,7 @@ public class OpenConfigMappingUtilTest {
     }
 
     @Test
-    public void getTreatAsWithdrawTest() {
+    void getTreatAsWithdrawTest() {
         final NeighborBuilder neighbor = new NeighborBuilder().setNeighborAddress(NEIGHBOR_ADDRESS);
         final PeerGroupBuilder peerGroup = new PeerGroupBuilder().setPeerGroupName("foo");
         final org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.error.handling
