@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -16,12 +16,11 @@ import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
@@ -55,8 +54,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class PCCSessionListenerTest {
+@ExtendWith(MockitoExtension.class)
+class PCCSessionListenerTest {
     private final List<Message> sendMessages = new ArrayList<>();
 
     @Mock
@@ -64,21 +63,20 @@ public class PCCSessionListenerTest {
     @Mock
     private PCCTunnelManager tunnelManager;
 
-    @Before
-    public void setup() {
+    @AfterEach
+    void cleanup() {
+        sendMessages.clear();
+    }
+
+    private void stubSendMessage() {
         doAnswer(invocation -> {
             PCCSessionListenerTest.this.sendMessages.add((Message) invocation.getArguments()[0]);
             return null;
         }).when(mockedSession).sendMessage(any());
     }
 
-    @After
-    public void cleanup() {
-        sendMessages.clear();
-    }
-
     @Test
-    public void testOnMessage() {
+    void testOnMessage() {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onMessage(mockedSession, createUpdMsg(true));
         verify(tunnelManager).onMessagePcupd(any(Updates.class), any(PCCSession.class));
@@ -98,28 +96,30 @@ public class PCCSessionListenerTest {
     }
 
     @Test
-    public void testOnMessageErrorMode() {
+    void testOnMessageErrorMode() {
+        stubSendMessage();
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, true);
         listener.onMessage(mockedSession, createUpdMsg(true));
         verify(mockedSession).sendMessage(any(Message.class));
     }
 
     @Test
-    public void testOnSessionUp() {
+    void testOnSessionUp() {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
         verify(tunnelManager).onSessionUp(any(PCCSession.class));
     }
 
     @Test
-    public void testOnSessionDown() {
+    void testOnSessionDown() {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionDown(mockedSession, new Exception());
         verify(tunnelManager).onSessionDown(any(PCCSession.class));
     }
 
     @Test
-    public void testSendError() {
+    void testSendError() {
+        stubSendMessage();
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
         listener.sendError(MsgBuilderUtil.createErrorMsg(PCEPErrors.ATTEMPT_2ND_SESSION, Uint32.ZERO));
@@ -127,7 +127,8 @@ public class PCCSessionListenerTest {
     }
 
     @Test
-    public void testSendReport() {
+    void testSendReport() {
+        stubSendMessage();
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         listener.onSessionUp(mockedSession);
         listener.sendReport(null);
@@ -135,7 +136,7 @@ public class PCCSessionListenerTest {
     }
 
     @Test
-    public void testGetId() {
+    void testGetId() {
         final PCCSessionListener listener = new PCCSessionListener(1, tunnelManager, false);
         assertEquals(1, listener.getId());
     }

@@ -10,14 +10,14 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 import io.netty.channel.Channel;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.impl.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCServerPeerProposal;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class PCCIncrementalSyncTest extends PCCMockCommon {
+class PCCIncrementalSyncTest extends PCCMockCommon {
     /**
      * Test Incremental Synchronization
      * Create 8 lsp, then it disconnects after 5 sec and then after 5 sec reconnects with Pcc DBVersion 10
@@ -29,7 +29,7 @@ public class PCCIncrementalSyncTest extends PCCMockCommon {
         "--redelegation-timeout", "0", "--state-timeout", "-1", "--incremental-sync-procedure", "10", "5", "5"};
 
     @Test
-    public void testSessionIncrementalSyncEstablishment() throws Exception {
+    void testSessionIncrementalSyncEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final Uint64 numberOflspAndDBv = Uint64.valueOf(8);
         final Channel channel = createServer(factory, remoteAddress, new PCCServerPeerProposal(numberOflspAndDBv));

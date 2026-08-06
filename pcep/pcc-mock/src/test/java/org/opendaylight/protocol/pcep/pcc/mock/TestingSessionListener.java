@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPTerminationReason;
@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class TestingSessionListener implements PCEPSessionListener, ListenerCheck {
+final class TestingSessionListener implements PCEPSessionListener, ListenerCheck {
     private static final Logger LOG = LoggerFactory.getLogger(TestingSessionListener.class);
 
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
@@ -67,8 +67,9 @@ public final class TestingSessionListener implements PCEPSessionListener, Listen
         return this.up;
     }
 
-    public PCEPSession getSession() {
-        Assert.assertTrue("Session up", Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS));
+    PCEPSession getSession() {
+        Assertions.assertTrue(Uninterruptibles.awaitUninterruptibly(this.sessionLatch, 10, TimeUnit.SECONDS),
+            "Session up");
         return this.session;
     }
 

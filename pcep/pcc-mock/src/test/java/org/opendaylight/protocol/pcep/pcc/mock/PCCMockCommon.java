@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.util.CheckTestUtil.waitFutureSuccess;
@@ -28,8 +28,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPCapability;
@@ -54,7 +54,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public abstract class PCCMockCommon {
+abstract class PCCMockCommon {
     private static final Uint8 KEEP_ALIVE = Uint8.valueOf(30);
     private static final Uint8 DEAD_TIMER = Uint8.valueOf(120);
     private static final long SLEEP_FOR = 50;
@@ -68,15 +68,15 @@ public abstract class PCCMockCommon {
 
     protected abstract List<PCEPCapability> getCapabilities();
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         ServiceLoader.load(PCEPExtensionProviderActivator.class).forEach(act -> act.start(extensionProvider));
         messageRegistry = extensionProvider.getMessageHandlerRegistry();
         pceDispatcher = new PCEPDispatcherImpl();
     }
 
-    @After
-    public void after() {
+    @AfterEach
+    void after() {
         pceDispatcher.close();
     }
 

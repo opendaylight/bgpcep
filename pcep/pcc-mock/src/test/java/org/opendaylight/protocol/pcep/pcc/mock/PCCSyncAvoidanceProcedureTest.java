@@ -7,21 +7,21 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.netty.channel.Channel;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.impl.PCEPStatefulCapability;
 import org.opendaylight.protocol.pcep.pcc.mock.protocol.PCCPeerProposal;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
+class PCCSyncAvoidanceProcedureTest extends PCCMockCommon {
     @Test
-    public void testSessionAvoidanceDesynchronizedEstablishment() throws Exception {
+    void testSessionAvoidanceDesynchronizedEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
 
         final Channel channel = createServer(factory, remoteAddress, new PCCPeerProposal());
