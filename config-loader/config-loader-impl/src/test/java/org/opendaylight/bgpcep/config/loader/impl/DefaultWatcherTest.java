@@ -7,15 +7,15 @@
  */
 package org.opendaylight.bgpcep.config.loader.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.nio.file.Path;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class DefaultWatcherTest {
+class DefaultWatcherTest {
     @Test
-    public void bgpFileWatcherTest() throws Exception {
+    void bgpFileWatcherTest() throws Exception {
         try (var bgpFileWatcher = new DefaultFileWatcher()) {
             bgpFileWatcher.activate();
 

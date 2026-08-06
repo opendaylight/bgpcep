@@ -18,17 +18,17 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.yangtools.binding.runtime.api.BindingRuntimeContext;
 import org.opendaylight.yangtools.yang.model.api.EffectiveModelContext;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class OSGiConfigLoaderTest {
+@ExtendWith(MockitoExtension.class)
+class OSGiConfigLoaderTest {
     @Mock
     private FileWatcher watcher;
     @Mock
@@ -44,8 +44,8 @@ public class OSGiConfigLoaderTest {
 
     private OSGiConfigLoader loader;
 
-    @Before
-    public void before() throws InterruptedException {
+    @BeforeEach
+    void before() throws InterruptedException {
         doReturn(watchService).when(watcher).getWatchService();
         doReturn(Path.of("foo")).when(watcher).getPathFile();
         doReturn(watchKey).when(watchService).take();
@@ -62,13 +62,13 @@ public class OSGiConfigLoaderTest {
         loader.setRuntimeContext(bindingContext);
     }
 
-    @After
-    public void after() {
+    @AfterEach
+    void after() {
         loader.deactivate();
     }
 
     @Test
-    public void testSimpleConfigLoader() {
+    void testSimpleConfigLoader() {
         loader.activate();
         verify(watchKey, timeout(10000)).reset();
     }
