@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opendaylight.protocol.pcep.pcc.mock.PCCMockCommon.checkSessionListenerNotNull;
 
 import io.netty.channel.Channel;
@@ -16,11 +16,13 @@ import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.List;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -33,16 +35,16 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class PCCDispatcherImplTest {
+@ExtendWith(MockitoExtension.class)
+class PCCDispatcherImplTest {
     private PCCDispatcherImpl dispatcher;
     private PCEPDispatcherImpl pcepDispatcher;
     private InetSocketAddress serverAddress;
     private InetSocketAddress clientAddress;
     private MessageRegistry registry;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         registry = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
 
         dispatcher = new PCCDispatcherImpl(registry);
@@ -51,14 +53,15 @@ public class PCCDispatcherImplTest {
         clientAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         dispatcher.close();
         pcepDispatcher.close();
     }
 
-    @Test(timeout = 20000)
-    public void testClientReconnect() throws Exception {
+    @Test
+    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    void testClientReconnect() throws Exception {
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(slf,
             new PCEPTimerProposal(Uint8.TEN, Uint8.valueOf(40)), List.of(), Uint16.ZERO, null);
