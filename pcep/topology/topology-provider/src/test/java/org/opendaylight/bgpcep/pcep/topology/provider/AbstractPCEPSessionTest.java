@@ -62,6 +62,7 @@ import org.opendaylight.yangtools.concepts.NoOpObjectRegistration;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public abstract class AbstractPCEPSessionTest extends AbstractConcurrentDataBrokerTest {
 
     static final short RPC_TIMEOUT = 4;
