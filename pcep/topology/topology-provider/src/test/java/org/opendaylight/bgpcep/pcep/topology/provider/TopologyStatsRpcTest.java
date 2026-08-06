@@ -60,6 +60,7 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class TopologyStatsRpcTest extends AbstractConcurrentDataBrokerTest {
     private static final String TOPOLOGY_ID1 = "pcep-topology-1";
     private static final String TOPOLOGY_ID2 = "pcep-topology-2";

@@ -22,6 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class Bgpcep1037Test extends AbstractPCEPSessionTest {
     @Mock
     private SessionStateUpdater sessionStateUpdater;
