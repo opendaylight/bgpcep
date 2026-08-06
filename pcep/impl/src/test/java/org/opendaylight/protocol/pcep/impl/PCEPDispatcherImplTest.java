@@ -13,9 +13,9 @@ import static org.hamcrest.CoreMatchers.endsWith;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.spy;
@@ -38,13 +38,15 @@ import java.nio.channels.Channel;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.eclipse.jdt.annotation.NonNull;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.pcep.MessageRegistry;
 import org.opendaylight.protocol.pcep.PCEPSession;
@@ -55,8 +57,8 @@ import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class PCEPDispatcherImplTest {
+@ExtendWith(MockitoExtension.class)
+class PCEPDispatcherImplTest {
     private static final @NonNull Uint8 DEAD_TIMER = Uint8.valueOf(120);
     private static final @NonNull Uint8 KEEP_ALIVE = Uint8.valueOf(30);
     private static final int RETRY_TIMER = 0;
@@ -72,7 +74,7 @@ public class PCEPDispatcherImplTest {
     private PCEPSessionNegotiatorFactory negotiatorFactory;
     private PCCMock pccMock;
 
-    @Before
+    @BeforeEach
     public void setUp() {
 
         msgReg = new DefaultPCEPExtensionConsumerContext().getMessageHandlerRegistry();
@@ -87,14 +89,15 @@ public class PCEPDispatcherImplTest {
         pccMock = new PCCMock(negotiatorFactory, new PCEPHandlerFactory(msgReg));
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         dispatcher.close();
         disp2Spy.close();
     }
 
-    @Test(timeout = 20000)
-    public void testCreateClientServer() throws InterruptedException, ExecutionException {
+    @Test
+    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    void testCreateClientServer() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
@@ -121,8 +124,9 @@ public class PCEPDispatcherImplTest {
         assertTrue(futureChannel.channel().isActive());
     }
 
-    @Test(timeout = 20000)
-    public void testCreateDuplicateClient() throws InterruptedException, ExecutionException {
+    @Test
+    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    void testCreateDuplicateClient() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
@@ -142,8 +146,9 @@ public class PCEPDispatcherImplTest {
         }
     }
 
-    @Test(timeout = 20000)
-    public void testReconnectClient() throws InterruptedException, ExecutionException {
+    @Test
+    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    void testReconnectClient() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
@@ -165,8 +170,9 @@ public class PCEPDispatcherImplTest {
         }
     }
 
-    @Test(timeout = 20000)
-    public void testCustomizeBootstrap() throws InterruptedException {
+    @Test
+    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    void testCustomizeBootstrap() throws InterruptedException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
         final InetSocketAddress clientAddr2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);

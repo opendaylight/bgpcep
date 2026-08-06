@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.subobject.SrRroSubobjectParser;
 import org.opendaylight.protocol.util.ByteArray;
@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.NaiType;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class SrRroSubobjectParserTest {
+class SrRroSubobjectParserTest {
 
     private static final byte[] SR_RRO_SUBOBJECT_WITH_IPV4_NODEID  = {
         0x24,0x0c,(byte) 0x10,0x00,
@@ -86,13 +86,13 @@ public class SrRroSubobjectParserTest {
 
     private SrRroSubobjectParser parser;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         parser = new SrRroSubobjectParser();
     }
 
     @Test
-    public void testSrRroSubobjectIpv4NodeIdNAI() throws PCEPDeserializerException {
+    void testSrRroSubobjectIpv4NodeIdNAI() throws PCEPDeserializerException {
         final SrRroTypeBuilder builder = new SrRroTypeBuilder()
                 .setNaiType(NaiType.Ipv4NodeId)
                 .setSid(Uint32.valueOf(123456))
@@ -110,7 +110,7 @@ public class SrRroSubobjectParserTest {
     }
 
     @Test
-    public void testSrRroSubobjectIpv6NodeIdNAI() throws PCEPDeserializerException {
+    void testSrRroSubobjectIpv6NodeIdNAI() throws PCEPDeserializerException {
         final SrRroTypeBuilder builder = new SrRroTypeBuilder()
                 .setNaiType(NaiType.Ipv6NodeId)
                 .setCFlag(false)
@@ -128,7 +128,7 @@ public class SrRroSubobjectParserTest {
     }
 
     @Test
-    public void testSrRroSubobjectIpv4AdjacencyNAI() throws PCEPDeserializerException {
+    void testSrRroSubobjectIpv4AdjacencyNAI() throws PCEPDeserializerException {
         final SrRroTypeBuilder builder = new SrRroTypeBuilder()
                 .setNaiType(NaiType.Ipv4Adjacency)
                 .setSid(Uint32.valueOf(123456))
@@ -147,7 +147,7 @@ public class SrRroSubobjectParserTest {
     }
 
     @Test
-    public void testSrRroSubobjectIpv6AdjacencyNAI() throws PCEPDeserializerException {
+    void testSrRroSubobjectIpv6AdjacencyNAI() throws PCEPDeserializerException {
         final SrRroTypeBuilder builder = new SrRroTypeBuilder()
                 .setNaiType(NaiType.Ipv6Adjacency)
                 .setSid(Uint32.valueOf(123456))
@@ -166,7 +166,7 @@ public class SrRroSubobjectParserTest {
     }
 
     @Test
-    public void testSrRroSubobjectUnnumberedNAI() throws PCEPDeserializerException {
+    void testSrRroSubobjectUnnumberedNAI() throws PCEPDeserializerException {
         final SrRroTypeBuilder builder = new SrRroTypeBuilder()
                 .setNaiType(NaiType.Unnumbered)
                 .setSid(Uint32.valueOf(123456))
@@ -186,7 +186,7 @@ public class SrRroSubobjectParserTest {
     }
 
     @Test
-    public void testSrRroSubobjectWithoutNAI() throws PCEPDeserializerException {
+    void testSrRroSubobjectWithoutNAI() throws PCEPDeserializerException {
         final SrRroTypeBuilder builder = new SrRroTypeBuilder()
                 .setNaiType(NaiType.Ipv4NodeId)
                 .setSid(Uint32.valueOf(123470))
@@ -202,7 +202,7 @@ public class SrRroSubobjectParserTest {
     }
 
     @Test
-    public void testSrRroSubobjectWithoutBody() throws PCEPDeserializerException {
+    void testSrRroSubobjectWithoutBody() throws PCEPDeserializerException {
         final SrRroTypeBuilder builder = new SrRroTypeBuilder()
                 .setNaiType(NaiType.Ipv4NodeId)
                 .setCFlag(false)

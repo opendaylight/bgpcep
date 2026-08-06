@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.tlv.LSPIdentifierIpv4TlvParser;
 import org.opendaylight.protocol.pcep.parser.tlv.LSPIdentifierIpv6TlvParser;
@@ -63,7 +63,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class PCEPStatefulTlvParserTest {
+class PCEPStatefulTlvParserTest {
 
     private static final byte[] STATEFUL_BYTES = { 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x01 };
     private static final byte[] STATEFUL_SYNC_OPT_BYTES = new byte[]{ 0x00, 0x10, 0x00, 0x04, 0x00, 0x00, 0x00, 0x33 };
@@ -97,7 +97,7 @@ public class PCEPStatefulTlvParserTest {
     };
 
     @Test
-    public void testStatefulTlv() throws PCEPDeserializerException {
+    void testStatefulTlv() throws PCEPDeserializerException {
         final StatefulCapabilityTlvParser parser = new StatefulCapabilityTlvParser();
         final StatefulCapability tlv = new StatefulCapabilityBuilder()
             .setLspUpdateCapability(Boolean.TRUE)
@@ -114,7 +114,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testStatefulTlvSyncOptimizationExtension() throws PCEPDeserializerException {
+    void testStatefulTlvSyncOptimizationExtension() throws PCEPDeserializerException {
         final StatefulCapabilityTlvParser parser = new StatefulCapabilityTlvParser();
         final StatefulCapability tlv = new StatefulCapabilityBuilder()
             .setLspUpdateCapability(Boolean.TRUE)
@@ -131,7 +131,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testSymbolicNameTlv() throws PCEPDeserializerException {
+    void testSymbolicNameTlv() throws PCEPDeserializerException {
         final LspSymbolicNameTlvParser parser = new LspSymbolicNameTlvParser();
         final SymbolicPathName tlv = new SymbolicPathNameBuilder().setPathName(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930
@@ -143,7 +143,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testLspErrorCodeTlv() throws PCEPDeserializerException {
+    void testLspErrorCodeTlv() throws PCEPDeserializerException {
         final LspUpdateErrorTlvParser parser = new LspUpdateErrorTlvParser();
         final LspErrorCode tlv = new LspErrorCodeBuilder().setErrorCode(Uint32.valueOf(627610883)).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(LSP_UPDATE_ERROR_BYTES, 4))));
@@ -153,7 +153,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testLspIdentifiers4Tlv() throws PCEPDeserializerException {
+    void testLspIdentifiers4Tlv() throws PCEPDeserializerException {
         final LSPIdentifierIpv4TlvParser parser = new LSPIdentifierIpv4TlvParser();
         final Ipv4Builder afi = new Ipv4Builder();
         afi.setIpv4TunnelSenderAddress(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(
@@ -172,7 +172,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testLspIdentifiers6Tlv() throws PCEPDeserializerException {
+    void testLspIdentifiers6Tlv() throws PCEPDeserializerException {
         final LSPIdentifierIpv6TlvParser parser = new LSPIdentifierIpv6TlvParser();
         final Ipv6Builder afi = new Ipv6Builder();
         afi.setIpv6TunnelSenderAddress(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(
@@ -203,7 +203,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testRSVPError4SpecTlv() throws PCEPDeserializerException {
+    void testRSVPError4SpecTlv() throws PCEPDeserializerException {
         final RSVPErrorSpecTlvParser parser = new RSVPErrorSpecTlvParser();
         final RsvpErrorBuilder builder = new RsvpErrorBuilder()
                 .setNode(new IpAddressNoZone(Ipv4Util.addressForByteBuf(Unpooled.wrappedBuffer(
@@ -221,7 +221,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testRSVPError6SpecTlv() throws PCEPDeserializerException {
+    void testRSVPError6SpecTlv() throws PCEPDeserializerException {
         final RSVPErrorSpecTlvParser parser = new RSVPErrorSpecTlvParser();
         final RsvpErrorBuilder builder = new RsvpErrorBuilder()
                 .setNode(new IpAddressNoZone(Ipv6Util.addressForByteBuf(Unpooled.wrappedBuffer(new byte[] {
@@ -242,7 +242,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testUserErrorSpecTlv() throws PCEPDeserializerException {
+    void testUserErrorSpecTlv() throws PCEPDeserializerException {
         final RSVPErrorSpecTlvParser parser = new RSVPErrorSpecTlvParser();
         final UserErrorBuilder builder = new UserErrorBuilder()
                 .setEnterprise(new EnterpriseNumber(Uint32.valueOf(12345)))
@@ -258,7 +258,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testPathBindingTlvMplsLabel() throws PCEPDeserializerException {
+    void testPathBindingTlvMplsLabel() throws PCEPDeserializerException {
         final byte[] pathBindingBytes = {
             0x00, 0x37, 0x00, 0x07, 0x00, 0x00, 0x00, 0x00, (byte) 0xA8, 0x0F, (byte) 0x60, 0x00
         };
@@ -283,7 +283,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testPathBindingTlvMplsLabelEntry() throws PCEPDeserializerException {
+    void testPathBindingTlvMplsLabelEntry() throws PCEPDeserializerException {
         final byte[] pathBindingBytes = {
             0x00, 0x37, 0x00, 0x08, 0x01, (byte) 0x80, 0x00, 0x00, (byte) 0xA8, (byte) 0x0F, (byte) 0x6D, (byte) 0xAD
         };
@@ -304,7 +304,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testPathBindingTlvSrv6Entry() throws PCEPDeserializerException {
+    void testPathBindingTlvSrv6Entry() throws PCEPDeserializerException {
         final byte[] pathBindingBytes = {
             0x00, 0x37, 0x00, 0x14,
             0x02, 0x40, 0x00, 0x00,
@@ -326,7 +326,7 @@ public class PCEPStatefulTlvParserTest {
     }
 
     @Test
-    public void testPathBindingTlvSrv6BehaviorEntry() throws PCEPDeserializerException {
+    void testPathBindingTlvSrv6BehaviorEntry() throws PCEPDeserializerException {
         final byte[] pathBindingBytes = {
             0x00, 0x37, 0x00, 0x1c,
             0x03, 0x40, 0x00, 0x00,

@@ -9,10 +9,10 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.isA;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Pcerr;
@@ -21,11 +21,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.OpenBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.pcep.error.object.ErrorObject;
 
-public class UtilTest {
+class UtilTest {
     private static final Open OPEN = new OpenBuilder().build();
 
     @Test
-    public void testCreateErrorMessageWithOpen() {
+    void testCreateErrorMessageWithOpen() {
         final Pcerr errMsg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, OPEN);
         assertThat(errMsg.getPcerrMessage().getErrorType(), isA(SessionCase.class));
         final SessionCase sessionCase = (SessionCase) errMsg.getPcerrMessage().getErrorType();
@@ -36,7 +36,7 @@ public class UtilTest {
     }
 
     @Test
-    public void testCreateErrorMessage() {
+    void testCreateErrorMessage() {
         final Pcerr errMsg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, null);
         assertNull(errMsg.getPcerrMessage().getErrorType());
         final ErrorObject errorObject = errMsg.getPcerrMessage().getErrors().get(0).getErrorObject();

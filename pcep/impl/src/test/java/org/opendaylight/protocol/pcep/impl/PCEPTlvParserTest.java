@@ -17,7 +17,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.tlv.AssociationRangeTlvParser;
@@ -83,7 +83,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class PCEPTlvParserTest {
+class PCEPTlvParserTest {
     private static final byte[] NO_PATH_VECTOR_BYTES = {
         0x00, 0x01, 0x00, 0x04, 0x00, 0x00, 0x00, (byte) 0xa7
     };
@@ -138,7 +138,7 @@ public class PCEPTlvParserTest {
     };
 
     @Test
-    public void testNoPathVectorTlv() throws PCEPDeserializerException {
+    void testNoPathVectorTlv() throws PCEPDeserializerException {
         final NoPathVectorTlvParser parser = new NoPathVectorTlvParser();
         final NoPathVectorTlv tlv = new NoPathVectorBuilder()
                 .setFlags(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930
@@ -152,7 +152,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testOverloadedDurationTlv() throws PCEPDeserializerException {
+    void testOverloadedDurationTlv() throws PCEPDeserializerException {
         final OverloadedDurationTlvParser parser = new OverloadedDurationTlvParser();
         final OverloadDuration tlv = new OverloadDurationBuilder().setDuration(Uint32.valueOf(0x7FFFFFFFL)).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(OVERLOADED_BYTES, 4))));
@@ -163,7 +163,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testReqMissingTlv() throws PCEPDeserializerException {
+    void testReqMissingTlv() throws PCEPDeserializerException {
         final ReqMissingTlvParser parser = new ReqMissingTlvParser();
         final ReqMissing tlv = new ReqMissingBuilder().setRequestId(new RequestId(Uint32.valueOf(0xF7823517L))).build();
         assertEquals(tlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(REQ_MISSING_BYTES, 4))));
@@ -174,7 +174,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testOrderTlv() throws PCEPDeserializerException {
+    void testOrderTlv() throws PCEPDeserializerException {
         final OrderTlvParser parser = new OrderTlvParser();
         final Order tlv = new OrderBuilder()
                 .setDelete(Uint32.valueOf(0xFFFFFFFFL))
@@ -188,7 +188,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testOFListTlv() throws PCEPDeserializerException {
+    void testOFListTlv() throws PCEPDeserializerException {
         final OFListTlvParser parser = new OFListTlvParser();
         final OfList tlv = new OfListBuilder()
             // Predictable order
@@ -202,7 +202,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testVendorInformationTlv() throws PCEPDeserializerException {
+    void testVendorInformationTlv() throws PCEPDeserializerException {
         final TestVendorInformationTlvParser parser = new TestVendorInformationTlvParser();
         final TestEnterpriseSpecificInformation esInfo = new TestEnterpriseSpecificInformation(5);
         final VendorInformationTlv viTlv = new VendorInformationTlvBuilder()
@@ -221,7 +221,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testPathSetupTypeTlvParser() throws PCEPDeserializerException {
+    void testPathSetupTypeTlvParser() throws PCEPDeserializerException {
         final PathSetupTypeTlvParser parser = new PathSetupTypeTlvParser();
         final PathSetupType pstTlv = new PathSetupTypeBuilder().setPst(PsType.RsvpTe).build();
         assertEquals(pstTlv, parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(PST_TLV_BYTES, 4))));
@@ -231,7 +231,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testUnsupportedPSTParser() {
+    void testUnsupportedPSTParser() {
         final var parser = new PathSetupTypeTlvParser();
         final var ex = assertThrows(PCEPDeserializerException.class,
             () -> parser.parseTlv(Unpooled.wrappedBuffer(ByteArray.cutBytes(PST_TLV_BYTES_UNSUPPORTED, 4))));
@@ -239,7 +239,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testPathSetupTypeCapabilityTlvParser() throws PCEPDeserializerException {
+    void testPathSetupTypeCapabilityTlvParser() throws PCEPDeserializerException {
         final PathSetupTypeCapabilityTlvParser parser = new PathSetupTypeCapabilityTlvParser();
         final PathSetupTypeCapability pstCapability = new PathSetupTypeCapabilityBuilder()
             .setPsts(List.of(PsType.RsvpTe, PsType.SrMpls, PsType.Srv6))
@@ -260,7 +260,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testAssociationTypeListTlvParser() throws PCEPDeserializerException {
+    void testAssociationTypeListTlvParser() throws PCEPDeserializerException {
         final AssociationTypeListTlvParser parser = new AssociationTypeListTlvParser();
         final AssociationTypeList assocTypeList = new AssociationTypeListBuilder()
             .setAssociationType(Set.of(AssociationType.Disjoint)).build();
@@ -272,7 +272,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testAssociationRangeTlvParser() throws PCEPDeserializerException {
+    void testAssociationRangeTlvParser() throws PCEPDeserializerException {
         final AssociationRangeTlvParser parser = new AssociationRangeTlvParser();
         final AssociationRange assocRangeList = new AssociationRangeBuilder()
             .setAssociationRanges(List.of(new AssociationRangesBuilder()
@@ -289,7 +289,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testAutoBandwidthCapabilityParser() throws PCEPDeserializerException {
+    void testAutoBandwidthCapabilityParser() throws PCEPDeserializerException {
         final AutoBandwidthCapabilityParser parser = new AutoBandwidthCapabilityParser();
         final AutoBandwidthCapability abaCapability = new AutoBandwidthCapabilityBuilder().build();
 
@@ -300,7 +300,7 @@ public class PCEPTlvParserTest {
     }
 
     @Test
-    public void testAutoBandwidthAttributes() throws PCEPDeserializerException {
+    void testAutoBandwidthAttributes() throws PCEPDeserializerException {
         final AutoBandwidthAttributesTlvParser parser = new AutoBandwidthAttributesTlvParser();
         final AutoBandwidthAttributes aba = new AutoBandwidthAttributesBuilder()
             .setSampleInterval(new SampleIntervalBuilder().setInterval(Uint32.ONE).build())
