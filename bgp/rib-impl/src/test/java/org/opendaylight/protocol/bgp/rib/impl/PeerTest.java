@@ -79,6 +79,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class PeerTest extends AbstractRIBTestSetup {
 
     private final IpAddressNoZone neighborAddress = new IpAddressNoZone(new Ipv4AddressNoZone("127.0.0.1"));

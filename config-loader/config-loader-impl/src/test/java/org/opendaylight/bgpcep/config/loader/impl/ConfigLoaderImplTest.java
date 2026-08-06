@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class ConfigLoaderImplTest extends AbstractConfigLoaderTest {
     @Override
     @Before
