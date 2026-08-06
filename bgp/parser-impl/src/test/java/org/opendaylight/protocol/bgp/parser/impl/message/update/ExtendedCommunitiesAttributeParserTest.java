@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.primitives.Bytes;
 import io.netty.buffer.ByteBuf;
@@ -17,8 +17,8 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.route.origin.extended.community._case.RouteOriginExtendedCommunityBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class ExtendedCommunitiesAttributeParserTest {
+class ExtendedCommunitiesAttributeParserTest {
 
     private static final byte[] INPUT = {
         0x40, 0x03, 0x00, 54, 0, 0, 1, 76
@@ -44,14 +44,14 @@ public class ExtendedCommunitiesAttributeParserTest {
 
     private ExtendedCommunitiesAttributeParser handler;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         this.handler = new ExtendedCommunitiesAttributeParser(ServiceLoader.load(BGPExtensionConsumerContext.class)
             .findFirst().orElseThrow().getExtendedCommunityRegistry());
     }
 
     @Test
-    public void testExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
+    void testExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
         final RouteOriginExtendedCommunityCase routeOrigin = new RouteOriginExtendedCommunityCaseBuilder()
                 .setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder()
                     .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(54)))
@@ -71,7 +71,7 @@ public class ExtendedCommunitiesAttributeParserTest {
     }
 
     @Test
-    public void testEmptyListExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
+    void testEmptyListExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
         final List<ExtendedCommunities> extendedCommunitiesList = new ArrayList<>();
         final AttributesBuilder attBuilder = new AttributesBuilder().setExtendedCommunities(extendedCommunitiesList);
         final ByteBuf output = Unpooled.buffer();
@@ -81,14 +81,14 @@ public class ExtendedCommunitiesAttributeParserTest {
     }
 
     @Test
-    public void testEmptyExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
+    void testEmptyExtendedCommunityAttributeParser() throws BGPDocumentedException, BGPParsingException {
         final ByteBuf output = Unpooled.buffer();
         this.handler.serializeAttribute(new AttributesBuilder().build(), output);
         assertEquals(Unpooled.buffer(), output);
     }
 
     @Test
-    public void testExtendedCommunityAttributeParserUnknown() throws BGPDocumentedException, BGPParsingException {
+    void testExtendedCommunityAttributeParserUnknown() throws BGPDocumentedException, BGPParsingException {
         final AttributesBuilder attBuilder = new AttributesBuilder();
         this.handler.parseAttribute(Unpooled.copiedBuffer(UNKOWN), attBuilder, null);
         assertTrue(attBuilder.getExtendedCommunities().isEmpty());

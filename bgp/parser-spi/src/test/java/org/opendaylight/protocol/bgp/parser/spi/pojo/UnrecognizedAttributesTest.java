@@ -7,21 +7,21 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.Unpooled;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributesKey;
 
-public class UnrecognizedAttributesTest {
+class UnrecognizedAttributesTest {
 
     private static final int UNRECOGNIZED_ATTRIBUTE_COUNT = 1;
     private static final int FIRST_ATTRIBUTE = 0;
@@ -31,7 +31,7 @@ public class UnrecognizedAttributesTest {
     private static final SimpleAttributeRegistry SIMPLE_ATTR_REG = new SimpleAttributeRegistry();
 
     @Test
-    public void testUnrecognizedAttributesWithoutOptionalFlag() throws BGPDocumentedException, BGPParsingException {
+    void testUnrecognizedAttributesWithoutOptionalFlag() throws BGPDocumentedException, BGPParsingException {
         final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class, () -> {
             SIMPLE_ATTR_REG.parseAttributes(
                 Unpooled.wrappedBuffer(new byte[] { 0x03, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 }), null);
@@ -41,7 +41,7 @@ public class UnrecognizedAttributesTest {
     }
 
     @Test
-    public void testUnrecognizedAttributes() throws BGPDocumentedException, BGPParsingException {
+    void testUnrecognizedAttributes() throws BGPDocumentedException, BGPParsingException {
         final byte[] attributeBytes = { (byte)0xe0, 0x00, 0x05, 0x01, 0x02, 0x03, 0x04, 0x05 };
         final Map<UnrecognizedAttributesKey, UnrecognizedAttributes> unrecogAttribs = SIMPLE_ATTR_REG.parseAttributes(
             Unpooled.wrappedBuffer(attributeBytes), null).getAttributes().getUnrecognizedAttributes();

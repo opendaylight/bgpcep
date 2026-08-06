@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.AigpAttributeParser;
@@ -28,11 +28,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 /*
  * This class is aimed to test parsing and serializing path attributes.
  */
-public class PathAttributeParserTest {
+class PathAttributeParserTest {
     private final DefaultBGPExtensionConsumerContext ctx = new DefaultBGPExtensionConsumerContext();
 
     @Test
-    public void testOriginParser() {
+    void testOriginParser() {
         final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
             () -> ctx.getAttributeRegistry().parseAttributes(
                 Unpooled.copiedBuffer(new byte[] { 0x40, 0x01, 0x01, 0x04 }), null));
@@ -40,7 +40,7 @@ public class PathAttributeParserTest {
     }
 
     @Test
-    public void testParsingAigpAttributeWithCorrectTLV() throws BGPDocumentedException, BGPParsingException {
+    void testParsingAigpAttributeWithCorrectTLV() throws BGPDocumentedException, BGPParsingException {
         final byte[] value = new byte[] { 1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 8 };
         final ByteBuf buffer = Unpooled.buffer();
 
@@ -51,12 +51,12 @@ public class PathAttributeParserTest {
         final Aigp aigp = pathAttributes.getAigp();
         final AigpTlv tlv = aigp.getAigpTlv();
 
-        assertNotNull("Tlv should not be null.", tlv);
-        assertEquals("Aigp tlv should have metric with value 8.", 8, tlv.getMetric().getValue().intValue());
+        assertNotNull(tlv, "Tlv should not be null.");
+        assertEquals(8, tlv.getMetric().getValue().intValue(), "Aigp tlv should have metric with value 8.");
     }
 
     @Test
-    public void testSerializingAigpAttribute() throws BGPDocumentedException, BGPParsingException {
+    void testSerializingAigpAttribute() throws BGPDocumentedException, BGPParsingException {
         final byte[] value = new byte[] { 1, 0, 11, 0, 0, 0, 0, 0, 0, 0, 8 };
         final ByteBuf inputData = Unpooled.buffer();
         final ByteBuf testBuffer = Unpooled.buffer();

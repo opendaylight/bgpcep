@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.parser.mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -21,8 +22,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -68,13 +69,13 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class BGPMessageParserMockTest {
+class BGPMessageParserMockTest {
 
     private final byte[][] inputBytes = new byte[11][];
     private final List<Update> messages = new ArrayList<>();
 
-    @Before
-    public void init() throws Exception {
+    @BeforeEach
+    void init() throws Exception {
         // Creating input bytes and update messages
         for (int i = 0; i < inputBytes.length; i++) {
             inputBytes[i] = fillInputBytes(i);
@@ -86,7 +87,7 @@ public class BGPMessageParserMockTest {
      * Test if mock implementation of parser returns correct message.
      */
     @Test
-    public void testGetUpdateMessage() throws BGPParsingException, BGPDocumentedException {
+    void testGetUpdateMessage() throws BGPParsingException, BGPDocumentedException {
         final Map<ByteBuf, Notification<?>> updateMap = new HashMap<>();
         for (int i = 0; i < inputBytes.length; i++) {
             updateMap.put(Unpooled.copiedBuffer(inputBytes[i]), messages.get(i));
@@ -105,14 +106,15 @@ public class BGPMessageParserMockTest {
      * Test if method throws IllegalArgumentException after finding no BGPUpdateMessage
      * associated with given byte[] key.
      */
-    @Test(expected = IllegalArgumentException.class)
-    public void testGetUpdateMessageException() throws BGPParsingException, BGPDocumentedException {
+    @Test
+    void testGetUpdateMessageException() throws BGPParsingException, BGPDocumentedException {
         final Map<ByteBuf, Notification<?>> updateMap = new HashMap<>();
         for (int i = 0; i < inputBytes.length; i++) {
             updateMap.put(Unpooled.copiedBuffer(inputBytes[i]), messages.get(i));
         }
         final BGPMessageParserMock mockParser = new BGPMessageParserMock(updateMap);
-        mockParser.parseMessage(Unpooled.copiedBuffer(new byte[]{7, 4, 6}), null);
+        assertThrows(IllegalArgumentException.class,
+            () -> mockParser.parseMessage(Unpooled.copiedBuffer(new byte[]{7, 4, 6}), null));
     }
 
     /**
@@ -176,7 +178,7 @@ public class BGPMessageParserMockTest {
     }
 
     @Test
-    public void testGetOpenMessage() throws BGPParsingException, BGPDocumentedException {
+    void testGetOpenMessage() throws BGPParsingException, BGPDocumentedException {
         final Map<ByteBuf, Notification<?>> openMap = new HashMap<>();
 
         final Set<BgpTableType> type = new HashSet<>();

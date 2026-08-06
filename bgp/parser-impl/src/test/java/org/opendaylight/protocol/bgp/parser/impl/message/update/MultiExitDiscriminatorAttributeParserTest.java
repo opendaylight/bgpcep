@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.MultiExitDiscBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class MultiExitDiscriminatorAttributeParserTest {
+class MultiExitDiscriminatorAttributeParserTest {
     private static final byte[] ATTRIBUTE_BYTES = {
         (byte) 0x80, (byte) 0x04, (byte) 0x04, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01
     };
@@ -37,7 +37,7 @@ public class MultiExitDiscriminatorAttributeParserTest {
         .orElseThrow().getAttributeRegistry();
 
     @Test
-    public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
+    void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
         registry.serializeAttribute(RESULT, actual);
         assertArrayEquals(ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
@@ -47,7 +47,7 @@ public class MultiExitDiscriminatorAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyAttribute() {
+    void testParseEmptyAttribute() {
         final ByteBuf actual = Unpooled.buffer();
         registry.serializeAttribute(new AttributesBuilder()
             .setMultiExitDisc(new MultiExitDiscBuilder().build())

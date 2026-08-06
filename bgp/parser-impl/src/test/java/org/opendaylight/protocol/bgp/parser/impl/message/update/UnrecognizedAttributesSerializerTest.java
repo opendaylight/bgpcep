@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.google.common.collect.ImmutableMap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -22,9 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributesBuilder;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class UnrecognizedAttributesSerializerTest {
+class UnrecognizedAttributesSerializerTest {
     @Test
-    public void testUnrecognizedAttributesSerializer() {
+    void testUnrecognizedAttributesSerializer() {
         final byte[] unrecognizedValue1 = {
             (byte)0xd3, 0x5d, 0x35, (byte)0xd3, 0x5d, 0x35, (byte)0xd3, 0x5d, 0x35, (byte)0xd3, 0x5d, 0x35
         };

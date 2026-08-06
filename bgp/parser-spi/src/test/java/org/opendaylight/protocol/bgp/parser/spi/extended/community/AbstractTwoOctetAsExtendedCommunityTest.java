@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.extended.community;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import io.netty.buffer.ByteBuf;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.ExtendedCommunity;
 
-public class AbstractTwoOctetAsExtendedCommunityTest {
+class AbstractTwoOctetAsExtendedCommunityTest {
     @Test
-    public void testGetType() {
+    void testGetType() {
         final AbstractTwoOctetAsExtendedCommunity community = new AbstractTwoOctetAsExtendedCommunity() {
             @Override
             public void serializeExtendedCommunity(final ExtendedCommunity extendedCommunity,
@@ -32,7 +33,7 @@ public class AbstractTwoOctetAsExtendedCommunityTest {
                 return null;
             }
         };
-        Assert.assertEquals(0, community.getType(true));
-        Assert.assertEquals(64, community.getType(false));
+        assertEquals(0, community.getType(true));
+        assertEquals(64, community.getType(false));
     }
 }

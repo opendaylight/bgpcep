@@ -8,13 +8,14 @@
 
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -25,18 +26,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.link.bandwidth._case.LinkBandwidthExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 
-public class LinkBandwidthECTest {
+class LinkBandwidthECTest {
     private static final byte[] RESULT = {(byte) 0x5b, (byte) 0xa0, 0x00, 0x00, (byte) 0xff, (byte) 0xff};
     private static final int COMMUNITY_VALUE_SIZE = 6;
     private LinkBandwidthEC parser;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         this.parser = new LinkBandwidthEC();
     }
 
     @Test
-    public void parserTest() throws BGPParsingException, BGPDocumentedException {
+    void parserTest() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
         final LinkBandwidthCase expected = new LinkBandwidthCaseBuilder().setLinkBandwidthExtendedCommunity(
@@ -50,13 +51,15 @@ public class LinkBandwidthECTest {
         assertEquals(expected, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongCaseTest() {
-        this.parser.serializeExtendedCommunity(new Inet4SpecificExtendedCommunityCaseBuilder().build(), null);
+    @Test
+    void wrongCaseTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> this.parser.serializeExtendedCommunity(new Inet4SpecificExtendedCommunityCaseBuilder().build(),
+                null));
     }
 
     @Test
-    public void testSubtype() {
+    void testSubtype() {
         assertEquals(4, this.parser.getSubType());
     }
 }

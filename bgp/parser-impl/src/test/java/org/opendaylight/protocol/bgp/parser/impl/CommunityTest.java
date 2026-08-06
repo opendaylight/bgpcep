@@ -7,20 +7,20 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
 import org.opendaylight.protocol.util.NoopReferenceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Community;
 
-public class CommunityTest {
+class CommunityTest {
     final CommunityUtil util = new CommunityUtil(NoopReferenceCache.getInstance());
 
     @Test
-    public void testCommunity() {
+    void testCommunity() {
         this.util.create(10, 222);
         final Community c = this.util.create(12, 12);
         assertEquals(12, c.getAsNumber().getValue().intValue());
@@ -28,7 +28,7 @@ public class CommunityTest {
     }
 
     @Test
-    public void testOverflows() {
+    void testOverflows() {
         try {
             this.util.create(10, -2);
             fail("Semantics under range.");
@@ -44,13 +44,13 @@ public class CommunityTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         final Community c = this.util.create(10, 222);
         assertNotNull(c.toString());
     }
 
     @Test
-    public void testValueOf() {
+    void testValueOf() {
         final Community comm = this.util.valueOf("12:50");
         assertEquals(12, comm.getAsNumber().getValue().intValue());
         assertEquals(50, comm.getSemantics().intValue());

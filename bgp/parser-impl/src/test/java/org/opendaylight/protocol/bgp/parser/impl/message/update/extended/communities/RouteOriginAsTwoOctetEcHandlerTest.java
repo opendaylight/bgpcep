@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ShortAsNumber;
@@ -20,13 +22,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.route.origin.extended.community._case.RouteOriginExtendedCommunityBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class RouteOriginAsTwoOctetEcHandlerTest {
+class RouteOriginAsTwoOctetEcHandlerTest {
     private static final byte[] INPUT = {
         0, 24, 4, 2, 8, 7
     };
 
     @Test
-    public void testHandler() throws BGPDocumentedException, BGPParsingException {
+    void testHandler() throws BGPDocumentedException, BGPParsingException {
         final RouteOriginAsTwoOctetEcHandler handler = new RouteOriginAsTwoOctetEcHandler();
         final RouteOriginExtendedCommunityCase expected = new RouteOriginExtendedCommunityCaseBuilder()
                 .setRouteOriginExtendedCommunity(new RouteOriginExtendedCommunityBuilder()
@@ -35,10 +37,10 @@ public class RouteOriginAsTwoOctetEcHandlerTest {
                 .build();
 
         final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
-        Assert.assertEquals(expected, exComm);
+        assertEquals(expected, exComm);
 
         final ByteBuf output = Unpooled.buffer(INPUT.length);
         handler.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(INPUT, output.array());
+        assertArrayEquals(INPUT, output.array());
     }
 }

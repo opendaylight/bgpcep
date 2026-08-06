@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.CommunityUtil;
@@ -80,7 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class BGPParserTest {
+class BGPParserTest {
     private static final List<byte[]> INPUT_BYTES = new ArrayList<>();
 
     private static final int COUNTER = 8;
@@ -99,8 +99,8 @@ public class BGPParserTest {
 
     private static MultiPathSupport mpSupport;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @BeforeAll
+    static void setUp() throws Exception {
         updateParser = new BGPUpdateMessageParser(ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
             .orElseThrow().getAttributeRegistry(), mock(NlriRegistry.class));
         for (int i = 1; i <= COUNTER; i++) {
@@ -131,7 +131,7 @@ public class BGPParserTest {
     }
 
     @Test
-    public void testResource() {
+    void testResource() {
         assertNotNull(INPUT_BYTES);
     }
 
@@ -178,7 +178,7 @@ public class BGPParserTest {
      * 18 ac 11 00 <- IPv4 Prefix (172.17.0.0 / 24)
      */
     @Test
-    public void testGetUpdateMessage1() throws Exception {
+    void testGetUpdateMessage1() throws Exception {
 
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(0), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(0), MessageUtil.MARKER_LENGTH,
@@ -290,7 +290,7 @@ public class BGPParserTest {
      * 15 ac 10 00 <- IPv4 Prefix (172.16.0.0 / 21)
      */
     @Test
-    public void testGetUpdateMessage3() throws Exception {
+    void testGetUpdateMessage3() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(2), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(2), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
@@ -388,7 +388,7 @@ public class BGPParserTest {
      * 18 0a 1e 01 <- IPv4 Prefix (10.30.1.0 / 24)
      */
     @Test
-    public void testGetUpdateMessage4() throws Exception {
+    void testGetUpdateMessage4() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(3), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(3), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
@@ -468,7 +468,7 @@ public class BGPParserTest {
      * 00 00 <- total path attribute length
      */
     @Test
-    public void testGetUpdateMessage5() throws Exception {
+    void testGetUpdateMessage5() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(4), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(4), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
@@ -499,7 +499,7 @@ public class BGPParserTest {
      * 00 00 <- total path attribute length
      */
     @Test
-    public void testEORIpv4() throws Exception {
+    void testEORIpv4() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(5), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(5), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
@@ -528,7 +528,7 @@ public class BGPParserTest {
      * 01 <- value (SAFI 1)
      */
     @Test
-    public void testEORIpv6() throws Exception {
+    void testEORIpv6() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(6), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(6), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
@@ -563,7 +563,7 @@ public class BGPParserTest {
      * 01 <- value (SAFI 1)
      */
     @Test
-    public void testEORIpv6exLength() throws Exception {
+    void testEORIpv6exLength() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(6), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(6), MessageUtil.MARKER_LENGTH,
             LENGTH_FIELD_LENGTH));
@@ -629,7 +629,7 @@ public class BGPParserTest {
      * 18 ac 11 00 <- IPv4 Prefix (172.17.0.0 / 24)
      */
     @Test
-    public void testUpdateMessageNlriAddPath() throws Exception {
+    void testUpdateMessageNlriAddPath() throws Exception {
         final byte[] body = ByteArray.cutBytes(updatesWithMultiplePath.get(0), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(updatesWithMultiplePath.get(0),
             MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
@@ -716,7 +716,7 @@ public class BGPParserTest {
      *
      */
     @Test
-    public void testUpdateMessageWithdrawAddPath() throws Exception {
+    void testUpdateMessageWithdrawAddPath() throws Exception {
         final byte[] body = ByteArray.cutBytes(updatesWithMultiplePath.get(1), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(updatesWithMultiplePath.get(1),
             MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
@@ -770,7 +770,7 @@ public class BGPParserTest {
      * 0a 00 02 <- prefix (10.0.2.0)
      */
     @Test
-    public void testUpdateMessageWithMalformedAttribute() throws BGPDocumentedException {
+    void testUpdateMessageWithMalformedAttribute() throws BGPDocumentedException {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(7), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(6), MessageUtil.MARKER_LENGTH,
                 LENGTH_FIELD_LENGTH));

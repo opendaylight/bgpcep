@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
@@ -29,10 +29,10 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class APITest {
+class APITest {
 
     @Test
-    public void testDocumentedException() {
+    void testDocumentedException() {
         final BGPDocumentedException de = new BGPDocumentedException("Some message", BGPError.BAD_BGP_ID);
         assertEquals("Some message", de.getMessage());
         assertEquals(BGPError.BAD_BGP_ID, de.getError());
@@ -43,7 +43,7 @@ public class APITest {
     }
 
     @Test
-    public void testParsingException() {
+    void testParsingException() {
         final BGPParsingException de = new BGPParsingException("Some message");
         assertEquals("Some message", de.getMessage());
 
@@ -52,12 +52,12 @@ public class APITest {
     }
 
     @Test
-    public void testBGPError() {
+    void testBGPError() {
         assertEquals(BGPError.BAD_MSG_TYPE, BGPError.forValue(Uint8.ONE, Uint8.valueOf(3)));
     }
 
     @Test
-    public void testAsNumberUtil() {
+    void testAsNumberUtil() {
         final List<BgpParameters> params = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder()
@@ -79,7 +79,7 @@ public class APITest {
     }
 
     @Test
-    public void testBgpExtendedMessageUtil() {
+    void testBgpExtendedMessageUtil() {
         final List<BgpParameters> params = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
         capas.add(new OptionalCapabilitiesBuilder()
