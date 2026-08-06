@@ -30,6 +30,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class Bgpcep1042Test extends AbstractPCEPSessionTest {
     /**
      * Test of pcep stats update synchronization.

@@ -7,9 +7,9 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -19,13 +19,13 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPStatefulPeerProposal.LspDbVersionListener;
 import org.opendaylight.bgpcep.pcep.topology.provider.PCEPStatefulPeerProposal.SpeakerIdListener;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -48,8 +48,8 @@ import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class PCEPStatefulPeerProposalTest {
+@ExtendWith(MockitoExtension.class)
+class PCEPStatefulPeerProposalTest {
     private static final DataObjectIdentifier.WithKey<Topology, TopologyKey> TOPOLOGY_IID =
         DataObjectIdentifier.builder(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(new TopologyId("topology")))
@@ -71,15 +71,15 @@ public class PCEPStatefulPeerProposalTest {
 
     private TlvsBuilder tlvsBuilder;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         tlvsBuilder = new TlvsBuilder().setStatefulCapability(new StatefulCapabilityBuilder().build());
         doReturn(listenerReg).when(dataBroker).registerTreeChangeListener(any(), any(), captor.capture());
         doNothing().when(listenerReg).close();
     }
 
     @Test
-    public void testSetPeerProposalSuccess() throws Exception {
+    void testSetPeerProposalSuccess() throws Exception {
         updateBuilder(() -> {
             final var listeners = captor.getAllValues();
             assertEquals(2, listeners.size());
@@ -112,7 +112,7 @@ public class PCEPStatefulPeerProposalTest {
     }
 
     @Test
-    public void testSetPeerProposalWithEntityIdSuccess() throws Exception {
+    void testSetPeerProposalWithEntityIdSuccess() throws Exception {
         updateBuilder(() -> {
             final var listeners = captor.getAllValues();
             assertEquals(2, listeners.size());
@@ -150,7 +150,7 @@ public class PCEPStatefulPeerProposalTest {
     }
 
     @Test
-    public void testSetPeerProposalAbsent() throws Exception {
+    void testSetPeerProposalAbsent() throws Exception {
         updateBuilder();
         assertNull(tlvsBuilder.getLspDbVersion());
     }

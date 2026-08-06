@@ -94,6 +94,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class PCEPTopologySessionListenerTest extends AbstractPCEPSessionTest {
     private final String tunnelName = "pcc_" + testAddress + "_tunnel_0";
     private static final short DEAD_TIMER = 30;
