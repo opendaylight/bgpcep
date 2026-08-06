@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.pojo;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doReturn;
@@ -21,9 +21,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.Optional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
@@ -58,7 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
 
-public class SimpleRegistryTest {
+class SimpleRegistryTest {
     private static final MultiPathSupport ADD_PATH_SUPPORT = tableType -> true;
 
     private static final PeerSpecificParserConstraint CONSTRAINT;
@@ -74,20 +74,20 @@ public class SimpleRegistryTest {
     private final BgpTestActivator activator = new BgpTestActivator();
     private List<? extends Registration> regs;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         final BGPExtensionProviderContext provider = new SimpleBGPExtensionProviderContext();
         ctx = provider;
         regs = activator.start(provider);
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         regs.forEach(Registration::close);
     }
 
     @Test
-    public void testSimpleAttribute() throws BGPDocumentedException, BGPParsingException, BGPTreatAsWithdrawException {
+    void testSimpleAttribute() throws BGPDocumentedException, BGPParsingException, BGPTreatAsWithdrawException {
         final AttributeRegistry attrReg = ctx.getAttributeRegistry();
         final byte[] attributeBytes = {
             0x00, 0x00, 0x00
@@ -101,7 +101,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testSimpleParameter() throws Exception {
+    void testSimpleParameter() throws Exception {
         final ParameterRegistry paramReg = ctx.getParameterRegistry();
         final BgpParameters param = mock(BgpParameters.class);
         doReturn(BgpParameters.class).when(param).implementedInterface();
@@ -111,7 +111,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testSimpleCapability() throws Exception {
+    void testSimpleCapability() throws Exception {
         final CapabilityRegistry capaRegistry = ctx.getCapabilityRegistry();
         final byte[] capabilityBytes = {
             0x0, 0x00
@@ -121,7 +121,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testSimpleBgpPrefixSidTlvRegistry() {
+    void testSimpleBgpPrefixSidTlvRegistry() {
         final BgpPrefixSidTlvRegistry sidTlvReg = ctx.getBgpPrefixSidTlvRegistry();
         final byte[] tlvBytes = {
             0x00, 0x03, 0x00, 0x00, 0x00
@@ -140,7 +140,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testSimpleMessageRegistry() throws Exception {
+    void testSimpleMessageRegistry() throws Exception {
         final MessageRegistry msgRegistry = ctx.getMessageRegistry();
 
         final byte[] msgBytes = {
@@ -162,21 +162,21 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testAfiRegistry() throws Exception {
+    void testAfiRegistry() throws Exception {
         final AddressFamilyRegistry afiRegistry = ctx.getAddressFamilyRegistry();
         assertEquals(Ipv4AddressFamily.VALUE, afiRegistry.classForFamily(1));
         assertEquals(1, afiRegistry.numberForClass(Ipv4AddressFamily.VALUE).intValue());
     }
 
     @Test
-    public void testSafiRegistry() throws Exception {
+    void testSafiRegistry() throws Exception {
         final SubsequentAddressFamilyRegistry safiRegistry = ctx.getSubsequentAddressFamilyRegistry();
         assertEquals(UnicastSubsequentAddressFamily.VALUE, safiRegistry.classForFamily(1));
         assertEquals(1, safiRegistry.numberForClass(UnicastSubsequentAddressFamily.VALUE).intValue());
     }
 
     @Test
-    public void testMpReachParser() throws BGPParsingException {
+    void testMpReachParser() throws BGPParsingException {
         final NlriRegistry nlriReg = ctx.getNlriRegistry();
         final byte[] mpReachBytes = {
             0x00, 0x01, 0x01, 0x04, 0x7f, 0x00, 0x00, 0x01, 0x00
@@ -195,7 +195,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testMpReachWithZeroNextHop() throws BGPParsingException {
+    void testMpReachWithZeroNextHop() throws BGPParsingException {
         final NlriRegistry nlriReg = ctx.getNlriRegistry();
         final byte[] mpReachBytes = {
             0x00, 0x01, 0x01, 0x00, 0x00
@@ -211,7 +211,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testMpReachIpv6() throws BGPParsingException {
+    void testMpReachIpv6() throws BGPParsingException {
         final NlriRegistry nlriReg = ctx.getNlriRegistry();
         final byte[] mpReachBytes = {
             0x00, 0x02, 0x01, 0x00, 0x00
@@ -227,7 +227,7 @@ public class SimpleRegistryTest {
     }
 
     @Test
-    public void testEOTMpUnReachParser() throws BGPParsingException {
+    void testEOTMpUnReachParser() throws BGPParsingException {
         final NlriRegistry nlriReg = ctx.getNlriRegistry();
         final byte[] mpUnreachBytes = {
             0x00, 0x01, 0x01

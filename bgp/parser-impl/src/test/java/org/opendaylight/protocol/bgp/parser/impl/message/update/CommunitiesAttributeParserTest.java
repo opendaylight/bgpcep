@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.util.ByteArray;
@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 
-public class CommunitiesAttributeParserTest {
+class CommunitiesAttributeParserTest {
     private static final byte[] COMMUNITIES_BYTES = {
         (byte) 0xC0, (byte) 0x08, (byte) 0x18,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x01,
@@ -39,7 +39,7 @@ public class CommunitiesAttributeParserTest {
         .orElseThrow().getAttributeRegistry();
 
     @Test
-    public void testCommunitiesAttributeParser() throws Exception {
+    void testCommunitiesAttributeParser() throws Exception {
         final List<Communities> comms = new ArrayList<>();
         comms.add((Communities) CommunityUtil.NO_EXPORT);
         comms.add((Communities) CommunityUtil.NO_ADVERTISE);
@@ -59,7 +59,7 @@ public class CommunitiesAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyListAttribute() {
+    void testParseEmptyListAttribute() {
         final List<Communities> comms = new ArrayList<>();
         final ByteBuf actual = Unpooled.buffer();
         registry.serializeAttribute(new AttributesBuilder().setCommunities(comms).build(), actual);
@@ -67,7 +67,7 @@ public class CommunitiesAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyAttribute() {
+    void testParseEmptyAttribute() {
         final ByteBuf actual = Unpooled.buffer();
         registry.serializeAttribute(new AttributesBuilder().build(), actual);
         assertEquals(Unpooled.buffer(), actual);

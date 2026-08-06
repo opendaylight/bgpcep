@@ -7,21 +7,22 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi.extended.community;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class ExtendedCommunityUtilTest {
+class ExtendedCommunityUtilTest {
     @Test
-    public void testGetType() {
+    void testGetType() {
         assertEquals(1, ExtendedCommunityUtil.setTransitivity(1, true));
         assertEquals(65, ExtendedCommunityUtil.setTransitivity(1, false));
     }
 
     @Test
-    public void testIsTransitiveType() {
-        Assert.assertTrue(ExtendedCommunityUtil.isTransitive(2));
-        Assert.assertFalse(ExtendedCommunityUtil.isTransitive(66));
+    void testIsTransitiveType() {
+        assertTrue(ExtendedCommunityUtil.isTransitive(2));
+        assertFalse(ExtendedCommunityUtil.isTransitive(66));
     }
 }

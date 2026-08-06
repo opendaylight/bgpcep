@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class AsPathAttributeParserTest {
+class AsPathAttributeParserTest {
     private static final byte[] ATTRIBUTE_BYTES = {
         (byte) 0x40, (byte) 0x02, (byte) 0x14,
         (byte) 0x01, (byte) 0x02, (byte) 0x00, (byte) 0x00,
@@ -43,7 +43,7 @@ public class AsPathAttributeParserTest {
         .orElseThrow().getAttributeRegistry();
 
     @Test
-    public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
+    void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final Attributes attr = new AttributesBuilder()
             .setAsPath(new AsPathBuilder()
                 .setSegments(List.of(
@@ -66,7 +66,7 @@ public class AsPathAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyAttribute() {
+    void testParseEmptyAttribute() {
         final ByteBuf actual = Unpooled.buffer();
         registry.serializeAttribute(new AttributesBuilder().setAsPath(new AsPathBuilder().build()).build(), actual);
         assertEquals(Unpooled.buffer().writeBytes(EMPTY_ATTRIBUTE_BYTES), actual);

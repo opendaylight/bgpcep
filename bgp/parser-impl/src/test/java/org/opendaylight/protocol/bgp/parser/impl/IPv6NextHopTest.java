@@ -7,22 +7,22 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 
-public class IPv6NextHopTest {
+class IPv6NextHopTest {
     private Ipv6NextHop nextHopA;
     private Ipv6NextHop nextHopB;
 
-    @Before
-    public void init() {
+    @BeforeEach
+    void init() {
         this.nextHopA = new Ipv6NextHopBuilder().setGlobal(new Ipv6AddressNoZone("2001:db8:85a3:0:0:8a2e:370:7331"))
                 .build();
         this.nextHopB = new Ipv6NextHopBuilder().setGlobal(new Ipv6AddressNoZone("2001:db8:85a3:0:0:8a2e:370:7331"))
@@ -30,7 +30,7 @@ public class IPv6NextHopTest {
     }
 
     @Test
-    public void testGetGlobal() {
+    void testGetGlobal() {
         final Ipv6Address globalTestAddress = new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:7331");
 
         assertEquals(this.nextHopA.getGlobal(), globalTestAddress);
@@ -38,7 +38,7 @@ public class IPv6NextHopTest {
     }
 
     @Test
-    public void testGetLinkLocal() {
+    void testGetLinkLocal() {
         final Ipv6Address localTestAddress = new Ipv6Address("2001:db8:85a3:0:0:8a2e:370:0000");
 
         assertNull(this.nextHopA.getLinkLocal());

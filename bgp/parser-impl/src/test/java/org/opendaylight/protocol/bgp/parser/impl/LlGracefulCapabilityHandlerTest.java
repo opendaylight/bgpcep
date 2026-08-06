@@ -7,18 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ServiceLoader;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.LlGracefulCapabilityHandler;
@@ -41,8 +42,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class LlGracefulCapabilityHandlerTest {
+@ExtendWith(MockitoExtension.class)
+class LlGracefulCapabilityHandlerTest {
     private static final Uint24 TEN = new Uint24(Uint32.TEN);
 
     private LlGracefulCapabilityHandler handler;
@@ -52,14 +53,8 @@ public class LlGracefulCapabilityHandlerTest {
     @Mock
     private SubsequentAddressFamilyRegistry safir;
 
-    @Before
-    public void setUp() {
-        doReturn(Ipv4AddressFamily.VALUE).when(afir).classForFamily(1);
-        doReturn(Ipv6AddressFamily.VALUE).when(afir).classForFamily(2);
-        doReturn(null).when(afir).classForFamily(256);
-        doReturn(UnicastSubsequentAddressFamily.VALUE).when(safir).classForFamily(1);
-        doReturn(null).when(safir).classForFamily(-123);
-
+    @BeforeEach
+    void setUp() {
         final BGPExtensionConsumerContext ctx = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
             .orElseThrow();
         handler = new LlGracefulCapabilityHandler(
@@ -67,7 +62,7 @@ public class LlGracefulCapabilityHandlerTest {
     }
 
     @Test
-    public void testLongLivedGracefulCapabilityHandler() throws BGPParsingException, BGPDocumentedException {
+    void testLongLivedGracefulCapabilityHandler() throws BGPParsingException, BGPDocumentedException {
 
         final byte[] capaBytes = {
             //header
@@ -106,8 +101,8 @@ public class LlGracefulCapabilityHandlerTest {
                 .slice(2, capaBytes.length - 2)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUnsupportedAfi() {
+    @Test
+    void testUnsupportedAfi() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(BindingMap.of(new TablesBuilder()
                                 .setAfi(AddressFamily.VALUE)
@@ -120,11 +115,15 @@ public class LlGracefulCapabilityHandlerTest {
                 .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
                 .build();
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability(cParameters, buffer);
+        assertThrows(IllegalArgumentException.class, () -> handler.serializeCapability(cParameters, buffer));
     }
 
     @Test
-    public void testRecvdUnsupportedAfi() {
+    void testRecvdUnsupportedAfi() {
+        doReturn(Ipv4AddressFamily.VALUE).when(afir).classForFamily(1);
+        doReturn(Ipv6AddressFamily.VALUE).when(afir).classForFamily(2);
+        doReturn(null).when(afir).classForFamily(256);
+        doReturn(UnicastSubsequentAddressFamily.VALUE).when(safir).classForFamily(1);
         final byte[] capaBytes = {
             //header
             (byte) 0x47, (byte) 0x15,
@@ -161,8 +160,8 @@ public class LlGracefulCapabilityHandlerTest {
                 .slice(2, capaBytes.length - 2)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUnsupportedSafi() {
+    @Test
+    void testUnsupportedSafi() {
         final LlGracefulRestartCapability capability = new LlGracefulRestartCapabilityBuilder()
                 .setTables(BindingMap.of(new TablesBuilder()
                         .setAfi(Ipv4AddressFamily.VALUE)
@@ -175,11 +174,15 @@ public class LlGracefulCapabilityHandlerTest {
                 .addAugmentation(new CParameters1Builder().setLlGracefulRestartCapability(capability).build())
                 .build();
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability(cParameters, buffer);
+        assertThrows(IllegalArgumentException.class, () -> handler.serializeCapability(cParameters, buffer));
     }
 
     @Test
-    public void testRecvdUnsupportedSafi() {
+    void testRecvdUnsupportedSafi() {
+        doReturn(Ipv4AddressFamily.VALUE).when(afir).classForFamily(1);
+        doReturn(Ipv6AddressFamily.VALUE).when(afir).classForFamily(2);
+        doReturn(UnicastSubsequentAddressFamily.VALUE).when(safir).classForFamily(1);
+        doReturn(null).when(safir).classForFamily(-123);
         final byte[] capaBytes = {
             //header
             (byte) 0x47, (byte) 0x15,

@@ -8,12 +8,13 @@
 
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.As4GenericSpecExtendedCommunityCaseBuilder;
@@ -22,13 +23,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.vrf.route._import.extended.community._case.VrfRouteImportExtendedCommunityBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.inet4.specific.extended.community.common.Inet4SpecificExtendedCommunityCommonBuilder;
 
-public class VrfRouteImportHandlerTest {
+class VrfRouteImportHandlerTest {
 
     private static final byte[] INPUT = {12, 51, 2, 5, 21, 45};
     private final VrfRouteImportHandler handler = new VrfRouteImportHandler();
 
     @Test
-    public void testHandler() {
+    void testHandler() {
         final VrfRouteImportExtendedCommunityCase expected = new VrfRouteImportExtendedCommunityCaseBuilder()
                 .setVrfRouteImportExtendedCommunity(new VrfRouteImportExtendedCommunityBuilder()
                         .setInet4SpecificExtendedCommunityCommon(new Inet4SpecificExtendedCommunityCommonBuilder()
@@ -42,13 +43,14 @@ public class VrfRouteImportHandlerTest {
 
         final ByteBuf output = Unpooled.buffer(INPUT.length);
         this.handler.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(INPUT, output.array());
+        assertArrayEquals(INPUT, output.array());
 
         assertEquals(11, this.handler.getSubType());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testHandlerError() {
-        this.handler.serializeExtendedCommunity(new As4GenericSpecExtendedCommunityCaseBuilder().build(), null);
+    @Test
+    void testHandlerError() {
+        assertThrows(IllegalArgumentException.class, () -> this.handler.serializeExtendedCommunity(
+            new As4GenericSpecExtendedCommunityCaseBuilder().build(), null));
     }
 }

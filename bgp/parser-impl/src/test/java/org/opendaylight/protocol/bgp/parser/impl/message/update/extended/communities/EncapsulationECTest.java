@@ -7,13 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -24,19 +25,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.LinkBandwidthCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.encapsulation._case.EncapsulationExtendedCommunityBuilder;
 
-public class EncapsulationECTest {
+class EncapsulationECTest {
     private static final byte[] RESULT = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x0a };
     private static final int COMMUNITY_VALUE_SIZE = 6;
     private static final EncapsulationTunnelType TUNNEL_TYPE = EncapsulationTunnelType.Mpls;
     private EncapsulationEC parser;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         this.parser = new EncapsulationEC();
     }
 
     @Test
-    public void testParser() throws BGPParsingException, BGPDocumentedException {
+    void testParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buffer = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
         final EncapsulationCase expected = new EncapsulationCaseBuilder().setEncapsulationExtendedCommunity(
@@ -48,13 +49,14 @@ public class EncapsulationECTest {
         assertEquals(expected, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongCase() {
-        this.parser.serializeExtendedCommunity(new LinkBandwidthCaseBuilder().build(), null);
+    @Test
+    void testWrongCase() {
+        assertThrows(IllegalArgumentException.class,
+            () -> this.parser.serializeExtendedCommunity(new LinkBandwidthCaseBuilder().build(), null));
     }
 
     @Test
-    public void testSubtype() {
+    void testSubtype() {
         assertEquals(EncapsulationEC.SUBTYPE, this.parser.getSubType());
     }
 }
