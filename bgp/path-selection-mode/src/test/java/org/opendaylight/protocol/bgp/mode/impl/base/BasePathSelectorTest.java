@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import com.google.common.collect.Lists;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -31,7 +31,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
-public class BasePathSelectorTest {
+class BasePathSelectorTest {
     static final RouterId ROUTER_ID2 = RouterId.forPeerId(new PeerId("bgp://127.0.0.1"));
 
     private static final QName AS_SEQUENCE = QName.create(Segments.QNAME, "as-sequence");
@@ -126,7 +126,7 @@ public class BasePathSelectorTest {
     }
 
     @Test
-    public void testBestPathWithHigherLocalPref() {
+    void testBestPathWithHigherLocalPref() {
         // local-pref 123
         selector.processPath(ROUTER_ID2, createStateFromPrefMedOrigin());
         BaseBestPath processedPath = selector.result();
@@ -147,7 +147,7 @@ public class BasePathSelectorTest {
     }
 
     @Test
-    public void testBestPathForEquality() {
+    void testBestPathForEquality() {
         selector.processPath(ROUTER_ID2, createStateFromPrefMedOriginASPath().build());
         final BaseBestPath processedPath = selector.result();
 
@@ -160,7 +160,7 @@ public class BasePathSelectorTest {
     }
 
     @Test
-    public void testBestPathSelectionOptions() {
+    void testBestPathSelectionOptions() {
         DataContainerNodeBuilder<NodeIdentifier, ContainerNode> dataContBuilder = createStateFromPrefMedOriginASPath();
         selector.processPath(ROUTER_ID2, dataContBuilder.build());
         BaseBestPath processedPath = selector.result();
@@ -200,7 +200,7 @@ public class BasePathSelectorTest {
     }
 
     @Test
-    public void testBestPathForNonEquality() {
+    void testBestPathForNonEquality() {
         selector.processPath(ROUTER_ID3, createStateFromPrefMedOrigin());
         final BaseBestPath processedPath = selector.result();
 
@@ -213,7 +213,7 @@ public class BasePathSelectorTest {
     }
 
     @Test
-    public void testBgpOrigin() {
+    void testBgpOrigin() {
         selector.processPath(ROUTER_ID3, ImmutableNodes.newContainerBuilder()
             .withNodeIdentifier(new NodeIdentifier(Attributes.QNAME))
             .withChild(origin(BgpOrigin.Incomplete))
