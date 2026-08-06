@@ -53,6 +53,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 class AbstractConfig extends DefaultRibPoliciesMockTest {
     protected static final AsNumber AS = new AsNumber(Uint32.valueOf(72));
     protected static final AsNumber LOCAL_AS = new AsNumber(Uint32.valueOf(73));
