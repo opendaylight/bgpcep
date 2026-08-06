@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class BGPPeerTrackerMock extends AbstractConcurrentDataBrokerTest {
     protected static final PeerId PEER_ID = new PeerId("bgp://42.42.42.42");
     protected static final PeerId PEER_ID2 = new PeerId("bgp://43.43.43.43");
