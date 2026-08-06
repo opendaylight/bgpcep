@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class SetExtCommunityTest extends AbstractStatementRegistryConsumerTest {
     private final Attributes multipleExtCom = new AttributesBuilder().setExtendedCommunities(List.of(
             new ExtendedCommunitiesBuilder().setExtendedCommunity(new EncapsulationCaseBuilder()

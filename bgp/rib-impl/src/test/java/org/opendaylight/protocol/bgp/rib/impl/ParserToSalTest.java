@@ -59,6 +59,7 @@ import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
 
 @Ignore
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     private static final String TEST_RIB_ID = "testRib";
