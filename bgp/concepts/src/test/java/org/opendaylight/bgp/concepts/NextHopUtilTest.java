@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 
-public class NextHopUtilTest {
+class NextHopUtilTest {
 
     private static final byte[] IPV4B = {42, 42, 42, 42};
     private static final byte[] IPV6B = {0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
@@ -39,7 +39,7 @@ public class NextHopUtilTest {
     private static final Ipv6AddressNoZone IPV6L = new Ipv6AddressNoZone("fe80::c001:bff:fe7e:0");
 
     @Test
-    public void testSerializeNextHop() {
+    void testSerializeNextHop() {
         final ByteBuf buffer = Unpooled.buffer();
         NextHopUtil.serializeNextHop(new Ipv4NextHopCaseBuilder()
             .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(IPV4).build())
@@ -68,7 +68,7 @@ public class NextHopUtilTest {
     }
 
     @Test
-    public void testSerializeNextHopException() {
+    void testSerializeNextHopException() {
         final var ex = assertThrows(IllegalArgumentException.class,
             () -> NextHopUtil.serializeNextHop(() -> null, null));
         assertThat(ex.getMessage()).startsWith("""
@@ -76,7 +76,7 @@ public class NextHopUtilTest {
     }
 
     @Test
-    public void testParseNextHop() {
+    void testParseNextHop() {
         CNextHop hop = NextHopUtil.parseNextHop(Unpooled.wrappedBuffer(IPV4B));
         assertEquals(IPV4, ((Ipv4NextHopCase) hop).getIpv4NextHop().getGlobal());
 

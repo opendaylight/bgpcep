@@ -7,19 +7,19 @@
  */
 package org.opendaylight.bgp.concepts;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.SEPARATOR;
 
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdTwoOctetAs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 
-public class RouteDistinguisherUtilTest {
+class RouteDistinguisherUtilTest {
     private static final String IP_ADDRESS = "1.2.3.4";
     private static final String IP_PORT = "10";
     private static final String ADMIN = "55";
@@ -32,7 +32,7 @@ public class RouteDistinguisherUtilTest {
     private static final byte[] INVALID_RD_TYPE_BYTES = {0, 3, 0, 0, 0, 55, (byte) 0xff, (byte) 0xff};
 
     @Test
-    public void testAs2BRouteDistinguisher() {
+    void testAs2BRouteDistinguisher() {
         final var expected = new RouteDistinguisher(
             new RdTwoOctetAs("0" + SEPARATOR + ADMIN + SEPARATOR + ASSIGNED_NUMBER));
         assertEquals(expected,
@@ -46,7 +46,7 @@ public class RouteDistinguisherUtilTest {
     }
 
     @Test
-    public void testAs2BLongRouteDistinguisher() {
+    void testAs2BLongRouteDistinguisher() {
         final var expected = new RouteDistinguisher(new RdTwoOctetAs(
             "0" + SEPARATOR + ADMIN + SEPARATOR + ASSIGNED_NUMBER_BIG));
         assertEquals(expected,
@@ -60,7 +60,7 @@ public class RouteDistinguisherUtilTest {
     }
 
     @Test
-    public void testIpv4RouteDistinguisher() {
+    void testIpv4RouteDistinguisher() {
         final var expected = new RouteDistinguisher(new RdIpv4(IP_ADDRESS + SEPARATOR + IP_PORT));
         assertEquals(expected, RouteDistinguisherUtil.parseRouteDistinguisher(IP_ADDRESS + SEPARATOR + IP_PORT));
 
@@ -72,7 +72,7 @@ public class RouteDistinguisherUtilTest {
     }
 
     @Test
-    public void testAs4BRouteDistinguisher() {
+    void testAs4BRouteDistinguisher() {
         final var expected = new RouteDistinguisher(new RdAs(ADMIN + SEPARATOR + ASSIGNED_NUMBER));
         assertEquals(expected, RouteDistinguisherUtil.parseRouteDistinguisher(ADMIN + SEPARATOR + ASSIGNED_NUMBER));
 
@@ -84,7 +84,7 @@ public class RouteDistinguisherUtilTest {
     }
 
     @Test
-    public void testInvalidRDType() {
+    void testInvalidRDType() {
         final var buf = Unpooled.copiedBuffer(INVALID_RD_TYPE_BYTES);
         assertThrows(IllegalArgumentException.class, () -> RouteDistinguisherUtil.parseRouteDistinguisher(buf));
     }
