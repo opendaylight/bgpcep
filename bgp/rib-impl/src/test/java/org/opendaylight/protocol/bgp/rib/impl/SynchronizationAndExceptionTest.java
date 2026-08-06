@@ -106,6 +106,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final int HOLD_TIMER = 3;
     private static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(30));
