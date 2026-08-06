@@ -7,16 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.util.ByteArray;
@@ -24,12 +24,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Notify;
 
-public class BGPParserTest {
+class BGPParserTest {
     private final MessageRegistry registry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
         .orElseThrow().getMessageRegistry();
 
     @Test
-    public void testMessageToByteEncoding() {
+    void testMessageToByteEncoding() {
         final BGPMessageToByteEncoder encoder = new BGPMessageToByteEncoder(this.registry);
         final ByteBuf out = Unpooled.buffer();
         encoder.encode(null, new KeepaliveBuilder().build(), out);
@@ -40,7 +40,7 @@ public class BGPParserTest {
     }
 
     @Test
-    public void testByteToMessageEncoding() throws Exception {
+    void testByteToMessageEncoding() throws Exception {
         final BGPByteToMessageDecoder decoder = new BGPByteToMessageDecoder(this.registry);
         final List<Object> out = new ArrayList<>();
         decoder.decode(null, Unpooled.wrappedBuffer(new byte[] {
@@ -56,7 +56,7 @@ public class BGPParserTest {
     }
 
     @Test
-    public void testHandlerFactory() {
+    void testHandlerFactory() {
         final BGPHandlerFactory handlers = new BGPHandlerFactory(this.registry);
         assertEquals(1, handlers.getEncoders().length);
         assertTrue(handlers.getEncoders()[0] instanceof BGPMessageToByteEncoder);

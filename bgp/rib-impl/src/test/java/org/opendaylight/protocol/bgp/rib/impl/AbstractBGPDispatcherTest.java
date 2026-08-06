@@ -16,8 +16,8 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
@@ -56,7 +56,7 @@ public class AbstractBGPDispatcherTest {
     protected InetSocketAddress clientAddress;
     private BGPNettyGroups groups;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         groups = new BGPNettyGroups();
         registry = new StrictBGPPeerRegistry();
@@ -73,7 +73,7 @@ public class AbstractBGPDispatcherTest {
         clientDispatcher = new BGPDispatcherImpl(ctx, groups, registry);
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws Exception {
         registry.close();
         groups.close();
