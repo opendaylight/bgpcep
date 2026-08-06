@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
 import org.opendaylight.yangtools.binding.util.BindingMap;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class BGPOperationalStateUtilsTest extends AbstractConcurrentDataBrokerTest {
     static final String RIB_ID = "test-rib";
     private static final String RIB_NOT_FOUND = "RIB not found for [test-rib]\n";
