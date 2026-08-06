@@ -9,20 +9,22 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.TerminationReason;
 import org.opendaylight.protocol.pcep.impl.spi.Util;
@@ -37,24 +39,25 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.sta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.Messages;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.PeerPref;
 
-@RunWith(MockitoJUnitRunner.Silent.class)
-public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
+@ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
+class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     private PCEPSessionImpl session;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         session = new PCEPSessionImpl(listener, 0, channel, openMsg.getOpenMessage().getOpen(),
             openMsg.getOpenMessage().getOpen());
         session.sessionUp();
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         session.close();
     }
 
     @Test
-    public void testPcepSessionImpl() {
+    void testPcepSessionImpl() {
         assertTrue(listener.up);
 
         session.handleMessage(kaMsg);
@@ -74,7 +77,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testAttemptSecondSession() {
+    void testAttemptSecondSession() {
         session.handleMessage(openMsg);
         assertEquals(1, session.getMessages().getReceivedMsgCount().intValue());
         assertEquals(1, msgsSend.size());
@@ -85,13 +88,13 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testClosedByNode() {
+    void testClosedByNode() {
         session.handleMessage(closeMsg);
         verify(channel).close();
     }
 
     @Test
-    public void testCapabilityNotSupported() {
+    void testCapabilityNotSupported() {
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         assertEquals(2, msgsSend.size());
         final var pcErr = msgsSend.get(0);
@@ -109,14 +112,14 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testEndoOfInput() {
+    void testEndoOfInput() {
         assertTrue(listener.up);
         session.endOfInput();
         assertFalse(listener.up);
     }
 
     @Test
-    public void testCloseSessionWithReason() {
+    void testCloseSessionWithReason() {
         session.close(TerminationReason.UNKNOWN);
         assertEquals(1, msgsSend.size());
         final var closeMsg = msgsSend.get(0);
@@ -127,7 +130,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testSessionStatistics() {
+    void testSessionStatistics() {
         session.handleMessage(Util.createErrorMessage(PCEPErrors.LSP_RSVP_ERROR, null));
         assertEquals(ipAddress, session.getPeerPref().getIpAddress());
         final PeerPref peerPref = session.getPeerPref();
@@ -163,7 +166,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testExceptionCaught() {
+    void testExceptionCaught() {
         assertFalse(session.isClosed());
         assertTrue(listener.up);
         session.exceptionCaught(null, new Throwable("PCEP exception."));
@@ -172,7 +175,7 @@ public class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     }
 
     @Test
-    public void testSessionRecoveryOnException() {
+    void testSessionRecoveryOnException() {
         listener = new SimpleExceptionSessionListener();
         session = spy(new PCEPSessionImpl(listener, 0, channel, openMsg.getOpenMessage().getOpen(),
             openMsg.getOpenMessage().getOpen()));

@@ -7,16 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExplicitRouteObjectParser;
@@ -33,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.NaiType;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class SrObjectParserTest {
+class SrObjectParserTest {
 
     private static final byte[] SR_ERO_OBJECT_BYTES = {
         0x07,0x10,0x00,0x10,
@@ -46,7 +46,7 @@ public class SrObjectParserTest {
     private SimplePCEPExtensionProviderContext ctx;
     private BaseParserExtensionActivator act;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ctx = new SimplePCEPExtensionProviderContext();
         act = new BaseParserExtensionActivator();
@@ -54,7 +54,7 @@ public class SrObjectParserTest {
     }
 
     @Test
-    public void testSrEroObjectWithSubobjects() throws PCEPDeserializerException {
+    void testSrEroObjectWithSubobjects() throws PCEPDeserializerException {
         final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(
             ctx.getEROSubobjectHandlerRegistry());
 
@@ -85,7 +85,7 @@ public class SrObjectParserTest {
     }
 
     @Test
-    public void testSrEroSerializerWithUpdateLspAugmentation() throws PCEPDeserializerException {
+    void testSrEroSerializerWithUpdateLspAugmentation() throws PCEPDeserializerException {
         final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(
             ctx.getEROSubobjectHandlerRegistry());
 

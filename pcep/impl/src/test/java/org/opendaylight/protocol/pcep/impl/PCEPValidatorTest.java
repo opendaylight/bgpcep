@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -20,8 +20,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.impl.TestVendorInformationTlvParser.TestEnterpriseSpecificInformation;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
@@ -159,7 +159,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class PCEPValidatorTest {
+class PCEPValidatorTest {
 
     private ObjectRegistry objectRegistry;
 
@@ -187,7 +187,7 @@ public class PCEPValidatorTest {
     private BaseParserExtensionActivator act;
     private TestVendorInformationActivator viObjAct;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ctx = new SimplePCEPExtensionProviderContext();
         act = new BaseParserExtensionActivator();
@@ -348,7 +348,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testOpenMsg() throws IOException, PCEPDeserializerException {
+    void testOpenMsg() throws IOException, PCEPDeserializerException {
         final ByteBuf result = Unpooled.wrappedBuffer(
             Files.readAllBytes(Path.of("src/test/resources/PCEPOpenMessage1.bin")));
         final PCEPOpenMessageParser parser = new PCEPOpenMessageParser(ctx.getObjectHandlerRegistry());
@@ -373,16 +373,13 @@ public class PCEPValidatorTest {
         parser.serializeMessage(new OpenBuilder().setOpenMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
 
-        try {
-            parser.serializeMessage(new OpenBuilder().setOpenMessage(new OpenMessageBuilder().build()).build(), null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Open Object must be present in Open Message.", e.getMessage());
-        }
+        final var ex = assertThrows(IllegalArgumentException.class, () -> parser.serializeMessage(
+            new OpenBuilder().setOpenMessage(new OpenMessageBuilder().build()).build(), null));
+        assertEquals("Open Object must be present in Open Message.", ex.getMessage());
     }
 
     @Test
-    public void testKeepAliveMsg() throws PCEPDeserializerException {
+    void testKeepAliveMsg() throws PCEPDeserializerException {
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { 32, 2, 0, 4 });
         final PCEPKeepAliveMessageParser parser = new PCEPKeepAliveMessageParser(objectRegistry);
         final KeepaliveBuilder builder = new KeepaliveBuilder()
@@ -396,7 +393,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testStartTLSMsg() throws Exception {
+    void testStartTLSMsg() throws Exception {
         final ByteBuf result = Unpooled.wrappedBuffer(new byte[] { 32, 20, 0, 4 });
         final PCEPStartTLSMessageParser parser = new PCEPStartTLSMessageParser(objectRegistry);
         final StarttlsBuilder builder = new StarttlsBuilder().setStartTlsMessage(new StartTlsMessageBuilder().build());
@@ -408,7 +405,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testCloseMsg() throws IOException, PCEPDeserializerException {
+    void testCloseMsg() throws IOException, PCEPDeserializerException {
         final ByteBuf result =
             Unpooled.wrappedBuffer(Files.readAllBytes(Path.of("src/test/resources/PCEPCloseMessage1.bin")));
 
@@ -427,18 +424,14 @@ public class PCEPValidatorTest {
         parser.serializeMessage(builder.build(), buf);
         assertArrayEquals(result.array(), buf.array());
 
-        try {
-            parser.serializeMessage(new CloseBuilder()
-                .setCCloseMessage(new CCloseMessageBuilder().build())
-                .build(), null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Close Object must be present in Close Message.", e.getMessage());
-        }
+        final var ex = assertThrows(IllegalArgumentException.class, () -> parser.serializeMessage(new CloseBuilder()
+            .setCCloseMessage(new CCloseMessageBuilder().build())
+            .build(), null));
+        assertEquals("Close Object must be present in Close Message.", ex.getMessage());
     }
 
     @Test
-    public void testRequestMsg() throws IOException, PCEPDeserializerException {
+    void testRequestMsg() throws IOException, PCEPDeserializerException {
 
         final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(objectRegistry);
 
@@ -573,24 +566,18 @@ public class PCEPValidatorTest {
         parser.serializeMessage(new PcreqBuilder().setPcreqMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
 
-        try {
-            parser.serializeMessage(new PcreqBuilder().setPcreqMessage(new PcreqMessageBuilder().build()).build(),
-                null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Requests cannot be null or empty.", e.getMessage());
-        }
-        try {
-            parser.serializeMessage(new PcreqBuilder().setPcreqMessage(new PcreqMessageBuilder()
-                .setRequests(List.of()).build()).build(), null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Requests cannot be null or empty.", e.getMessage());
-        }
+        final var nullRequestsEx = assertThrows(IllegalArgumentException.class, () -> parser.serializeMessage(
+            new PcreqBuilder().setPcreqMessage(new PcreqMessageBuilder().build()).build(), null));
+        assertEquals("Requests cannot be null or empty.", nullRequestsEx.getMessage());
+
+        final var emptyRequestsEx = assertThrows(IllegalArgumentException.class, () -> parser.serializeMessage(
+            new PcreqBuilder().setPcreqMessage(new PcreqMessageBuilder()
+                .setRequests(List.of()).build()).build(), null));
+        assertEquals("Requests cannot be null or empty.", emptyRequestsEx.getMessage());
     }
 
     @Test
-    public void testReplyMsg() throws IOException, PCEPDeserializerException {
+    void testReplyMsg() throws IOException, PCEPDeserializerException {
         // only RP
 
         final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(objectRegistry);
@@ -668,24 +655,18 @@ public class PCEPValidatorTest {
         parser.serializeMessage(new PcrepBuilder().setPcrepMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
 
-        try {
-            parser.serializeMessage(new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().build()).build(),
-                null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Replies cannot be null or empty.", e.getMessage());
-        }
-        try {
-            parser.serializeMessage(new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder()
-                .setReplies(List.of()).build()).build(), null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Replies cannot be null or empty.", e.getMessage());
-        }
+        final var nullRepliesEx = assertThrows(IllegalArgumentException.class, () -> parser.serializeMessage(
+            new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder().build()).build(), null));
+        assertEquals("Replies cannot be null or empty.", nullRepliesEx.getMessage());
+
+        final var emptyRepliesEx = assertThrows(IllegalArgumentException.class, () -> parser.serializeMessage(
+            new PcrepBuilder().setPcrepMessage(new PcrepMessageBuilder()
+                .setReplies(List.of()).build()).build(), null));
+        assertEquals("Replies cannot be null or empty.", emptyRepliesEx.getMessage());
     }
 
     @Test
-    public void testNotificationMsg() throws IOException, PCEPDeserializerException {
+    void testNotificationMsg() throws IOException, PCEPDeserializerException {
         final CNotification cn1 = new CNotificationBuilder().setIgnore(false).setProcessingRule(false)
             .setType(Uint8.ONE).setValue(Uint8.ONE).build();
 
@@ -730,7 +711,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testErrorMsg() throws IOException, PCEPDeserializerException {
+    void testErrorMsg() throws IOException, PCEPDeserializerException {
 
         ErrorObject error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false)
                 .setType(Uint8.valueOf(3)).setValue(Uint8.ONE).build();
@@ -776,24 +757,18 @@ public class PCEPValidatorTest {
         parser.serializeMessage(new PcerrBuilder().setPcerrMessage(builder.build()).build(), buf);
         assertArrayEquals(result.array(), buf.array());
 
-        try {
-            parser.serializeMessage(new PcerrBuilder()
-                .setPcerrMessage(new PcerrMessageBuilder().build()).build(), null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Errors should not be empty.", e.getMessage());
-        }
-        try {
-            parser.serializeMessage(new PcerrBuilder().setPcerrMessage(new PcerrMessageBuilder()
-                .setErrors(List.of()).build()).build(), null);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Errors should not be empty.", e.getMessage());
-        }
+        final var nullErrorsEx = assertThrows(IllegalArgumentException.class, () -> parser.serializeMessage(
+            new PcerrBuilder().setPcerrMessage(new PcerrMessageBuilder().build()).build(), null));
+        assertEquals("Errors should not be empty.", nullErrorsEx.getMessage());
+
+        final var emptyErrorsEx = assertThrows(IllegalArgumentException.class, () -> parser.serializeMessage(
+            new PcerrBuilder().setPcerrMessage(new PcerrMessageBuilder()
+                .setErrors(List.of()).build()).build(), null));
+        assertEquals("Errors should not be empty.", emptyErrorsEx.getMessage());
     }
 
     @Test
-    public void testReqMsgWithVendorInfoObjects() throws IOException, PCEPDeserializerException {
+    void testReqMsgWithVendorInfoObjects() throws IOException, PCEPDeserializerException {
         final ByteBuf result = Unpooled.wrappedBuffer(Files.readAllBytes(Path.of("src/test/resources/PCReq.7.bin")));
         final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(objectRegistry);
 
@@ -825,7 +800,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testRepMsgWithVendorInforObjects() throws IOException, PCEPDeserializerException {
+    void testRepMsgWithVendorInforObjects() throws IOException, PCEPDeserializerException {
         final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(objectRegistry);
 
         final PcrepMessageBuilder builder = new PcrepMessageBuilder();
@@ -852,7 +827,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testMonRepMsg() throws PCEPDeserializerException, IOException {
+    void testMonRepMsg() throws PCEPDeserializerException, IOException {
         final PCEPMonitoringReplyMessageParser parser = new PCEPMonitoringReplyMessageParser(objectRegistry);
         final PcmonrepMessageBuilder builder = new PcmonrepMessageBuilder();
         builder.setMonitoring(monitoring)
@@ -902,7 +877,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testRepWithMonitoring() throws IOException, PCEPDeserializerException {
+    void testRepWithMonitoring() throws IOException, PCEPDeserializerException {
         final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(objectRegistry);
 
         final PcrepMessageBuilder builder = new PcrepMessageBuilder();
@@ -936,7 +911,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testReqWithMonitoring() throws IOException, PCEPDeserializerException {
+    void testReqWithMonitoring() throws IOException, PCEPDeserializerException {
         final ByteBuf result = Unpooled.wrappedBuffer(Files.readAllBytes(Path.of("src/test/resources/PCReq.8.bin")));
 
         final PCEPRequestMessageParser parser = new PCEPRequestMessageParser(objectRegistry);
@@ -967,7 +942,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testMonReqMsg() throws PCEPDeserializerException, IOException {
+    void testMonReqMsg() throws PCEPDeserializerException, IOException {
         final PCEPMonitoringRequestMessageParser parser = new PCEPMonitoringRequestMessageParser(objectRegistry);
 
         final PcreqMessageBuilder builder = new PcreqMessageBuilder();
@@ -1019,7 +994,7 @@ public class PCEPValidatorTest {
     }
 
     @Test
-    public void testReplyMsgWithTwoEros() throws IOException, PCEPDeserializerException {
+    void testReplyMsgWithTwoEros() throws IOException, PCEPDeserializerException {
         // Success Reply with two EROs: the first one is followed by Bandwidth Object and one Metric Object
 
         final PCEPReplyMessageParser parser = new PCEPReplyMessageParser(objectRegistry);
