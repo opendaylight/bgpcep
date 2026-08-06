@@ -1,0 +1,106 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5a164530_6620a007",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-06T09:00:44Z",
+      "side": 1,
+      "message": "We\u0027re putting a large task onto the GlobalEventExecutor. It\u0027s meant for small quick tasks. Considder replacing it with out own single-thread executor (probably held and managed by RIBImpl)",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "efeb8e25_aa6902c0",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-06T09:00:44Z",
+      "side": 1,
+      "message": "This can lead back to the same BGPCEP-1094 issue we\u0027re trying to fix. If \"onPeerAdded\" throws, the peer stays registered and receives only FUTURE updates. The routes that existed when it connected are lost permanently. So the peer looks healthy but it\u0027s quietly missing routes. The minimum improvement is to log this as ERROR, since this is an important issue. But a better way would be to let the failure reach something that can react to it. Maybe even tearing down the session (which will retry the dump automatically on reconnect) might be preferable to a peer that silently serves incomplete table. Please reconsider.",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a2828d3d_58438c24",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-06T09:00:44Z",
+      "side": 1,
+      "message": "Should we rebuild the two \"peersList\" and \"peersFilteredList\"? Since after this point - and before the next registerPeer() call - the 3 lists are inconsistent.",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e4199602_09e05ac3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-06T09:00:44Z",
+      "side": 1,
+      "message": "We should replay existing peers for the newly-added listener here, right? Because if there are any pre-existing peers, the listener will not be notified about them.",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b9cc7f1d_03cde32d",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-06T09:00:44Z",
+      "side": 1,
+      "message": "Should we check the \"chain\" here? Otherwise this can run after the rib was told to shutdown.",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f479915f_e15c5a0e",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-06T09:00:44Z",
+      "side": 1,
+      "message": "The test throws NPE here, but it get\u0027s swallowed by the try-catch in  LocRibWriter.onDataTreeChanged() and only logged. The precondition commented here survives only by accident: the NPE happens on the last statement of \"walkThrough\", after best-path selection and the loc-rib write have already run, so \"routeEntries\" ends up populated regardless. Revisit please",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
