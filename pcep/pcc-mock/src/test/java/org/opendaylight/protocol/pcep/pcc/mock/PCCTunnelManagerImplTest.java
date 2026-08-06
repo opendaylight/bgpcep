@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -24,12 +23,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCSession;
 import org.opendaylight.protocol.pcep.pcc.mock.api.PCCTunnelManager;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -58,8 +57,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.ip.prefix._case.IpPrefixBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class PCCTunnelManagerImplTest {
+@ExtendWith(MockitoExtension.class)
+class PCCTunnelManagerImplTest {
     private static final InetAddress ADDRESS = InetAddresses.forString("1.2.4.5");
     private static final Timer TIMER = new HashedWheelTimer();
     private static final byte[] SYMBOLIC_NAME = "tets".getBytes(StandardCharsets.UTF_8);
@@ -74,37 +73,46 @@ public class PCCTunnelManagerImplTest {
     private PCCSession session2;
     private final Optional<TimerHandler> timerHandler = Optional.empty();
 
-    @Before
-    public void setUp() {
-        doNothing().when(session1).sendReport(any(Pcrpt.class));
-        doAnswer(invocation -> {
-            PCCTunnelManagerImplTest.this.errorsSession1.add(getError((Pcerr) invocation.getArguments()[0]));
-            return null;
-        }).when(session1).sendError(any(Pcerr.class));
+    @BeforeEach
+    void setUp() {
         doReturn(0).when(session1).getId();
-        doNothing().when(session2).sendReport(any(Pcrpt.class));
-        doAnswer(invocation -> {
-            PCCTunnelManagerImplTest.this.errorsSession2.add(getError((Pcerr) invocation.getArguments()[0]));
-            return null;
-        }).when(session2).sendError(any(Pcerr.class));
+    }
+
+    private void stubSession2Id() {
         doReturn(1).when(session2).getId();
     }
 
-    @After
-    public void tearDown() {
+    @AfterEach
+    void tearDown() {
         errorsSession1.clear();
         errorsSession2.clear();
     }
 
+    private void stubSendError1() {
+        doAnswer(invocation -> {
+            PCCTunnelManagerImplTest.this.errorsSession1.add(getError((Pcerr) invocation.getArguments()[0]));
+            return null;
+        }).when(session1).sendError(any(Pcerr.class));
+    }
+
+    private void stubSendError2() {
+        doAnswer(invocation -> {
+            PCCTunnelManagerImplTest.this.errorsSession2.add(getError((Pcerr) invocation.getArguments()[0]));
+            return null;
+        }).when(session2).sendError(any(Pcerr.class));
+    }
+
     @Test
-    public void testOnSessionUp() {
+    void testOnSessionUp() {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, timerHandler);
         checkSessionUp(session1, tunnelManager);
         checkSessionUp(session2, tunnelManager);
     }
 
     @Test
-    public void testOnSessionDownAndDelegateBack() {
+    void testOnSessionDownAndDelegateBack() {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 1, 10, TIMER, timerHandler);
         checkSessionUp(session1, tunnelManager);
         checkSessionUp(session2, tunnelManager);
@@ -126,7 +134,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testOnSessionDownAndDelegateToOther() throws InterruptedException {
+    void testOnSessionDownAndDelegateToOther() throws InterruptedException {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, -1, TIMER, timerHandler);
         tunnelManager.onSessionUp(session2);
         checkSessionUp(session1, tunnelManager);
@@ -139,7 +148,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testReportToAll() {
+    void testReportToAll() {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
@@ -149,7 +159,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testReportToAllUnknownLsp() {
+    void testReportToAllUnknownLsp() {
+        stubSendError1();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onMessagePcupd(createUpdateDelegate(2), session1);
@@ -158,7 +169,9 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testReportToAllNonDelegatedLsp() {
+    void testReportToAllNonDelegatedLsp() {
+        stubSendError2();
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
@@ -168,7 +181,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testReturnDelegationPccLsp() throws InterruptedException {
+    void testReturnDelegationPccLsp() throws InterruptedException {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 1, -1, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
@@ -181,7 +195,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testReturnDelegationUnknownLsp() {
+    void testReturnDelegationUnknownLsp() {
+        stubSendError1();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onMessagePcupd(createUpdate(2), session1);
@@ -190,7 +205,9 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testReturnDelegationNonDelegatedLsp() {
+    void testReturnDelegationNonDelegatedLsp() {
+        stubSendError2();
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
@@ -200,7 +217,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testAddTunnel() {
+    void testAddTunnel() {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
@@ -210,7 +228,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testRemoveTunnel() {
+    void testRemoveTunnel() {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
@@ -221,7 +240,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testRemoveTunnelUnknownLsp() {
+    void testRemoveTunnelUnknownLsp() {
+        stubSendError1();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onMessagePcInitiate(createRequestsRemove(1), session1);
@@ -230,7 +250,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testRemoveTunnelNotPceInitiatedLsp() {
+    void testRemoveTunnelNotPceInitiatedLsp() {
+        stubSendError1();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onMessagePcInitiate(createRequestsRemove(1), session1);
@@ -239,7 +260,9 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testRemoveTunnelNotDelegated() {
+    void testRemoveTunnelNotDelegated() {
+        stubSendError2();
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
@@ -250,7 +273,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testTakeDelegation() throws InterruptedException {
+    void testTakeDelegation() throws InterruptedException {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, -1, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
@@ -265,7 +289,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testTakeDelegationUnknownLsp() {
+    void testTakeDelegationUnknownLsp() {
+        stubSendError1();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onMessagePcInitiate(createRequestsDelegate(1), session1);
@@ -274,7 +299,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testTakeDelegationNotPceInitiatedLsp() {
+    void testTakeDelegationNotPceInitiatedLsp() {
+        stubSendError1();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(1, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onMessagePcInitiate(createRequestsDelegate(1), session1);
@@ -283,7 +309,8 @@ public class PCCTunnelManagerImplTest {
     }
 
     @Test
-    public void testReturnDelegationNoRetake() throws InterruptedException {
+    void testReturnDelegationNoRetake() throws InterruptedException {
+        stubSession2Id();
         final PCCTunnelManager tunnelManager = new PCCTunnelManagerImpl(0, ADDRESS, 0, 0, TIMER, timerHandler);
         tunnelManager.onSessionUp(session1);
         tunnelManager.onSessionUp(session2);
