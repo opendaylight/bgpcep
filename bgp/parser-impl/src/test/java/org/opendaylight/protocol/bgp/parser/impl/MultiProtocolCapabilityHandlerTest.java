@@ -7,16 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doReturn;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.MultiProtocolCapabilityHandler;
@@ -30,8 +30,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class MultiProtocolCapabilityHandlerTest {
+@ExtendWith(MockitoExtension.class)
+class MultiProtocolCapabilityHandlerTest {
     private static final Ipv6AddressFamily AFI = Ipv6AddressFamily.VALUE;
     private static final UnicastSubsequentAddressFamily SAFI = UnicastSubsequentAddressFamily.VALUE;
 
@@ -44,21 +44,13 @@ public class MultiProtocolCapabilityHandlerTest {
     @Mock
     private SubsequentAddressFamilyRegistry safirException;
 
-    @Before
-    public void setUp() {
+    @Test
+    void testCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
         doReturn(260).when(this.afir).numberForClass(AFI);
         doReturn(MultiProtocolCapabilityHandlerTest.AFI).when(this.afir).classForFamily(260);
-
-        doReturn(null).when(this.afirExpection).numberForClass(AFI);
-
         doReturn(4).when(this.safir).numberForClass(SAFI);
         doReturn(MultiProtocolCapabilityHandlerTest.SAFI).when(this.safir).classForFamily(4);
 
-        doReturn(null).when(this.safirException).numberForClass(SAFI);
-    }
-
-    @Test
-    public void testCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
         final CParameters capabilityToSerialize = new CParametersBuilder()
                 .addAugmentation(new CParameters1Builder()
                     .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
@@ -76,8 +68,10 @@ public class MultiProtocolCapabilityHandlerTest {
         assertEquals(capabilityToSerialize.hashCode(), newCaps.hashCode());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUnhandledAfi() {
+    @Test
+    void testUnhandledAfi() {
+        doReturn(null).when(this.afirExpection).numberForClass(AFI);
+
         final CParameters capabilityToSerialize = new CParametersBuilder()
                 .addAugmentation(new CParameters1Builder()
                     .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
@@ -89,11 +83,14 @@ public class MultiProtocolCapabilityHandlerTest {
         final ByteBuf bytes = Unpooled.buffer();
         final MultiProtocolCapabilityHandler handler = new MultiProtocolCapabilityHandler(this.afirExpection,
             this.safir);
-        handler.serializeCapability(capabilityToSerialize, bytes);
+        assertThrows(IllegalArgumentException.class, () -> handler.serializeCapability(capabilityToSerialize, bytes));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUnhandledSafi() {
+    @Test
+    void testUnhandledSafi() {
+        doReturn(260).when(this.afir).numberForClass(AFI);
+        doReturn(null).when(this.safirException).numberForClass(SAFI);
+
         final CParameters capabilityToSerialize = new CParametersBuilder()
                 .addAugmentation(new CParameters1Builder()
                     .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder()
@@ -106,11 +103,11 @@ public class MultiProtocolCapabilityHandlerTest {
         final ByteBuf bytes = Unpooled.buffer();
         final MultiProtocolCapabilityHandler handler = new MultiProtocolCapabilityHandler(this.afir,
             this.safirException);
-        handler.serializeCapability(capabilityToSerialize, bytes);
+        assertThrows(IllegalArgumentException.class, () -> handler.serializeCapability(capabilityToSerialize, bytes));
     }
 
     @Test
-    public void noSerializationTest() {
+    void noSerializationTest() {
         final CParameters capabilityNoAugmentation = new CParametersBuilder().removeAugmentation(CParameters1.class)
                 .build();
         final CParameters capabilityNoMP = new CParametersBuilder().addAugmentation(new CParameters1Builder().build())

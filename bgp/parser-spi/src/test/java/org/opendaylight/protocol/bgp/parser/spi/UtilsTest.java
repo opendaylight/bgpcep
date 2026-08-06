@@ -17,37 +17,25 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Arrays;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class UtilsTest {
+@ExtendWith(MockitoExtension.class)
+class UtilsTest {
     @Mock
     private AddressFamilyRegistry afiReg;
     @Mock
     private SubsequentAddressFamilyRegistry safiReg;
 
-    @Before
-    public void setUp() {
-        doReturn(1).when(afiReg).numberForClass(Ipv4AddressFamily.VALUE);
-        doReturn(Ipv4AddressFamily.VALUE).when(afiReg).classForFamily(1);
-        doReturn(null).when(afiReg).classForFamily(2);
-
-        doReturn(1).when(safiReg).numberForClass(UnicastSubsequentAddressFamily.VALUE);
-        doReturn(UnicastSubsequentAddressFamily.VALUE).when(safiReg).classForFamily(1);
-        doReturn(null).when(safiReg).classForFamily(3);
-    }
-
     @Test
-    public void testCapabilityUtil() {
+    void testCapabilityUtil() {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
         final ByteBuf aggregator = Unpooled.buffer();
         CapabilityUtil.formatCapability(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }),aggregator);
@@ -55,7 +43,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testMessageUtil() {
+    void testMessageUtil() {
         final byte[] result = new byte[] { UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
             UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
             UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE, UnsignedBytes.MAX_VALUE,
@@ -67,7 +55,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testParameterUtil() throws ParameterLengthOverflowException {
+    void testParameterUtil() throws ParameterLengthOverflowException {
         final byte[] result = new byte[] { 1, 2, 4, 8 };
         final ByteBuf aggregator = Unpooled.buffer();
         ParameterUtil.formatParameter(1, Unpooled.wrappedBuffer(new byte[] { 4, 8 }), aggregator);
@@ -75,7 +63,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testAttributeUtil() {
+    void testAttributeUtil() {
         final byte[] result = new byte[] { 0x40, 03, 04, 10, 00, 00, 02 };
         final ByteBuf aggregator = Unpooled.buffer();
         AttributeUtil.formatAttribute(64 , 3 , Unpooled.wrappedBuffer(new byte[] { 10, 0, 0, 2 }), aggregator);
@@ -83,7 +71,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testAttributeUtilExtended() {
+    void testAttributeUtilExtended() {
         final byte[] value = new byte[258];
         Arrays.fill(value, 0, 258, UnsignedBytes.MAX_VALUE);
         final byte[] header = new byte[] { (byte) 0x50, 03, 01, 02 };
@@ -96,7 +84,12 @@ public class UtilsTest {
     }
 
     @Test
-    public void testMultiprotocolCapabilitiesUtil() throws BGPParsingException {
+    void testMultiprotocolCapabilitiesUtil() throws BGPParsingException {
+        doReturn(1).when(afiReg).numberForClass(Ipv4AddressFamily.VALUE);
+        doReturn(Ipv4AddressFamily.VALUE).when(afiReg).classForFamily(1);
+        doReturn(1).when(safiReg).numberForClass(UnicastSubsequentAddressFamily.VALUE);
+        doReturn(UnicastSubsequentAddressFamily.VALUE).when(safiReg).classForFamily(1);
+
         final byte[] bytes = new byte[] {0, 1, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
         final BgpTableType parsedAfiSafi = MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg, safiReg)
@@ -111,28 +104,33 @@ public class UtilsTest {
     }
 
     @Test
-    public void testUnsupportedAfi() {
+    void testUnsupportedAfi() {
+        doReturn(null).when(afiReg).classForFamily(2);
+
         final byte[] bytes = new byte[] {0, 2, 0, 1};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
         assertEquals(Optional.empty(), MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg, safiReg));
     }
 
     @Test
-    public void testUnsupportedSafi() {
+    void testUnsupportedSafi() {
+        doReturn(Ipv4AddressFamily.VALUE).when(afiReg).classForFamily(1);
+        doReturn(null).when(safiReg).classForFamily(3);
+
         final byte[] bytes = new byte[] {0, 1, 0, 3};
         final ByteBuf bytesBuf = Unpooled.copiedBuffer(bytes);
         assertEquals(Optional.empty(), MultiprotocolCapabilitiesUtil.parseMPAfiSafi(bytesBuf, afiReg, safiReg));
     }
 
     @Test
-    public void testFormatParameterOverflow() {
+    void testFormatParameterOverflow() {
         final var ex = assertThrows(ParameterLengthOverflowException.class,
             () -> ParameterUtil.formatParameter(2, Unpooled.buffer().writeZero(256), Unpooled.buffer()));
         assertEquals("Cannot encode 256-byte value", ex.getMessage());
     }
 
     @Test
-    public void testFormatParameter() throws ParameterLengthOverflowException {
+    void testFormatParameter() throws ParameterLengthOverflowException {
         final ByteBuf output = Unpooled.buffer();
         ParameterUtil.formatParameter(2, Unpooled.buffer().writeZero(255), output);
 
@@ -142,7 +140,7 @@ public class UtilsTest {
     }
 
     @Test
-    public void testFormatExtendedParameter() {
+    void testFormatExtendedParameter() {
         final ByteBuf output = Unpooled.buffer();
         ParameterUtil.formatExtendedParameter(2, Unpooled.buffer().writeZero(256), output);
 

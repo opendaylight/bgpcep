@@ -7,10 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update.extended.communities;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.ExtendedCommunity;
@@ -18,23 +20,23 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.OpaqueExtendedCommunityCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.opaque.extended.community._case.OpaqueExtendedCommunityBuilder;
 
-public class OpaqueEcHandlerTest {
+class OpaqueEcHandlerTest {
     private static final byte[] INPUT = {
         21, 45, 5, 4, 3, 1
     };
 
     @Test
-    public void testHandler() throws BGPDocumentedException, BGPParsingException {
+    void testHandler() throws BGPDocumentedException, BGPParsingException {
         final OpaqueEcHandler handler = new OpaqueEcHandler();
         final OpaqueExtendedCommunityCase expected = new OpaqueExtendedCommunityCaseBuilder()
                 .setOpaqueExtendedCommunity(new OpaqueExtendedCommunityBuilder()
                     .setValue(new byte[] { 21, 45, 5, 4, 3, 1 }).build()).build();
 
         final ExtendedCommunity exComm = handler.parseExtendedCommunity(Unpooled.copiedBuffer(INPUT));
-        Assert.assertEquals(expected, exComm);
+        assertEquals(expected, exComm);
 
         final ByteBuf output = Unpooled.buffer(INPUT.length);
         handler.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(INPUT, output.array());
+        assertArrayEquals(INPUT, output.array());
     }
 }

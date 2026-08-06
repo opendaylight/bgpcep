@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.RouteRefreshCapabilityHandler;
@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.RouteRefreshCapabilityBuilder;
 
-public class RouteRefreshCapabilityHandlerTest {
+class RouteRefreshCapabilityHandlerTest {
 
     private static final RouteRefreshCapabilityHandler HANDLER = new RouteRefreshCapabilityHandler();
 
@@ -29,7 +29,7 @@ public class RouteRefreshCapabilityHandlerTest {
     private static final byte[] CAP_BYTES = new byte[] {2, 0};
 
     @Test
-    public void testRRCapHandler() throws BGPDocumentedException, BGPParsingException {
+    void testRRCapHandler() throws BGPDocumentedException, BGPParsingException {
         final CParameters expectedParams = new CParametersBuilder()
                 .addAugmentation(new CParameters1Builder()
                     .setRouteRefreshCapability(new RouteRefreshCapabilityBuilder().build())

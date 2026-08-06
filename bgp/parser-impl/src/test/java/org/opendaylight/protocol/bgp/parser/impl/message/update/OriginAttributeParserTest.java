@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
 
-public class OriginAttributeParserTest {
+class OriginAttributeParserTest {
 
     private static final byte[] IGP_ATTRIBUTE_BYTES = {(byte) 0x40, (byte) 0x01, (byte) 0x01, (byte) 0x00};
     private static final byte[] EGP_ATTRIBUTE_BYTES = {(byte) 0x40, (byte) 0x01, (byte) 0x01, (byte) 0x01};
@@ -51,7 +51,7 @@ public class OriginAttributeParserTest {
         .findFirst().orElseThrow().getAttributeRegistry();
 
     @Test
-    public void testIGPAttributeParser() throws BGPParsingException, BGPDocumentedException {
+    void testIGPAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
         attributeRegistry.serializeAttribute(IGP_RESULT, actual);
         assertArrayEquals(IGP_ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
@@ -61,7 +61,7 @@ public class OriginAttributeParserTest {
     }
 
     @Test
-    public void testEGPAttributeParser() throws BGPParsingException, BGPDocumentedException {
+    void testEGPAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
         attributeRegistry.serializeAttribute(EGP_RESULT, actual);
         assertArrayEquals(EGP_ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
@@ -71,7 +71,7 @@ public class OriginAttributeParserTest {
     }
 
     @Test
-    public void testIncompleeteAttributeParser() throws BGPParsingException, BGPDocumentedException {
+    void testIncompleeteAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
         attributeRegistry.serializeAttribute(INCOMPLETE_RESULT, actual);
         assertArrayEquals(INCOMPLETE_ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
@@ -81,7 +81,7 @@ public class OriginAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyAttribute() {
+    void testParseEmptyAttribute() {
         final String message = assertThrows(NullPointerException.class,
             () -> attributeRegistry.serializeAttribute(new AttributesBuilder()
                 .setOrigin(new OriginBuilder().build())

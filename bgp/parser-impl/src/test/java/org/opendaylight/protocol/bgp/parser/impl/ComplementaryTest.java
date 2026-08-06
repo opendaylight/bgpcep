@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
 
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
@@ -37,10 +37,10 @@ import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class ComplementaryTest {
+class ComplementaryTest {
 
     @Test
-    public void testBGPParameter() {
+    void testBGPParameter() {
 
         final MultiprotocolCapability cap = new MultiprotocolCapabilityBuilder().setAfi(Ipv6AddressFamily.VALUE)
                 .setSafi(UnicastSubsequentAddressFamily.VALUE).build();
@@ -84,7 +84,7 @@ public class ComplementaryTest {
     }
 
     @Test
-    public void testBGPAggregatorImpl() {
+    void testBGPAggregatorImpl() {
         final BgpAggregator ipv4 = new AggregatorBuilder()
                 .setAsNumber(new AsNumber(Uint32.valueOf(5524)))
                 .setNetworkAddress(new Ipv4AddressNoZone("124.55.42.1"))

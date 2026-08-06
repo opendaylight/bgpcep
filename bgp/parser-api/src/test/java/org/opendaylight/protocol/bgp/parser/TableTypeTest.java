@@ -7,39 +7,33 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 
-public class TableTypeTest {
+class TableTypeTest {
 
     @Test
-    public void testTableTypes() {
+    void testTableTypes() {
         final BgpTableType tt1 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
                 MplsLabeledVpnSubsequentAddressFamily.VALUE);
         final BgpTableType tt2 = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
                 MplsLabeledVpnSubsequentAddressFamily.VALUE);
 
-        try {
-            new BgpTableTypeImpl(null, MplsLabeledVpnSubsequentAddressFamily.VALUE);
-            fail("Null AFI!");
-        } catch (final NullPointerException e) {
-            assertEquals("Address family may not be null", e.getMessage());
-        }
+        final var afiEx = assertThrows(NullPointerException.class,
+            () -> new BgpTableTypeImpl(null, MplsLabeledVpnSubsequentAddressFamily.VALUE));
+        assertEquals("Address family may not be null", afiEx.getMessage());
 
-        try {
-            new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, null);
-            fail("Null SAFI!");
-        } catch (final NullPointerException e) {
-            assertEquals("Subsequent address family may not be null", e.getMessage());
-        }
+        final var safiEx = assertThrows(NullPointerException.class,
+            () -> new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, null));
+        assertEquals("Subsequent address family may not be null", safiEx.getMessage());
 
         assertNotEquals(tt1, tt2);
         assertNotSame(tt1.hashCode(), tt2.hashCode());

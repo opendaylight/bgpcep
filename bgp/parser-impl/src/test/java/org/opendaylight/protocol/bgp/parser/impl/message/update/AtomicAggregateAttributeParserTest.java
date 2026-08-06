@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AtomicAggregateBuilder;
 
-public class AtomicAggregateAttributeParserTest {
+class AtomicAggregateAttributeParserTest {
 
     private static final byte[] ATTRIBUTE_BYTES = {(byte) 0x40, (byte) 0x06, (byte) 0x00};
 
@@ -35,7 +35,7 @@ public class AtomicAggregateAttributeParserTest {
         .orElseThrow().getAttributeRegistry();
 
     @Test
-    public void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
+    void testAttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
         registry.serializeAttribute(RESULT, actual);
         assertArrayEquals(ATTRIBUTE_BYTES, ByteArray.getAllBytes(actual));
