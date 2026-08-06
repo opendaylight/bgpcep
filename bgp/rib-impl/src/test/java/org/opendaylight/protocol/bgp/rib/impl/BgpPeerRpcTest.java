@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -20,11 +20,11 @@ import io.netty.util.concurrent.GenericFutureListener;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.rib.spi.PeerRPCs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.PeerRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.ResetSessionInput;
@@ -44,8 +44,8 @@ import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public final class BgpPeerRpcTest {
+@ExtendWith(MockitoExtension.class)
+final class BgpPeerRpcTest {
     @Mock
     private BGPSessionImpl session;
     @Mock
@@ -56,10 +56,14 @@ public final class BgpPeerRpcTest {
     private ChannelFuture future;
     private BgpPeerRpc rpc;
 
-    @Before
-    public void setUp() throws InterruptedException, ExecutionException {
+    @BeforeEach
+    void setUp() throws InterruptedException, ExecutionException {
         rpc = new BgpPeerRpc(peerRpcs, session,
                 Set.of(new TablesKey(Ipv4AddressFamily.VALUE, SubsequentAddressFamily.VALUE)));
+    }
+
+    @Test
+    void testRouteRefreshRequestSuccessRequest() throws InterruptedException, ExecutionException {
         final ChannelOutputLimiter limiter = new ChannelOutputLimiter(session);
 
         doReturn(limiter).when(session).getLimiter();
@@ -71,10 +75,7 @@ public final class BgpPeerRpcTest {
             listener.operationComplete(future);
             return null;
         }).when(future).addListener(any());
-    }
 
-    @Test
-    public void testRouteRefreshRequestSuccessRequest() throws InterruptedException, ExecutionException {
         final RouteRefreshRequestInput input = new RouteRefreshRequestInputBuilder()
                 .setAfi(Ipv4AddressFamily.VALUE)
                 .setSafi(SubsequentAddressFamily.VALUE)
@@ -84,7 +85,7 @@ public final class BgpPeerRpcTest {
     }
 
     @Test
-    public void testRouteRefreshRequestFailedRequest() throws InterruptedException, ExecutionException {
+    void testRouteRefreshRequestFailedRequest() throws InterruptedException, ExecutionException {
         final RouteRefreshRequestInput input = new RouteRefreshRequestInputBuilder()
                 .setAfi(Ipv6AddressFamily.VALUE)
                 .setSafi(SubsequentAddressFamily.VALUE)
@@ -96,7 +97,7 @@ public final class BgpPeerRpcTest {
     }
 
     @Test
-    public void testResetSessionRequestSuccessRequest() throws InterruptedException, ExecutionException {
+    void testResetSessionRequestSuccessRequest() throws InterruptedException, ExecutionException {
         doReturn(Futures.immediateFuture(null)).when(peerRpcs).releaseConnection();
         final ResetSessionInput input = new ResetSessionInputBuilder()
                 .setPeerRef(peer).build();
@@ -105,7 +106,7 @@ public final class BgpPeerRpcTest {
     }
 
     @Test
-    public void testRestartGracefullyRequestFailedRequest() throws ExecutionException, InterruptedException {
+    void testRestartGracefullyRequestFailedRequest() throws ExecutionException, InterruptedException {
         final long referraltimerSeconds = 10L;
         doReturn(new SimpleSessionListener().restartGracefully(referraltimerSeconds))
                 .when(peerRpcs).restartGracefully(referraltimerSeconds);

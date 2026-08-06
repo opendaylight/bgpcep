@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -29,8 +29,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -68,7 +68,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class FSMTest {
+class FSMTest {
     @Mock
     private EventLoop eventLoop;
 
@@ -90,8 +90,8 @@ public class FSMTest {
 
     private Open classicOpen;
 
-    @Before
-    public void setUp() throws UnknownHostException, Exception {
+    @BeforeEach
+    void setUp() throws UnknownHostException, Exception {
         try (var mock = MockitoAnnotations.openMocks(this)) {
             final var tlvs = new ArrayList<BgpParameters>();
             final var capas = new ArrayList<OptionalCapabilities>();
@@ -179,7 +179,7 @@ public class FSMTest {
     }
 
     @Test
-    public void testDenyPeer() {
+    void testDenyPeer() {
         clientSession = new BGPClientSessionNegotiator(new DefaultPromise<>(GlobalEventExecutor.INSTANCE),
                 speakerListener, new StrictBGPPeerRegistry());
         clientSession.channelActive(null);
@@ -188,7 +188,7 @@ public class FSMTest {
     }
 
     @Test
-    public void testAccSessionChar() {
+    void testAccSessionChar() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
         assertTrue(receivedMsgs.get(0) instanceof Open);
@@ -200,7 +200,7 @@ public class FSMTest {
     }
 
     @Test
-    public void testNotAccChars() {
+    void testNotAccChars() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
         assertTrue(receivedMsgs.get(0) instanceof Open);
@@ -218,7 +218,7 @@ public class FSMTest {
     }
 
     @Test
-    public void testNoAs4BytesCapability() {
+    void testNoAs4BytesCapability() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
         assertTrue(receivedMsgs.get(0) instanceof Open);
@@ -255,7 +255,7 @@ public class FSMTest {
     }
 
     @Test
-    public void testBgpExtendedMessageCapability() {
+    void testBgpExtendedMessageCapability() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
         assertTrue(receivedMsgs.get(0) instanceof Open);
@@ -292,7 +292,7 @@ public class FSMTest {
     }
 
     @Test
-    public void sendNotification() {
+    void sendNotification() {
         clientSession.channelActive(null);
         clientSession.handleMessage(classicOpen);
         clientSession.handleMessage(new KeepaliveBuilder().build());
@@ -310,7 +310,7 @@ public class FSMTest {
     }
 
     @Test
-    public void sameBGPIDs() {
+    void sameBGPIDs() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
         assertTrue(receivedMsgs.get(0) instanceof Open);

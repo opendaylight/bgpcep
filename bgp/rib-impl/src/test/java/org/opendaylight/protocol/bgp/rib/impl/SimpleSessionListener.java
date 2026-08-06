@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -92,8 +92,8 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     }
 
     BGPSessionImpl getSession() {
-        assertTrue("Session up",
-                Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS));
+        assertTrue(Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS),
+                "Session up");
         return (BGPSessionImpl) bgpSession;
     }
 

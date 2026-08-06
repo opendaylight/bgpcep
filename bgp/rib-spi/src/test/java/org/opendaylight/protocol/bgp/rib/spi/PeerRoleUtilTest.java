@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 
-public class PeerRoleUtilTest {
+class PeerRoleUtilTest {
     @Test
-    public void roleForString() {
+    void roleForString() {
         assertEquals("ebgp", PeerRoleUtil.roleForString(PeerRole.Ebgp));
         assertEquals("ibgp", PeerRoleUtil.roleForString(PeerRole.Ibgp));
         assertEquals("rr-client", PeerRoleUtil.roleForString(PeerRole.RrClient));

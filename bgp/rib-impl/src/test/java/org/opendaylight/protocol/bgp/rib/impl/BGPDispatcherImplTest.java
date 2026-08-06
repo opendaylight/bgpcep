@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opendaylight.protocol.bgp.rib.impl.CheckUtil.checkIdleState;
 
 import com.google.common.collect.Sets;
@@ -16,14 +16,17 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutionException;
-import org.junit.Test;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
-public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
-    @Test(timeout = 20000)
-    public void testCreateClient() throws InterruptedException, ExecutionException {
+class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
+    @Test
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
+    void testCreateClient() throws InterruptedException, ExecutionException {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Channel serverChannel = createServer(serverAddress);
         final Future<BGPSessionImpl> futureClient = clientDispatcher.createClient(clientAddress, serverAddress, 2,
@@ -42,7 +45,7 @@ public class BGPDispatcherImplTest extends AbstractBGPDispatcherTest {
     }
 
     @Test
-    public void testCreateReconnectingClient() throws Exception {
+    void testCreateReconnectingClient() throws Exception {
         final InetSocketAddress serverAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final Future<Void> future = clientDispatcher.createReconnectingClient(serverAddress, RETRY_TIMER,
             KeyMapping.of(), clientAddress, true);

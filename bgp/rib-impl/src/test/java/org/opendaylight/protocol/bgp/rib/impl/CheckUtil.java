@@ -11,7 +11,7 @@ import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
@@ -61,7 +61,7 @@ public final class CheckUtil {
                 return;
             }
         }
-        Assert.fail();
+        Assertions.fail();
     }
 
     public static void checkStateIsNotRestarting(final BGPPeer peer, final int restartTimeSeconds) {
@@ -75,6 +75,6 @@ public final class CheckUtil {
                 return;
             }
         }
-        Assert.fail();
+        Assertions.fail();
     }
 }
