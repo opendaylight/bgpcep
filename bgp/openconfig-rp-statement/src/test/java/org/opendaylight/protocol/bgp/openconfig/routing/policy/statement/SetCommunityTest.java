@@ -27,6 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class SetCommunityTest extends AbstractStatementRegistryConsumerTest {
     private final Attributes multipleCom = new AttributesBuilder().setCommunities(List.of(
             new CommunitiesBuilder().setAsNumber(AsNumber.getDefaultInstance("65")).setSemantics(Uint16.valueOf(10))

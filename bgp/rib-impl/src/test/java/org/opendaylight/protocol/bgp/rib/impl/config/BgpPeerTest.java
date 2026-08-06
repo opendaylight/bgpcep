@@ -55,6 +55,7 @@ import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class BgpPeerTest extends AbstractConfig {
     static final Uint8 SHORT = Uint8.ZERO;
     static final IpAddress NEIGHBOR_ADDRESS = new IpAddress(new Ipv4Address("127.0.0.1"));

@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborPeerGroupConfigBuilder;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AppPeerTest extends AbstractConfig {
     private final AppPeerBean appPeer = new AppPeerBean(new BGPStateCollector());
 

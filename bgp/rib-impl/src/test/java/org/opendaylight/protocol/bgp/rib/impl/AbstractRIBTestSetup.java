@@ -65,6 +65,7 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.api.ModificationType;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
     private static final BgpId RIB_ID = new BgpId("127.0.0.1");
