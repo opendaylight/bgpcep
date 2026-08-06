@@ -7,59 +7,59 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.Tlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.open.object.open.TlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.lsp.db.version.tlv.LspDbVersionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.stateful.capability.tlv.StatefulCapabilityBuilder;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class SyncOptimizationTest {
+class SyncOptimizationTest {
     @Test
-    public void testDoesLspDbMatchPositive() {
+    void testDoesLspDbMatchPositive() {
         final var tlvs = createTlvs(1L, false, false);
         assertTrue(SyncOptimization.of(tlvs, tlvs).dbVersionMatch());
     }
 
     @Test
-    public void testDoesLspDbMatchNegative() {
+    void testDoesLspDbMatchNegative() {
         assertFalse(SyncOptimization.of(createTlvs(1L, false, false), createTlvs(2L, false, false)).dbVersionMatch());
     }
 
     @Test
-    public void testIsSyncAvoidanceEnabledPositive() {
+    void testIsSyncAvoidanceEnabledPositive() {
         final var tlvs = createTlvs(1L, true, false);
         assertTrue(SyncOptimization.of(tlvs, tlvs).syncAvoidanceEnabled());
     }
 
     @Test
-    public void testIsSyncAvoidanceEnabledNegative() {
+    void testIsSyncAvoidanceEnabledNegative() {
         assertFalse(SyncOptimization.of(createTlvs(1L, true, false), createTlvs(2L, false, false))
             .syncAvoidanceEnabled());
     }
 
     @Test
-    public void testIsDeltaSyncEnabledPositive() {
+    void testIsDeltaSyncEnabledPositive() {
         final var tlvs = createTlvs(1L, true, true);
         assertTrue(SyncOptimization.of(tlvs, tlvs).deltaSyncEnabled());
     }
 
     @Test
-    public void testIsDeltaSyncEnabledNegative() {
+    void testIsDeltaSyncEnabledNegative() {
         assertFalse(SyncOptimization.of(createTlvs(1L, true, true), createTlvs(2L, false, false)).deltaSyncEnabled());
     }
 
     @Test
-    public void testIsDbVersionPresentPositive() {
+    void testIsDbVersionPresentPositive() {
         assertTrue(SyncOptimization.of(createTlvs(null, false, false), createTlvs(2L, false, false))
             .dbVersionPresent());
     }
 
     @Test
-    public void testIsDbVersionPresentNegative() {
+    void testIsDbVersionPresentNegative() {
         final var tlvs = createTlvs(null, true, false);
         assertFalse(SyncOptimization.of(tlvs, tlvs).dbVersionPresent());
     }

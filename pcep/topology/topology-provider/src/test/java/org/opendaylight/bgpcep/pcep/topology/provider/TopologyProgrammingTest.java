@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.UpdateLspArgs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.ensure.lsp.operational.args.ArgumentsBuilder;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class TopologyProgrammingTest extends AbstractPCEPSessionTest {
     private static final String NAME = "test-tunnel";
 
