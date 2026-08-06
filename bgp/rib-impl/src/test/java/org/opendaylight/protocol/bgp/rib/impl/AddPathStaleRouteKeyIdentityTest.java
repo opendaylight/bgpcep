@@ -56,6 +56,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest {
     private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE,
         UnicastSubsequentAddressFamily.VALUE);

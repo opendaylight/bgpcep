@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AddPathAllPathsTest extends AbstractAddPathTest {
     private RIBImpl ribImpl;
     private Channel serverChannel;
