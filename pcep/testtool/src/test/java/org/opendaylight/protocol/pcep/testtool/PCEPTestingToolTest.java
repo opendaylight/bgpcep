@@ -7,20 +7,20 @@
  */
 package org.opendaylight.protocol.pcep.testtool;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.KeepaliveBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.KeepaliveMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.keepalive.message.KeepaliveMessageBuilder;
 
-public class PCEPTestingToolTest {
+class PCEPTestingToolTest {
 
     @Test
-    public void testSessionEstablishment() throws Exception {
+    void testSessionEstablishment() throws Exception {
         final String serverAddr = InetSocketAddressUtil
             .toHostAndPort(InetSocketAddressUtil.getRandomLoopbackInetSocketAddress()).toString();
         Main.main(new String[] {"-a", serverAddr,
@@ -29,7 +29,7 @@ public class PCEPTestingToolTest {
     }
 
     @Test
-    public void testSimpleSessionListener() {
+    void testSimpleSessionListener() {
         final TestingSessionListener ssl = new TestingSessionListener();
         assertEquals(0, ssl.messages().size());
         ssl.onMessage(null, new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build());
