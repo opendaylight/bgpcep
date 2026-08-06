@@ -12,12 +12,12 @@ import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPCapability;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public final class PCCMockTest extends PCCMockCommon {
+final class PCCMockTest extends PCCMockCommon {
     private final String localAddress2 = "127.0.0.2";
     private final String localIpAddress = "127.0.0.1";
     private final String[] mainInput = new String[]{"--local-address", localIpAddress,
@@ -26,7 +26,7 @@ public final class PCCMockTest extends PCCMockCommon {
         "--redelegation-timeout", "0", "--state-timeout", "-1"};
 
     @Test
-    public void testSessionEstablishment() throws Exception {
+    void testSessionEstablishment() throws Exception {
         final TestingSessionListenerFactory factory = new TestingSessionListenerFactory();
         final Channel channel = createServer(factory, remoteAddress);
         Main.main(mainInput);
@@ -40,7 +40,7 @@ public final class PCCMockTest extends PCCMockCommon {
 
 
     @Test
-    public void testMockPCCToManyPCE() throws Exception {
+    void testMockPCCToManyPCE() throws Exception {
         final InetSocketAddress serverAddress2 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final InetSocketAddress serverAddress3 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final InetSocketAddress serverAddress4 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
