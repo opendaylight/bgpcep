@@ -32,6 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class VpnNonMemberHandlerTest extends AbstractStatementRegistryConsumerTest {
     private static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder()
             .setAsNumber(new AsNumber(Uint32.valueOf(20))).setLocalAdministrator(Uint16.valueOf(100)).build();

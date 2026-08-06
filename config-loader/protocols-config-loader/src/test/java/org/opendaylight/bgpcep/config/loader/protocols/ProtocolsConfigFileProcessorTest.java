@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class ProtocolsConfigFileProcessorTest extends AbstractConfigLoaderTest {
     @VisibleForTesting
     static final DataObjectIdentifier<Protocols> BGP_PROTOCOLS_IID =
