@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.encapsulation._case.EncapsulationExtendedCommunityBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class MatchExtComTest extends AbstractStatementRegistryConsumerTest {
     @Mock
     private BGPRouteEntryExportParameters exportParameters;
