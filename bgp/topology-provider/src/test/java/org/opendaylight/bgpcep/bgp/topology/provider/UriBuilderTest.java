@@ -7,9 +7,9 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.AreaIdentifier;
@@ -36,12 +36,12 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class UriBuilderTest {
+class UriBuilderTest {
     private static final RouteDistinguisher DISTINGUISHER
             = RouteDistinguisherUtil.parseRouteDistinguisher("1.2.3.4:258");
 
     @Test
-    public void test() {
+    void test() {
         final LinkstateRouteBuilder routeB = new LinkstateRouteBuilder().setProtocolId(ProtocolId.Direct)
                 .setIdentifier(new Identifier(Uint64.TEN)).setPathId(new PathId(Uint32.ZERO)).setRouteKey("key");
         final UriBuilder a = new UriBuilder(routeB.build());
