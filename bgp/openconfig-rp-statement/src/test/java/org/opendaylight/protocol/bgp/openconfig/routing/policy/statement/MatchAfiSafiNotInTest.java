@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.extended.community.as._4.route.origin.extended.community._case.As4RouteOriginExtendedCommunityBuilder;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class MatchAfiSafiNotInTest extends AbstractStatementRegistryConsumerTest {
     @Mock
     private BGPRouteEntryExportParameters exportParameters;

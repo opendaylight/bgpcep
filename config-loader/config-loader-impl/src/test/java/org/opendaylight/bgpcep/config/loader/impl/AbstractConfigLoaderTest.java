@@ -19,6 +19,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBro
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 import org.opendaylight.mdsal.dom.api.DOMSchemaService;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public abstract class AbstractConfigLoaderTest extends AbstractConcurrentDataBrokerTest {
     protected final class TestConfigLoader extends AbstractConfigLoader {
         @Override
