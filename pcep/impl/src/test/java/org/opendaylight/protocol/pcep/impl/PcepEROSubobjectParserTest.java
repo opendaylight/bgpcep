@@ -7,16 +7,16 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.subobject.EROAsNumberSubobjectParser;
@@ -53,7 +53,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class PcepEROSubobjectParserTest {
+class PcepEROSubobjectParserTest {
     private static final byte[] IP4_PREFIX_BYTES = {
         (byte) 0x81, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00
     };
@@ -85,7 +85,7 @@ public class PcepEROSubobjectParserTest {
     private SimplePCEPExtensionProviderContext ctx;
     private BaseParserExtensionActivator act;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.ctx = new SimplePCEPExtensionProviderContext();
         this.act = new BaseParserExtensionActivator();
@@ -93,7 +93,7 @@ public class PcepEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROIp4PrefixSubobject() throws PCEPDeserializerException {
+    void testEROIp4PrefixSubobject() throws PCEPDeserializerException {
         final EROIpv4PrefixSubobjectParser parser = new EROIpv4PrefixSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setLoose(true)
@@ -121,7 +121,7 @@ public class PcepEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROIp6PrefixSubobject() throws PCEPDeserializerException {
+    void testEROIp6PrefixSubobject() throws PCEPDeserializerException {
         final EROIpv6PrefixSubobjectParser parser = new EROIpv6PrefixSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setSubobjectType(new IpPrefixCaseBuilder()
@@ -155,7 +155,7 @@ public class PcepEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROAsNumberSubobject() throws PCEPDeserializerException {
+    void testEROAsNumberSubobject() throws PCEPDeserializerException {
         final EROAsNumberSubobjectParser parser = new EROAsNumberSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setLoose(true)
@@ -183,7 +183,7 @@ public class PcepEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROUnnumberedSubobject() throws PCEPDeserializerException {
+    void testEROUnnumberedSubobject() throws PCEPDeserializerException {
         final EROUnnumberedInterfaceSubobjectParser parser = new EROUnnumberedInterfaceSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setLoose(true)
@@ -214,7 +214,7 @@ public class PcepEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROPathKey32Subobject() throws PCEPDeserializerException {
+    void testEROPathKey32Subobject() throws PCEPDeserializerException {
         final EROPathKey32SubobjectParser parser = new EROPathKey32SubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder().setLoose(true);
         final PathKeyBuilder pBuilder = new PathKeyBuilder()
@@ -242,7 +242,7 @@ public class PcepEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROPathKey128Subobject() throws PCEPDeserializerException {
+    void testEROPathKey128Subobject() throws PCEPDeserializerException {
         final EROPathKey128SubobjectParser parser = new EROPathKey128SubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder().setLoose(true);
         final PathKeyBuilder pBuilder = new PathKeyBuilder()
@@ -274,7 +274,7 @@ public class PcepEROSubobjectParserTest {
     }
 
     @Test
-    public void testEROLabelSubobject() throws Exception {
+    void testEROLabelSubobject() throws Exception {
         final EROLabelSubobjectParser parser = new EROLabelSubobjectParser(this.ctx.getLabelHandlerRegistry());
 
         final SubobjectBuilder subs = new SubobjectBuilder()
@@ -310,7 +310,7 @@ public class PcepEROSubobjectParserTest {
     }
 
     @Test
-    public void testERO_EXRSSubobject() throws Exception {
+    void testERO_EXRSSubobject() throws Exception {
         final EROExplicitExclusionRouteSubobjectParser parser = new EROExplicitExclusionRouteSubobjectParser(
             this.ctx.getXROSubobjectHandlerRegistry());
         final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route

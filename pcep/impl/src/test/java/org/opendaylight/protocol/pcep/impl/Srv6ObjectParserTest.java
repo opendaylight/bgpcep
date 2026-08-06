@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.object.PCEPExplicitRouteObjectParser;
@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.typ
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class Srv6ObjectParserTest {
+class Srv6ObjectParserTest {
 
     private static final byte[] SRV6_ERO_OBJECT_BYTES = {
         0x07, 0x10, 0x00, 0x24,
@@ -50,7 +50,7 @@ public class Srv6ObjectParserTest {
     private SimplePCEPExtensionProviderContext ctx;
     private BaseParserExtensionActivator act;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ctx = new SimplePCEPExtensionProviderContext();
         act = new BaseParserExtensionActivator();
@@ -58,7 +58,7 @@ public class Srv6ObjectParserTest {
     }
 
     @Test
-    public void testSrv6EroObjectWithSubobjects() throws PCEPDeserializerException {
+    void testSrv6EroObjectWithSubobjects() throws PCEPDeserializerException {
         final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(
             ctx.getEROSubobjectHandlerRegistry());
 

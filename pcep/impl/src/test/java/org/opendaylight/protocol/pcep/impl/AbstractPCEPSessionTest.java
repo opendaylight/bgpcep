@@ -25,7 +25,7 @@ import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mock;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.Close;
@@ -44,7 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.obj
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class AbstractPCEPSessionTest {
+class AbstractPCEPSessionTest {
     protected static final Uint8 KEEP_ALIVE = Uint8.valueOf(15);
     protected static final Uint8 DEADTIMER = Uint8.valueOf(40);
 
@@ -81,7 +81,7 @@ public class AbstractPCEPSessionTest {
     protected SimpleSessionListener listener;
 
     @SuppressWarnings("unchecked")
-    @Before
+    @BeforeEach
     public final void setUp() {
         final ChannelFuture cfuture = new DefaultChannelPromise(channel);
         doAnswer(invocation -> {

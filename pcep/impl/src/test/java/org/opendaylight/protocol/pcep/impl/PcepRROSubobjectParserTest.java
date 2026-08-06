@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.subobject.RROIpv4PrefixSubobjectParser;
@@ -43,7 +43,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class PcepRROSubobjectParserTest {
+class PcepRROSubobjectParserTest {
 
     private static final byte[] IP4_PREFIX_BYTES = {
         (byte) 0x01, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x01
@@ -68,7 +68,7 @@ public class PcepRROSubobjectParserTest {
     private static final byte[] LABEL_BYTES = { 0x03, 0x08, (byte) 0x80, 0x02, 0x12, 0x00, 0x25, (byte) 0xFF };
 
     @Test
-    public void testRROIp4PrefixSubobject() throws PCEPDeserializerException {
+    void testRROIp4PrefixSubobject() throws PCEPDeserializerException {
         final RROIpv4PrefixSubobjectParser parser = new RROIpv4PrefixSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setProtectionAvailable(true)
@@ -97,7 +97,7 @@ public class PcepRROSubobjectParserTest {
     }
 
     @Test
-    public void testRROIp6PrefixSubobject() throws PCEPDeserializerException {
+    void testRROIp6PrefixSubobject() throws PCEPDeserializerException {
         final RROIpv6PrefixSubobjectParser parser = new RROIpv6PrefixSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setProtectionAvailable(false)
@@ -131,7 +131,7 @@ public class PcepRROSubobjectParserTest {
     }
 
     @Test
-    public void testRROUnnumberedSubobject() throws PCEPDeserializerException {
+    void testRROUnnumberedSubobject() throws PCEPDeserializerException {
         final RROUnnumberedInterfaceSubobjectParser parser = new RROUnnumberedInterfaceSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setProtectionAvailable(false)
@@ -162,7 +162,7 @@ public class PcepRROSubobjectParserTest {
     }
 
     @Test
-    public void testRROPathKey32Subobject() throws PCEPDeserializerException {
+    void testRROPathKey32Subobject() throws PCEPDeserializerException {
         final RROPathKey32SubobjectParser parser = new RROPathKey32SubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder();
         final PathKeyBuilder pBuilder = new PathKeyBuilder()
@@ -190,7 +190,7 @@ public class PcepRROSubobjectParserTest {
     }
 
     @Test
-    public void testRROPathKey128Subobject() throws PCEPDeserializerException {
+    void testRROPathKey128Subobject() throws PCEPDeserializerException {
         final RROPathKey128SubobjectParser parser = new RROPathKey128SubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder();
         final PathKeyBuilder pBuilder = new PathKeyBuilder()
@@ -223,7 +223,7 @@ public class PcepRROSubobjectParserTest {
     }
 
     @Test
-    public void testRROLabelSubobject() throws Exception {
+    void testRROLabelSubobject() throws Exception {
         final SimplePCEPExtensionProviderContext ctx = new SimplePCEPExtensionProviderContext();
         final BaseParserExtensionActivator act = new BaseParserExtensionActivator();
         act.start(ctx);
