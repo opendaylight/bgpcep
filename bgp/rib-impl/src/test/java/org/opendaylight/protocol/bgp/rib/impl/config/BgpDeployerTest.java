@@ -64,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
     private static final BgpTableType TABLE_TYPE = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
             UnicastSubsequentAddressFamily.VALUE);

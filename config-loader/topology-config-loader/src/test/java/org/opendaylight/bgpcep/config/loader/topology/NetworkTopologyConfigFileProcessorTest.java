@@ -27,6 +27,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class NetworkTopologyConfigFileProcessorTest extends AbstractConfigLoaderTest {
     @Mock
     private ContainerNode networkTopology;

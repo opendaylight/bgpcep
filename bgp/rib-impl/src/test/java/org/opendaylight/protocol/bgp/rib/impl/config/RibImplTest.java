@@ -51,6 +51,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class RibImplTest extends AbstractConfig {
     private static final Map<AfiSafiKey, AfiSafi> AFISAFIS = BindingMap.of(new AfiSafiBuilder()
         .setAfiSafiName(IPV4UNICAST.VALUE)
