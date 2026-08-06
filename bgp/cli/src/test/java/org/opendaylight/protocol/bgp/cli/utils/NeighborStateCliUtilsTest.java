@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.cli.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.common.io.Resources;
 import java.io.ByteArrayOutputStream;
@@ -16,7 +16,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpNeighborState;
@@ -47,7 +47,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class NeighborStateCliUtilsTest {
+class NeighborStateCliUtilsTest {
 
     static final String NEIGHBOR_ADDRESS = "127.0.0.2";
     private static final IpAddress NEIGHBOR_IP_ADDRESS = new IpAddress(new Ipv4Address(NEIGHBOR_ADDRESS));
@@ -72,14 +72,14 @@ public class NeighborStateCliUtilsTest {
     }
 
     @Test
-    public void testNeighborStateWO_StateCli() {
+    void testNeighborStateWO_StateCli() {
         NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS,
             new NeighborBuilder().setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4"))).build(),  stream);
         assertEquals(NO_SESSION_FOUND, output.toString());
     }
 
     @Test
-    public void testEmptyNeighborStateCli() throws IOException {
+    void testEmptyNeighborStateCli() throws IOException {
         NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS, createBasicNeighbor(), stream);
 
         final String expected = Resources.toString(getClass().getClassLoader().getResource("empty-neighbor.txt"),
@@ -88,7 +88,7 @@ public class NeighborStateCliUtilsTest {
     }
 
     @Test
-    public void testFullNeighborStateCli() throws IOException {
+    void testFullNeighborStateCli() throws IOException {
         NeighborStateCliUtils.displayNeighborOperationalState(NEIGHBOR_ADDRESS, new NeighborBuilder()
             .setNeighborAddress(new IpAddress(new Ipv4Address("1.2.3.4")))
             .setState(new StateBuilder()

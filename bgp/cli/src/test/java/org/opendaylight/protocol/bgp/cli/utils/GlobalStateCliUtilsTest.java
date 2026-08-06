@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.cli.utils;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bgp.cli.utils.BGPOperationalStateUtilsTest.RIB_ID;
 
 import com.google.common.io.Resources;
@@ -15,7 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.StateBuilder;
@@ -26,12 +26,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class GlobalStateCliUtilsTest {
+class GlobalStateCliUtilsTest {
     private final ByteArrayOutputStream output = new ByteArrayOutputStream();
     private final PrintStream stream = new PrintStream(output);
 
     @Test
-    public void testEmptyGlobalStateCliUtil() throws IOException {
+    void testEmptyGlobalStateCliUtil() throws IOException {
         final GlobalBuilder builder = buildGlobal(false);
         GlobalStateCliUtils.displayRibOperationalState(RIB_ID, builder.build(), stream);
 
@@ -41,7 +41,7 @@ public class GlobalStateCliUtilsTest {
     }
 
     @Test
-    public void testGlobalStateCliUtil() throws IOException {
+    void testGlobalStateCliUtil() throws IOException {
         final GlobalBuilder builder = buildGlobal(true);
         GlobalStateCliUtils.displayRibOperationalState(RIB_ID, builder.build(), stream);
 
