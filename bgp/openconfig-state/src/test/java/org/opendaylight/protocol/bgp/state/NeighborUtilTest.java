@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.state;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -17,11 +17,10 @@ import static org.opendaylight.protocol.bgp.state.StateProviderImplTest.TABLES_K
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.State;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
@@ -47,8 +46,8 @@ import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Decimal64;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class NeighborUtilTest {
+@ExtendWith(MockitoExtension.class)
+class NeighborUtilTest {
     @Mock
     private BGPSessionState sessionState;
     @Mock
@@ -58,27 +57,15 @@ public class NeighborUtilTest {
     private State state = State.IDLE;
     private AfiSafiType afiSafi = null;
 
-    @Before
-    public void setUp() throws Exception {
+    @Test
+    void testBuildCapabilityState() {
         doReturn(false).when(sessionState).isRouterRefreshCapabilitySupported();
         doReturn(false).when(sessionState).isMultiProtocolCapabilitySupported();
         doReturn(false).when(sessionState).isGracefulRestartCapabilitySupported();
         doReturn(false).when(sessionState).isAsn32CapabilitySupported();
         doReturn(false).when(sessionState).isAddPathCapabilitySupported();
         doAnswer(invocation -> NeighborUtilTest.this.state).when(sessionState).getSessionState();
-        doReturn(Set.of(TABLES_KEY)).when(bgpAfiSafiState).getAfiSafisAdvertized();
-        doReturn(Set.of(TABLES_KEY)).when(bgpAfiSafiState).getAfiSafisReceived();
-        doAnswer(invocation -> NeighborUtilTest.this.afiSafi).when(tableRegistry).getAfiSafiType(eq(TABLES_KEY));
-        doReturn(false).when(bgpAfiSafiState).isAfiSafiSupported(eq(TABLES_KEY));
-        doReturn(false).when(bgpAfiSafiState).isGracefulRestartAdvertized(eq(TABLES_KEY));
-        doReturn(false).when(bgpAfiSafiState).isGracefulRestartReceived(eq(TABLES_KEY));
-        doReturn(false).when(bgpAfiSafiState).isLlGracefulRestartAdvertised(eq(TABLES_KEY));
-        doReturn(false).when(bgpAfiSafiState).isLlGracefulRestartReceived(eq(TABLES_KEY));
-        doReturn(0).when(bgpAfiSafiState).getLlGracefulRestartTimer(eq(TABLES_KEY));
-    }
 
-    @Test
-    public void testBuildCapabilityState() {
         final NeighborStateAugmentationBuilder expected = new NeighborStateAugmentationBuilder()
                 .setSupportedCapabilities(Set.of())
                 .setSessionState(SessionState.IDLE);
@@ -90,12 +77,12 @@ public class NeighborUtilTest {
     }
 
     @Test
-    public void testBuildTimerNullValue() {
+    void testBuildTimerNullValue() {
         assertNull(NeighborUtil.buildTimer(null));
     }
 
     @Test
-    public void testBuildTimerNormalValue() {
+    void testBuildTimerNormalValue() {
         final BGPTimersState timerState = mock(BGPTimersState.class);
         doReturn(90L).when(timerState).getNegotiatedHoldTime();
         doReturn(5000L).when(timerState).getUpTime();
@@ -113,7 +100,7 @@ public class NeighborUtilTest {
     }
 
     @Test
-    public void testBuildTimerRollOverValue() {
+    void testBuildTimerRollOverValue() {
         final BGPTimersState timerState = mock(BGPTimersState.class);
         doReturn(90L).when(timerState).getNegotiatedHoldTime();
         doReturn(42949673015L).when(timerState).getUpTime();
@@ -127,17 +114,27 @@ public class NeighborUtilTest {
     }
 
     @Test
-    public void testBuildTransport() {
+    void testBuildTransport() {
         assertNull(NeighborUtil.buildTransport(null));
     }
 
     @Test
-    public void testBuildNeighborState() {
+    void testBuildNeighborState() {
         assertNull(NeighborUtil.buildNeighborState(null, null));
     }
 
     @Test
-    public void buildAfisSafisState() {
+    void buildAfisSafisState() {
+        doReturn(Set.of(TABLES_KEY)).when(bgpAfiSafiState).getAfiSafisAdvertized();
+        doReturn(Set.of(TABLES_KEY)).when(bgpAfiSafiState).getAfiSafisReceived();
+        doAnswer(invocation -> NeighborUtilTest.this.afiSafi).when(tableRegistry).getAfiSafiType(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isAfiSafiSupported(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isGracefulRestartAdvertized(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isGracefulRestartReceived(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isLlGracefulRestartAdvertised(eq(TABLES_KEY));
+        doReturn(false).when(bgpAfiSafiState).isLlGracefulRestartReceived(eq(TABLES_KEY));
+        doReturn(0).when(bgpAfiSafiState).getLlGracefulRestartTimer(eq(TABLES_KEY));
+
         assertEquals(Map.of(), NeighborUtil.buildAfisSafisState(bgpAfiSafiState, tableRegistry));
 
         final GracefulRestart graceful = new GracefulRestartBuilder()

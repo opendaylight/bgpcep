@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.spi;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
@@ -21,13 +21,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.concepts.Registration;
 
-public class SimpleBGPTableTypeRegistryProviderTest {
+class SimpleBGPTableTypeRegistryProviderTest {
     private final BGPTableTypeRegistryProvider provider = new SimpleBGPTableTypeRegistryProvider();
     private final Registration registration = provider.registerBGPTableType(
         Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE, IPV4UNICAST.VALUE);
 
     @Test
-    public void testBGPTableTypeRegistryProvider() {
+    void testBGPTableTypeRegistryProvider() {
         assertEquals(IPV4UNICAST.VALUE, provider.getAfiSafiType(
             new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE)));
         assertNull(provider.getAfiSafiType(
@@ -41,7 +41,7 @@ public class SimpleBGPTableTypeRegistryProviderTest {
     }
 
     @Test
-    public void testDuplicatedRegistration() {
+    void testDuplicatedRegistration() {
         assertThrows(IllegalStateException.class, () -> provider.registerBGPTableType(Ipv4AddressFamily.VALUE,
             UnicastSubsequentAddressFamily.VALUE, IPV4UNICAST.VALUE));
     }

@@ -7,29 +7,29 @@
  */
 package org.opendaylight.protocol.bgp.state;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.doReturn;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class PeerGroupUtilTest {
+@ExtendWith(MockitoExtension.class)
+class PeerGroupUtilTest {
     @Mock
     private BGPPeerState bgpPeerState;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         doReturn(null).when(bgpPeerState).getGroupId();
     }
 
     @Test
-    public void testNoneGroup() {
+    void testNoneGroup() {
         assertNull(PeerGroupUtil.buildPeerGroups(List.of(bgpPeerState)));
     }
 }
