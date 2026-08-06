@@ -9,52 +9,46 @@ package org.opendaylight.protocol.bgp.util;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BGPHexFileParserTest {
+class BGPHexFileParserTest {
 
     private static final String HEX_DUMP_FILE_NAME = "bgp_hex.txt";
     private static final String BGP_MESSAGE_HEX_INVALID_LENGTH_BIN = "BgpMessage_Hex_InvalidLength.bin";
     private static final int EXPECTED_SIZE = 25;
 
     @Test
-    public void testCleanWhiteSpace() {
+    void testCleanWhiteSpace() {
         final String input = "abc def\r\nghi\nj";
         assertEquals("ABCDEFGHIJ", HexDumpBGPFileParser.clearWhiteSpaceToUpper(input));
     }
 
     @Test
-    public void testParsing() throws Exception {
+    void testParsing() throws Exception {
         final List<byte[]> result = HexDumpBGPFileParser.parseMessages(getClass().getClassLoader()
                 .getResourceAsStream(BGPHexFileParserTest.HEX_DUMP_FILE_NAME));
         assertEquals(EXPECTED_SIZE, result.size());
     }
 
     @Test
-    public void testParsingInvalidMessage() throws Exception {
-        try {
-            HexDumpBGPFileParser.parseMessages(getClass().getClassLoader()
-                    .getResourceAsStream(BGP_MESSAGE_HEX_INVALID_LENGTH_BIN));
-            fail("Exception should have occured.");
-        } catch (final IllegalArgumentException e) {
-            assertThat(e.getMessage(), containsString("Invalid message at index 0, "
-                    + "length atribute is lower than 19"));
-        }
+    void testParsingInvalidMessage() {
+        final var ex = assertThrows(IllegalArgumentException.class,
+            () -> HexDumpBGPFileParser.parseMessages(getClass().getClassLoader()
+                    .getResourceAsStream(BGP_MESSAGE_HEX_INVALID_LENGTH_BIN)));
+        assertThat(ex.getMessage(), containsString("Invalid message at index 0, "
+                + "length atribute is lower than 19"));
     }
 
     @Test
-    public void testParsingInvalidFile() throws Exception {
-        try {
-            HexDumpBGPFileParser.parseMessages(Path.of("bad file name"));
-            fail("Exception should have occured.");
-        } catch (NoSuchFileException e) {
-            assertThat(e.getMessage(), containsString("bad file name"));
-        }
+    void testParsingInvalidFile() {
+        final var ex = assertThrows(NoSuchFileException.class,
+            () -> HexDumpBGPFileParser.parseMessages(Path.of("bad file name")));
+        assertThat(ex.getMessage(), containsString("bad file name"));
     }
 }
