@@ -7,16 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractBGPSessionNegotiator.AS_TRANS;
 import static org.opendaylight.protocol.bgp.rib.impl.AbstractBGPSessionNegotiator.openASNumber;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
-public class AbstractBGPSessionNegotiatorTest {
+class AbstractBGPSessionNegotiatorTest {
     @Test
-    public void testOpenASNumber() {
+    void testOpenASNumber() {
         assertEquals(Uint16.ZERO, openASNumber(0));
         assertEquals(Uint16.MAX_VALUE, openASNumber(65535));
         assertEquals(AS_TRANS, openASNumber(65536));

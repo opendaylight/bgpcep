@@ -7,23 +7,23 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.state;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateProvider;
 import org.opendaylight.yangtools.concepts.Registration;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class BGPStateCollectorTest {
+@ExtendWith(MockitoExtension.class)
+class BGPStateCollectorTest {
     @Mock
     private BGPRibStateProvider bgpribStateProvider;
     @Mock
@@ -32,7 +32,7 @@ public class BGPStateCollectorTest {
     private final BGPStateCollector collector = new BGPStateCollector();
 
     @Test
-    public void getRibStatsTest() {
+    void getRibStatsTest() {
         assertEquals(List.of(), collector.getRibStats());
         assertEquals(List.of(), collector.getPeerStats());
 
@@ -50,7 +50,7 @@ public class BGPStateCollectorTest {
     }
 
     @Test
-    public void getRibStatsEmptyPeerTest() {
+    void getRibStatsEmptyPeerTest() {
         doReturn(null).when(bgpPeerStateProvider).getPeerState();
         try (Registration peerStateReg = collector.register(bgpPeerStateProvider)) {
             assertEquals(List.of(), collector.getPeerStats());
@@ -58,7 +58,7 @@ public class BGPStateCollectorTest {
     }
 
     @Test
-    public void getRibStatsEmptyRibTest() {
+    void getRibStatsEmptyRibTest() {
         // FIXME: this is weird, getRIBState() specifies @NonNull return
         doReturn(null).when(bgpribStateProvider).getRIBState();
         try (Registration ribStateReg = collector.register(bgpribStateProvider)) {

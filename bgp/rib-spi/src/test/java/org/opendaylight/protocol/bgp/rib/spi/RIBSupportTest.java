@@ -68,6 +68,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";

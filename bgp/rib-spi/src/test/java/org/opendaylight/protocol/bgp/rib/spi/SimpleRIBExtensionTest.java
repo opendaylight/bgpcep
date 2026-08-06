@@ -30,6 +30,7 @@ import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSe
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
     private AdapterContext adapter;
 

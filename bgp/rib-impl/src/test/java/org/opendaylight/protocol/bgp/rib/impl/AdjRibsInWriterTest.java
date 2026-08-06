@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -21,11 +21,11 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -50,8 +50,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class AdjRibsInWriterTest {
+@ExtendWith(MockitoExtension.class)
+class AdjRibsInWriterTest {
     private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private static final NodeIdentifierWithPredicates DOM_K4 = NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(
         RIBQNames.AFI_QNAME, Ipv4AddressFamily.QNAME, RIBQNames.SAFI_QNAME, UnicastSubsequentAddressFamily.QNAME));
@@ -75,8 +75,8 @@ public class AdjRibsInWriterTest {
 
     private AdjRibInWriter writer;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         doReturn(tx).when(chain).newWriteOnlyTransaction();
         doReturn(CommitInfo.emptyFluentFuture()).when(tx).commit();
         doNothing().when(tx).put(eq(LogicalDatastoreType.OPERATIONAL),
@@ -91,7 +91,7 @@ public class AdjRibsInWriterTest {
     }
 
     @Test
-    public void testTransform() {
+    void testTransform() {
         writer = AdjRibInWriter.create(YangInstanceIdentifier.of(RIB_NID), PeerRole.Ebgp, ptc);
         assertNotNull(writer);
         final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(RIB_NID)

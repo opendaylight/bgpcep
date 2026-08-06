@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.LinkstateSubsequentAddressFamily;
@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 
-public class SynchronizationTest {
+class SynchronizationTest {
 
     private final TablesKey ipv4
             = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
@@ -48,8 +48,8 @@ public class SynchronizationTest {
 
     private Update eorm;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         listener = new SimpleSessionListener();
         ipv4m = new UpdateBuilder()
                 .setNlri(List.of(new NlriBuilder().setPrefix(new Ipv4Prefix("1.1.1.1/32")).build()))
@@ -79,7 +79,7 @@ public class SynchronizationTest {
     }
 
     @Test
-    public void testSynchronize() {
+    void testSynchronize() {
         // simulate sync
         bs.updReceived(ipv6m);
         bs.updReceived(ipv4m);
@@ -95,7 +95,7 @@ public class SynchronizationTest {
     }
 
     @Test
-    public void testSynchronizeWithEOR() {
+    void testSynchronizeWithEOR() {
         bs.updReceived(ipv4m);
         bs.updReceived(lsm);
         // Ipv4 Unicast synchronized by EOR message
