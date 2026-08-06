@@ -7,7 +7,7 @@
  */
 package org.opendaylight.bgpcep.bgp.topology.provider;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -15,11 +15,11 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedGraph;
 import org.opendaylight.graph.ConnectedGraphProvider;
@@ -47,8 +47,8 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class LinkstateGraphBuilderTest {
+@ExtendWith(MockitoExtension.class)
+class LinkstateGraphBuilderTest {
     private static final TopologyId TOPOLOGY_ID = new TopologyId("test-topology");
 
     @Mock
@@ -64,17 +64,15 @@ public class LinkstateGraphBuilderTest {
 
     private LinkstateGraphBuilder graphBuilder;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         doReturn(connectedGraph).when(connectedGraphProvider)
             .createConnectedGraph(eq("ted://" + TOPOLOGY_ID.getValue()), eq(Graph.DomainScope.IntraDomain));
-        doReturn(connectedEdge).when(connectedGraph).addEdge(any(Edge.class));
-        doNothing().when(connectedGraph).addPrefix(any());
         graphBuilder = new LinkstateGraphBuilder(dataBroker, ribReference, TOPOLOGY_ID, connectedGraphProvider);
     }
 
     @Test
-    public void testIpv6ToKey() {
+    void testIpv6ToKey() {
         assertEquals(Uint64.valueOf(0x08090A0B0C0D0E0FL),
             LinkstateGraphBuilder.ipv6ToKey(new Ipv6InterfaceIdentifier("0001:0203:0405:0607:0809:0A0B:0C0D:0E0F")));
     }
@@ -83,7 +81,7 @@ public class LinkstateGraphBuilderTest {
      * Tests that edge without any prefix is NOT added to graph.
      */
     @Test
-    public void testCreateEdgeNoPrefix() {
+    void testCreateEdgeNoPrefix() {
         final var descriptorsBuilder = new LinkDescriptorsBuilder().setLinkLocalIdentifier(Uint32.valueOf(123));
         final var route = createLinkstateRoute(descriptorsBuilder.build());
         graphBuilder.createObject(null, null, route);
@@ -95,7 +93,9 @@ public class LinkstateGraphBuilderTest {
      * Tests that edge with an IPv4 prefix is added to graph.
      */
     @Test
-    public void testCreateEdgeIpv4Prefix() {
+    void testCreateEdgeIpv4Prefix() {
+        doReturn(connectedEdge).when(connectedGraph).addEdge(any(Edge.class));
+        doNothing().when(connectedGraph).addPrefix(any());
         final var descriptorsBuilder = new LinkDescriptorsBuilder()
             .setLinkLocalIdentifier(Uint32.valueOf(123))
             .setIpv4InterfaceAddress(new Ipv4InterfaceIdentifier("192.168.1.1"));
@@ -109,7 +109,9 @@ public class LinkstateGraphBuilderTest {
      * Tests that edge with an IPv6 prefix is added to graph.
      */
     @Test
-    public void testCreateEdgeIpv6Prefix() {
+    void testCreateEdgeIpv6Prefix() {
+        doReturn(connectedEdge).when(connectedGraph).addEdge(any(Edge.class));
+        doNothing().when(connectedGraph).addPrefix(any());
         final var descriptorsBuilder = new LinkDescriptorsBuilder()
             .setLinkLocalIdentifier(Uint32.valueOf(123))
             .setIpv6InterfaceAddress(new Ipv6InterfaceIdentifier("2001:db8::1"));
