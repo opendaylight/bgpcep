@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.subobject.XROAsNumberSubobjectParser;
 import org.opendaylight.protocol.pcep.parser.subobject.XROIpv4PrefixSubobjectParser;
@@ -45,7 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class PcepXROSubobjectParserTest {
+class PcepXROSubobjectParserTest {
 
     private static final byte[] IP4_PREFIX_BYTES = {
         (byte) 0x01, (byte) 0x08, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0x16, (byte) 0x00
@@ -73,7 +73,7 @@ public class PcepXROSubobjectParserTest {
     };
 
     @Test
-    public void testXROIp4PrefixSubobject() throws PCEPDeserializerException {
+    void testXROIp4PrefixSubobject() throws PCEPDeserializerException {
         final XROIpv4PrefixSubobjectParser parser = new XROIpv4PrefixSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setMandatory(false)
@@ -87,22 +87,17 @@ public class PcepXROSubobjectParserTest {
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(IP4_PREFIX_BYTES, ByteArray.getAllBytes(buff));
 
-        try {
-            parser.parseSubobject(null, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
-        try {
-            parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
+        final var nullEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(null, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", nullEx.getMessage());
+
+        final var emptyEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(Unpooled.EMPTY_BUFFER, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", emptyEx.getMessage());
     }
 
     @Test
-    public void testXROIp6PrefixSubobject() throws PCEPDeserializerException {
+    void testXROIp6PrefixSubobject() throws PCEPDeserializerException {
         final XROIpv6PrefixSubobjectParser parser = new XROIpv6PrefixSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setMandatory(true)
@@ -122,22 +117,17 @@ public class PcepXROSubobjectParserTest {
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(IP6_PREFIX_BYTES, ByteArray.getAllBytes(buff));
 
-        try {
-            parser.parseSubobject(null, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
-        }
-        try {
-            parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Can't be null or empty.", e.getMessage());
-        }
+        final var nullEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(null, true));
+        assertEquals("Array of bytes is mandatory. Can't be null or empty.", nullEx.getMessage());
+
+        final var emptyEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(Unpooled.EMPTY_BUFFER, true));
+        assertEquals("Array of bytes is mandatory. Can't be null or empty.", emptyEx.getMessage());
     }
 
     @Test
-    public void testXROSrlgSubobject() throws PCEPDeserializerException {
+    void testXROSrlgSubobject() throws PCEPDeserializerException {
         final XROSrlgSubobjectParser parser = new XROSrlgSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setMandatory(true)
@@ -151,22 +141,17 @@ public class PcepXROSubobjectParserTest {
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(SRLG_BYTES, ByteArray.getAllBytes(buff));
 
-        try {
-            parser.parseSubobject(null, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
-        try {
-            parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
+        final var nullEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(null, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", nullEx.getMessage());
+
+        final var emptyEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(Unpooled.EMPTY_BUFFER, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", emptyEx.getMessage());
     }
 
     @Test
-    public void testXROUnnumberedSubobject() throws PCEPDeserializerException {
+    void testXROUnnumberedSubobject() throws PCEPDeserializerException {
         final XROUnnumberedInterfaceSubobjectParser parser = new XROUnnumberedInterfaceSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setMandatory(true)
@@ -183,22 +168,17 @@ public class PcepXROSubobjectParserTest {
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(UNNUMBERED_BYTES, ByteArray.getAllBytes(buff));
 
-        try {
-            parser.parseSubobject(null, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
-        try {
-            parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
+        final var nullEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(null, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", nullEx.getMessage());
+
+        final var emptyEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(Unpooled.EMPTY_BUFFER, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", emptyEx.getMessage());
     }
 
     @Test
-    public void testXROAsNumberSubobject() throws PCEPDeserializerException {
+    void testXROAsNumberSubobject() throws PCEPDeserializerException {
         final XROAsNumberSubobjectParser parser = new XROAsNumberSubobjectParser();
         final SubobjectBuilder subs = new SubobjectBuilder()
                 .setMandatory(true)
@@ -211,22 +191,17 @@ public class PcepXROSubobjectParserTest {
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(AS_NUMBER_BYTES, ByteArray.getAllBytes(buff));
 
-        try {
-            parser.parseSubobject(null, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
-        try {
-            parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
+        final var nullEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(null, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", nullEx.getMessage());
+
+        final var emptyEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(Unpooled.EMPTY_BUFFER, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", emptyEx.getMessage());
     }
 
     @Test
-    public void testXROPathKey32Subobject() throws PCEPDeserializerException {
+    void testXROPathKey32Subobject() throws PCEPDeserializerException {
         final XROPathKey32SubobjectParser parser = new XROPathKey32SubobjectParser();
         final PathKeyBuilder pBuilder = new PathKeyBuilder()
                 .setPceId(new PceId(new byte[] { (byte) 0x12, (byte) 0x34, (byte) 0x50, (byte) 0x00 }))
@@ -240,22 +215,17 @@ public class PcepXROSubobjectParserTest {
         parser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(PATH_KEY32_BYTES, ByteArray.getAllBytes(buff));
 
-        try {
-            parser.parseSubobject(null, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
-        try {
-            parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
+        final var nullEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(null, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", nullEx.getMessage());
+
+        final var emptyEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(Unpooled.EMPTY_BUFFER, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", emptyEx.getMessage());
     }
 
     @Test
-    public void testXROPathKey128Subobject() throws PCEPDeserializerException {
+    void testXROPathKey128Subobject() throws PCEPDeserializerException {
         final XROPathKey128SubobjectParser parser = new XROPathKey128SubobjectParser();
         final PathKeyBuilder pBuilder = new PathKeyBuilder()
                 .setPceId(new PceId(new byte[] {
@@ -275,17 +245,12 @@ public class PcepXROSubobjectParserTest {
         XROPathKey128SubobjectParser.serializeSubobject(subs.build(), buff);
         assertArrayEquals(PATH_KEY128_BYTES, ByteArray.getAllBytes(buff));
 
-        try {
-            parser.parseSubobject(null, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
-        try {
-            parser.parseSubobject(Unpooled.EMPTY_BUFFER, true);
-            fail();
-        } catch (final IllegalArgumentException e) {
-            assertEquals("Array of bytes is mandatory. Cannot be null or empty.", e.getMessage());
-        }
+        final var nullEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(null, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", nullEx.getMessage());
+
+        final var emptyEx = assertThrows(IllegalArgumentException.class,
+            () -> parser.parseSubobject(Unpooled.EMPTY_BUFFER, true));
+        assertEquals("Array of bytes is mandatory. Cannot be null or empty.", emptyEx.getMessage());
     }
 }

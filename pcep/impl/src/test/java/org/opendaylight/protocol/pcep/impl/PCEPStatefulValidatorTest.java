@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -20,8 +20,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.parser.BaseParserExtensionActivator;
 import org.opendaylight.protocol.pcep.parser.message.PCEPErrorMessageParser;
@@ -110,7 +110,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class PCEPStatefulValidatorTest {
+class PCEPStatefulValidatorTest {
 
     private Lspa lspa;
     private Metrics metrics;
@@ -188,7 +188,7 @@ public class PCEPStatefulValidatorTest {
         (byte) 0x47, (byte) 0x74, (byte) 0x24, (byte) 0x00
     };
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ctx = new SimplePCEPExtensionProviderContext();
         act = new BaseParserExtensionActivator();
@@ -319,7 +319,7 @@ public class PCEPStatefulValidatorTest {
     }
 
     @Test
-    public void testOpenMsg() throws IOException, PCEPDeserializerException {
+    void testOpenMsg() throws IOException, PCEPDeserializerException {
 
         final ByteBuf result = Unpooled.wrappedBuffer(
             Files.readAllBytes(Path.of("src/test/resources/PCEPOpenMessage2.bin")));
@@ -352,7 +352,7 @@ public class PCEPStatefulValidatorTest {
     }
 
     @Test
-    public void testReqMesgWithLSP() throws IOException, PCEPDeserializerException {
+    void testReqMesgWithLSP() throws IOException, PCEPDeserializerException {
         // Test PcRequest message with an LSP Object as per RFC8231
 
         final Rp rp = new RpBuilder()
@@ -435,7 +435,7 @@ public class PCEPStatefulValidatorTest {
     }
 
     @Test
-    public void testUpdMsg() throws IOException, PCEPDeserializerException {
+    void testUpdMsg() throws IOException, PCEPDeserializerException {
         final PCEPUpdateMessageParser parser = new PCEPUpdateMessageParser(
             ctx.getObjectHandlerRegistry());
 
@@ -470,7 +470,7 @@ public class PCEPStatefulValidatorTest {
     }
 
     @Test
-    public void testRptMsg() throws IOException, PCEPDeserializerException {
+    void testRptMsg() throws IOException, PCEPDeserializerException {
         ByteBuf result = Unpooled.wrappedBuffer(PCRT1);
 
         final PCEPReportMessageParser parser = new PCEPReportMessageParser(
@@ -566,7 +566,7 @@ public class PCEPStatefulValidatorTest {
     }
 
     @Test
-    public void testPcinitMsg() throws IOException, PCEPDeserializerException {
+    void testPcinitMsg() throws IOException, PCEPDeserializerException {
         final ByteBuf result = Unpooled.wrappedBuffer(Files.readAllBytes(Path.of("src/test/resources/Pcinit.bin")));
 
         final PCEPInitiateMessageParser parser = new PCEPInitiateMessageParser(
@@ -590,7 +590,7 @@ public class PCEPStatefulValidatorTest {
     }
 
     @Test
-    public void testErrorMsg() throws IOException, PCEPDeserializerException {
+    void testErrorMsg() throws IOException, PCEPDeserializerException {
         final PCEPErrorMessageParser parser = new PCEPErrorMessageParser(ctx.getObjectHandlerRegistry());
 
         ErrorObject error1 = new ErrorObjectBuilder().setIgnore(false).setProcessingRule(false)
@@ -694,7 +694,7 @@ public class PCEPStatefulValidatorTest {
     }
 
     @Test
-    public void testMissingLspObjectErrorInPcRptMsg() throws PCEPDeserializerException {
+    void testMissingLspObjectErrorInPcRptMsg() throws PCEPDeserializerException {
         final byte[] statefulMsg = {
             (byte) 0x20, (byte) 0x0B, (byte) 0x00, (byte) 0x1C,
             /* srp-object */
@@ -729,7 +729,7 @@ public class PCEPStatefulValidatorTest {
     }
 
     @Test
-    public void testUnexpectedRroObjectInPcUpdMsg() throws PCEPDeserializerException {
+    void testUnexpectedRroObjectInPcUpdMsg() throws PCEPDeserializerException {
         final byte[] badUpdateMsg = {
             (byte) 0x20, (byte) 0x0b, (byte) 0x00, (byte) 0x50,
             /* SRP, LSP and ERO objects */
