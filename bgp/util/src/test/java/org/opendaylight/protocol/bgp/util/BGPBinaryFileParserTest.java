@@ -9,15 +9,15 @@ package org.opendaylight.protocol.bgp.util;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class BGPBinaryFileParserTest {
+class BGPBinaryFileParserTest {
 
     private static final byte FF = (byte) 255;
 
@@ -38,7 +38,7 @@ public class BGPBinaryFileParserTest {
     }
 
     @Test
-    public void testCorrectExtraction() throws IOException {
+    void testCorrectExtraction() throws IOException {
         final List<byte[]> parsedMessages = extractFromFile("/BgpMessages.bin");
 
         assertThat(parsedMessages.size(), is(43));
@@ -70,7 +70,7 @@ public class BGPBinaryFileParserTest {
      * In BgpMessages_wrong_header file, first FF sequence is corrupted.
      */
     @Test
-    public void testCorruptedHeader() throws IOException {
+    void testCorruptedHeader() throws IOException {
         final List<byte[]> parsedMessages = extractFromFile("/BgpMessages_wrong_header.bin");
         assertEquals(42, parsedMessages.size());
     }
