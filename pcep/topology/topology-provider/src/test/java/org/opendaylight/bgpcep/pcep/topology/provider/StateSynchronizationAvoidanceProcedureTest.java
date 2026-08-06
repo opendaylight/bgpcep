@@ -40,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class StateSynchronizationAvoidanceProcedureTest extends AbstractPCEPSessionTest {
 
     private PCEPTopologySessionListener listener;
