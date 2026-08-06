@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.Statement;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AbstractStatementRegistryConsumerTest extends AbstractStatementRegistryTest {
     protected final StatementRegistry statementRegistry  = new StatementRegistry();
 

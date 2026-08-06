@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.moni
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.model.api.stmt.SchemaNodeIdentifier.Absolute;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class BmpMonitorConfigFileProcessorTest extends AbstractConfigLoaderTest {
     private static final DataObjectIdentifier<OdlBmpMonitors> ODL_BMP_MONITORS_IID =
         DataObjectIdentifier.builder(OdlBmpMonitors.class).build();
