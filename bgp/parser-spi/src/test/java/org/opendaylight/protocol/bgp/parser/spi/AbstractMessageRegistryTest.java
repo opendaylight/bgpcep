@@ -10,13 +10,13 @@ package org.opendaylight.protocol.bgp.parser.spi;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.DefaultBGPExtensionConsumerContext;
@@ -25,7 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.KeepaliveBuilder;
 import org.opendaylight.yangtools.binding.Notification;
 
-public class AbstractMessageRegistryTest {
+class AbstractMessageRegistryTest {
 
     public static final byte[] KEEPALIVE_BMSG = new byte[] {
         (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -47,7 +47,7 @@ public class AbstractMessageRegistryTest {
     };
 
     @Test
-    public void testRegistry() throws BGPDocumentedException, BGPParsingException {
+    void testRegistry() throws BGPDocumentedException, BGPParsingException {
         final Notification<?> keepAlive = new KeepaliveBuilder().build();
         final ByteBuf buffer = Unpooled.buffer();
         registry.serializeMessage(keepAlive, buffer);
@@ -58,7 +58,7 @@ public class AbstractMessageRegistryTest {
     }
 
     @Test
-    public void testIncompleteMarker() {
+    void testIncompleteMarker() {
         final byte[] testBytes = new byte[] {
             (byte) 0x00, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -71,7 +71,7 @@ public class AbstractMessageRegistryTest {
     }
 
     @Test
-    public void testInvalidLength() {
+    void testInvalidLength() {
         final byte[] testBytes = new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -83,7 +83,7 @@ public class AbstractMessageRegistryTest {
     }
 
     @Test
-    public void testInvalidSpecifiedSize() {
+    void testInvalidSpecifiedSize() {
         final byte[] testBytes = new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
@@ -95,7 +95,7 @@ public class AbstractMessageRegistryTest {
     }
 
     @Test
-    public void testBGPHeaderParser() {
+    void testBGPHeaderParser() {
         final MessageRegistry msgReg = new DefaultBGPExtensionConsumerContext().getMessageRegistry();
         final IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
             () -> msgReg.parseMessage(Unpooled.copiedBuffer(new byte[] { (byte) 0, (byte) 0 }), null));
@@ -103,7 +103,7 @@ public class AbstractMessageRegistryTest {
     }
 
     @Test
-    public void testMessageParser() {
+    void testMessageParser() {
         final MessageRegistry msgReg = new DefaultBGPExtensionConsumerContext().getMessageRegistry();
         final NullPointerException ex = assertThrows(NullPointerException.class,
             () -> msgReg.serializeMessage(null, Unpooled.EMPTY_BUFFER));

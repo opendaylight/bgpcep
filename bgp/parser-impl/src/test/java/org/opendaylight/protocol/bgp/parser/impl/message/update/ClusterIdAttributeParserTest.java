@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -23,20 +23,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ClusterIdBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 
-public class ClusterIdAttributeParserTest {
+class ClusterIdAttributeParserTest {
     private static final byte[] CLUSTER_ID_BYTES = {
         (byte) 0x80, (byte) 0x0A, (byte) 0x08,
         (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x1, (byte) 0xC0, (byte) 0xA8, (byte) 0x1, (byte) 0x2
     };
     ClusterIdAttributeParser parser;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         this.parser = new ClusterIdAttributeParser();
     }
 
     @Test
-    public void testParserAttribute() throws Exception {
+    void testParserAttribute() throws Exception {
         final List<ClusterIdentifier> list = new ArrayList<>();
         final Ipv4AddressNoZone ip1 = new Ipv4AddressNoZone("192.168.1.1");
         final Ipv4AddressNoZone ip2 = new Ipv4AddressNoZone("192.168.1.2");
@@ -58,7 +58,7 @@ public class ClusterIdAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyListAttribute() {
+    void testParseEmptyListAttribute() {
         final List<ClusterIdentifier> list = new ArrayList<>();
         final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().setCluster(list)
             .build()).build();
@@ -68,7 +68,7 @@ public class ClusterIdAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyAttribute() {
+    void testParseEmptyAttribute() {
         final Attributes clusterId = new AttributesBuilder().setClusterId(new ClusterIdBuilder().build()).build();
         final ByteBuf output = Unpooled.buffer();
         this.parser.serializeAttribute(clusterId, output);

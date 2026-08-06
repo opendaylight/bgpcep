@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.Map;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.impl.message.open.GracefulCapabilityHandler;
@@ -32,12 +33,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
-public class GracefulCapabilityHandlerTest {
+class GracefulCapabilityHandlerTest {
     private final BGPExtensionConsumerContext ctx = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
         .orElseThrow();
 
     @Test
-    public void testGracefulCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
+    void testGracefulCapabilityHandler() throws BGPDocumentedException, BGPParsingException {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(
             ctx.getAddressFamilyRegistry(),ctx.getSubsequentAddressFamilyRegistry());
 
@@ -131,8 +132,8 @@ public class GracefulCapabilityHandlerTest {
             .build(), handler.parseCapability(Unpooled.wrappedBuffer(capaBytes5).slice(2, capaBytes5.length - 2)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUnhandledAfi() {
+    @Test
+    void testUnhandledAfi() {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(ctx.getAddressFamilyRegistry(),
             ctx.getSubsequentAddressFamilyRegistry());
 
@@ -146,13 +147,14 @@ public class GracefulCapabilityHandlerTest {
             .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability(new CParametersBuilder()
-            .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
-            .build(), buffer);
+        final CParametersBuilder cParametersBuilder = new CParametersBuilder()
+            .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build());
+        assertThrows(IllegalArgumentException.class,
+            () -> handler.serializeCapability(cParametersBuilder.build(), buffer));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testUnhandledSafi() {
+    @Test
+    void testUnhandledSafi() {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(ctx.getAddressFamilyRegistry(),
             ctx.getSubsequentAddressFamilyRegistry());
 
@@ -166,50 +168,55 @@ public class GracefulCapabilityHandlerTest {
             .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability(new CParametersBuilder()
-            .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
-            .build(), buffer);
+        final CParametersBuilder cParametersBuilder = new CParametersBuilder()
+            .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build());
+        assertThrows(IllegalArgumentException.class,
+            () -> handler.serializeCapability(cParametersBuilder.build(), buffer));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testRestartTimeMinValue() {
+    @Test
+    void testRestartTimeMinValue() {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(ctx.getAddressFamilyRegistry(),
             ctx.getSubsequentAddressFamilyRegistry());
 
-        final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
-                .setRestartFlags(new RestartFlags(true))
-                // FIXME: this is throwing IAE, why is the rest of the test even here?
-                .setRestartTime(Uint16.MAX_VALUE)
-                .setTables(BindingMap.of(new TablesBuilder()
-                    .setAfiFlags(new AfiFlags(true))
-                    .setAfi(Ipv4AddressFamily.VALUE)
-                    .setSafi(UnicastSubsequentAddressFamily.VALUE)
-                    .build()));
+        // FIXME: this is throwing IAE on setRestartTime, why is the rest of the test even here?
+        assertThrows(IllegalArgumentException.class, () -> {
+            final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
+                    .setRestartFlags(new RestartFlags(true))
+                    .setRestartTime(Uint16.MAX_VALUE)
+                    .setTables(BindingMap.of(new TablesBuilder()
+                        .setAfiFlags(new AfiFlags(true))
+                        .setAfi(Ipv4AddressFamily.VALUE)
+                        .setSafi(UnicastSubsequentAddressFamily.VALUE)
+                        .build()));
 
-        final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability(new CParametersBuilder()
-            .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
-            .build(), buffer);
+            final ByteBuf buffer = Unpooled.buffer();
+            handler.serializeCapability(new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
+                .build(), buffer);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testRestartTimeMaxValue() {
+    @Test
+    void testRestartTimeMaxValue() {
         final GracefulCapabilityHandler handler = new GracefulCapabilityHandler(ctx.getAddressFamilyRegistry(),
             ctx.getSubsequentAddressFamilyRegistry());
 
-        final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
-                .setRestartFlags(new RestartFlags(true))
-                .setRestartTime(Uint16.valueOf(50000));
+        assertThrows(IllegalArgumentException.class, () -> {
+            final GracefulRestartCapabilityBuilder capaBuilder = new GracefulRestartCapabilityBuilder()
+                    .setRestartFlags(new RestartFlags(true))
+                    .setRestartTime(Uint16.valueOf(50000));
 
-        capaBuilder.setTables(BindingMap.of(new TablesBuilder()
-            .setAfiFlags(new AfiFlags(true))
-            .setAfi(Ipv4AddressFamily.VALUE)
-            .setSafi(UnicastSubsequentAddressFamily.VALUE)
-            .build()));
+            capaBuilder.setTables(BindingMap.of(new TablesBuilder()
+                .setAfiFlags(new AfiFlags(true))
+                .setAfi(Ipv4AddressFamily.VALUE)
+                .setSafi(UnicastSubsequentAddressFamily.VALUE)
+                .build()));
 
-        final ByteBuf buffer = Unpooled.buffer();
-        handler.serializeCapability(new CParametersBuilder()
-            .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
-            .build(), buffer);
+            final ByteBuf buffer = Unpooled.buffer();
+            handler.serializeCapability(new CParametersBuilder()
+                .addAugmentation(new CParameters1Builder().setGracefulRestartCapability(capaBuilder.build()).build())
+                .build(), buffer);
+        });
     }
 }

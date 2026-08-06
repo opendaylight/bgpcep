@@ -7,21 +7,21 @@
  */
 package org.opendaylight.protocol.bgp.parser;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.fail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 
-public class TableTypeTest {
+class TableTypeTest {
 
     @Test
-    public void testTableTypes() {
+    void testTableTypes() {
         final BgpTableType tt1 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
                 MplsLabeledVpnSubsequentAddressFamily.VALUE);
         final BgpTableType tt2 = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,

@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl.message.update;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ServiceLoader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
@@ -29,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 
-public class NextHopAttributeParserTest {
+class NextHopAttributeParserTest {
 
     private static final byte[] IPV4_NEXT_HOP_BYTES = {
         (byte) 0x40, (byte) 0x03, (byte) 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
@@ -56,7 +56,7 @@ public class NextHopAttributeParserTest {
         .findFirst().orElseThrow().getAttributeRegistry();
 
     @Test
-    public void testIpv4AttributeParser() throws BGPParsingException, BGPDocumentedException {
+    void testIpv4AttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
         registry.serializeAttribute(IPV4_RESULT, actual);
         assertArrayEquals(IPV4_NEXT_HOP_BYTES, ByteArray.getAllBytes(actual));
@@ -66,7 +66,7 @@ public class NextHopAttributeParserTest {
     }
 
     @Test
-    public void testIpv6AttributeParser() throws BGPParsingException, BGPDocumentedException {
+    void testIpv6AttributeParser() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf actual = Unpooled.buffer();
         registry.serializeAttribute(IPV6_RESULT, actual);
         assertArrayEquals(IPV6_NEXT_HOP_BYTES, ByteArray.getAllBytes(actual));
@@ -76,7 +76,7 @@ public class NextHopAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyIpv4Attribute() {
+    void testParseEmptyIpv4Attribute() {
         final String message = assertThrows(NullPointerException.class,
             () -> registry.serializeAttribute(new AttributesBuilder()
                 .setCNextHop(new Ipv4NextHopCaseBuilder().build())
@@ -90,7 +90,7 @@ public class NextHopAttributeParserTest {
     }
 
     @Test
-    public void testParseEmptyIpv6Attribute() {
+    void testParseEmptyIpv6Attribute() {
         final String message = assertThrows(NullPointerException.class,
             () -> registry.serializeAttribute(new AttributesBuilder()
                 .setCNextHop(new Ipv6NextHopCaseBuilder().build())
