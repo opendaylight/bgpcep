@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.inet.codec;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.RevisedErrorHandlingSupport;
@@ -65,7 +65,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class BGPParserTest {
+class BGPParserTest {
 
     private static final int MAX_SIZE = 300;
 
@@ -75,8 +75,8 @@ public class BGPParserTest {
 
     private static int MESSAGE_COUNT = 2;
 
-    @BeforeClass
-    public static void setUp() throws Exception {
+    @BeforeAll
+    static void setUp() throws Exception {
         messageRegistry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow()
             .getMessageRegistry();
         input = new ArrayList<>(MESSAGE_COUNT);
@@ -153,7 +153,7 @@ public class BGPParserTest {
      *
      */
     @Test
-    public void testIPv6Nlri() throws Exception {
+    void testIPv6Nlri() throws Exception {
         final Update message = (Update) messageRegistry.parseMessage(Unpooled.wrappedBuffer(input.get(1)), null);
 
         // check fields
@@ -260,7 +260,7 @@ public class BGPParserTest {
      * 0a 00 02 <- prefix (10.0.2.0)
      */
     @Test
-    public void testParseUpdateMessageWithMalformedAttributes() throws Exception {
+    void testParseUpdateMessageWithMalformedAttributes() throws Exception {
         final PeerSpecificParserConstraintImpl constraint = new PeerSpecificParserConstraintImpl();
         constraint.addPeerConstraint(RevisedErrorHandlingSupport.class,
                 RevisedErrorHandlingSupportImpl.forExternalPeer());
