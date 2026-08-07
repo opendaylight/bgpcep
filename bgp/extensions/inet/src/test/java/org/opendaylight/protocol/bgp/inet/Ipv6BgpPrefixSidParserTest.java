@@ -7,30 +7,32 @@
  */
 package org.opendaylight.protocol.bgp.inet;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.inet.codec.Ipv6BgpPrefixSidParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.bgp.prefix.sid.tlv.Ipv6SidTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
 
-public final class Ipv6BgpPrefixSidParserTest {
+final class Ipv6BgpPrefixSidParserTest {
 
     private final Ipv6BgpPrefixSidParser handler = new Ipv6BgpPrefixSidParser();
 
     private final byte[] expected = new byte[]{0, (byte) 0x80, 0};
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongTlvType() {
-        this.handler.serializeBgpPrefixSidTlv(() -> BgpPrefixSidTlv.class, Unpooled.EMPTY_BUFFER);
+    @Test
+    void testWrongTlvType() {
+        assertThrows(IllegalArgumentException.class,
+            () -> handler.serializeBgpPrefixSidTlv(() -> BgpPrefixSidTlv.class, Unpooled.EMPTY_BUFFER));
     }
 
     @Test
-    public void testHandling() {
+    void testHandling() {
         final Ipv6SidTlvBuilder tlv = new Ipv6SidTlvBuilder();
         tlv.setProcessIpv6HeadAbility(Boolean.TRUE);
         final ByteBuf serialized = Unpooled.buffer(3);
@@ -40,7 +42,7 @@ public final class Ipv6BgpPrefixSidParserTest {
     }
 
     @Test
-    public void testType() {
+    void testType() {
         assertEquals(2, this.handler.getType());
     }
 }
