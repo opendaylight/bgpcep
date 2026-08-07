@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.NlriType;
@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public final class InterASIPmsiADHandlerTest {
+final class InterASIPmsiADHandlerTest {
 
     private static final byte[] INTER_AS = new byte[]{
         0, 1,
@@ -46,22 +46,22 @@ public final class InterASIPmsiADHandlerTest {
 
 
     @Test
-    public void testInterASIPmsiADParser() {
+    void testInterASIPmsiADParser() {
         assertEquals(this.expected, this.handler.parseMvpn(Unpooled.copiedBuffer(INTER_AS)));
     }
 
     @Test
-    public void testInterASIPmsiADSerializer() {
+    void testInterASIPmsiADSerializer() {
         assertArrayEquals(INTER_AS_TYPE_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected)));
     }
 
     @Test
-    public void testGetType() {
+    void testGetType() {
         assertEquals(NlriType.InterAsIPmsiAD, this.handler.getType());
     }
 
     @Test
-    public void testGetClazz() {
+    void testGetClazz() {
         assertEquals(InterAsIPmsiADCase.class, this.handler.getClazz());
     }
 }

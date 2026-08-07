@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 
-public final class SPmsiADHandlerTest {
+final class SPmsiADHandlerTest {
     private static final byte[] SP_MSI_AD = new byte[]{
         0, 1, 1, 2, 3, 4, 1, 2,
         32, 10, 0, 0, 10,
@@ -49,22 +49,22 @@ public final class SPmsiADHandlerTest {
     private final SPmsiADHandler handler = new SPmsiADHandler();
 
     @Test
-    public void testIntraASIPmsiADParser() {
+    void testIntraASIPmsiADParser() {
         assertEquals(this.expected, this.handler.parseMvpn(Unpooled.copiedBuffer(SP_MSI_AD)));
     }
 
     @Test
-    public void testIntraASIPmsiADSerializer() {
+    void testIntraASIPmsiADSerializer() {
         assertArrayEquals(SP_MSI_AD_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected)));
     }
 
     @Test
-    public void testGetType() {
+    void testGetType() {
         assertEquals(NlriType.SPmsiAD, this.handler.getType());
     }
 
     @Test
-    public void testGetClazz() {
+    void testGetClazz() {
         assertEquals(SPmsiADCase.class, this.handler.getClazz());
     }
 }

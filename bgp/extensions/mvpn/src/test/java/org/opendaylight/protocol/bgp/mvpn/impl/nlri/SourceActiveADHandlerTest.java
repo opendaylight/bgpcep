@@ -8,11 +8,11 @@
 
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RdIpv4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 
-public final class SourceActiveADHandlerTest {
+final class SourceActiveADHandlerTest {
     private static final byte[] SOURCE_ACTIVE = new byte[]{
         0, 1, 1, 2, 3, 4, 1, 2,
         32, 1, 0, 0, 1,
@@ -46,22 +46,22 @@ public final class SourceActiveADHandlerTest {
     private final SourceActiveADHandler handler = new SourceActiveADHandler();
 
     @Test
-    public void testParser() {
+    void testParser() {
         assertEquals(this.expected, this.handler.parseMvpn(Unpooled.copiedBuffer(SOURCE_ACTIVE)));
     }
 
     @Test
-    public void testSerializer() {
+    void testSerializer() {
         assertArrayEquals(SOURCE_ACTIVE_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected)));
     }
 
     @Test
-    public void testGetType() {
+    void testGetType() {
         assertEquals(NlriType.SourceActiveAD, this.handler.getType());
     }
 
     @Test
-    public void testGetClazz() {
+    void testGetClazz() {
         assertEquals(SourceActiveADCase.class, this.handler.getClazz());
     }
 }

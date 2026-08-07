@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tunnel.rev200120.PAddressPMulticastGroup;
 
-public final class PAddressPMulticastGroupUtilTest {
+final class PAddressPMulticastGroupUtilTest {
     private static final String IPV6_MODEL = "2001::1";
     private static final IpAddressNoZone IPV6 = new IpAddressNoZone(new Ipv6AddressNoZone(IPV6_MODEL));
     private static final byte[] IPV4_ADDRESS_EXPECTED = {(byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01};
@@ -36,7 +36,7 @@ public final class PAddressPMulticastGroupUtilTest {
     private static final IpAddressNoZone P_MULTICAST = new IpAddressNoZone(new Ipv4AddressNoZone("23.1.1.1"));
 
     @Test
-    public void parseIpAddress() {
+    void parseIpAddress() {
         final ByteBuf ipv4Actual = Unpooled.buffer();
         PAddressPMulticastGroupUtil.serializeIpAddress(IP_ADDRESS, ipv4Actual);
         assertArrayEquals(IPV4_ADDRESS_EXPECTED, ByteArray.readAllBytes(ipv4Actual));
@@ -52,7 +52,7 @@ public final class PAddressPMulticastGroupUtilTest {
     }
 
     @Test
-    public void parseIpAddressPMulticastGroup() {
+    void parseIpAddressPMulticastGroup() {
         final PAddressPMulticastGroup pAddressPMulticastGroup = new MyPAddressPMulticastGroup();
         final ByteBuf pAddressPMulticastGroupActual = Unpooled.buffer();
         PAddressPMulticastGroupUtil.serializeSenderPMulticastGroup(pAddressPMulticastGroup,
