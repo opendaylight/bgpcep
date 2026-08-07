@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -40,7 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class VpnIpv6NlriParserTest {
+class VpnIpv6NlriParserTest {
 
     private static final VpnIpv6NlriParser PARSER = new VpnIpv6NlriParser();
 
@@ -102,7 +102,7 @@ public class VpnIpv6NlriParserTest {
             .setRouteDistinguisher(DISTINGUISHER).setPrefix(IPV6PREFIX).build();
 
     @Test
-    public void testMpReachNlri() throws BGPParsingException {
+    void testMpReachNlri() throws BGPParsingException {
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
             .setAfi(Ipv6AddressFamily.VALUE)
             .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE)
@@ -132,7 +132,7 @@ public class VpnIpv6NlriParserTest {
     }
 
     @Test
-    public void testMpUnreachNlri() throws BGPParsingException {
+    void testMpUnreachNlri() throws BGPParsingException {
         final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
             .setAfi(Ipv6AddressFamily.VALUE)
             .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE)
@@ -172,7 +172,7 @@ public class VpnIpv6NlriParserTest {
     }
 
     @Test
-    public void testMpReachNlriDefaultRoute() {
+    void testMpReachNlriDefaultRoute() {
         final var ipv6VpnDefault = new VpnDestinationBuilder()
             .setRouteDistinguisher(DISTINGUISHER)
             .setPrefix(new IpPrefix(new Ipv6Prefix("::/0")))
