@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b10259d_7867d0a6",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-07T07:19:46Z",
+      "side": 1,
+      "message": "Pulling the encoder from the pipeline causes a weird coupling - meaning whoever want\u0027s to construct BGPSessionImpl has to supply a channel WITH this specific handler. And how would the caller know that? Also it creates the consequence where every test caller needs to do the ServiceLoader dance. Rethink this approach. Maybe a better way of handling it would be to pass the Encoder directly as an argument.",
+      "revId": "66724b23c36781a148ed887ca713031204c10013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1f620f18_cd487d62",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-07T07:19:46Z",
+      "side": 1,
+      "message": "Before this patch this path was basically dead. But after this patch the channel sits at-or-above the high water mark for significant time during bulk advertisement. ChannelOutputLimiter is supposed to gate that behaviour, but there are 3 other callers reaching this method without going through the Limiter. Thus they don\u0027t wait for the channel to drain first. Reinvestigate please and make sure it\u0027s safe.",
+      "revId": "66724b23c36781a148ed887ca713031204c10013",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
