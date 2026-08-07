@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L2VPNEVPN;
@@ -17,12 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.L2vpnAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 
-public class TableTypeActivatorTest {
+class TableTypeActivatorTest {
     private static final BgpTableType EVPN = new BgpTableTypeImpl(
             L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE);
 
     @Test
-    public void testActivator() {
+    void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
         assertEquals(L2VPNEVPN.VALUE, registry.getAfiSafiType(EVPN));
         assertEquals(EVPN, registry.getTableType(L2VPNEVPN.VALUE));

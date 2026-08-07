@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MPLS_LABEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MPLS_LABEL_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VLAN;
@@ -21,7 +22,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.SimpleEvpnNlriRegistr
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.ethernet.a.d.route.EthernetADRouteBuilder;
@@ -62,7 +63,7 @@ public class EthADRParserTest {
     private final EthADRParser parser = new EthADRParser();
 
     @Test
-    public void parserTest() {
+    void parserTest() {
         final ByteBuf buff = parser.serializeEvpn(ETHERNET_AD_ROUTE_CASE, Unpooled.wrappedBuffer(ROUDE_DISTIN));
         assertArrayEquals(RESULT, ByteArray.getAllBytes(buff));
 
@@ -89,13 +90,15 @@ public class EthADRParserTest {
             .addChild(createValue(MPLS_LABEL_MODEL, MPLS_NID)).build();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongCaseTest() {
-        parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
+    @Test
+    void wrongCaseTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeEvpn(new EsRouteCaseBuilder().build(), null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongSizeTest() {
-        parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE));
+    @Test
+    void wrongSizeTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE)));
     }
 }

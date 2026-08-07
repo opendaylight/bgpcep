@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.AS_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.AS_NUMBER;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.LD;
@@ -20,8 +21,8 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.LD_
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.esi.esi.ArbitraryCaseBuilder;
@@ -32,20 +33,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
-public final class ASGenParserTest {
+final class ASGenParserTest {
     private static final byte[] VALUE = {(byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x02,
         (byte) 0x02, (byte) 0x02, (byte) 0x00};
     private static final byte[] RESULT = {(byte) 0x05, (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x01, (byte) 0x02,
         (byte) 0x02, (byte) 0x02, (byte) 0x02, (byte) 0x00};
     private ASGenParser parser;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         parser = new ASGenParser();
     }
 
     @Test
-    public void parserTest() {
+    void parserTest() {
         final ByteBuf buff = Unpooled.buffer(VALUE_SIZE);
 
         final AsGeneratedCase asGen = new AsGeneratedCaseBuilder().setAsGenerated(new AsGeneratedBuilder()
@@ -63,8 +64,9 @@ public final class ASGenParserTest {
         assertEquals(asGen, acmResult);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongCaseTest() {
-        parser.serializeEsi(new ArbitraryCaseBuilder().build(), null);
+    @Test
+    void wrongCaseTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeEsi(new ArbitraryCaseBuilder().build(), null));
     }
 }

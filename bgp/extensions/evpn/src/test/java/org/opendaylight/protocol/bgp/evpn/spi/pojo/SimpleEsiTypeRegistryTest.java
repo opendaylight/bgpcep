@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.evpn.spi.pojo;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.RouterIdParserTest.ROUTE_ID_CASE;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.RouterIdParserTest;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.SimpleEsiTypeRegistry;
 import org.opendaylight.protocol.util.ByteArray;
@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
-public class SimpleEsiTypeRegistryTest {
+class SimpleEsiTypeRegistryTest {
     private static final class NotRegistered implements Esi {
         @Override
         public Class<NotRegistered> implementedInterface() {
@@ -35,7 +35,7 @@ public class SimpleEsiTypeRegistryTest {
     private static final int ESI_TYPE_LENGTH = 10;
 
     @Test
-    public void registryTest() {
+    void registryTest() {
         final ByteBuf buff = Unpooled.buffer(ESI_TYPE_LENGTH);
 
         final SimpleEsiTypeRegistry reg = SimpleEsiTypeRegistry.getInstance();
@@ -46,19 +46,19 @@ public class SimpleEsiTypeRegistryTest {
     }
 
     @Test
-    public void registryParseTest() {
+    void registryParseTest() {
         assertThrows(IllegalArgumentException.class, () -> SimpleEsiTypeRegistry.getInstance().parseEsi(null));
     }
 
     @Test
-    public void registryNullTest() {
+    void registryNullTest() {
         final ByteBuf body = Unpooled.buffer();
         SimpleEsiTypeRegistry.getInstance().serializeEsi(new NotRegistered(), body);
         assertEquals(0, body.readableBytes());
     }
 
     @Test
-    public void registryNullModelTest() {
+    void registryNullModelTest() {
         assertThrows(IllegalArgumentException.class,
             () -> SimpleEsiTypeRegistry.getInstance().parseEsiModel(ImmutableNodes.newChoiceBuilder()
                 .withNodeIdentifier(new NodeIdentifier(QName.create(EvpnRoute.QNAME, "no-register")))
@@ -66,7 +66,7 @@ public class SimpleEsiTypeRegistryTest {
     }
 
     @Test
-    public void registryEmptyModelTest() {
+    void registryEmptyModelTest() {
         assertThrows(IllegalArgumentException.class, () -> SimpleEsiTypeRegistry.getInstance().parseEsiModel(null));
     }
 }
