@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "170b339d_5610aa20",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ChannelOutputLimiter.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-07T06:39:14Z",
+      "side": 1,
+      "message": "Unbounded wait? Is it safe for sure? Consider scenario where BGPSessionImpl adds the limiter to the pipeline right after the channel died (channelInactive has already fired). If any thread then calls limiter.write(update), will it not just park here forever?",
+      "revId": "73e8dbb2ce4e66c98422240d483e93b5031203ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
