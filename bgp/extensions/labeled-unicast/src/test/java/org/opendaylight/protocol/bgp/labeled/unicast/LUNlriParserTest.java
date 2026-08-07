@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 
@@ -16,11 +16,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
@@ -52,8 +51,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class LUNlriParserTest {
+@ExtendWith(MockitoExtension.class)
+class LUNlriParserTest {
 
     /*
      * label stacks with multiple labels.
@@ -227,14 +226,13 @@ public class LUNlriParserTest {
     @Mock
     private MultiPathSupport muliPathSupport;
 
-    @Before
-    public void setUp() {
+    private void mockMultiPathSupport() {
         doReturn(Optional.of(muliPathSupport)).when(constraint).getPeerConstraint(any());
         doReturn(true).when(muliPathSupport).isTableTypeSupported(any());
     }
 
     @Test
-    public void testMpReachNlriIpv4() throws BGPParsingException {
+    void testMpReachNlriIpv4() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
             .setAfi(Ipv4AddressFamily.VALUE)
@@ -263,7 +261,8 @@ public class LUNlriParserTest {
     }
 
     @Test
-    public void testMpReachNlriIpv4Constraint() throws BGPParsingException {
+    void testMpReachNlriIpv4Constraint() throws BGPParsingException {
+        mockMultiPathSupport();
         final LUNlriParser parser = new LUNlriParser();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
             .setAfi(Ipv4AddressFamily.VALUE)
@@ -292,7 +291,7 @@ public class LUNlriParserTest {
     }
 
     @Test
-    public void testMpUnreachNlriIpv4() throws BGPParsingException {
+    void testMpUnreachNlriIpv4() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
         final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
             .setAfi(Ipv4AddressFamily.VALUE)
@@ -343,7 +342,8 @@ public class LUNlriParserTest {
     }
 
     @Test
-    public void testMpUnreachNlriIpv4Constraint() throws BGPParsingException {
+    void testMpUnreachNlriIpv4Constraint() throws BGPParsingException {
+        mockMultiPathSupport();
         final LUNlriParser parser = new LUNlriParser();
         final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
             .setAfi(Ipv4AddressFamily.VALUE)
@@ -395,7 +395,7 @@ public class LUNlriParserTest {
     }
 
     @Test
-    public void testMpReachNlriIpv6() throws BGPParsingException {
+    void testMpReachNlriIpv6() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
             .setAfi(Ipv6AddressFamily.VALUE)
@@ -425,7 +425,8 @@ public class LUNlriParserTest {
     }
 
     @Test
-    public void testMpReachNlriIpv6Constraint() throws BGPParsingException {
+    void testMpReachNlriIpv6Constraint() throws BGPParsingException {
+        mockMultiPathSupport();
         final LUNlriParser parser = new LUNlriParser();
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()
             .setAfi(Ipv6AddressFamily.VALUE)
@@ -455,7 +456,7 @@ public class LUNlriParserTest {
     }
 
     @Test
-    public void testMpUnreachNlriIpv6() throws BGPParsingException {
+    void testMpUnreachNlriIpv6() throws BGPParsingException {
         final LUNlriParser parser = new LUNlriParser();
         final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
             .setAfi(Ipv6AddressFamily.VALUE)
@@ -504,7 +505,8 @@ public class LUNlriParserTest {
     }
 
     @Test
-    public void testMpUnreachNlriIpv6Constraint() throws BGPParsingException {
+    void testMpUnreachNlriIpv6Constraint() throws BGPParsingException {
+        mockMultiPathSupport();
         final LUNlriParser parser = new LUNlriParser();
         final MpUnreachNlriBuilder mpBuilder = new MpUnreachNlriBuilder()
             .setAfi(Ipv6AddressFamily.VALUE)
