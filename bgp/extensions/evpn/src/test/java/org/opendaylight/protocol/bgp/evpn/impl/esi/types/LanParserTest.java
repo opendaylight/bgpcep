@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MAC;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.MAC_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VALUE_SIZE;
@@ -19,8 +20,8 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.RBP
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.esi.esi.ArbitraryCaseBuilder;
@@ -45,13 +46,13 @@ public class LanParserTest {
         (byte) 0xf7, (byte) 0x02, (byte) 0x02, (byte) 0x00};
     private LanParser parser;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         parser = new LanParser();
     }
 
     @Test
-    public void parserTest() {
+    void parserTest() {
         final ByteBuf buff = Unpooled.buffer(VALUE_SIZE);
         parser.serializeEsi(LAN_AUT_GEN_CASE, buff);
         assertArrayEquals(RESULT, ByteArray.getAllBytes(buff));
@@ -63,9 +64,10 @@ public class LanParserTest {
         assertEquals(LAN_AUT_GEN_CASE, acmResult);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongCaseTest() {
-        parser.serializeEsi(new ArbitraryCaseBuilder().build(), null);
+    @Test
+    void wrongCaseTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeEsi(new ArbitraryCaseBuilder().build(), null));
     }
 
     public static ChoiceNode createLanChoice() {
