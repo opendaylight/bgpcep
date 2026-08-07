@@ -7,18 +7,18 @@
  */
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators.BGPActivator.RT_SAFI;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
 
-public final class BGPActivatorTest {
+final class BGPActivatorTest {
     @Test
-    public void testActivator() {
+    void testActivator() {
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(RT_SAFI));
