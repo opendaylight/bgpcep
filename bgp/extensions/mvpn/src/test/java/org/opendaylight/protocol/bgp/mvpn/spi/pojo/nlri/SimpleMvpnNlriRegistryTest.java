@@ -7,24 +7,24 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.spi.pojo.nlri;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 
-public final class SimpleMvpnNlriRegistryTest {
+final class SimpleMvpnNlriRegistryTest {
     @Test
-    public void registryParseTest() {
+    void registryParseTest() {
         assertThrows(IllegalArgumentException.class,
             () -> SimpleMvpnNlriRegistry.getInstance().parseMvpn(NlriType.InterAsIPmsiAD, null));
     }
 
     @Test
-    public void registryNullTest() {
+    void registryNullTest() {
         final ByteBuf body = Unpooled.buffer();
         SimpleMvpnNlriRegistry.getInstance().serializeMvpn(new NotRegistered());
         assertEquals(0, body.readableBytes());
