@@ -53,6 +53,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class DefaultInstructionSchedulerTest extends AbstractProgrammingTest {
     private static final int INSTRUCTION_DEADLINE_OFFSET_IN_SECONDS = 3;
     private static final String INSTRUCTIONS_QUEUE_KEY = "test-instraction-queue";
