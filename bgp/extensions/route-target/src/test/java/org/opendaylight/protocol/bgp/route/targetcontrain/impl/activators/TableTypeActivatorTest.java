@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.activators;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -17,12 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.route.target.constrain.rev180618.RouteTargetConstrainSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 
-public final class TableTypeActivatorTest {
+final class TableTypeActivatorTest {
     private static final BgpTableType RT_TP = new BgpTableTypeImpl(
             Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE);
 
     @Test
-    public void testActivator() {
+    void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
         assertEquals(ROUTETARGETCONSTRAIN.VALUE, registry.getAfiSafiType(RT_TP));
         assertEquals(RT_TP, registry.getTableType(ROUTETARGETCONSTRAIN.VALUE));
