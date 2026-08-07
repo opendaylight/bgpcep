@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.L3VPNIPV4MULTICAST;
@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 
-public class TableTypeActivatorTest {
+class TableTypeActivatorTest {
     private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
             MplsLabeledVpnSubsequentAddressFamily.VALUE);
     private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
@@ -34,7 +34,7 @@ public class TableTypeActivatorTest {
             Ipv6AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE);
 
     @Test
-    public void testActivator() {
+    void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
         assertEquals(L3VPNIPV4UNICAST.VALUE, registry.getAfiSafiType(IPV4));
         assertEquals(L3VPNIPV6UNICAST.VALUE, registry.getAfiSafiType(IPV6));
