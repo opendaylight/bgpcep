@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.LinkstateAddressFamily;
@@ -17,12 +17,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.LINKSTATE;
 
-public class TableTypeActivatorTest {
+class TableTypeActivatorTest {
     private static final BgpTableType LINKSTATE_TYPE = new BgpTableTypeImpl(LinkstateAddressFamily.VALUE,
             LinkstateSubsequentAddressFamily.VALUE);
 
     @Test
-    public void testActivator() {
+    void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
         assertEquals(LINKSTATE.VALUE, registry.getAfiSafiType(LINKSTATE_TYPE));
         assertEquals(LINKSTATE_TYPE, registry.getTableType(LINKSTATE.VALUE));

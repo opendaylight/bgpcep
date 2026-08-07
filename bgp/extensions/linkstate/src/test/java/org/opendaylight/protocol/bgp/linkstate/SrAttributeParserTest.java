@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -16,8 +16,8 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrFlexAlgoParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttributesParser;
@@ -86,7 +86,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class SrAttributeParserTest {
+class SrAttributeParserTest {
 
     private static final IsisPrefixFlagsCase ISIS_PREFIX_FLAGS = new IsisPrefixFlagsCaseBuilder()
             .setIsisPrefixFlags(new IsisPrefixFlagsBuilder()
@@ -154,8 +154,8 @@ public class SrAttributeParserTest {
                 .build())
             .build();
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         act.start(context);
@@ -163,7 +163,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc90850#section-2.1.2
     @Test
-    public void testSrMplsCapabilities() {
+    void testSrMplsCapabilities() {
         final byte[] bytesIsis = { (byte)0xC0, 0, 0, 0, 10, 4, (byte)0x89, 0, 4, 1, 2, 3, 4 };
         final byte[] bytesOspf = { 0, 0, 0, 0, 10, 4, (byte)0x89, 0, 4, 1, 2, 3, 4 };
         final List<Srgb> srgb = new ArrayList<Srgb>();
@@ -196,7 +196,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc90850#section-2.1.3
     @Test
-    public void testSrAlgorithm() {
+    void testSrAlgorithm() {
         final byte[] bytes = { 0, 1 };
         final var algos = ImmutableSet.<Algorithm>builder();
         algos.add(Algorithm.ShortestPathFirst);
@@ -215,7 +215,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc90850#section-2.1.4
     @Test
-    public void testSrLocalBlock() {
+    void testSrLocalBlock() {
         final byte[] bytesSrlb = { 0, 0, 0, 0, 10, 4, (byte)0x89, 0, 3, 0, 1, 2 };
         final List<Srlb> srlbs = new ArrayList<Srlb>();
         srlbs.add(new SrlbBuilder()
@@ -230,7 +230,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc8814#section-3
     @Test
-    public void testMSD() {
+    void testMSD() {
         final byte[] bytesMSD = { 1, 10, 2, 8 };
         final List<NodeMsd> msds = new ArrayList<NodeMsd>();
         msds.add(new NodeMsdBuilder().setType(MsdType.forValue(1)).setValue(Uint8.valueOf(10)).build());
@@ -243,7 +243,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc9085#section-2.3.1
     @Test
-    public void testSrPrefix() {
+    void testSrPrefix() {
         final byte[] bytes = { (byte)0xA0, 0, 0, 0, 1, 2, 3, 4 };
         final byte[] bytesOspf = { (byte)0x20, 0, 0, 0, 1, 2, 3, 4 };
         final SrPrefix prefixIsis = new SrPrefixBuilder()
@@ -270,7 +270,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc9085#section-2.3.5
     @Test
-    public void testRangeTlv() {
+    void testRangeTlv() {
         final byte[] tested = {
             0, 0, 0, 4, // Flag + Range Size
             4, (byte)0x86, 0, 7, (byte)0xac, 1, 0, 0, 1, 2, 0, // Prefix-SID with mpls label
@@ -297,7 +297,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc9085#section-2.2.1
     @Test
-    public void testSrAdjId() {
+    void testSrAdjId() {
         final byte[] tested = { (byte)0x74, 10, 0, 0, 0, 0x5d, (byte)0xc0 };
         final byte[] testedOspf = { (byte)0xe0, 10, 0, 0, 0, 0x5d, (byte)0xc0 };
         final SrAdjIds srAdjId = new SrAdjIdsBuilder()
@@ -327,7 +327,7 @@ public class SrAttributeParserTest {
 
     // tools.ietf.org/html/rfc9085#section-2.2.2
     @Test
-    public void testSrLanAdjIdOspf() {
+    void testSrLanAdjIdOspf() {
         final byte[] tested = { (byte)0x60, 10, 0, 0, 1, 2, 3, 4, 0, 0x5d, (byte)0xc0 };
         final SrLanAdjIds srLanAdjId = new SrLanAdjIdsBuilder()
             .setFlags(OSPF_LAN_ADJ_FLAGS)
@@ -344,7 +344,7 @@ public class SrAttributeParserTest {
     }
 
     @Test
-    public void testSrLanAdjIdIsis() {
+    void testSrLanAdjIdIsis() {
         final byte[] tested = { (byte)0x74, 10, 0, 0, 1, 2, 3, 4, 5, 6, 0,  0x5d, (byte)0xc0 };
         final byte[] systemId = { 1, 2, 3, 4, 5, 6 };
         final SrLanAdjIds srLanAdjId = new SrLanAdjIdsBuilder()
@@ -362,7 +362,7 @@ public class SrAttributeParserTest {
     }
 
     @Test
-    public void testFlexAlgo() {
+    void testFlexAlgo() {
         final byte[] tested = {(byte)0x80, 1, 1, 0x0a,  // Flex-Algo Definition + Flex-Algo SubTLVS bellow
             4, 0x10, 0, 4, 0, 0, 0, 1,                  // exclude-any
             4, 0x11, 0, 4, 0, 0, 0, 0,                  // include-any
