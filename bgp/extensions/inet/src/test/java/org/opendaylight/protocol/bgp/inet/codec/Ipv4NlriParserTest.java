@@ -7,9 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.inet.codec;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
@@ -17,13 +18,12 @@ import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.bgp.parser.spi.MultiPathSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraint;
@@ -49,8 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class Ipv4NlriParserTest {
+@ExtendWith(MockitoExtension.class)
+class Ipv4NlriParserTest {
     private static final byte[] MP_NLRI_BYTES = new byte[]{
         0x0, 0x0, 0x0, 0x1, 0x18, 0x1, 0x1, 0x1,
         0x0, 0x0, 0x0, 0x2, 0x18, 0x1, 0x1, 0x1};
@@ -81,8 +81,8 @@ public class Ipv4NlriParserTest {
         return new Ipv4PrefixesBuilder().setPathId(new PathId(Uint32.valueOf(pathId))).setPrefix(prefix).build();
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         final Ipv4Prefix prefix1 = new Ipv4Prefix(ipPrefix1);
         final Ipv4Prefix prefix2 = new Ipv4Prefix(ipPrefix2);
         final Ipv4Prefix wrongPrefix = new Ipv4Prefix(additionalIpWD);
@@ -110,26 +110,28 @@ public class Ipv4NlriParserTest {
         final ByteBuf buffer2 = Unpooled.buffer(5);
         Ipv4Util.writeMinimalPrefix(prefix2, buffer2);
         inputBytes.writeBytes(buffer2.array());
+    }
 
+    private void mockMultiPathSupport() {
         Mockito.doReturn(Optional.of(muliPathSupport)).when(constraint).getPeerConstraint(Mockito.any());
         Mockito.doReturn(true).when(muliPathSupport).isTableTypeSupported(Mockito.any());
     }
 
     @Test
-    public void prefixesTest() {
+    void prefixesTest() {
         assertEquals(ipPrefix1, prefixes.get(0).getPrefix().getValue());
         assertEquals(ipPrefix2, prefixes.get(1).getPrefix().getValue());
         assertEquals(2, prefixes.size());
     }
 
     @Test
-    public void parseUnreachedNlriTest() {
+    void parseUnreachedNlriTest() {
         final MpUnreachNlriBuilder b = new MpUnreachNlriBuilder()
             .setAfi(Ipv4AddressFamily.VALUE)
             .setSafi(UnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(inputBytes, b, null);
-        assertNotNull("Withdrawn routes, destination type should not be null", b.getWithdrawnRoutes()
-                .getDestinationType());
+        assertNotNull(b.getWithdrawnRoutes().getDestinationType(),
+                "Withdrawn routes, destination type should not be null");
 
         assertEquals(ip4caseWD.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
         assertNotEquals(ip4caseWDWrong.hashCode(), b.getWithdrawnRoutes().getDestinationType().hashCode());
@@ -139,13 +141,13 @@ public class Ipv4NlriParserTest {
     }
 
     @Test
-    public void parseReachedNlriTest() throws BGPParsingException {
+    void parseReachedNlriTest() throws BGPParsingException {
         final MpReachNlriBuilder b = new MpReachNlriBuilder()
             .setAfi(Ipv4AddressFamily.VALUE)
             .setSafi(UnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(inputBytes, b, null);
-        assertNotNull("Advertized routes, destination type should not be null", b.getAdvertizedRoutes()
-                .getDestinationType());
+        assertNotNull(b.getAdvertizedRoutes().getDestinationType(),
+                "Advertized routes, destination type should not be null");
 
         assertEquals(ip4caseAD.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
         assertNotEquals(ip4caseADWrong.hashCode(), b.getAdvertizedRoutes().getDestinationType().hashCode());
@@ -155,7 +157,8 @@ public class Ipv4NlriParserTest {
     }
 
     @Test
-    public void parseReachNlriMultiPathTest() {
+    void parseReachNlriMultiPathTest() {
+        mockMultiPathSupport();
         final MpReachNlri mpReachNlri = new MpReachNlriBuilder().setAdvertizedRoutes(
                 new AdvertizedRoutesBuilder().setDestinationType(
                         new DestinationIpv4CaseBuilder().setDestinationIpv4(
@@ -166,7 +169,7 @@ public class Ipv4NlriParserTest {
             .setSafi(UnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.wrappedBuffer(MP_NLRI_BYTES), mpReachNlriBuilder, constraint);
         mpReachNlriBuilder.setAfi(null).setSafi(null);
-        Assert.assertEquals(mpReachNlri, mpReachNlriBuilder.build());
+        assertEquals(mpReachNlri, mpReachNlriBuilder.build());
 
         final Ipv4NlriParser serializer = new Ipv4NlriParser();
         final ByteBuf output = Unpooled.buffer(MP_NLRI_BYTES.length);
@@ -174,11 +177,12 @@ public class Ipv4NlriParserTest {
                 .addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReachNlri).build())
                 .build();
         serializer.serializeAttribute(attributes, output);
-        Assert.assertArrayEquals(MP_NLRI_BYTES, output.array());
+        assertArrayEquals(MP_NLRI_BYTES, output.array());
     }
 
     @Test
-    public void parseUnreachNlriMultiPathTest() {
+    void parseUnreachNlriMultiPathTest() {
+        mockMultiPathSupport();
         final MpUnreachNlri mpUnreachNlri = new MpUnreachNlriBuilder().setWithdrawnRoutes(
                 new WithdrawnRoutesBuilder().setDestinationType(
                         new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update
@@ -190,7 +194,7 @@ public class Ipv4NlriParserTest {
             .setSafi(UnicastSubsequentAddressFamily.VALUE);
         parser.parseNlri(Unpooled.wrappedBuffer(MP_NLRI_BYTES), mpUnreachNlriBuilder, constraint);
         mpUnreachNlriBuilder.setAfi(null).setSafi(null);
-        Assert.assertEquals(mpUnreachNlri, mpUnreachNlriBuilder.build());
+        assertEquals(mpUnreachNlri, mpUnreachNlriBuilder.build());
 
         final Ipv4NlriParser serializer = new Ipv4NlriParser();
         final ByteBuf output = Unpooled.buffer(MP_NLRI_BYTES.length);
@@ -198,6 +202,6 @@ public class Ipv4NlriParserTest {
                 .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mpUnreachNlri).build())
                 .build();
         serializer.serializeAttribute(attributes, output);
-        Assert.assertArrayEquals(MP_NLRI_BYTES, output.array());
+        assertArrayEquals(MP_NLRI_BYTES, output.array());
     }
 }
