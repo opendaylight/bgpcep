@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes.tunnel.identifier;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.mvpn.impl.attributes.OpaqueUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.HexString;
@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pmsi.tun
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public final class OpaqueUtilTest {
+final class OpaqueUtilTest {
     private static final byte[] OPAQUE_WRONG = {
         (byte) 0xfc, (byte) 0x00, (byte) 0x03, // Opaque Type - Length
         (byte) 0xb5, (byte) 0xeb, (byte) 0x2d,  //Value
@@ -75,7 +75,7 @@ public final class OpaqueUtilTest {
             (OpaqueValue) OPAQUE_EXTENDED);
 
     @Test
-    public void serializeOpaque() {
+    void serializeOpaque() {
         final ByteBuf actualOpaque = Unpooled.buffer();
         OpaqueUtil.serializeOpaque(OPAQUE, actualOpaque);
         assertArrayEquals(OPAQUE_EXPECTED, ByteArray.readAllBytes(actualOpaque));
@@ -98,7 +98,7 @@ public final class OpaqueUtilTest {
     }
 
     @Test
-    public void parseOpaqueList() {
+    void parseOpaqueList() {
         final ByteBuf opaqueValues = Unpooled.buffer();
         OpaqueUtil.serializeOpaqueList(OPAQUE_VALUE_LIST, opaqueValues);
         assertArrayEquals(OPAQUE_VALUES_EXPECTED, ByteArray.readAllBytes(opaqueValues));

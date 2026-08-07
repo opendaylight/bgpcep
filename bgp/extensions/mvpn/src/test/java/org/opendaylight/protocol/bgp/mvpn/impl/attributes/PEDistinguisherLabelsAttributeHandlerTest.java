@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -30,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public final class PEDistinguisherLabelsAttributeHandlerTest {
+final class PEDistinguisherLabelsAttributeHandlerTest {
     /**
      * ATT - TYPE - ATT LENGTH.
      * PE ADDRESS - MPLS LABEL
@@ -45,8 +45,8 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
     };
     private AttributeRegistry handler;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
         final org.opendaylight.protocol.bgp.parser.impl.BGPActivator inetActivator =
@@ -58,7 +58,7 @@ public final class PEDistinguisherLabelsAttributeHandlerTest {
     }
 
     @Test
-    public void testPEDistinguisherLabelsHandler() throws Exception {
+    void testPEDistinguisherLabelsHandler() throws Exception {
         final Attributes expected = buildPEDistinguisherLabelsAttributAttribute();
         final ByteBuf actual = Unpooled.buffer();
         handler.serializeAttribute(expected, actual);
