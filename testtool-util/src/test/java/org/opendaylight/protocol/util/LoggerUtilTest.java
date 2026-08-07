@@ -7,16 +7,16 @@
  */
 package org.opendaylight.protocol.util;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import ch.qos.logback.classic.Level;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class LoggerUtilTest {
+class LoggerUtilTest {
     @Test
-    public void initiateLogger() {
+    void initiateLogger() {
         LoggerUtil.initiateLogger(() -> Level.DEBUG);
         final ch.qos.logback.classic.Logger protocolLogger
                 = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("org.opendaylight.protocol");
