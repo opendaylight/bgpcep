@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.FlowspecL3vpnSubsequentAddressFamily;
@@ -22,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 
-public class TableTypeActivatorTest {
+class TableTypeActivatorTest {
     private static final BgpTableType IPV4_FLOW = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
         FlowspecSubsequentAddressFamily.VALUE);
     private static final BgpTableType IPV6_FLOW = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
@@ -33,7 +33,7 @@ public class TableTypeActivatorTest {
         FlowspecL3vpnSubsequentAddressFamily.VALUE);
 
     @Test
-    public void testActivator() {
+    void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
         assertEquals(IPV4FLOW.VALUE, registry.getAfiSafiType(IPV4_FLOW));
         assertEquals(IPV6FLOW.VALUE, registry.getAfiSafiType(IPV6_FLOW));

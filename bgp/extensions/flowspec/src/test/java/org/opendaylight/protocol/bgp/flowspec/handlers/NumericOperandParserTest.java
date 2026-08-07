@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.handlers;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.NumericOperand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.flowspec.destination.flowspec.flowspec.type.icmp.code._case.Codes;
@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class NumericOperandParserTest {
+class NumericOperandParserTest {
     private static final byte[] ONE_BYTE_CODE_LIST = new byte[]{
         0x01, 0x64,
         0x01, 0x65,
@@ -31,7 +31,7 @@ public class NumericOperandParserTest {
     };
 
     @Test
-    public void testSerializeTwoByte() {
+    void testSerializeTwoByte() {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         final List<Ports> ports = new ArrayList<>();
         // create 3 ports without end-of-list bit set
@@ -47,7 +47,7 @@ public class NumericOperandParserTest {
     }
 
     @Test
-    public void testSerializeOneByte() {
+    void testSerializeOneByte() {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         final List<Codes> codes = new ArrayList<>();
         // create 3 ports without end-of-list bit set
@@ -64,7 +64,7 @@ public class NumericOperandParserTest {
     }
 
     @Test
-    public void testSerializeVariableByte() {
+    void testSerializeVariableByte() {
         final ByteBuf nlriByteBuf = Unpooled.buffer();
         // test with a operand with endOfList set to true, but override with false
         NumericOneByteOperandParser.INSTANCE.serialize(

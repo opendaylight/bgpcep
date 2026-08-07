@@ -7,23 +7,25 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.nio.ByteBuffer;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class AbstractFlowspecNlriParserTest {
+class AbstractFlowspecNlriParserTest {
 
-    @Test(expected = IllegalStateException.class)
-    public void zeroNlriLengthTest() throws Exception {
+    @Test
+    void zeroNlriLengthTest() throws Exception {
         // invalid zero NRLI length
-        AbstractFlowspecNlriParser.readNlriLength(Unpooled.wrappedBuffer(new byte[]{0x00, 0x0}));
+        assertThrows(IllegalStateException.class,
+            () -> AbstractFlowspecNlriParser.readNlriLength(Unpooled.wrappedBuffer(new byte[]{0x00, 0x0})));
     }
 
     @Test
-    public void readNlriLength() throws Exception {
+    void readNlriLength() throws Exception {
         final ByteBuffer byteBuffer = ByteBuffer.allocate(5003);
         byteBuffer.put(new byte[]{(byte) 0x01});   // length = 1
         byteBuffer.put(new byte[]{(byte) 0xf0, (byte) 0xf0});   // length = 240
