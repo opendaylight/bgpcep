@@ -51,6 +51,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
+// FIXME: migrate to JUnit5 once this no longer transitively extends an MD-SAL JUnit4-only test base class
 public class FlowspecL3vpnIpv4RIBSupportTest extends AbstractRIBSupportTest<FlowspecL3vpnIpv4RoutesCase,
         FlowspecL3vpnIpv4Routes, FlowspecL3vpnRoute> {
 
