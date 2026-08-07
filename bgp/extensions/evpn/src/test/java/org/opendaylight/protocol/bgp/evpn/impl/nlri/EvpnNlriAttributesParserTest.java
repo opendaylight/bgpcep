@@ -8,12 +8,12 @@
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
 import static java.util.Collections.singletonList;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.RD;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.destination.EvpnDestinationBuilder;
@@ -32,17 +32,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 
-public class EvpnNlriAttributesParserTest {
+class EvpnNlriAttributesParserTest {
     private final EvpnNlriParser parser = new EvpnNlriParser();
 
     @Test
-    public void testAttributes1() throws BGPParsingException {
+    void testAttributes1() throws BGPParsingException {
         final ByteBuf buffer = Unpooled.buffer();
         final Attributes att = new AttributesBuilder()
                 .addAugmentation(new AttributesReachBuilder().setMpReachNlri(createReach()).build())
                 .build();
         this.parser.serializeAttribute(att, buffer);
-        Assert.assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
     }
 
     private static MpReachNlri createReach() {
@@ -57,13 +57,13 @@ public class EvpnNlriAttributesParserTest {
     }
 
     @Test
-    public void testAttributes2() throws BGPParsingException {
+    void testAttributes2() throws BGPParsingException {
         final ByteBuf buffer = Unpooled.buffer();
         final Attributes att = new AttributesBuilder()
                 .addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(createUnreach()).build())
                 .build();
         this.parser.serializeAttribute(att, buffer);
-        Assert.assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
+        assertArrayEquals(IncMultEthTagRParserTest.RESULT, ByteArray.getAllBytes(buffer));
     }
 
     private static MpUnreachNlri createUnreach() {
