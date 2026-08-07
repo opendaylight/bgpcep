@@ -7,19 +7,19 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.LinkstateAttributeParser;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -84,7 +84,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class LinkstateAttributeParserTest {
+class LinkstateAttributeParserTest {
 
     private static final byte[] LINK_ATTR = {
         0x04, 0x04, 0, 0x04, 0x2a, 0x2a, 0x2a, 0x2a, 0x04, 0x06, 0, 0x04, 0x2b, 0x2b, 0x2b, 0x2b, 0x04, 0x40, 0, 0x04,
@@ -185,8 +185,8 @@ public class LinkstateAttributeParserTest {
 
     private LinkstateAttributeParser parser;
 
-    @Before
-    public final void setUp() {
+    @BeforeEach
+    void setUp() {
         parser = new LinkstateAttributeParser(false);
     }
 
@@ -233,7 +233,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testGetNlriType() throws BGPParsingException, BGPDocumentedException {
+    void testGetNlriType() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf b = Unpooled.buffer();
         AttributesBuilder builder = new AttributesBuilder();
         parser.parseAttribute(b, builder, null);
@@ -277,7 +277,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testPositiveLinks() throws BGPParsingException, BGPDocumentedException {
+    void testPositiveLinks() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new LinkCaseBuilder().build());
         parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR), builder, null);
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
@@ -356,7 +356,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testSRv6Link() throws BGPParsingException, BGPDocumentedException {
+    void testSRv6Link() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new LinkCaseBuilder().build());
         parser.parseAttribute(Unpooled.copiedBuffer(LINK_ATTR_SRV6), builder, null);
         final Attributes1 attrs = builder.augmentation(Attributes1.class);
@@ -412,7 +412,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testPositiveNodes() throws BGPParsingException, BGPDocumentedException {
+    void testPositiveNodes() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
         parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR), builder, null);
 
@@ -441,7 +441,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testSrNodesAttributes() throws BGPParsingException, BGPDocumentedException {
+    void testSrNodesAttributes() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
         parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR_SR), builder, null);
 
@@ -505,7 +505,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testSRv6NodesAttributes() throws BGPParsingException, BGPDocumentedException {
+    void testSRv6NodesAttributes() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new NodeCaseBuilder().build());
         parser.parseAttribute(Unpooled.copiedBuffer(NODE_ATTR_SRV6), builder, null);
 
@@ -526,7 +526,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testPositiveV4Prefixes() throws BGPParsingException, BGPDocumentedException {
+    void testPositiveV4Prefixes() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createUnreachBuilder(new PrefixCaseBuilder().setPrefixDescriptors(
             new PrefixDescriptorsBuilder().setIpReachabilityInformation(new IpPrefix(new Ipv4Prefix("127.0.0.1/32")))
             .build()).build());
@@ -565,7 +565,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testPositiveV6Prefixes() throws BGPParsingException, BGPDocumentedException {
+    void testPositiveV6Prefixes() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createUnreachBuilder(new PrefixCaseBuilder().setPrefixDescriptors(
             new PrefixDescriptorsBuilder().setIpReachabilityInformation(
                 new IpPrefix(new Ipv6Prefix("0102:0304:0506:0708::1/128"))).build())
@@ -604,7 +604,7 @@ public class LinkstateAttributeParserTest {
     }
 
     @Test
-    public void testSRv6SidAttributesParser() throws BGPParsingException, BGPDocumentedException {
+    void testSRv6SidAttributesParser() throws BGPParsingException, BGPDocumentedException {
         final AttributesBuilder builder = createBuilder(new Srv6SidCaseBuilder().build());
         parser.parseAttribute(Unpooled.copiedBuffer(SRV6_SID_ATTR), builder, null);
 
