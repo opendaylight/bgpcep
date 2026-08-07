@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class LeafADHandlerTest {
+class LeafADHandlerTest {
     private static final byte[] LEAF_AD = new byte[]{
         2, 12,
         0, 1,
@@ -56,22 +56,22 @@ public class LeafADHandlerTest {
     private final LeafADHandler handler = new LeafADHandler();
 
     @Test
-    public void testParser() {
+    void testParser() {
         assertEquals(this.expected, this.handler.parseMvpn(Unpooled.copiedBuffer(LEAF_AD)));
     }
 
     @Test
-    public void testSerializer() {
+    void testSerializer() {
         assertArrayEquals(LEAF_AD_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected)));
     }
 
     @Test
-    public void testGetType() {
+    void testGetType() {
         assertEquals(NlriType.LeafAD, this.handler.getType());
     }
 
     @Test
-    public void testGetClazz() {
+    void testGetClazz() {
         assertEquals(LeafADCase.class, this.handler.getClazz());
     }
 }
