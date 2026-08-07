@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
 
-public class OperandsTest {
+class OperandsTest {
 
     @Test
-    public void testParseLength() {
+    void testParseLength() {
         // 00-00-0000 = 1
         assertEquals(1, AbstractOperandParser.parseLength((byte) 0x00));
         // 00-01-0000 = 2

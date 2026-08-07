@@ -50,6 +50,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class FlowspecL3vpnIpv6RIBSupportTest extends AbstractRIBSupportTest<FlowspecL3vpnIpv6RoutesCase,
         FlowspecL3vpnIpv6Routes, FlowspecL3vpnRoute> {
 

@@ -7,11 +7,13 @@
  */
 package org.opendaylight.protocol.bgp.flowspec.extended.communities;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.flowspec.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -53,7 +55,7 @@ import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
-public class FSExtendedCommunitiesTest {
+class FSExtendedCommunitiesTest {
 
     private static final byte[] TRAFFIC_RATE = {(byte)128, 6, 0, 72, 0, 1, 2, 3};
 
@@ -78,8 +80,8 @@ public class FSExtendedCommunitiesTest {
     private ExtendedCommunityRegistry registry;
     private BGPActivator act;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         this.act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         this.act.start(context);
@@ -87,7 +89,7 @@ public class FSExtendedCommunitiesTest {
     }
 
     @Test
-    public void testTrafficRateParser() throws BGPDocumentedException, BGPParsingException {
+    void testTrafficRateParser() throws BGPDocumentedException, BGPParsingException {
         final TrafficRateExtendedCommunityCase trafficRate = new TrafficRateExtendedCommunityCaseBuilder()
                 .setTrafficRateExtendedCommunity(new TrafficRateExtendedCommunityBuilder()
                     .setInformativeAs(new ShortAsNumber(Uint32.valueOf(72)))
@@ -96,11 +98,11 @@ public class FSExtendedCommunitiesTest {
                 .setTransitive(true).build();
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_RATE));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testTrafficRateSerializer() throws BGPDocumentedException, BGPParsingException {
+    void testTrafficRateSerializer() throws BGPDocumentedException, BGPParsingException {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.route
             .attributes.extended.communities.extended.community.TrafficRateExtendedCommunityCase trafficRate =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib
@@ -113,11 +115,11 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(TRAFFIC_RATE.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(TRAFFIC_RATE, output.array());
+        assertArrayEquals(TRAFFIC_RATE, output.array());
     }
 
     @Test
-    public void testTrafficActionParser() throws BGPDocumentedException, BGPParsingException {
+    void testTrafficActionParser() throws BGPDocumentedException, BGPParsingException {
         final TrafficActionExtendedCommunityCase trafficAction = new TrafficActionExtendedCommunityCaseBuilder()
                 .setTrafficActionExtendedCommunity(new TrafficActionExtendedCommunityBuilder().setSample(true)
                     .setTerminalAction(true).build()).build();
@@ -125,11 +127,11 @@ public class FSExtendedCommunitiesTest {
                 .setTransitive(true).build();
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_ACTION));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testTrafficActionSerializer() throws BGPDocumentedException, BGPParsingException {
+    void testTrafficActionSerializer() throws BGPDocumentedException, BGPParsingException {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.route
             .attributes.extended.communities.extended.community.TrafficActionExtendedCommunityCase trafficAction =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib
@@ -142,11 +144,11 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(TRAFFIC_ACTION.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(TRAFFIC_ACTION, output.array());
+        assertArrayEquals(TRAFFIC_ACTION, output.array());
     }
 
     @Test
-    public void testTrafficMarkingParser() throws BGPDocumentedException, BGPParsingException {
+    void testTrafficMarkingParser() throws BGPDocumentedException, BGPParsingException {
         final TrafficMarkingExtendedCommunityCase trafficMarking = new TrafficMarkingExtendedCommunityCaseBuilder()
                 .setTrafficMarkingExtendedCommunity(new TrafficMarkingExtendedCommunityBuilder()
                     .setGlobalAdministrator(new Dscp(Uint8.valueOf(63))).build()).build();
@@ -154,11 +156,11 @@ public class FSExtendedCommunitiesTest {
                 .setTransitive(true).build();
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(TRAFFIC_MARKING));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testTrafficMarkingSerializer() throws BGPDocumentedException, BGPParsingException {
+    void testTrafficMarkingSerializer() throws BGPDocumentedException, BGPParsingException {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.route
             .attributes.extended.communities.extended.community.TrafficMarkingExtendedCommunityCase trafficMarking =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib
@@ -171,11 +173,11 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(TRAFFIC_MARKING.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(TRAFFIC_MARKING, output.array());
+        assertArrayEquals(TRAFFIC_MARKING, output.array());
     }
 
     @Test
-    public void testRedirect2bParser() throws BGPDocumentedException, BGPParsingException {
+    void testRedirect2bParser() throws BGPDocumentedException, BGPParsingException {
         final RedirectExtendedCommunityCase redirect = new RedirectExtendedCommunityCaseBuilder()
                 .setRedirectExtendedCommunity(new RedirectExtendedCommunityBuilder()
                     .setGlobalAdministrator(new ShortAsNumber(Uint32.valueOf(35)))
@@ -185,11 +187,11 @@ public class FSExtendedCommunitiesTest {
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(
             Unpooled.copiedBuffer(REDIRECT_AS_2BYTES));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testredirect2bSerializer() throws BGPDocumentedException, BGPParsingException {
+    void testredirect2bSerializer() throws BGPDocumentedException, BGPParsingException {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.route
             .attributes.extended.communities.extended.community.RedirectExtendedCommunityCase redirect =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib
@@ -202,11 +204,11 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_AS_2BYTES.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(REDIRECT_AS_2BYTES, output.array());
+        assertArrayEquals(REDIRECT_AS_2BYTES, output.array());
     }
 
     @Test
-    public void testRedirectIpv6Parser() throws BGPDocumentedException, BGPParsingException {
+    void testRedirectIpv6Parser() throws BGPDocumentedException, BGPParsingException {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder()
                 .setExtendedCommunity(new RedirectIpv6ExtendedCommunityCaseBuilder()
                     .setRedirectIpv6(new RedirectIpv6Builder()
@@ -218,11 +220,11 @@ public class FSExtendedCommunitiesTest {
                 .build();
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_IPV6));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testRedirectIpv6Serializer() {
+    void testRedirectIpv6Serializer() {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.route
             .attributes.extended.communities.extended.community.RedirectIpv6ExtendedCommunityCase redirect =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib
@@ -235,11 +237,11 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_IPV6.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(REDIRECT_IPV6, output.array());
+        assertArrayEquals(REDIRECT_IPV6, output.array());
     }
 
     @Test
-    public void testRedirect4bParser() throws BGPDocumentedException, BGPParsingException {
+    void testRedirect4bParser() throws BGPDocumentedException, BGPParsingException {
         final RedirectAs4ExtendedCommunityCase redirect = new RedirectAs4ExtendedCommunityCaseBuilder()
                 .setRedirectAs4(new RedirectAs4Builder()
                     .setGlobalAdministrator(new AsNumber(Uint32.valueOf(6548)))
@@ -252,11 +254,11 @@ public class FSExtendedCommunitiesTest {
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(
             Unpooled.copiedBuffer(REDIRECT_AS_4BYTES));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testredirect4bSerializer() throws BGPDocumentedException, BGPParsingException {
+    void testredirect4bSerializer() throws BGPDocumentedException, BGPParsingException {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.route
             .attributes.extended.communities.extended.community.RedirectAs4ExtendedCommunityCase redirect =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib
@@ -269,11 +271,11 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_AS_4BYTES.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(REDIRECT_AS_4BYTES, output.array());
+        assertArrayEquals(REDIRECT_AS_4BYTES, output.array());
     }
 
     @Test
-    public void testRedirectIpv4Parser() throws BGPDocumentedException, BGPParsingException {
+    void testRedirectIpv4Parser() throws BGPDocumentedException, BGPParsingException {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder()
                 .setExtendedCommunity(new RedirectIpv4ExtendedCommunityCaseBuilder()
                     .setRedirectIpv4(new RedirectIpv4Builder()
@@ -285,11 +287,11 @@ public class FSExtendedCommunitiesTest {
                 .build();
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(Unpooled.copiedBuffer(REDIRECT_IPV4));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testredirectIpv4Serializer() throws BGPDocumentedException, BGPParsingException {
+    void testredirectIpv4Serializer() throws BGPDocumentedException, BGPParsingException {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder()
                 .setExtendedCommunity(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                     .bgp.flowspec.rev200120.bgp.rib.route.attributes.extended.communities.extended.community
@@ -304,11 +306,11 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_IPV4.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(REDIRECT_IPV4, output.array());
+        assertArrayEquals(REDIRECT_IPV4, output.array());
     }
 
     @Test
-    public void testRedirectIpv4NhParser() throws BGPDocumentedException, BGPParsingException {
+    void testRedirectIpv4NhParser() throws BGPDocumentedException, BGPParsingException {
         final ExtendedCommunities expected = new ExtendedCommunitiesBuilder()
                 .setExtendedCommunity(new RedirectIpNhExtendedCommunityCaseBuilder()
                     .setRedirectIpNhExtendedCommunity(new RedirectIpNhExtendedCommunityBuilder()
@@ -321,11 +323,11 @@ public class FSExtendedCommunitiesTest {
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(
             Unpooled.copiedBuffer(REDIRECT_NH_IPV4));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testredirectIpv4NhSerializer() throws BGPDocumentedException, BGPParsingException {
+    void testredirectIpv4NhSerializer() throws BGPDocumentedException, BGPParsingException {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.route
             .attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCase redirect =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib
@@ -341,11 +343,11 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_NH_IPV4.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(REDIRECT_NH_IPV4, output.array());
+        assertArrayEquals(REDIRECT_NH_IPV4, output.array());
     }
 
     @Test
-    public void testRedirectIpv6NhParser() throws BGPDocumentedException, BGPParsingException {
+    void testRedirectIpv6NhParser() throws BGPDocumentedException, BGPParsingException {
         final RedirectIpNhExtendedCommunityCase redirect = new RedirectIpNhExtendedCommunityCaseBuilder()
                 .setRedirectIpNhExtendedCommunity(new RedirectIpNhExtendedCommunityBuilder()
                     .setNextHopAddress(new IpAddressNoZone(new Ipv6AddressNoZone("2001::1")))
@@ -358,11 +360,11 @@ public class FSExtendedCommunitiesTest {
 
         final ExtendedCommunities parsed = this.registry.parseExtendedCommunity(
             Unpooled.copiedBuffer(REDIRECT_NH_IPV6));
-        Assert.assertEquals(expected, parsed);
+        assertEquals(expected, parsed);
     }
 
     @Test
-    public void testredirectIpv6NhSerializer() throws BGPDocumentedException, BGPParsingException {
+    void testredirectIpv6NhSerializer() throws BGPDocumentedException, BGPParsingException {
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib.route
             .attributes.extended.communities.extended.community.RedirectIpNhExtendedCommunityCase redirect =
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flowspec.rev200120.bgp.rib
@@ -375,7 +377,7 @@ public class FSExtendedCommunitiesTest {
 
         final ByteBuf output = Unpooled.buffer(REDIRECT_NH_IPV6.length);
         this.registry.serializeExtendedCommunity(expected, output);
-        Assert.assertArrayEquals(REDIRECT_NH_IPV6, output.array());
+        assertArrayEquals(REDIRECT_NH_IPV6, output.array());
     }
 
 }

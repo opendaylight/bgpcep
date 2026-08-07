@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.bgp.flowspec.SimpleFlowspecIpv4NlriParserTest.PATH_ID;
@@ -19,11 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractNumericOperandParser;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractOperandParser;
@@ -71,8 +70,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class SimpleFlowspecIpv6NlriParserTest {
+@ExtendWith(MockitoExtension.class)
+class SimpleFlowspecIpv6NlriParserTest {
     private static final NodeIdentifier NEXT_HEADER_NID = new NodeIdentifier(NextHeaders.QNAME);
     private static final NodeIdentifier FLOW_LABEL_NID = new NodeIdentifier(FlowLabel.QNAME);
 
@@ -108,14 +107,13 @@ public class SimpleFlowspecIpv6NlriParserTest {
         0x0d, (byte) 0x21, 1, 0, 0, 6, (byte) 0x91, 1, 2
     };
 
-    @Before
-    public void setUp() {
+    private void mockMultiPathSupport() {
         doReturn(Optional.of(muliPathSupport)).when(constraint).getPeerConstraint(any());
         doReturn(true).when(muliPathSupport).isTableTypeSupported(any());
     }
 
     @Test
-    public void testParseMpReachNlri() throws BGPParsingException {
+    void testParseMpReachNlri() throws BGPParsingException {
         final List<Flowspec> fs = new ArrayList<>();
         final MpReachNlriBuilder mp = new MpReachNlriBuilder();
 
@@ -176,7 +174,8 @@ public class SimpleFlowspecIpv6NlriParserTest {
     }
 
     @Test
-    public void testParseMpReachNlriConstraint() throws BGPParsingException {
+    void testParseMpReachNlriConstraint() throws BGPParsingException {
+        mockMultiPathSupport();
         final List<Flowspec> fs = new ArrayList<>();
         final MpReachNlriBuilder mp = new MpReachNlriBuilder();
 
@@ -237,7 +236,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
     }
 
     @Test
-    public void testParseMpUnreachNlri() throws BGPParsingException {
+    void testParseMpUnreachNlri() throws BGPParsingException {
         final List<Flowspec> fs = new ArrayList<>();
         final MpUnreachNlriBuilder mp = new MpUnreachNlriBuilder();
 
@@ -302,7 +301,8 @@ public class SimpleFlowspecIpv6NlriParserTest {
     }
 
     @Test
-    public void testParseMpUnreachNlriConstraint() throws BGPParsingException {
+    void testParseMpUnreachNlriConstraint() throws BGPParsingException {
+        mockMultiPathSupport();
         final List<Flowspec> fs = new ArrayList<>();
         final MpUnreachNlriBuilder mp = new MpUnreachNlriBuilder();
 
@@ -353,7 +353,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecFragments() {
+    void testExtractFlowspecFragments() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -382,7 +382,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecNextHeaders() {
+    void testExtractFlowspecNextHeaders() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -426,7 +426,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecFlowLabels() {
+    void testExtractFlowspecFlowLabels() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -461,7 +461,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecDestPrefix() {
+    void testExtractFlowspecDestPrefix() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -479,7 +479,7 @@ public class SimpleFlowspecIpv6NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecSourcePrefix() {
+    void testExtractFlowspecSourcePrefix() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
