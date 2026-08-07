@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.Inet6Address;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv6Util;
@@ -24,12 +24,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 
-public class VpnIpv6NextHopTest {
+class VpnIpv6NextHopTest {
 
     private static final VpnIpv6NextHopParserSerializer HANDLER = new VpnIpv6NextHopParserSerializer();
 
     @Test
-    public void testSerializeIpv6NextHopCase() throws Exception {
+    void testSerializeIpv6NextHopCase() throws Exception {
         final String TEST_IPV6 = "2001::1234:5678:90ab:cdef";   // put some random valid IPv6 address here
 
         final ByteBuf buffer = Unpooled.buffer();

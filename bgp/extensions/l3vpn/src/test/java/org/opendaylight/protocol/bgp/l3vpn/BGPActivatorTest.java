@@ -7,17 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.l3vpn.mcast.rev180417.McastMplsLabeledVpnSubsequentAddressFamily;
 
-public final class BGPActivatorTest {
+final class BGPActivatorTest {
     @Test
-    public void testActivator() {
+    void testActivator() {
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getSubsequentAddressFamilyRegistry().classForFamily(BGPActivator.MCAST_L3VPN_SAFI));
