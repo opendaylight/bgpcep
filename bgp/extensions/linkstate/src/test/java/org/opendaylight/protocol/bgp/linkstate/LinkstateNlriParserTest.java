@@ -7,16 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser.OSPF_ROUTE_NID;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser.IP_REACH_NID;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.linkstate.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
@@ -76,7 +76,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
-public class LinkstateNlriParserTest {
+class LinkstateNlriParserTest {
 
     private static final NodeIdentifier C_LINKSTATE_NID = new NodeIdentifier(CLinkstateDestination.QNAME);
     private static final NodeIdentifier C_ROUTER_ID_NID = new NodeIdentifier(CRouterIdentifier.QNAME);
@@ -167,7 +167,7 @@ public class LinkstateNlriParserTest {
     }
 
     @Test
-    public void testNodeNlri() throws BGPParsingException {
+    void testNodeNlri() throws BGPParsingException {
         setUp(nodeNlri);
 
         // test BA form
@@ -219,7 +219,7 @@ public class LinkstateNlriParserTest {
     }
 
     @Test
-    public void testLinkNlri() throws BGPParsingException {
+    void testLinkNlri() throws BGPParsingException {
         setUp(linkNlri);
 
         // test BA form
@@ -313,7 +313,7 @@ public class LinkstateNlriParserTest {
     }
 
     @Test
-    public void testPrefixNlri() throws BGPParsingException {
+    void testPrefixNlri() throws BGPParsingException {
         setUp(prefixNlri);
 
         // test BA form
@@ -378,7 +378,7 @@ public class LinkstateNlriParserTest {
     }
 
     @Test
-    public void testSrv6Nlri() throws BGPParsingException {
+    void testSrv6Nlri() throws BGPParsingException {
         setUp(srv6Nlri);
 
         assertNull(dest.getRouteDistinguisher());
@@ -405,7 +405,7 @@ public class LinkstateNlriParserTest {
     }
 
     @Test
-    public void testSerializeAttribute() throws BGPParsingException {
+    void testSerializeAttribute() throws BGPParsingException {
         final LinkstateNlriParser parser = new LinkstateNlriParser();
         setUp(prefixNlri);
         final DestinationLinkstateCase dlc = new DestinationLinkstateCaseBuilder().setDestinationLinkstate(
