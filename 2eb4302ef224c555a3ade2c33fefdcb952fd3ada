@@ -16,6 +16,24 @@
       "message": "So this will start blocking the main MDSal shared notification thread again, if the queue reaches 10 000 route-changes? This can happen if the peer is slower than we are - not dead, but slow.\n- Peer drains slowly\n- The bgp-adj-rib-out-\u003cpeer\u003e Thread parks in ChannelOutputLimiter.ensureWritable()\n- Routes keep flowing\n- The executor\u0027s single thread is not consuming, so the queue grows.\n- Queue reaches 10 000. The next executor.execute() falls through to caller-runs and parks the shared notification thread too.\n- The session stays up throughout, because the peer keeps sending keepalives in the other direction.\n- Nothing times out and clears the backlog.",
       "revId": "2eb4302ef224c555a3ade2c33fefdcb952fd3ada",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c68504b2_69bb531e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-07T20:17:41Z",
+      "side": 1,
+      "message": "You are right, and it still blocks. With newCallerWaitsPolicy the executor blocks the submitting thread once the 10000 queue is full, so for a slow peer the shared notification thread can still park there.\n\nWhat the switch from the previous policy fixed is the reordering and the inline execution, not this.\nThe queue only fills for a peer that cannot keep up, so healthy peers are unaffected, but that is exactly the case you raised. The proper fix is to reset the peer when its queue fills, so it reconnects and resyncs instead of blocking.\n\nThat is a larger change, so I will prepare a separate task for it.",
+      "parentUuid": "3c8dbf85_a0773d38",
+      "revId": "2eb4302ef224c555a3ade2c33fefdcb952fd3ada",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
