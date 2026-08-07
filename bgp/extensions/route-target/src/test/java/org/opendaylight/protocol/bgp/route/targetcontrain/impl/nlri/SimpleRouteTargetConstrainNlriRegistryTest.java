@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import io.netty.buffer.Unpooled;
-import java.util.Arrays;
-import java.util.Collection;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import java.util.stream.Stream;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -34,8 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-@RunWith(Parameterized.class)
-public class SimpleRouteTargetConstrainNlriRegistryTest {
+class SimpleRouteTargetConstrainNlriRegistryTest {
     private static final As4SpecificCommon AS_COMMON = new As4SpecificCommonBuilder()
             .setAsNumber(new AsNumber(Uint32.valueOf(20)))
             .setLocalAdministrator(Uint16.valueOf(100)).build();
@@ -81,38 +80,22 @@ public class SimpleRouteTargetConstrainNlriRegistryTest {
 
     private final ImmutableRouteTargetConstrainNlriRegistry nlriRegistry
             = ImmutableRouteTargetConstrainNlriRegistry.getInstance();
-    private final Integer type;
-    private final byte[] expectedBuffer;
-    private final byte[] expectedBufferWithType;
-    private final RouteTargetConstrainChoice expected;
 
-    public SimpleRouteTargetConstrainNlriRegistryTest(
-            final RouteTargetConstrainChoice routeTargetConstrainChoice,
-            final Integer type,
-            final byte[] expectedBuffer,
-            final byte[] expectedBufferWithType
-    ) {
-        this.expected = routeTargetConstrainChoice;
-        this.type = type;
-        this.expectedBuffer = expectedBuffer;
-        this.expectedBufferWithType = expectedBufferWithType;
+    @ParameterizedTest
+    @MethodSource
+    void testHandler(final RouteTargetConstrainChoice expected, final Integer type, final byte[] expectedBuffer,
+            final byte[] expectedBufferWithType) {
+        assertEquals(expected, nlriRegistry.parseRouteTargetConstrain(type,
+                Unpooled.copiedBuffer(expectedBuffer)));
+        assertArrayEquals(expectedBufferWithType,
+                ByteArray.getAllBytes(nlriRegistry.serializeRouteTargetConstrain(expected)));
     }
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {RT_AS_4_OCT, RT_4_OCT_TYPE, RT_4_OCT_BUFF, RT_4_OCT_BUFF_WT},
-                {RT_IPV4, RT_IPV4_TYPE, RT_IPV4_BUFF, RT_IPV4_BUFF_WT},
-                {RT_AS_2_OCT, RT_2_OCT_TYPE, RT_2_OCT_BUFF, RT_2_OCT_BUFF_WT},
-                {RT_DEFAULT, null, RT_DEFAULT_BUFF, RT_DEFAULT_BUFF}
-        });
-    }
-
-    @Test
-    public void testHandler() {
-        assertEquals(this.expected, this.nlriRegistry.parseRouteTargetConstrain(this.type,
-                Unpooled.copiedBuffer(this.expectedBuffer)));
-        assertArrayEquals(this.expectedBufferWithType,
-                ByteArray.getAllBytes(this.nlriRegistry.serializeRouteTargetConstrain(this.expected)));
+    private static Stream<Arguments> testHandler() {
+        return Stream.of(
+            arguments(RT_AS_4_OCT, RT_4_OCT_TYPE, RT_4_OCT_BUFF, RT_4_OCT_BUFF_WT),
+            arguments(RT_IPV4, RT_IPV4_TYPE, RT_IPV4_BUFF, RT_IPV4_BUFF_WT),
+            arguments(RT_AS_2_OCT, RT_2_OCT_TYPE, RT_2_OCT_BUFF, RT_2_OCT_BUFF_WT),
+            arguments(RT_DEFAULT, null, RT_DEFAULT_BUFF, RT_DEFAULT_BUFF));
     }
 }
