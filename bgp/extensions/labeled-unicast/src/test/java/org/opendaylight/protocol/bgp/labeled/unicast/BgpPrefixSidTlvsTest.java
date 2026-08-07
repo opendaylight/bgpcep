@@ -7,14 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.Srgb;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.originator.srgb.tlv.SrgbValue;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.originator.srgb.tlv.SrgbValueBuilder;
@@ -24,10 +24,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labe
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.labeled.unicast.rev180329.update.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.bgp.prefix.sid.tlv.LuOriginatorSrgbTlvBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public final class BgpPrefixSidTlvsTest {
+final class BgpPrefixSidTlvsTest {
 
     @Test
-    public void testLabelIndexParser() {
+    void testLabelIndexParser() {
         final LabelIndexTlvParser parser = new LabelIndexTlvParser();
         final LuLabelIndexTlv tlv = new LuLabelIndexTlvBuilder().setLabelIndexTlv(Uint32.valueOf(333)).build();
         final ByteBuf serialized = Unpooled.buffer(7);
@@ -41,7 +41,7 @@ public final class BgpPrefixSidTlvsTest {
     }
 
     @Test
-    public void testOriginatorParser() {
+    void testOriginatorParser() {
         final OriginatorSrgbTlvParser parser = new OriginatorSrgbTlvParser();
         final List<SrgbValue> list = new ArrayList<>();
 
