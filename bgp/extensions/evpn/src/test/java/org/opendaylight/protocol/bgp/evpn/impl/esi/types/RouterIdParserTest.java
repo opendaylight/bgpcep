@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.LD;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VALUE_SIZE;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
@@ -19,8 +19,8 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.RD_
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.esi.Esi;
@@ -46,13 +46,13 @@ public class RouterIdParserTest {
     private static final String ROUTE_ID_MODEL = "42.42.42.42";
     private RouterIdParser parser;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         parser = new RouterIdParser();
     }
 
     @Test
-    public void parserTest() {
+    void parserTest() {
         final ByteBuf buff = Unpooled.buffer(VALUE_SIZE);
 
         parser.serializeEsi(ROUTE_ID_CASE, buff);
@@ -80,7 +80,7 @@ public class RouterIdParserTest {
     }
 
     @Test
-    public void wrongCaseTest() {
+    void wrongCaseTest() {
         assertThrows(IllegalArgumentException.class,
             () -> parser.serializeEsi(new ArbitraryCaseBuilder().build(), null));
     }

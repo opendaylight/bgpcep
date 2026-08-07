@@ -7,20 +7,20 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.opendaylight.protocol.bgp.evpn.impl.BGPActivator.EVPN_SAFI;
 import static org.opendaylight.protocol.bgp.evpn.impl.BGPActivator.L2VPN_AFI;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.L2vpnAddressFamily;
 
-public class BGPActivatorTest {
+class BGPActivatorTest {
     @Test
-    public void testActivator() throws Exception {
+    void testActivator() throws Exception {
         final BGPActivator act = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         assertNull(context.getAddressFamilyRegistry().classForFamily(L2VPN_AFI));

@@ -8,14 +8,15 @@
 package org.opendaylight.protocol.bgp.evpn.impl.extended.communities;
 
 import static java.lang.Boolean.TRUE;
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.COMMUNITY_VALUE_SIZE;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
 import org.opendaylight.protocol.util.ByteArray;
@@ -28,7 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.extended.community.ExtendedCommunity;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
-public class Layer2AttributesExtComTest {
+class Layer2AttributesExtComTest {
     private static final byte[] EXPECTEDS = {(byte) 0x00, (byte) 0x07, (byte) 0x01, (byte) 0x01,
         (byte) 0x00, (byte) 0x00};
     private static final byte[] EVPN_VPWS = {(byte) 0x00, (byte) 0x2f, (byte) 0x01, (byte) 0x01,
@@ -37,13 +38,13 @@ public class Layer2AttributesExtComTest {
         (byte) 0x00, (byte) 0x00};
     private Layer2AttributesExtCom parser;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         this.parser = new Layer2AttributesExtCom();
     }
 
     @Test
-    public void handlerTest() throws BGPParsingException, BGPDocumentedException {
+    void handlerTest() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
         final Layer2AttributesExtendedCommunityCase expected = new Layer2AttributesExtendedCommunityCaseBuilder()
@@ -58,7 +59,7 @@ public class Layer2AttributesExtComTest {
     }
 
     @Test
-    public void evpnVpwsTest() throws BGPParsingException, BGPDocumentedException {
+    void evpnVpwsTest() throws BGPParsingException, BGPDocumentedException {
         final ByteBuf buff = Unpooled.buffer(COMMUNITY_VALUE_SIZE);
 
         final Layer2AttributesExtendedCommunityCase expected = new Layer2AttributesExtendedCommunityCaseBuilder()
@@ -89,13 +90,15 @@ public class Layer2AttributesExtComTest {
         assertEquals(expected2, result2);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongCaseTest() {
-        this.parser.serializeExtendedCommunity(new DefaultGatewayExtendedCommunityCaseBuilder().build(), null);
+    @Test
+    void wrongCaseTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> this.parser.serializeExtendedCommunity(new DefaultGatewayExtendedCommunityCaseBuilder().build(),
+                null));
     }
 
     @Test
-    public void testSubtype() {
+    void testSubtype() {
         assertEquals(4, this.parser.getSubType());
     }
 }

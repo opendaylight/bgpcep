@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IP;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IPV6;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IPV6_MODEL;
@@ -33,7 +34,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.MPLS2_N
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.VLAN_NID;
 
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.evpn.impl.esi.types.LanParserTest;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
@@ -43,7 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.mac.ip.adv.route.MacIpAdvRouteBuilder;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
-public class MACIpAdvRParserTest {
+class MACIpAdvRParserTest {
     private static final byte[] VALUE = {
         (byte) 0x02, (byte) 0xf2, (byte) 0x0c, (byte) 0xdd, (byte) 0x80, (byte) 0x9f, (byte) 0xf7, (byte) 0x02,
         (byte) 0x02, (byte) 0x00,
@@ -90,7 +91,7 @@ public class MACIpAdvRParserTest {
     private final MACIpAdvRParser parser = new MACIpAdvRParser();
 
     @Test
-    public void parserCase1Test() {
+    void parserCase1Test() {
         final MacIpAdvRouteCase expected = createdExpectedResult();
         assertArrayEquals(RESULT, ByteArray.getAllBytes(parser.serializeEvpn(expected,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN))));
@@ -131,7 +132,7 @@ public class MACIpAdvRParserTest {
     }
 
     @Test
-    public void parserCase2Test() {
+    void parserCase2Test() {
 
         final MacIpAdvRouteCase expected = new MacIpAdvRouteCaseBuilder().setMacIpAdvRoute(new MacIpAdvRouteBuilder()
                 .setEsi(LAN_AUT_GEN_CASE).setEthernetTagId(ETI).setMacAddress(MAC).setIpAddress(IPV6)
@@ -153,8 +154,9 @@ public class MACIpAdvRParserTest {
         assertEquals(expected, modelResult);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongCaseTest() {
-        parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
+    @Test
+    void wrongCaseTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeEvpn(new EsRouteCaseBuilder().build(), null));
     }
 }

@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.esi.types;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VALUE_SIZE;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createValue;
@@ -16,8 +17,8 @@ import static org.opendaylight.protocol.bgp.evpn.impl.esi.types.EsiModelUtil.ARB
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.esi.Esi;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.esi.esi.ArbitraryCase;
@@ -28,20 +29,20 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
-public final class ArbitraryParserTest {
+final class ArbitraryParserTest {
     private static final byte[] ARB_VALUE = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05,
         (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09};
     private static final byte[] ARB_RESULT = {(byte) 0x00, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04,
         (byte) 0x05, (byte) 0x06, (byte) 0x07, (byte) 0x08, (byte) 0x09};
     private ArbitraryParser parser;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         parser = new ArbitraryParser();
     }
 
     @Test
-    public void parserTest() {
+    void parserTest() {
         final ByteBuf buff = Unpooled.buffer(VALUE_SIZE);
 
         final ArbitraryCase arbitrary = new ArbitraryCaseBuilder().setArbitrary(new ArbitraryBuilder()
@@ -58,8 +59,9 @@ public final class ArbitraryParserTest {
         assertEquals(arbitrary, acmResult);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongCaseTest() {
-        parser.serializeEsi(new AsGeneratedCaseBuilder().build(), null);
+    @Test
+    void wrongCaseTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeEsi(new AsGeneratedCaseBuilder().build(), null));
     }
 }
