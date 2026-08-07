@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.flowspec;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.bgp.concepts.RouteDistinguisherUtil.extractRouteDistinguisher;
@@ -19,11 +19,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.protocol.bgp.flowspec.FlowspecTypeRegistries.SAFI;
 import org.opendaylight.protocol.bgp.flowspec.handlers.AbstractNumericOperandParser;
@@ -102,8 +101,8 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class FlowspecL3vpnIpv4NlriParserTest {
+@ExtendWith(MockitoExtension.class)
+class FlowspecL3vpnIpv4NlriParserTest {
     private static final NodeIdentifier RD_NID = new NodeIdentifier(QName.create(Flowspec.QNAME.getNamespace(),
         Flowspec.QNAME.getRevision(), "route-distinguisher"));
     private static final NodeIdentifier PROTOCOL_IP_NID = new NodeIdentifier(ProtocolIps.QNAME);
@@ -165,14 +164,13 @@ public class FlowspecL3vpnIpv4NlriParserTest {
 
     private final FlowspecL3vpnIpv4NlriParser fsParser = new FlowspecL3vpnIpv4NlriParser(SAFI.FLOWSPEC_VPN);
 
-    @Before
-    public void setUp() {
+    private void mockMultiPathSupport() {
         doReturn(Optional.of(muliPathSupport)).when(constraint).getPeerConstraint(any());
         doReturn(true).when(muliPathSupport).isTableTypeSupported(any());
     }
 
     @Test
-    public void testParseMpReachNlri() throws BGPParsingException {
+    void testParseMpReachNlri() throws BGPParsingException {
         final List<Flowspec> fs = new ArrayList<>();
         final MpReachNlriBuilder mp = new MpReachNlriBuilder();
 
@@ -289,7 +287,8 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testParseMpReachNlriConstraint() throws BGPParsingException {
+    void testParseMpReachNlriConstraint() throws BGPParsingException {
+        mockMultiPathSupport();
         final List<Flowspec> fs = new ArrayList<>();
         final MpReachNlriBuilder mp = new MpReachNlriBuilder();
 
@@ -378,7 +377,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testParseMpUnreachNlri() throws BGPParsingException {
+    void testParseMpUnreachNlri() throws BGPParsingException {
         final List<Flowspec> fs = new ArrayList<>();
         final MpUnreachNlriBuilder mp = new MpUnreachNlriBuilder();
 
@@ -511,7 +510,8 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testParseMpUnreachNlriConstraint() throws BGPParsingException {
+    void testParseMpUnreachNlriConstraint() throws BGPParsingException {
+        mockMultiPathSupport();
         final List<Flowspec> fs = new ArrayList<>();
         final MpUnreachNlriBuilder mp = new MpUnreachNlriBuilder();
 
@@ -588,7 +588,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecDestPrefix() {
+    void testExtractFlowspecDestPrefix() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -609,7 +609,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecSourcePrefix() {
+    void testExtractFlowspecSourcePrefix() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -632,7 +632,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecProtocolIps() {
+    void testExtractFlowspecProtocolIps() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -680,7 +680,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecPorts() {
+    void testExtractFlowspecPorts() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -713,7 +713,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecDestinationPorts() {
+    void testExtractFlowspecDestinationPorts() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -745,7 +745,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecSourcePorts() {
+    void testExtractFlowspecSourcePorts() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -780,7 +780,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecSourceTypes() {
+    void testExtractFlowspecSourceTypes() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -815,7 +815,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecSourceCodes() {
+    void testExtractFlowspecSourceCodes() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -844,7 +844,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecSourceTcpFlags() {
+    void testExtractFlowspecSourceTcpFlags() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -872,7 +872,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecPacketLengths() {
+    void testExtractFlowspecPacketLengths() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -899,7 +899,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecDscps() {
+    void testExtractFlowspecDscps() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -926,7 +926,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecFragments() {
+    void testExtractFlowspecFragments() {
         final var entry = ImmutableNodes.newMapEntryBuilder();
         entry.withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, entry));
         entry.withChild(ImmutableNodes.newUnkeyedListBuilder()
@@ -955,7 +955,7 @@ public class FlowspecL3vpnIpv4NlriParserTest {
     }
 
     @Test
-    public void testExtractFlowspecRouteDistinguisher() {
+    void testExtractFlowspecRouteDistinguisher() {
         assertEquals(RouteDistinguisherUtil.parseRouteDistinguisher(ROUTE_DISTINGUISHER),
             extractRouteDistinguisher(ImmutableNodes.newMapEntryBuilder()
                 .withNodeIdentifier(NodeIdentifierWithPredicates.of(FlowspecRoute.QNAME, FlowspecRoute.QNAME, "foo"))
