@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c5faabf6_bbc77ed4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 547,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-07T19:28:07Z",
+      "side": 1,
+      "message": "Done by adding newBlockingBoundedFastThreadPool for this task.",
+      "parentUuid": "5a164530_6620a007",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "efeb8e25_aa6902c0",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-08-06T09:00:44Z",
       "side": 1,
       "message": "This can lead back to the same BGPCEP-1094 issue we\u0027re trying to fix. If \"onPeerAdded\" throws, the peer stays registered and receives only FUTURE updates. The routes that existed when it connected are lost permanently. So the peer looks healthy but it\u0027s quietly missing routes. The minimum improvement is to log this as ERROR, since this is an important issue. But a better way would be to let the failure reach something that can react to it. Maybe even tearing down the session (which will retry the dump automatically on reconnect) might be preferable to a peer that silently serves incomplete table. Please reconsider.",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "be4f6825_1307e517",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-07T19:28:07Z",
+      "side": 1,
+      "message": "Agreed, this is a real issue, and it is not new. LocRibWriter has the same gap. Its onDataTreeChanged swallows a failed dump the same way, so a peer can silently end up with an incomplete table there too.\n\nFor now I log the failure at ERROR so it is at least visible. The stronger fix you suggest, letting the failure tear down the session so the dump retries on reconnect, is preferable, but it is a larger change that also covers the pre-existing LocRibWriter path, so I would rather handle it as a separate task. I will create that task.",
+      "parentUuid": "efeb8e25_aa6902c0",
       "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -52,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "2c841850_351b3b8f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-07T19:28:07Z",
+      "side": 1,
+      "message": "Agreed, and it is pre-existing. The removeRegistration method only removed the peer from the map and left peersList and peersFilteredList stale until the next registerPeer. Since the fix is small I included it in this rework. The rebuild now runs from both registerPeer and removeRegistration.",
+      "parentUuid": "a2828d3d_58438c24",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e4199602_09e05ac3",
@@ -65,6 +119,24 @@
       "writtenOn": "2026-08-06T09:00:44Z",
       "side": 1,
       "message": "We should replay existing peers for the newly-added listener here, right? Because if there are any pre-existing peers, the listener will not be notified about them.",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ba0bfe4e_62e64db5",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-07T19:28:07Z",
+      "side": 1,
+      "message": "Thanks, fixed.",
+      "parentUuid": "e4199602_09e05ac3",
       "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -86,6 +158,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5caf4958_18ec1514",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-07T19:28:07Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b9cc7f1d_03cde32d",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f479915f_e15c5a0e",
@@ -99,6 +189,24 @@
       "writtenOn": "2026-08-06T09:00:44Z",
       "side": 1,
       "message": "The test throws NPE here, but it get\u0027s swallowed by the try-catch in  LocRibWriter.onDataTreeChanged() and only logged. The precondition commented here survives only by accident: the NPE happens on the last statement of \"walkThrough\", after best-path selection and the loc-rib write have already run, so \"routeEntries\" ends up populated regardless. Revisit please",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d0dbb3e0_6128a193",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-07T19:28:07Z",
+      "side": 1,
+      "message": "Thanks, good catch. This one is also caused by the timing issue reported in this task, when the table-creation event was processed before the peer registered. The BGPPeerTrackerImpl peersList and peersFilteredList were not initialized yet, and walkThrough calls them and fails with an NPE. I have fixed them to always be non-null.",
+      "parentUuid": "f479915f_e15c5a0e",
       "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
