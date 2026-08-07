@@ -7,8 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IP;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.IP_MODEL;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.createContBuilder;
@@ -20,7 +21,7 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.MACIpAdvRParserTest.c
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.NlriModelUtil.ORI_NID;
 
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.evpn.choice.EsRouteCaseBuilder;
@@ -29,7 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.inc.multi.ethernet.tag.res.IncMultiEthernetTagResBuilder;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
-public class IncMultEthTagRParserTest {
+class IncMultEthTagRParserTest {
     static final byte[] RESULT = {
         (byte) 0x03, (byte) 0x11,
         (byte) 0x00, (byte) 0x01, (byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x01, (byte) 0x02,
@@ -43,7 +44,7 @@ public class IncMultEthTagRParserTest {
     private final IncMultEthTagRParser parser = new IncMultEthTagRParser();
 
     @Test
-    public void parserTest() {
+    void parserTest() {
         final IncMultiEthernetTagResCase expected = IncMultEthTagRParserTest.createIncMultiCase();
         assertArrayEquals(RESULT, ByteArray.getAllBytes(parser.serializeEvpn(expected,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN))));
@@ -69,13 +70,15 @@ public class IncMultEthTagRParserTest {
             .build();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongCaseTest() {
-        parser.serializeEvpn(new EsRouteCaseBuilder().build(), null);
+    @Test
+    void wrongCaseTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeEvpn(new EsRouteCaseBuilder().build(), null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void wrongSizeTest() {
-        parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE));
+    @Test
+    void wrongSizeTest() {
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.parseEvpn(Unpooled.wrappedBuffer(WRONG_VALUE)));
     }
 }
