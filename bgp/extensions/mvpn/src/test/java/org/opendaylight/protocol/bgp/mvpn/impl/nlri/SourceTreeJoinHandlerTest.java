@@ -7,11 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.nlri;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -26,7 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteDistinguisher;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public final class SourceTreeJoinHandlerTest {
+final class SourceTreeJoinHandlerTest {
     private static final byte[] SHARED_TREE = new byte[]{
         0, 1, 1, 2, 3, 4, 1, 2,
         0, 0, 0, 10,
@@ -53,22 +53,22 @@ public final class SourceTreeJoinHandlerTest {
     private final SourceTreeJoinHandler handler = new SourceTreeJoinHandler();
 
     @Test
-    public void testParser() {
+    void testParser() {
         assertEquals(this.expected, this.handler.parseMvpn(Unpooled.copiedBuffer(SHARED_TREE)));
     }
 
     @Test
-    public void testSerializer() {
+    void testSerializer() {
         assertArrayEquals(SHARED_TREE_LENGTH, ByteArray.getAllBytes(this.handler.serializeMvpn(this.expected)));
     }
 
     @Test
-    public void testGetType() {
+    void testGetType() {
         assertEquals(NlriType.SourceTreeJoin, this.handler.getType());
     }
 
     @Test
-    public void testGetClazz() {
+    void testGetClazz() {
         assertEquals(SourceTreeJoinCase.class, this.handler.getClazz());
     }
 }

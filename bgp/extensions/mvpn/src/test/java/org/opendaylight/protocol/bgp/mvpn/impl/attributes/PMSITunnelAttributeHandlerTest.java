@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl.attributes;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.BIDIR_PIM_EXPECTED;
 import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.INGRESS_REPLICATION_EXPECTED;
 import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttributeHandlerTestUtil.M_LDP_MP_2_MP_LSP_EXPECTED;
@@ -38,8 +38,8 @@ import static org.opendaylight.protocol.bgp.mvpn.impl.attributes.PMSITunnelAttri
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.mvpn.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.AttributeRegistry;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
@@ -48,12 +48,12 @@ import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 
-public final class PMSITunnelAttributeHandlerTest {
+final class PMSITunnelAttributeHandlerTest {
 
     private AttributeRegistry handler;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         final BGPExtensionProviderContext ctx = new SimpleBGPExtensionProviderContext();
 
         final org.opendaylight.protocol.bgp.parser.impl.BGPActivator inetActivator =
@@ -65,7 +65,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void testBidirPimTree() throws Exception {
+    void testBidirPimTree() throws Exception {
         final Attributes attributes = buildBidirPimTreeAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(attributes, actual);
@@ -77,7 +77,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void testPimSMTree() throws Exception {
+    void testPimSMTree() throws Exception {
         final Attributes attributes = buildPimSMTreeAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(attributes, actual);
@@ -89,7 +89,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void serializePimSSMTree() {
+    void serializePimSSMTree() {
         final Attributes attributes = buildPimSSMTreeAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(attributes, actual);
@@ -97,7 +97,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void parsePimSSMTree() throws Exception {
+    void parsePimSSMTree() throws Exception {
         final Attributes expected = buildPimSSMTreeAttribute();
         final Attributes actual = this.handler.parseAttributes(
                 Unpooled.wrappedBuffer(PIM_SSM_TREE_EXPECTED), null).getAttributes();
@@ -105,7 +105,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void testMldpP2MpLsp() throws Exception {
+    void testMldpP2MpLsp() throws Exception {
         final Attributes expectedIpv4Att = buildMldpP2mpLspIpv4Attribute();
         final ByteBuf actualIpv4 = Unpooled.buffer();
         this.handler.serializeAttribute(expectedIpv4Att, actualIpv4);
@@ -149,7 +149,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void testRsvpteP2MplspLsp() throws Exception {
+    void testRsvpteP2MplspLsp() throws Exception {
         final Attributes expected = buildRsvpTep2MPLspAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(expected, actual);
@@ -160,7 +160,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void testIngressReplication() throws Exception {
+    void testIngressReplication() throws Exception {
         final Attributes expected = buildIngressReplicationAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(expected, actual);
@@ -171,7 +171,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void testMldpmP2MpLsp() throws Exception {
+    void testMldpmP2MpLsp() throws Exception {
         final Attributes expected = buildMLDpMp2mPLspAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(expected, actual);
@@ -193,7 +193,7 @@ public final class PMSITunnelAttributeHandlerTest {
 
 
     @Test
-    public void serializeNoTunnelInfPresentExpected() throws Exception {
+    void serializeNoTunnelInfPresentExpected() throws Exception {
         final Attributes attributes = buildWOTunnelInfAttribute();
         final ByteBuf actual = Unpooled.buffer();
         this.handler.serializeAttribute(attributes, actual);
@@ -205,7 +205,7 @@ public final class PMSITunnelAttributeHandlerTest {
     }
 
     @Test
-    public void testPMSITunnelAttributeParser() {
+    void testPMSITunnelAttributeParser() {
         final PMSITunnelAttributeHandler pmsiHandler = new PMSITunnelAttributeHandler();
         assertEquals(22, pmsiHandler.getType());
         final AttributesBuilder builder = new AttributesBuilder();
