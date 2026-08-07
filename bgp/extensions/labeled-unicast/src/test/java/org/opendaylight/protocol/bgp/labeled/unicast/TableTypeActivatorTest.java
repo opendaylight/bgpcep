@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.labeled.unicast;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4LABELLEDUNICAST;
@@ -19,14 +19,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 
-public class TableTypeActivatorTest {
+class TableTypeActivatorTest {
     private static final BgpTableType IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
         LabeledUnicastSubsequentAddressFamily.VALUE);
     private static final BgpTableType IPV6 = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE,
         LabeledUnicastSubsequentAddressFamily.VALUE);
 
     @Test
-    public void testActivator() {
+    void testActivator() {
         var registry = BGPTableTypeRegistryConsumer.of(new TableTypeActivator());
         assertEquals(IPV4LABELLEDUNICAST.VALUE, registry.getAfiSafiType(IPV4));
         assertEquals(IPV6LABELLEDUNICAST.VALUE, registry.getAfiSafiType(IPV6));
