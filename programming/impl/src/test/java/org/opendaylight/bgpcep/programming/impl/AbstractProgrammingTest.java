@@ -21,6 +21,7 @@ import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.yangtools.binding.Rpc;
 import org.opendaylight.yangtools.concepts.Registration;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 abstract class AbstractProgrammingTest extends AbstractConcurrentDataBrokerTest {
     @Mock
     RpcProviderService rpcRegistry;
