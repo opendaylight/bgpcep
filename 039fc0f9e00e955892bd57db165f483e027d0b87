@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "10874661_682d2c6f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-07T07:29:47Z",
+      "side": 1,
+      "message": "Let\u0027s not entirely lose the information WHICH message failed.. msg has the implementedInterface() method, so log at least that. It should be enough to distinguish whether the message is an update, keepalive or notification. And it\u0027s cheap.",
+      "revId": "039fc0f9e00e955892bd57db165f483e027d0b87",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
