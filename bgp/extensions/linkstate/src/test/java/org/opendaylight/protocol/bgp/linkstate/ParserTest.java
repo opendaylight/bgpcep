@@ -7,10 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.linkstate;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
 import io.netty.buffer.ByteBuf;
@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.impl.message.BGPUpdateMessageParser;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
@@ -94,7 +94,7 @@ import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class ParserTest {
+class ParserTest {
 
     // Used by other tests as well
     private static final List<byte[]> INPUT_BYTES = new ArrayList<>();
@@ -109,8 +109,8 @@ public class ParserTest {
 
     private MessageRegistry msgReg;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         final BGPExtensionConsumerContext context = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst()
             .orElseThrow();
 
@@ -138,7 +138,7 @@ public class ParserTest {
 
 
     @Test
-    public void testResource() {
+    void testResource() {
         assertNotNull(INPUT_BYTES);
     }
 
@@ -157,7 +157,7 @@ public class ParserTest {
      * 47 <- value (SAFI 71)
      */
     @Test
-    public void testEORLS() throws Exception {
+    void testEORLS() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(0), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(0),
             MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
@@ -327,7 +327,7 @@ public class ParserTest {
         00 00 01 <- value
      */
     @Test
-    public void testBGPLink() throws Exception {
+    void testBGPLink() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(1), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray.bytesToInt(ByteArray.subByte(INPUT_BYTES.get(1),
             MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
@@ -535,7 +535,7 @@ public class ParserTest {
         00 00 00 64 <- value
      */
     @Test
-    public void testBGPNode() throws Exception {
+    void testBGPNode() throws Exception {
         final byte[] body = ByteArray.cutBytes(INPUT_BYTES.get(2), MessageUtil.COMMON_HEADER_LENGTH);
         final int messageLength = ByteArray
             .bytesToInt(ByteArray.subByte(INPUT_BYTES.get(2), MessageUtil.MARKER_LENGTH, LENGTH_FIELD_LENGTH));
@@ -664,7 +664,7 @@ public class ParserTest {
      * 00 00 00 64 <- AS number
      */
     @Test
-    public void testOpenMessage() throws Exception {
+    void testOpenMessage() throws Exception {
         final Notification<?> o = msgReg.parseMessage(Unpooled.copiedBuffer(INPUT_BYTES.get(3)), null);
         final Open open = (Open) o;
         final Set<BgpTableType> types = new HashSet<>();
