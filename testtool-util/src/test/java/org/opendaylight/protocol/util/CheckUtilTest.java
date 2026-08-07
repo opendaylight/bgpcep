@@ -46,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     private static final TopologyId TOPOLOGY_ID = new TopologyId("topotest");
     private static final DataObjectIdentifier.WithKey<Topology, TopologyKey> TOPOLOGY_IID =
