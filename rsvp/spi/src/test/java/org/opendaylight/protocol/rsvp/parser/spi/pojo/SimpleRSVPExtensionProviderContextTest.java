@@ -7,14 +7,19 @@
  */
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelParser;
@@ -31,134 +36,132 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 
-public class SimpleRSVPExtensionProviderContextTest {
+class SimpleRSVPExtensionProviderContextTest {
 
     private final SimpleRSVPExtensionProviderContext context = new SimpleRSVPExtensionProviderContext();
 
-    private final RSVPTeObjectParser rsvpTeParser = Mockito.mock(RSVPTeObjectParser.class);
-    private final RSVPTeObjectSerializer rsvpTeSerializer = Mockito.mock(RSVPTeObjectSerializer.class);
-    private final RsvpTeObject parsedRsvpTeObj = Mockito.mock(RsvpTeObject.class);
+    // FIXME: @Mock
+    private final RSVPTeObjectParser rsvpTeParser = mock(RSVPTeObjectParser.class);
+    private final RSVPTeObjectSerializer rsvpTeSerializer = mock(RSVPTeObjectSerializer.class);
+    private final RsvpTeObject parsedRsvpTeObj = mock(RsvpTeObject.class);
 
-    private final XROSubobjectParser xroObjParser = Mockito.mock(XROSubobjectParser.class);
-    private final XROSubobjectSerializer xroObjSerializer = Mockito.mock(XROSubobjectSerializer.class);
-    private final SubobjectContainer subObj = Mockito.mock(SubobjectContainer.class);
-    private final SubobjectType subObjType = Mockito.mock(SubobjectType.class);
+    private final XROSubobjectParser xroObjParser = mock(XROSubobjectParser.class);
+    private final XROSubobjectSerializer xroObjSerializer = mock(XROSubobjectSerializer.class);
+    private final SubobjectContainer subObj = mock(SubobjectContainer.class);
+    private final SubobjectType subObjType = mock(SubobjectType.class);
 
-    private final RROSubobjectParser rroParser = Mockito.mock(RROSubobjectParser.class);
-    private final RROSubobjectSerializer rroSerializer = Mockito.mock(RROSubobjectSerializer.class);
+    private final RROSubobjectParser rroParser = mock(RROSubobjectParser.class);
+    private final RROSubobjectSerializer rroSerializer = mock(RROSubobjectSerializer.class);
     private final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
-        .subobjects.list.SubobjectContainer rroSubObj = Mockito.mock(org.opendaylight.yang.gen.v1.urn.opendaylight
+        .subobjects.list.SubobjectContainer rroSubObj = mock(org.opendaylight.yang.gen.v1.urn.opendaylight
         .params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.list.SubobjectContainer.class);
     private final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
-        .subobjects.SubobjectType rroSubObjType = Mockito.mock(org.opendaylight.yang.gen.v1.urn.opendaylight.params
+        .subobjects.SubobjectType rroSubObjType = mock(org.opendaylight.yang.gen.v1.urn.opendaylight.params
         .xml.ns.yang.rsvp.rev150820._record.route.subobjects.SubobjectType.class);
 
-    private final EROSubobjectParser eroParser = Mockito.mock(EROSubobjectParser.class);
-    private final EROSubobjectSerializer eroSerializer = Mockito.mock(EROSubobjectSerializer.class);
+    private final EROSubobjectParser eroParser = mock(EROSubobjectParser.class);
+    private final EROSubobjectSerializer eroSerializer = mock(EROSubobjectSerializer.class);
     private final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route
-        .subobjects.list.SubobjectContainer eroSubObj = Mockito.mock(org.opendaylight.yang.gen.v1.urn.opendaylight
+        .subobjects.list.SubobjectContainer eroSubObj = mock(org.opendaylight.yang.gen.v1.urn.opendaylight
         .params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainer.class);
 
-    private final LabelParser labelParser = Mockito.mock(LabelParser.class);
-    private final LabelSerializer labelSerializer = Mockito.mock(LabelSerializer.class);
-    private final LabelType labelType = Mockito.mock(LabelType.class);
+    private final LabelParser labelParser = mock(LabelParser.class);
+    private final LabelSerializer labelSerializer = mock(LabelSerializer.class);
+    private final LabelType labelType = mock(LabelType.class);
 
-    @Before
-    public void setUp() throws RSVPParsingException {
-        Mockito.doReturn(this.parsedRsvpTeObj).when(this.rsvpTeParser).parseObject(Mockito.any(ByteBuf.class));
-        Mockito.doReturn(RsvpTeObject.class).when(this.parsedRsvpTeObj).implementedInterface();
-        Mockito.doReturn("parsedRsvpTeObj").when(this.parsedRsvpTeObj).toString();
-        Mockito.doNothing().when(this.rsvpTeSerializer).serializeObject(Mockito.any(RsvpTeObject.class),
-            Mockito.any(ByteBuf.class));
+    @BeforeEach
+    void setUp() throws RSVPParsingException {
+        doReturn(parsedRsvpTeObj).when(rsvpTeParser).parseObject(any(ByteBuf.class));
+        doReturn(RsvpTeObject.class).when(parsedRsvpTeObj).implementedInterface();
+        doReturn("parsedRsvpTeObj").when(parsedRsvpTeObj).toString();
+        doNothing().when(rsvpTeSerializer).serializeObject(any(RsvpTeObject.class), any(ByteBuf.class));
 
-        Mockito.doReturn(this.subObj).when(this.xroObjParser).parseSubobject(Mockito.any(ByteBuf.class),
-            Mockito.any(Boolean.class));
-        Mockito.doReturn(this.subObjType).when(this.subObj).getSubobjectType();
-        Mockito.doReturn("SubobjectContainer").when(this.subObj).toString();
-        Mockito.doReturn(SubobjectType.class).when(this.subObjType).implementedInterface();
-        Mockito.doNothing().when(this.xroObjSerializer).serializeSubobject(Mockito.any(SubobjectContainer.class),
-            Mockito.any(ByteBuf.class));
+        doReturn(subObj).when(xroObjParser).parseSubobject(any(ByteBuf.class), any(Boolean.class));
+        doReturn(subObjType).when(subObj).getSubobjectType();
+        doReturn("SubobjectContainer").when(subObj).toString();
+        doReturn(SubobjectType.class).when(subObjType).implementedInterface();
+        doNothing().when(xroObjSerializer).serializeSubobject(any(SubobjectContainer.class),
+            any(ByteBuf.class));
 
-        Mockito.doReturn(this.rroSubObj).when(this.rroParser).parseSubobject(Mockito.any(ByteBuf.class));
-        Mockito.doReturn(this.rroSubObjType).when(this.rroSubObj).getSubobjectType();
-        Mockito.doReturn("SubobjectContainer").when(this.rroSubObj).toString();
-        Mockito.doReturn(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
-            .subobjects.SubobjectType.class).when(this.rroSubObjType).implementedInterface();
-        Mockito.doNothing().when(this.rroSerializer).serializeSubobject(Mockito.any(org.opendaylight.yang.gen.v1.urn
+        doReturn(rroSubObj).when(rroParser).parseSubobject(any(ByteBuf.class));
+        doReturn(rroSubObjType).when(rroSubObj).getSubobjectType();
+        doReturn("SubobjectContainer").when(rroSubObj).toString();
+        doReturn(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route
+            .subobjects.SubobjectType.class).when(rroSubObjType).implementedInterface();
+        doNothing().when(rroSerializer).serializeSubobject(any(org.opendaylight.yang.gen.v1.urn
                 .opendaylight.params.xml.ns.yang.rsvp.rev150820._record.route.subobjects.list.SubobjectContainer.class),
-            Mockito.any(ByteBuf.class));
+            any(ByteBuf.class));
 
-        Mockito.doReturn(this.eroSubObj).when(this.eroParser).parseSubobject(Mockito.any(ByteBuf.class),
-            Mockito.any(Boolean.class));
-        Mockito.doReturn(this.subObjType).when(this.eroSubObj).getSubobjectType();
-        Mockito.doReturn("EROSubobjectContainer").when(this.eroSubObj).toString();
-        Mockito.doReturn(SubobjectType.class).when(this.subObjType).implementedInterface();
-        Mockito.doNothing().when(this.eroSerializer).serializeSubobject(Mockito.any(org.opendaylight.yang.gen.v1.urn
+        doReturn(eroSubObj).when(eroParser).parseSubobject(any(ByteBuf.class),
+            any(Boolean.class));
+        doReturn(subObjType).when(eroSubObj).getSubobjectType();
+        doReturn("EROSubobjectContainer").when(eroSubObj).toString();
+        doReturn(SubobjectType.class).when(subObjType).implementedInterface();
+        doNothing().when(eroSerializer).serializeSubobject(any(org.opendaylight.yang.gen.v1.urn
             .opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects.list.SubobjectContainer.class),
-            Mockito.any(ByteBuf.class));
+            any(ByteBuf.class));
 
-        Mockito.doReturn(this.labelType).when(this.labelParser).parseLabel(Mockito.any(ByteBuf.class));
-        Mockito.doReturn(LabelType.class).when(this.labelType).implementedInterface();
-        Mockito.doReturn("LabelType").when(this.labelType).toString();
-        Mockito.doNothing().when(this.labelSerializer).serializeLabel(Mockito.anyBoolean(), Mockito.anyBoolean(),
-            Mockito.any(LabelType.class), Mockito.any(ByteBuf.class));
+        doReturn(labelType).when(labelParser).parseLabel(any(ByteBuf.class));
+        doReturn(LabelType.class).when(labelType).implementedInterface();
+        doReturn("LabelType").when(labelType).toString();
+        doNothing().when(labelSerializer).serializeLabel(anyBoolean(), anyBoolean(), any(LabelType.class),
+            any(ByteBuf.class));
     }
 
     @Test
-    public void testReferenceCache() {
-        assertNotNull(this.context.getReferenceCache());
+    void testReferenceCache() {
+        assertNotNull(context.getReferenceCache());
     }
 
     @Test
-    public void testServiceForRsvpObject() throws RSVPParsingException {
-        this.context.registerRsvpObjectParser(1, 1, this.rsvpTeParser);
+    void testServiceForRsvpObject() throws RSVPParsingException {
+        context.registerRsvpObjectParser(1, 1, rsvpTeParser);
         final ByteBuf buffer = Unpooled.buffer();
-        assertEquals(this.parsedRsvpTeObj, this.context.getRsvpRegistry().parseRSPVTe(1, 1, buffer));
-        this.context.registerRsvpObjectSerializer(RsvpTeObject.class, this.rsvpTeSerializer);
-        this.context.getRsvpRegistry().serializeRSPVTe(this.parsedRsvpTeObj, buffer);
-        Mockito.verify(this.rsvpTeSerializer).serializeObject(Mockito.any(RsvpTeObject.class),
-            Mockito.any(ByteBuf.class));
+        assertEquals(parsedRsvpTeObj, context.getRsvpRegistry().parseRSPVTe(1, 1, buffer));
+        context.registerRsvpObjectSerializer(RsvpTeObject.class, rsvpTeSerializer);
+        context.getRsvpRegistry().serializeRSPVTe(parsedRsvpTeObj, buffer);
+        verify(rsvpTeSerializer).serializeObject(any(RsvpTeObject.class), any(ByteBuf.class));
     }
 
     @Test
-    public void testServiceForXROSubobject() throws RSVPParsingException {
-        this.context.registerXROSubobjectParser(2, this.xroObjParser);
+    void testServiceForXROSubobject() throws RSVPParsingException {
+        context.registerXROSubobjectParser(2, xroObjParser);
         final ByteBuf buffer = Unpooled.buffer();
-        assertEquals(this.subObj, this.context.getXROSubobjectHandlerRegistry().parseSubobject(2, buffer, false));
-        this.context.registerXROSubobjectSerializer(SubobjectType.class, this.xroObjSerializer);
-        this.context.getXROSubobjectHandlerRegistry().serializeSubobject(this.subObj, buffer);
-        Mockito.verify(this.xroObjSerializer).serializeSubobject(this.subObj, buffer);
+        assertEquals(subObj, context.getXROSubobjectHandlerRegistry().parseSubobject(2, buffer, false));
+        context.registerXROSubobjectSerializer(SubobjectType.class, xroObjSerializer);
+        context.getXROSubobjectHandlerRegistry().serializeSubobject(subObj, buffer);
+        verify(xroObjSerializer).serializeSubobject(subObj, buffer);
     }
 
     @Test
-    public void testServiceForRROSubobject() throws RSVPParsingException {
-        this.context.registerRROSubobjectParser(3, this.rroParser);
+    void testServiceForRROSubobject() throws RSVPParsingException {
+        context.registerRROSubobjectParser(3, rroParser);
         final ByteBuf buffer = Unpooled.buffer();
-        assertEquals(this.rroSubObj, this.context.getRROSubobjectHandlerRegistry().parseSubobject(3, buffer));
-        this.context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .rsvp.rev150820._record.route.subobjects.SubobjectType.class, this.rroSerializer);
-        this.context.getRROSubobjectHandlerRegistry().serializeSubobject(this.rroSubObj, buffer);
-        Mockito.verify(this.rroSerializer).serializeSubobject(this.rroSubObj, buffer);
+        assertEquals(rroSubObj, context.getRROSubobjectHandlerRegistry().parseSubobject(3, buffer));
+        context.registerRROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .rsvp.rev150820._record.route.subobjects.SubobjectType.class, rroSerializer);
+        context.getRROSubobjectHandlerRegistry().serializeSubobject(rroSubObj, buffer);
+        verify(rroSerializer).serializeSubobject(rroSubObj, buffer);
     }
 
     @Test
-    public void testServiceForEROSubobject() throws RSVPParsingException {
-        this.context.registerEROSubobjectParser(4, this.eroParser);
+    void testServiceForEROSubobject() throws RSVPParsingException {
+        context.registerEROSubobjectParser(4, eroParser);
         final ByteBuf buffer = Unpooled.buffer();
-        assertEquals(this.eroSubObj, this.context.getEROSubobjectHandlerRegistry().parseSubobject(4, buffer, false));
-        this.context.registerEROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
-            .rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType.class, this.eroSerializer);
-        this.context.getEROSubobjectHandlerRegistry().serializeSubobject(this.eroSubObj, buffer);
-        Mockito.verify(this.eroSerializer).serializeSubobject(this.eroSubObj, buffer);
+        assertEquals(eroSubObj, context.getEROSubobjectHandlerRegistry().parseSubobject(4, buffer, false));
+        context.registerEROSubobjectSerializer(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
+            .rsvp.rev150820.basic.explicit.route.subobjects.SubobjectType.class, eroSerializer);
+        context.getEROSubobjectHandlerRegistry().serializeSubobject(eroSubObj, buffer);
+        verify(eroSerializer).serializeSubobject(eroSubObj, buffer);
     }
 
     @Test
-    public void testServiceForLabel() throws RSVPParsingException {
-        this.context.registerLabelParser(5, this.labelParser);
+    void testServiceForLabel() throws RSVPParsingException {
+        context.registerLabelParser(5, labelParser);
         final ByteBuf buffer = Unpooled.buffer();
-        assertEquals(this.labelType, this.context.getLabelHandlerRegistry().parseLabel(5, buffer));
-        this.context.registerLabelSerializer(LabelType.class, this.labelSerializer);
-        this.context.getLabelHandlerRegistry().serializeLabel(false, false, this.labelType, buffer);
-        Mockito.verify(this.labelSerializer).serializeLabel(false, false, this.labelType, buffer);
+        assertEquals(labelType, context.getLabelHandlerRegistry().parseLabel(5, buffer));
+        context.registerLabelSerializer(LabelType.class, labelSerializer);
+        context.getLabelHandlerRegistry().serializeLabel(false, false, labelType, buffer);
+        verify(labelSerializer).serializeLabel(false, false, labelType, buffer);
     }
 }

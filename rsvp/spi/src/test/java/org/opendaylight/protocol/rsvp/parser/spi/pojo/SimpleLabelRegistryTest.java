@@ -7,96 +7,107 @@
  */
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelParser;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class SimpleLabelRegistryTest {
+@ExtendWith(MockitoExtension.class)
+class SimpleLabelRegistryTest {
     private final short ctype = 1;
     private final SimpleLabelRegistry simpleLabelRegistry = new SimpleLabelRegistry();
-    private final ByteBuf input = Unpooled.wrappedBuffer(new byte[]{1, 2, 3});
+    private final ByteBuf input = Unpooled.wrappedBuffer(new byte[] { 1, 2, 3 });
     @Mock
     private LabelParser labelParser;
     @Mock
     private LabelSerializer labelSerializer;
 
-    @Before
-    public void setUp() throws RSVPParsingException {
-        this.simpleLabelRegistry.registerLabelParser(this.ctype, this.labelParser);
-        this.simpleLabelRegistry.registerLabelSerializer(MockLabel.class, this.labelSerializer);
-        Mockito.doReturn(new MockLabel()).when(this.labelParser).parseLabel(this.input);
-        final ArgumentCaptor<LabelType> tlvArg = ArgumentCaptor.forClass(LabelType.class);
-        final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
-        Mockito.doNothing().when(this.labelSerializer).serializeLabel(Mockito.anyBoolean(), Mockito.anyBoolean(),
+    @BeforeEach
+    void setUp() {
+        simpleLabelRegistry.registerLabelParser(ctype, labelParser);
+        simpleLabelRegistry.registerLabelSerializer(MockLabel.class, labelSerializer);
+    }
+
+    private void stubSerializeLabel() {
+        final var tlvArg = ArgumentCaptor.forClass(LabelType.class);
+        final var bufArg = ArgumentCaptor.forClass(ByteBuf.class);
+        doNothing().when(labelSerializer).serializeLabel(anyBoolean(), anyBoolean(),
             tlvArg.capture(), bufArg.capture());
     }
 
     @Test
-    public void testParserRegistration() {
-        assertNotNull(this.simpleLabelRegistry.registerLabelParser(this.ctype, this.labelParser));
+    void testParserRegistration() {
+        assertNotNull(simpleLabelRegistry.registerLabelParser(ctype, labelParser));
     }
 
     @Test
-    public void testSerializerRegistration() {
-        assertNotNull(this.simpleLabelRegistry.registerLabelSerializer(MockLabelClass.class, this.labelSerializer));
+    void testSerializerRegistration() {
+        assertNotNull(simpleLabelRegistry.registerLabelSerializer(MockLabelClass.class, labelSerializer));
     }
 
     @Test
-    public void testUnrecognizedType() throws RSVPParsingException {
+    void testUnrecognizedType() throws RSVPParsingException {
+        stubSerializeLabel();
         final int wrongLabelType = 99;
-        assertNull(this.simpleLabelRegistry.parseLabel(wrongLabelType, this.input));
+        assertNull(simpleLabelRegistry.parseLabel(wrongLabelType, input));
         final ByteBuf output = Unpooled.EMPTY_BUFFER;
-        this.simpleLabelRegistry.serializeLabel(false, false, new MockLabel(), output);
+        simpleLabelRegistry.serializeLabel(false, false, new MockLabel(), output);
         assertEquals(0, output.readableBytes());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testParseWrongType() throws RSVPParsingException {
+    @Test
+    void testParseWrongType() {
         final int wrongType = 65536;
-        this.simpleLabelRegistry.parseLabel(wrongType, this.input);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testRegisterWrongType() {
-        final int wrongType = 65536;
-        this.simpleLabelRegistry.registerLabelParser(wrongType, this.labelParser);
+        assertThrows(IllegalArgumentException.class,
+            () -> simpleLabelRegistry.parseLabel(wrongType, input));
     }
 
     @Test
-    public void testParseLabel() throws RSVPParsingException {
-        final LabelType output = this.simpleLabelRegistry.parseLabel(this.ctype, this.input);
-        assertNotNull(output);
-        assertTrue(output instanceof MockLabel);
-
-        final ByteBuf aggregator = Unpooled.EMPTY_BUFFER;
-        this.simpleLabelRegistry.serializeLabel(false, false, output, aggregator);
-        Mockito.verify(this.labelSerializer).serializeLabel(false, false, output, aggregator);
+    void testRegisterWrongType() {
+        final int wrongType = 65536;
+        assertThrows(IllegalArgumentException.class,
+            () -> simpleLabelRegistry.registerLabelParser(wrongType, labelParser));
     }
 
-    private final class MockLabelClass implements LabelType {
+    @Test
+    void testParseLabel() throws RSVPParsingException {
+        stubSerializeLabel();
+        doReturn(new MockLabel()).when(labelParser).parseLabel(input);
+        final LabelType output = simpleLabelRegistry.parseLabel(ctype, input);
+        assertNotNull(output);
+        assertInstanceOf(MockLabel.class, output);
+
+        final ByteBuf aggregator = Unpooled.EMPTY_BUFFER;
+        simpleLabelRegistry.serializeLabel(false, false, output, aggregator);
+        verify(labelSerializer).serializeLabel(false, false, output, aggregator);
+    }
+
+    private static final class MockLabelClass implements LabelType {
         @Override
         public Class<? extends LabelType> implementedInterface() {
             return MockLabelClass.class;
         }
     }
 
-    private final class MockLabel implements LabelType {
+    private static final class MockLabel implements LabelType {
         @Override
         public Class<? extends LabelType> implementedInterface() {
             return MockLabel.class;

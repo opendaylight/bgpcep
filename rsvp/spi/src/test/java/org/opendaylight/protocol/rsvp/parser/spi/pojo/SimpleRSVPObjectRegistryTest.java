@@ -8,20 +8,23 @@
 
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPTeObjectSerializer;
@@ -29,8 +32,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.SecondaryExplicitRouteObject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.object.SecondaryExplicitRouteObjectBuilder;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class SimpleRSVPObjectRegistryTest {
+@ExtendWith(MockitoExtension.class)
+class SimpleRSVPObjectRegistryTest {
     private final int subObjectTypeOne = 1;
     private final int subObjectCTypeOne = 1;
     private final ByteBuf input = Unpooled.wrappedBuffer(new byte[]{1, 2, 3});
@@ -40,70 +43,72 @@ public class SimpleRSVPObjectRegistryTest {
     @Mock
     private RSVPTeObjectSerializer rsvpTeObjectSerializer;
 
-    @Before
-    public void setUp() throws RSVPParsingException {
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne,
-            this.rsvpTeObjectParser);
-        this.simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class,
-            this.rsvpTeObjectSerializer);
-        Mockito.doReturn(new SecondaryExplicitRouteObjectBuilder().build()).when(this.rsvpTeObjectParser)
-            .parseObject(this.input);
-        final ArgumentCaptor<RsvpTeObject> arg = ArgumentCaptor.forClass(RsvpTeObject.class);
-        final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
-        Mockito.doNothing().when(this.rsvpTeObjectSerializer).serializeObject(arg.capture(), bufArg.capture());
+    @BeforeEach
+    void setUp() {
+        simpleRSVPObjectRegistry.registerRsvpObjectParser(subObjectTypeOne, subObjectCTypeOne, rsvpTeObjectParser);
+        simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class,
+            rsvpTeObjectSerializer);
+    }
+
+    private void stubSerializeObject() {
+        final var arg = ArgumentCaptor.forClass(RsvpTeObject.class);
+        final var bufArg = ArgumentCaptor.forClass(ByteBuf.class);
+        doNothing().when(rsvpTeObjectSerializer).serializeObject(arg.capture(), bufArg.capture());
     }
 
     @Test
-    public void testParserRegistration() {
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(this.subObjectTypeOne, this.subObjectCTypeOne,
-            this.rsvpTeObjectParser);
+    void testParserRegistration() {
+        simpleRSVPObjectRegistry.registerRsvpObjectParser(subObjectTypeOne, subObjectCTypeOne, rsvpTeObjectParser);
     }
 
     @Test
-    public void testSerializerRegistration() {
-        this.simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class,
-            this.rsvpTeObjectSerializer);
+    void testSerializerRegistration() {
+        simpleRSVPObjectRegistry.registerRsvpObjectSerializer(SecondaryExplicitRouteObject.class,
+            rsvpTeObjectSerializer);
     }
 
     @Test
-    public void testParseWrongType() throws RSVPParsingException {
+    void testParseWrongType() throws RSVPParsingException {
         final int wrongType = 65536;
-        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(wrongType, this.subObjectCTypeOne, this.input));
+        assertNull(simpleRSVPObjectRegistry.parseRSPVTe(wrongType, subObjectCTypeOne, input));
     }
 
     @Test
-    public void testUnrecognizedType() throws RSVPParsingException {
+    void testUnrecognizedType() throws RSVPParsingException {
+        stubSerializeObject();
         final int wrongType = 99;
-        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(wrongType, this.subObjectCTypeOne, this.input));
+        assertNull(simpleRSVPObjectRegistry.parseRSPVTe(wrongType, subObjectCTypeOne, input));
         final ByteBuf output = Unpooled.EMPTY_BUFFER;
-        this.simpleRSVPObjectRegistry.serializeRSPVTe(new SecondaryExplicitRouteObjectBuilder().build(), output);
+        simpleRSVPObjectRegistry.serializeRSPVTe(new SecondaryExplicitRouteObjectBuilder().build(), output);
         assertEquals(0, output.readableBytes());
     }
 
     @Test
-    public void testParseRSVP() throws RSVPParsingException {
-        final RsvpTeObject output = this.simpleRSVPObjectRegistry.parseRSPVTe(this.subObjectTypeOne,
-            this.subObjectCTypeOne, this.input);
+    void testParseRSVP() throws RSVPParsingException {
+        stubSerializeObject();
+        doReturn(new SecondaryExplicitRouteObjectBuilder().build()).when(rsvpTeObjectParser)
+            .parseObject(input);
+        final RsvpTeObject output = simpleRSVPObjectRegistry.parseRSPVTe(subObjectTypeOne,
+            subObjectCTypeOne, input);
         assertNotNull(output);
-        assertTrue(output instanceof SecondaryExplicitRouteObject);
+        assertInstanceOf(SecondaryExplicitRouteObject.class, output);
 
         final ByteBuf aggregator = Unpooled.EMPTY_BUFFER;
-        this.simpleRSVPObjectRegistry.serializeRSPVTe(output, aggregator);
-        Mockito.verify(this.rsvpTeObjectSerializer).serializeObject(output, aggregator);
+        simpleRSVPObjectRegistry.serializeRSPVTe(output, aggregator);
+        verify(rsvpTeObjectSerializer).serializeObject(output, aggregator);
     }
-
 
     @Test
-    public void testRegisterWrongCType() throws RSVPParsingException {
+    void testRegisterWrongCType() throws RSVPParsingException {
         final int wrongCType = 65536;
-        assertNull(this.simpleRSVPObjectRegistry.parseRSPVTe(this.subObjectTypeOne, wrongCType, this.input));
+        assertNull(simpleRSVPObjectRegistry.parseRSPVTe(subObjectTypeOne, wrongCType, input));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testRegisterWrongType() {
+    @Test
+    void testRegisterWrongType() {
         final int wrongType = 65536;
-        this.simpleRSVPObjectRegistry.registerRsvpObjectParser(wrongType, this.subObjectCTypeOne,
-            this.rsvpTeObjectParser);
+        assertThrows(IllegalArgumentException.class,
+            () -> simpleRSVPObjectRegistry.registerRsvpObjectParser(wrongType, subObjectCTypeOne,
+                rsvpTeObjectParser));
     }
-
 }
