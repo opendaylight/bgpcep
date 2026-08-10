@@ -100,6 +100,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
     // the local port and address where the monitor (ODL) will listen for incoming BMP request
     private static final int MONITOR_LOCAL_PORT = 12345;
