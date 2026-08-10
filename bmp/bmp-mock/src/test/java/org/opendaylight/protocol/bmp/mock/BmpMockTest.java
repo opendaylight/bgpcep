@@ -18,10 +18,11 @@ import java.net.InetSocketAddress;
 import java.util.List;
 import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.api.BmpSessionListener;
@@ -37,13 +38,13 @@ import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yangtools.binding.Notification;
 
-public class BmpMockTest {
+class BmpMockTest {
     private final BmpSessionListener sessionListener = mock(BmpSessionListener.class);
     private BmpExtensionProviderActivator bmpActivator;
     private BmpDispatcherImpl bmpDispatcher;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         final BmpExtensionProviderContext ctx = new SimpleBmpExtensionProviderContext();
         bmpActivator = new BmpActivator(
             ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow());
@@ -51,13 +52,14 @@ public class BmpMockTest {
         bmpDispatcher = new BmpDispatcherImpl(new BmpNettyGroups(), ctx, new DefaultBmpSessionFactory());
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         bmpDispatcher.close();
     }
 
-    @Test(timeout = 20000)
-    public void testMain() throws Exception {
+    @Test
+    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    void testMain() throws Exception {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
         final ChannelFuture futureServer = bmpDispatcher.createServer(serverAddr,
@@ -92,8 +94,9 @@ public class BmpMockTest {
         }
     }
 
-    @Test(timeout = 20000)
-    public void testMainInPassiveMode() throws Exception {
+    @Test
+    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    void testMainInPassiveMode() throws Exception {
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress();
         final BmpSessionListenerFactory bmpSessionListenerFactory = () -> BmpMockTest.this.sessionListener;
 
@@ -101,7 +104,7 @@ public class BmpMockTest {
         final List<ChannelFuture> futureServers = BmpMock.deploy(new String[]
             {"--local_address", InetSocketAddressUtil.toHostAndPort(serverAddr).toString(),
             "--peers_count", "3", "--pre_policy_routes", "3", "--passive"});
-        Assert.assertEquals(1, futureServers.size());
+        Assertions.assertEquals(1, futureServers.size());
         futureServers.get(0).sync();
         final ChannelFuture futureClient = bmpDispatcher.createClient(serverAddr,
                 bmpSessionListenerFactory, KeyMapping.of());
