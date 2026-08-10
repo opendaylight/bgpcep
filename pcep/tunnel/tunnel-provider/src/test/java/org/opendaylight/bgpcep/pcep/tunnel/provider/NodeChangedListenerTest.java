@@ -61,6 +61,7 @@ import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class NodeChangedListenerTest extends AbstractConcurrentDataBrokerTest {
 
     private static final TopologyId PCEP_TOPOLOGY_ID = new TopologyId("pcep-topology");

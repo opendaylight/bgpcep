@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.data.change.counter.rev160315.data.change.counter.CounterKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class TopologyDataChangeCounterTest extends AbstractConcurrentDataBrokerTest {
 
     private static final String COUNTER_ID1 = "counter1";
