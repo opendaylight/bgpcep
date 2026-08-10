@@ -7,13 +7,14 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl.te;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.rsvp.parser.impl.RSVPActivator;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.SEROBasicProtectionSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.ero.SERODynamicProtectionSubobjectParser;
@@ -28,19 +29,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary._record.route.subobjects.subobject.type.DynamicControlProtectionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.secondary.explicit.route.subobjects.subobject.type.DynamicControlProtectionCaseBuilder;
 
-public class TEObjectTest {
+class TEObjectTest {
     private RSVPActivator act;
     private SimpleRSVPExtensionProviderContext context;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         this.act = new RSVPActivator();
         this.context = new SimpleRSVPExtensionProviderContext();
         this.act.start(this.context);
     }
 
     @Test
-    public void testAdminStatusObjectParser() throws RSVPParsingException {
+    void testAdminStatusObjectParser() throws RSVPParsingException {
         final AdminStatusObjectParser admParser = new AdminStatusObjectParser();
         final RsvpTeObject obj = admParser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_ADMIN_STATUS, 4,
@@ -51,7 +52,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testAssociationObjectParser1() throws RSVPParsingException {
+    void testAssociationObjectParser1() throws RSVPParsingException {
         final AssociationObjectParserIPV4 parser = new AssociationObjectParserIPV4();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_ASSOCIATION_1, 4,
@@ -63,7 +64,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testAssociationObjectParser2() throws RSVPParsingException {
+    void testAssociationObjectParser2() throws RSVPParsingException {
         final AssociationObjectParserIPV6 parser = new AssociationObjectParserIPV6();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_ASSOCIATION_2, 4, TEObjectUtil.TE_LSP_ASSOCIATION_2.length - 4)));
@@ -74,7 +75,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testBandwidthObjectParser1() throws RSVPParsingException {
+    void testBandwidthObjectParser1() throws RSVPParsingException {
         final BandwidthObjectParser parser = new BandwidthObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_BANDWIDTH_1, 4, TEObjectUtil.TE_LSP_BANDWIDTH_1
@@ -86,7 +87,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testBandwidthObjectParser2() throws RSVPParsingException {
+    void testBandwidthObjectParser2() throws RSVPParsingException {
         final ReoptimizationBandwidthObjectParser parser = new ReoptimizationBandwidthObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_BANDWIDTH_2, 4, TEObjectUtil.TE_LSP_BANDWIDTH_2
@@ -98,7 +99,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testExcludeRouteParser() throws RSVPParsingException {
+    void testExcludeRouteParser() throws RSVPParsingException {
         final ExcludeRouteObjectParser parser = new ExcludeRouteObjectParser(
             this.context.getXROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
@@ -111,7 +112,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testExplicitRouteParser() throws RSVPParsingException {
+    void testExplicitRouteParser() throws RSVPParsingException {
         final ExplicitRouteObjectParser parser = new ExplicitRouteObjectParser(
             this.context.getEROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(ByteArray.subByte(
@@ -123,7 +124,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testAttributesObject12Parser() throws RSVPParsingException {
+    void testAttributesObject12Parser() throws RSVPParsingException {
         final AttributesObjectParser parser = new AttributesObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_ATTRIBUTES, 4,
@@ -135,7 +136,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testRequiredAttributesParser() throws RSVPParsingException {
+    void testRequiredAttributesParser() throws RSVPParsingException {
         final RequiredAttributesObjectParser parser = new RequiredAttributesObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_REQUIRED_ATTRIBUTES, 4,
@@ -147,7 +148,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testPrimaryPathRouteParser() throws RSVPParsingException {
+    void testPrimaryPathRouteParser() throws RSVPParsingException {
         final PrimaryPathRouteObjectParser parser = new PrimaryPathRouteObjectParser(
             this.context.getEROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
@@ -161,7 +162,7 @@ public class TEObjectTest {
 
 
     @Test
-    public void testProtectionObjectParser1() throws RSVPParsingException {
+    void testProtectionObjectParser1() throws RSVPParsingException {
         final ProtectionObjectParser parser = new ProtectionObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_PROTECTION_C1, 4,
@@ -172,7 +173,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testProtectionObjectParser2() throws RSVPParsingException {
+    void testProtectionObjectParser2() throws RSVPParsingException {
         final DynamicProtectionObjectParser parser = new DynamicProtectionObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_PROTECTION_C2, 4,
@@ -183,19 +184,16 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testProtectionCommonParser() {
+    void testProtectionCommonParser() {
         final ByteBuf emptyBuff = Unpooled.buffer();
-        try {
-            ProtectionCommonParser.parseCommonProtectionBodyType2(emptyBuff);
-            Assert.fail();
-        } catch (final RSVPParsingException e) {
-            Assert.assertEquals("Wrong length of array of bytes. Passed: " + emptyBuff.readableBytes()
-                + "; Expected: " + ProtectionCommonParser.CONTENT_LENGTH_C2 + ".", e.getMessage());
-        }
+        final var ex = assertThrows(RSVPParsingException.class,
+            () -> ProtectionCommonParser.parseCommonProtectionBodyType2(emptyBuff));
+        assertEquals("Wrong length of array of bytes. Passed: " + emptyBuff.readableBytes()
+            + "; Expected: " + ProtectionCommonParser.CONTENT_LENGTH_C2 + ".", ex.getMessage());
     }
 
     @Test
-    public void testRecordRouteParser() throws RSVPParsingException {
+    void testRecordRouteParser() throws RSVPParsingException {
         final RecordRouteObjectParser parser = new RecordRouteObjectParser(
             this.context.getRROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
@@ -208,7 +206,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testSecondaryExplicitRouteParser() throws RSVPParsingException {
+    void testSecondaryExplicitRouteParser() throws RSVPParsingException {
         final SecondaryExplicitRouteObjectParser parser = new SecondaryExplicitRouteObjectParser(
             this.context.getEROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
@@ -221,7 +219,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testSecondaryRecordRouteObjectParser() throws RSVPParsingException {
+    void testSecondaryRecordRouteObjectParser() throws RSVPParsingException {
         final SecondaryRecordRouteObjectParser parser = new SecondaryRecordRouteObjectParser(
             this.context.getRROSubobjectHandlerRegistry());
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
@@ -234,7 +232,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testSSRODynamicProtectionSubobjectParser() throws RSVPParsingException {
+    void testSSRODynamicProtectionSubobjectParser() throws RSVPParsingException {
         final SRROBasicProtectionSubobjectParser parser = new SRROBasicProtectionSubobjectParser();
         final SRRODynamicProtectionSubobjectParser dynamicParser = new SRRODynamicProtectionSubobjectParser();
         final SubobjectContainer sub = parser.parseSubobject(Unpooled.copiedBuffer(
@@ -247,7 +245,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testSSROBasicProtectionSubobjectParser() throws RSVPParsingException {
+    void testSSROBasicProtectionSubobjectParser() throws RSVPParsingException {
         final SRROBasicProtectionSubobjectParser parser = new SRROBasicProtectionSubobjectParser();
         final SubobjectContainer sub = parser.parseSubobject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_BASIC_SRRO_PROTECTION, 2,
@@ -258,26 +256,28 @@ public class TEObjectTest {
         assertArrayEquals(TEObjectUtil.TE_LSP_BASIC_SRRO_PROTECTION, ByteArray.getAllBytes(output));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongParseSRRO() throws RSVPParsingException {
+    @Test
+    void testWrongParseSRRO() {
         final SRROBasicProtectionSubobjectParser parser = new SRROBasicProtectionSubobjectParser();
-        parser.parseSubobject(null);
+        assertThrows(IllegalArgumentException.class, () -> parser.parseSubobject(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongSerializeSRRO() throws RSVPParsingException {
+    @Test
+    void testWrongSerializeSRRO() {
         final DynamicControlProtectionCase dynamicProtection = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
             .xml.ns.yang.rsvp.rev150820.secondary._record.route.subobjects.subobject.type
             .DynamicControlProtectionCaseBuilder().build();
         final SRROBasicProtectionSubobjectParser parser = new SRROBasicProtectionSubobjectParser();
-        parser.serializeSubobject(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820
+        final var container = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820
                 ._record.route.subobjects.list.SubobjectContainerBuilder()
                 .setSubobjectType(dynamicProtection)
-                .build(), Unpooled.buffer());
+                .build();
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeSubobject(container, Unpooled.buffer()));
     }
 
     @Test
-    public void testSERODynamicProtectionSubobjectParser() throws RSVPParsingException {
+    void testSERODynamicProtectionSubobjectParser() throws RSVPParsingException {
         final SEROBasicProtectionSubobjectParser parser = new SEROBasicProtectionSubobjectParser();
         final SERODynamicProtectionSubobjectParser dynamicParser = new SERODynamicProtectionSubobjectParser();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects
@@ -290,21 +290,23 @@ public class TEObjectTest {
         assertArrayEquals(TEObjectUtil.TE_LSP_DYNAMIC_SERO_PROTECTION, ByteArray.getAllBytes(output));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongParseSERO() throws RSVPParsingException {
+    @Test
+    void testWrongParseSERO() {
         final SEROBasicProtectionSubobjectParser parser = new SEROBasicProtectionSubobjectParser();
-        parser.parseSubobject(null, false);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testWrongSerializeSERO() throws RSVPParsingException {
-        final SEROBasicProtectionSubobjectParser parser = new SEROBasicProtectionSubobjectParser();
-        parser.serializeSubobject(new SubobjectContainerBuilder().setSubobjectType(
-            new DynamicControlProtectionCaseBuilder().build()).build(), Unpooled.buffer());
+        assertThrows(IllegalArgumentException.class, () -> parser.parseSubobject(null, false));
     }
 
     @Test
-    public void testSEROBasicProtectionSubobjectParser() throws RSVPParsingException {
+    void testWrongSerializeSERO() {
+        final SEROBasicProtectionSubobjectParser parser = new SEROBasicProtectionSubobjectParser();
+        final var container = new SubobjectContainerBuilder().setSubobjectType(
+            new DynamicControlProtectionCaseBuilder().build()).build();
+        assertThrows(IllegalArgumentException.class,
+            () -> parser.serializeSubobject(container, Unpooled.buffer()));
+    }
+
+    @Test
+    void testSEROBasicProtectionSubobjectParser() throws RSVPParsingException {
         final SEROBasicProtectionSubobjectParser parser = new SEROBasicProtectionSubobjectParser();
         final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.explicit.route.subobjects
             .list.SubobjectContainer sub = parser.parseSubobject(Unpooled.copiedBuffer(
@@ -317,7 +319,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testDetourObjectParser7() throws RSVPParsingException {
+    void testDetourObjectParser7() throws RSVPParsingException {
         final DetourObjectIpv4Parser parser = new DetourObjectIpv4Parser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_DETOUR7, 4, TEObjectUtil.TE_LSP_DETOUR7.length - 4)));
@@ -328,7 +330,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testDetourObjectParser8() throws RSVPParsingException {
+    void testDetourObjectParser8() throws RSVPParsingException {
         final DetourObjectIpv6Parser parser = new DetourObjectIpv6Parser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_DETOUR8, 4, TEObjectUtil.TE_LSP_DETOUR8.length - 4)));
@@ -339,7 +341,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testFastRerouteObjectParser1() throws RSVPParsingException {
+    void testFastRerouteObjectParser1() throws RSVPParsingException {
         final FastRerouteObjectParser parser = new FastRerouteObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_FAST_REROUTE1, 4,
@@ -351,7 +353,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testFastRerouteObjectParser7() throws RSVPParsingException {
+    void testFastRerouteObjectParser7() throws RSVPParsingException {
         final InformationalFastRerouteObjectParser parser = new InformationalFastRerouteObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_FAST_REROUTE7, 4,
@@ -363,7 +365,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testFlowSpecObjectParser_HEAD_5() throws RSVPParsingException {
+    void testFlowSpecObjectParser_HEAD_5() throws RSVPParsingException {
         final FlowSpecObjectParser parser = new FlowSpecObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_FLOWSPEC_H5, 4,
@@ -375,7 +377,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testFlowSpecObjectParser_HEAD_2() throws RSVPParsingException {
+    void testFlowSpecObjectParser_HEAD_2() throws RSVPParsingException {
         final FlowSpecObjectParser parser = new FlowSpecObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_FLOWSPEC_H2, 4,
@@ -387,7 +389,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testParser_HEAD_5() throws RSVPParsingException {
+    void testParser_HEAD_5() throws RSVPParsingException {
         final SenderTspecObjectParser parser = new SenderTspecObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_SENDER_TSPEC, 4,
@@ -399,7 +401,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testSessionAttributeParser1() throws RSVPParsingException {
+    void testSessionAttributeParser1() throws RSVPParsingException {
         final SessionAttributeLspRaObjectParser parser = new SessionAttributeLspRaObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_SESSION_C1, 4,
@@ -411,7 +413,7 @@ public class TEObjectTest {
     }
 
     @Test
-    public void testSessionAttributeParser7() throws RSVPParsingException {
+    void testSessionAttributeParser7() throws RSVPParsingException {
         final SessionAttributeLspObjectParser parser = new SessionAttributeLspObjectParser();
         final RsvpTeObject obj = parser.parseObject(Unpooled.copiedBuffer(
             ByteArray.subByte(TEObjectUtil.TE_LSP_SESSION_C7, 4,
