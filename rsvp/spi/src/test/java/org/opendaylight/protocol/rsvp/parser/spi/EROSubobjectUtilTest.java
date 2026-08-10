@@ -7,15 +7,15 @@
  */
 package org.opendaylight.protocol.rsvp.parser.spi;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class EROSubobjectUtilTest {
+class EROSubobjectUtilTest {
     @Test
-    public void testFormatSubobject1() {
+    void testFormatSubobject1() {
         final byte[] array = new byte[]{2, 3};
         final byte[] expected = new byte[]{(byte) 0x81, 4, 2, 3};
         final ByteBuf body = Unpooled.copiedBuffer(array);
@@ -25,7 +25,7 @@ public class EROSubobjectUtilTest {
     }
 
     @Test
-    public void testFormatSubobject2() {
+    void testFormatSubobject2() {
         final byte[] array = new byte[]{2, 3};
         final byte[] expected = new byte[]{1, 4, 2, 3};
         final ByteBuf body = Unpooled.copiedBuffer(array);
@@ -35,7 +35,7 @@ public class EROSubobjectUtilTest {
     }
 
     @Test
-    public void testFormatSubobject3() {
+    void testFormatSubobject3() {
         final byte[] array = new byte[]{2, 3};
         final byte[] expected = new byte[]{1, 4, 2, 3};
         final ByteBuf body = Unpooled.copiedBuffer(array);
