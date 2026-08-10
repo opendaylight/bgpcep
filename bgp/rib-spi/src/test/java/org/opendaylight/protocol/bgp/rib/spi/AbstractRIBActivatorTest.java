@@ -11,6 +11,7 @@ import org.opendaylight.mdsal.binding.dom.adapter.AdapterContext;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractConcurrentDataBrokerTest;
 import org.opendaylight.mdsal.binding.dom.adapter.test.AbstractDataBrokerTestCustomizer;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public abstract class AbstractRIBActivatorTest extends AbstractConcurrentDataBrokerTest {
     protected AdapterContext context;
 

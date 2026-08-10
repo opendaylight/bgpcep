@@ -17,6 +17,7 @@ import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.EvpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.L2vpnAddressFamily;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class RIBActivatorTest extends AbstractRIBActivatorTest {
     @Test
     public void testRIBActivator() {

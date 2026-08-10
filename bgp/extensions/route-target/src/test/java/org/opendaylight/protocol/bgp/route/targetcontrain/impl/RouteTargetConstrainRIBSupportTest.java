@@ -52,6 +52,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class RouteTargetConstrainRIBSupportTest extends AbstractRIBSupportTest<RouteTargetConstrainRoutesCase,
         RouteTargetConstrainRoutes, RouteTargetConstrainRoute> {
     private static final AsNumber ORIGIN_AS = new AsNumber(Uint32.valueOf(72));
