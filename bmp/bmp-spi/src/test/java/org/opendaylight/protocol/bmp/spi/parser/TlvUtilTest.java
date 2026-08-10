@@ -10,15 +10,15 @@ package org.opendaylight.protocol.bmp.spi.parser;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Counter32;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Gauge64;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint64;
 
-public class TlvUtilTest {
+class TlvUtilTest {
 
     private static final byte[] TLV_IN = {(byte) 0x01, (byte) 0x02, (byte) 0x03, (byte) 0x04, (byte) 0x05};
     private static final byte[] TLV_OUT = {(byte) 0x00, (byte) 0x01, (byte) 0x00, (byte) 0x05, (byte) 0x01,
@@ -33,50 +33,50 @@ public class TlvUtilTest {
         (byte) 0x61, (byte) 0x6D, (byte) 0x65};
 
     @Test
-    public void testFormatTlv() throws Exception {
+    void testFormatTlv() throws Exception {
         final ByteBuf out = Unpooled.buffer(TLV_OUT.length);
         final ByteBuf in = Unpooled.copiedBuffer(TLV_IN);
         TlvUtil.formatTlv(1, in, out);
-        Assert.assertArrayEquals(TLV_OUT, ByteArray.getAllBytes(out));
+        Assertions.assertArrayEquals(TLV_OUT, ByteArray.getAllBytes(out));
     }
 
     @Test
-    public void testFormatTlvCounter32() throws Exception {
+    void testFormatTlvCounter32() throws Exception {
         ByteBuf out = Unpooled.buffer(TLV_COUNTER32_OUT.length);
         TlvUtil.formatTlvCounter32(1, new Counter32(Uint32.valueOf(5)), out);
-        Assert.assertArrayEquals(TLV_COUNTER32_OUT, ByteArray.getAllBytes(out));
+        Assertions.assertArrayEquals(TLV_COUNTER32_OUT, ByteArray.getAllBytes(out));
         out = Unpooled.EMPTY_BUFFER;
         TlvUtil.formatTlvCounter32(1, null, out);
-        Assert.assertFalse(out.isReadable());
+        Assertions.assertFalse(out.isReadable());
     }
 
     @Test
-    public void testFormatTlvGauge64() throws Exception {
+    void testFormatTlvGauge64() throws Exception {
         ByteBuf out = Unpooled.buffer(TLV_GAUGE64_OUT.length);
         TlvUtil.formatTlvGauge64(1, new Gauge64(Uint64.valueOf(5)), out);
-        Assert.assertArrayEquals(TLV_GAUGE64_OUT, ByteArray.getAllBytes(out));
+        Assertions.assertArrayEquals(TLV_GAUGE64_OUT, ByteArray.getAllBytes(out));
         out = Unpooled.EMPTY_BUFFER;
         TlvUtil.formatTlvGauge64(1, null, out);
-        Assert.assertFalse(out.isReadable());
+        Assertions.assertFalse(out.isReadable());
     }
 
     @Test
-    public void testFormatTlvUtf8() throws Exception {
+    void testFormatTlvUtf8() throws Exception {
         ByteBuf out = Unpooled.buffer(TLV_UTF8_OUT.length);
         TlvUtil.formatTlvUtf8(1, "info1", out);
-        Assert.assertArrayEquals(TLV_UTF8_OUT, ByteArray.getAllBytes(out));
+        Assertions.assertArrayEquals(TLV_UTF8_OUT, ByteArray.getAllBytes(out));
         out = Unpooled.EMPTY_BUFFER;
         TlvUtil.formatTlvUtf8(1, null, out);
-        Assert.assertFalse(out.isReadable());
+        Assertions.assertFalse(out.isReadable());
     }
 
     @Test
-    public void testFormatTlvAscii() throws Exception {
+    void testFormatTlvAscii() throws Exception {
         ByteBuf out = Unpooled.buffer(TLV_ASCII_OUT.length);
         TlvUtil.formatTlvAscii(1, "Name", out);
-        Assert.assertArrayEquals(TLV_ASCII_OUT, ByteArray.getAllBytes(out));
+        Assertions.assertArrayEquals(TLV_ASCII_OUT, ByteArray.getAllBytes(out));
         out = Unpooled.EMPTY_BUFFER;
         TlvUtil.formatTlvAscii(1, null, out);
-        Assert.assertFalse(out.isReadable());
+        Assertions.assertFalse(out.isReadable());
     }
 }

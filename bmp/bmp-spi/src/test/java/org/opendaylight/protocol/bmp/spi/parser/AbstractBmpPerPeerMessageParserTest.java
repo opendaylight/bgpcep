@@ -8,14 +8,14 @@
 
 package org.opendaylight.protocol.bmp.spi.parser;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ServiceLoader;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.parser.spi.MessageRegistry;
 import org.opendaylight.protocol.util.ByteArray;
@@ -36,7 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class AbstractBmpPerPeerMessageParserTest {
+class AbstractBmpPerPeerMessageParserTest {
     private static final String RD = "5:3";
     private MessageRegistry msgRegistry;
     private AbstractBmpPerPeerMessageParser<?> parser;
@@ -54,8 +54,8 @@ public class AbstractBmpPerPeerMessageParserTest {
         0, 0, 0, 0, 0, 0, 0, 0
     };
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         msgRegistry = ServiceLoader.load(BGPExtensionConsumerContext.class).findFirst().orElseThrow()
             .getMessageRegistry();
         parser = new AbstractBmpPerPeerMessageParser<>(msgRegistry) {
@@ -72,7 +72,7 @@ public class AbstractBmpPerPeerMessageParserTest {
     }
 
     @Test
-    public void testPerPeerHeader() {
+    void testPerPeerHeader() {
         final byte[] msgBytes = {
             (byte) 0x00, (byte) 0x40, (byte) 0x00, (byte) 0x00,
             (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
@@ -107,7 +107,7 @@ public class AbstractBmpPerPeerMessageParserTest {
     }
 
     @Test
-    public void testPerPeerHeaderIpv6() {
+    void testPerPeerHeaderIpv6() {
 
         final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
                 .parsePerPeerHeader(Unpooled.wrappedBuffer(ipv6MsgWithDistinguishergBytes));
@@ -134,12 +134,12 @@ public class AbstractBmpPerPeerMessageParserTest {
     }
 
     @Test
-    public void testBgpMessageRegistry() {
+    void testBgpMessageRegistry() {
         assertEquals(msgRegistry, parser.getBgpMessageRegistry());
     }
 
     @Test
-    public void testSerializeMessageBody() {
+    void testSerializeMessageBody() {
         final PeerHeader perHeader = AbstractBmpPerPeerMessageParser
                 .parsePerPeerHeader(Unpooled.wrappedBuffer(ipv6MsgWithDistinguishergBytes));
 
