@@ -7,18 +7,19 @@
  */
 package org.opendaylight.protocol.rsvp.parser.spi.subobjects;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.UnnumberedCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.Unnumbered;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.basic.explicit.route.subobjects.subobject.type.unnumbered._case.UnnumberedBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class UnnumberedInterfaceSubobjectUtilsTest {
+class UnnumberedInterfaceSubobjectUtilsTest {
     private final Uint32 routerId = Uint32.valueOf(3735928559L);
     private final Uint32 interfaceId = Uint32.valueOf(3736059631L);
     private final Unnumbered unnumbered1 = new UnnumberedBuilder().setRouterId((Uint32) null).build();
@@ -26,7 +27,7 @@ public class UnnumberedInterfaceSubobjectUtilsTest {
             .build();
 
     @Test
-    public void testProcessing() {
+    void testProcessing() {
         final ByteBuf input = Unpooled.buffer(8);
         input.writeInt(this.routerId.intValue());
         input.writeInt(this.interfaceId.intValue());
@@ -39,13 +40,16 @@ public class UnnumberedInterfaceSubobjectUtilsTest {
         assertArrayEquals(input.array(), bytebuf.array());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testException1() {
-        UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface(this.unnumbered1, Unpooled.EMPTY_BUFFER);
+    @Test
+    void testException1() {
+        assertThrows(IllegalArgumentException.class,
+            () -> UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface(this.unnumbered1,
+                Unpooled.EMPTY_BUFFER));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testException2() {
-        UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface(this.unnumbered2, Unpooled.buffer(4));
+    @Test
+    void testException2() {
+        assertThrows(IllegalArgumentException.class,
+            () -> UnnumberedInterfaceSubobjectUtils.serializeUnnumeredInterface(this.unnumbered2, Unpooled.buffer(4)));
     }
 }
