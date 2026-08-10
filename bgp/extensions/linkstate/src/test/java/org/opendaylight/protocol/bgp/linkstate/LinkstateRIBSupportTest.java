@@ -69,6 +69,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public final class LinkstateRIBSupportTest extends AbstractRIBSupportTest<LinkstateRoutesCase, LinkstateRoutes,
         LinkstateRoute> {
 
