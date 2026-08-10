@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.LinkstateAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.LinkstateSubsequentAddressFamily;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class ActivatorTest extends AbstractRIBActivatorTest {
     @Test
     public void testActivator() {
