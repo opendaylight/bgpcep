@@ -7,24 +7,24 @@
  */
 package org.opendaylight.protocol.bmp.impl.session;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.embedded.EmbeddedChannel;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bmp.api.BmpSession;
 import org.opendaylight.protocol.bmp.parser.message.TestUtil;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.InitiationMessage;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class BmpSessionImplTest {
+@ExtendWith(MockitoExtension.class)
+class BmpSessionImplTest {
 
     private BmpSession session;
     private EmbeddedChannel channel;
@@ -36,8 +36,8 @@ public class BmpSessionImplTest {
         return TestUtil.createInitMsg("", "", "");
     }
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         listener = new BmpTestSessionListener();
         session = new BmpSessionImpl(listener);
         channel = new EmbeddedChannel(session);
@@ -45,7 +45,7 @@ public class BmpSessionImplTest {
     }
 
     @Test
-    public void testOnInitiate() {
+    void testOnInitiate() {
         channel.writeInbound(createInitMsg());
         assertEquals(listener.getListMsg().size(), 1);
         channel.writeInbound(createInitMsg());
@@ -53,7 +53,7 @@ public class BmpSessionImplTest {
     }
 
     @Test
-    public void testOnTerminationAfterInitiated() {
+    void testOnTerminationAfterInitiated() {
         channel.writeInbound(createInitMsg());
         assertEquals(listener.getListMsg().size(), 1);
         channel.writeInbound(TestUtil.createTerminationMsg());
@@ -62,21 +62,21 @@ public class BmpSessionImplTest {
     }
 
     @Test
-    public void testOnTermination() {
+    void testOnTermination() {
         channel.writeInbound(TestUtil.createTerminationMsg());
         assertEquals(listener.getListMsg().size(), 0);
         assertFalse(listener.isUp());
     }
 
     @Test
-    public void testOnUnexpectedMessage() {
+    void testOnUnexpectedMessage() {
         channel.writeInbound(TestUtil.createPeerDownFSM());
         assertEquals(listener.getListMsg().size(), 0);
         assertFalse(listener.isUp());
     }
 
     @Test
-    public void testExceptionCaught() throws Exception {
+    void testExceptionCaught() throws Exception {
         session.exceptionCaught(mockedHandlerContext, new BmpDeserializationException(""));
         assertEquals(listener.getListMsg().size(), 0);
         assertFalse(listener.isUp());
