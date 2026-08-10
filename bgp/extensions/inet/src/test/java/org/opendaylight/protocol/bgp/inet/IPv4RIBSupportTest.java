@@ -44,6 +44,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public final class IPv4RIBSupportTest extends AbstractRIBSupportTest<Ipv4RoutesCase, Ipv4Routes, Ipv4Route> {
     private IPv4RIBSupport ribSupport;
     private static final PathId PATH_ID = new PathId(Uint32.ONE);
