@@ -7,8 +7,8 @@
  */
 package org.opendaylight.protocol.bmp.mock;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
@@ -17,11 +17,13 @@ import com.google.common.net.InetAddresses;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
 import org.opendaylight.protocol.bmp.impl.BmpDispatcherImpl;
@@ -32,8 +34,8 @@ import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.concepts.KeyMapping;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class BmpMockDispatcherTest {
+@ExtendWith(MockitoExtension.class)
+class BmpMockDispatcherTest {
     private final BmpSessionFactory sessionFactory = new DefaultBmpSessionFactory();
     private final BmpMockSessionListener sl = new BmpMockSessionListener();
     @Mock
@@ -45,15 +47,16 @@ public class BmpMockDispatcherTest {
 
     private BmpMockDispatcher bmpMockDispatcher;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         doReturn(sl).when(slf).getSessionListener();
         doReturn(registry).when(ctx).getBmpMessageRegistry();
         bmpMockDispatcher = new BmpMockDispatcher(registry, sessionFactory);
     }
 
-    @Test(timeout = 20000)
-    public void testCreateClient() throws Exception {
+    @Test
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
+    void testCreateClient() throws Exception {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
 
@@ -86,8 +89,9 @@ public class BmpMockDispatcherTest {
         checkEquals(() -> assertFalse(sl.getStatus()));
     }
 
-    @Test(timeout = 20000)
-    public void testCreateServer() throws Exception {
+    @Test
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
+    void testCreateServer() throws Exception {
         final int port = InetSocketAddressUtil.getRandomPort();
         final BmpNettyGroups threadGroups = new BmpNettyGroups();
         final BmpDispatcherImpl bmpDispatcher = new BmpDispatcherImpl(threadGroups, ctx, sessionFactory);
