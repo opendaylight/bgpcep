@@ -7,20 +7,21 @@
  */
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.XROSubobjectSerializer;
@@ -29,66 +30,66 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainerBuilder;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class SimpleXROSubobjectRegistryTest {
+@ExtendWith(MockitoExtension.class)
+class SimpleXROSubobjectRegistryTest {
     private final int subObjectTypeOne = 1;
-    private final ByteBuf input = Unpooled.wrappedBuffer(new byte[]{1, 2, 3});
+    private final ByteBuf input = Unpooled.wrappedBuffer(new byte[]{ 1, 2, 3 });
     private final SimpleXROSubobjectRegistry simpleXROSubobjectRegistry = new SimpleXROSubobjectRegistry();
     @Mock
     private XROSubobjectParser rroSubobjectParser;
     @Mock
     private XROSubobjectSerializer rroSubobjectSerializer;
 
-    @Before
-    public void setUp() throws RSVPParsingException {
-        this.simpleXROSubobjectRegistry.registerSubobjectParser(this.subObjectTypeOne, this.rroSubobjectParser);
-        doReturn(new SubobjectContainerBuilder().build()).when(this.rroSubobjectParser).parseSubobject(this.input,
-            false);
-        final ArgumentCaptor<SubobjectContainer> arg = ArgumentCaptor.forClass(SubobjectContainer.class);
-        final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
-        doAnswer(invocation -> invocation.<ByteBuf>getArgument(1).writeBoolean(Boolean.TRUE))
-            .when(this.rroSubobjectSerializer).serializeSubobject(arg.capture(), bufArg.capture());
+    @BeforeEach
+    void setUp() {
+        simpleXROSubobjectRegistry.registerSubobjectParser(subObjectTypeOne, rroSubobjectParser);
     }
 
     @Test
-    public void testUnrecognizedType() throws RSVPParsingException {
+    void testUnrecognizedType() throws RSVPParsingException {
         final int wrongType = 99;
-        assertNull(this.simpleXROSubobjectRegistry.parseSubobject(wrongType, this.input, false));
+        assertNull(simpleXROSubobjectRegistry.parseSubobject(wrongType, input, false));
         final ByteBuf output = Unpooled.EMPTY_BUFFER;
-        final SubobjectContainer container = new SubobjectContainerBuilder().setSubobjectType(new
-            LabelCaseBuilder().build()).build();
-        this.simpleXROSubobjectRegistry.serializeSubobject(container, output);
+        final SubobjectContainer container = new SubobjectContainerBuilder()
+            .setSubobjectType(new LabelCaseBuilder().build())
+            .build();
+        simpleXROSubobjectRegistry.serializeSubobject(container, output);
         assertEquals(0, output.readableBytes());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testParseWrongType() throws RSVPParsingException {
+    @Test
+    void testParseWrongType() {
         final int wrongType = 65536;
-        this.simpleXROSubobjectRegistry.parseSubobject(wrongType, this.input, false);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testRegisterWrongType() {
-        final int wrongType = 65536;
-        this.simpleXROSubobjectRegistry.registerSubobjectParser(wrongType, this.rroSubobjectParser);
+        assertThrows(IllegalArgumentException.class,
+            () -> simpleXROSubobjectRegistry.parseSubobject(wrongType, input, false));
     }
 
     @Test
-    public void testParserRegistration() throws RSVPParsingException {
-        assertNotNull(this.simpleXROSubobjectRegistry.registerSubobjectParser(this.subObjectTypeOne, this
-            .rroSubobjectParser));
-        assertNotNull(this.simpleXROSubobjectRegistry.parseSubobject(this.subObjectTypeOne, this.input, false));
+    void testRegisterWrongType() {
+        final int wrongType = 65536;
+        assertThrows(IllegalArgumentException.class,
+            () -> simpleXROSubobjectRegistry.registerSubobjectParser(wrongType, rroSubobjectParser));
     }
 
     @Test
-    public void testSerializerRegistration() {
-        assertNotNull(this.simpleXROSubobjectRegistry.registerSubobjectSerializer(LabelCase.class, this
-            .rroSubobjectSerializer));
+    void testParserRegistration() throws RSVPParsingException {
+        doReturn(new SubobjectContainerBuilder().build()).when(rroSubobjectParser).parseSubobject(input,
+            false);
+        assertNotNull(simpleXROSubobjectRegistry.registerSubobjectParser(subObjectTypeOne, rroSubobjectParser));
+        assertNotNull(simpleXROSubobjectRegistry.parseSubobject(subObjectTypeOne, input, false));
+    }
+
+    @Test
+    void testSerializerRegistration() {
+        final var arg = ArgumentCaptor.forClass(SubobjectContainer.class);
+        final var bufArg = ArgumentCaptor.forClass(ByteBuf.class);
+        doAnswer(invocation -> invocation.getArgument(1, ByteBuf.class).writeBoolean(true))
+            .when(rroSubobjectSerializer).serializeSubobject(arg.capture(), bufArg.capture());
+        assertNotNull(simpleXROSubobjectRegistry.registerSubobjectSerializer(LabelCase.class, rroSubobjectSerializer));
         final SubobjectContainer container = new SubobjectContainerBuilder().setSubobjectType(new
             LabelCaseBuilder().build()).build();
         final ByteBuf output = Unpooled.buffer();
-        this.simpleXROSubobjectRegistry.serializeSubobject(container, output);
+        simpleXROSubobjectRegistry.serializeSubobject(container, output);
         assertEquals(1, output.readableBytes());
     }
-
 }
