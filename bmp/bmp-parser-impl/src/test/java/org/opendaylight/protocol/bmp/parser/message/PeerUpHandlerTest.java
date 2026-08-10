@@ -7,18 +7,18 @@
  */
 package org.opendaylight.protocol.bmp.parser.message;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createPeerUpNotification;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerUpNotification;
 
-public class PeerUpHandlerTest extends AbstractBmpMessageTest {
+class PeerUpHandlerTest extends AbstractBmpMessageTest {
 
     private static final byte[] PEER_UP_NOTIFICATION = {
         /*
@@ -105,14 +105,14 @@ public class PeerUpHandlerTest extends AbstractBmpMessageTest {
     };
 
     @Test
-    public void testSerializePeerUpNotification() throws BmpDeserializationException {
+    void testSerializePeerUpNotification() throws BmpDeserializationException {
         final ByteBuf buffer = Unpooled.buffer();
         getBmpMessageRegistry().serializeMessage(createPeerUpNotification(), buffer);
         assertArrayEquals(PEER_UP_NOTIFICATION, ByteArray.readAllBytes(buffer));
     }
 
     @Test
-    public void testParsePeerUpNotification() throws BmpDeserializationException {
+    void testParsePeerUpNotification() throws BmpDeserializationException {
         final PeerUpNotification parsedPeerUpNotif = (PeerUpNotification) getBmpMessageRegistry().parseMessage(
                 Unpooled.copiedBuffer(PEER_UP_NOTIFICATION));
         assertEquals(createPeerUpNotification(), parsedPeerUpNotif);
