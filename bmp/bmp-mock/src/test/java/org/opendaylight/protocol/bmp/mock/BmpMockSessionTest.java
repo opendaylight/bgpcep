@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bmp.mock;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -20,18 +20,18 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
 import java.util.List;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.InitiationMessage;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerUp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.RouteMonitoringMessage;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class BmpMockSessionTest {
+@ExtendWith(MockitoExtension.class)
+class BmpMockSessionTest {
     private static final InetSocketAddress REMOTE_ADDRESS = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
     private static final InetSocketAddress LOCAL_ADDRESS = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(0);
 
@@ -43,7 +43,7 @@ public class BmpMockSessionTest {
     private Channel channel;
 
     @Test
-    public void testBmpMockSession() throws InterruptedException {
+    void testBmpMockSession() throws InterruptedException {
         doReturn(REMOTE_ADDRESS).when(channel).remoteAddress();
         doReturn(LOCAL_ADDRESS).when(channel).localAddress();
 
