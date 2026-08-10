@@ -7,18 +7,18 @@
  */
 package org.opendaylight.protocol.bmp.parser.message;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createTerminationMsg;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.TerminationMessage;
 
-public class TerminationHandlerTest extends AbstractBmpMessageTest {
+class TerminationHandlerTest extends AbstractBmpMessageTest {
 
     private static final byte[] TERMINATION_MESSAGE = {
         /*
@@ -50,7 +50,7 @@ public class TerminationHandlerTest extends AbstractBmpMessageTest {
     };
 
     @Test
-    public void testSerializeTerminationMessage() throws BmpDeserializationException {
+    void testSerializeTerminationMessage() throws BmpDeserializationException {
         final ByteBuf buffer = Unpooled.buffer();
         getBmpMessageRegistry().serializeMessage(createTerminationMsg(), buffer);
         assertArrayEquals(TERMINATION_MESSAGE, ByteArray.readAllBytes(buffer));
@@ -58,7 +58,7 @@ public class TerminationHandlerTest extends AbstractBmpMessageTest {
 
 
     @Test
-    public void testParseTerminationMessage() throws BmpDeserializationException {
+    void testParseTerminationMessage() throws BmpDeserializationException {
         final TerminationMessage parsedInitMsg = (TerminationMessage) getBmpMessageRegistry()
                 .parseMessage(Unpooled.copiedBuffer(TERMINATION_MESSAGE));
         assertEquals(createTerminationMsg(), parsedInitMsg);
