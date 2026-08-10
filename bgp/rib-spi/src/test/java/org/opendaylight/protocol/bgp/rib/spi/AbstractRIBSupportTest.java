@@ -67,6 +67,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public abstract class AbstractRIBSupportTest<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>, R extends Route & ChildOf<? super S> & EntryObject<?, ?>>
         extends AbstractConcurrentDataBrokerTest {

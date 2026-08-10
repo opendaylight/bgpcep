@@ -32,6 +32,7 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AppPeerBenchmarkTest extends AbstractConcurrentDataBrokerTest {
     private static final String PREFIX = "1.1.1.1/32";
     private static final String NH = "127.0.0.1";
