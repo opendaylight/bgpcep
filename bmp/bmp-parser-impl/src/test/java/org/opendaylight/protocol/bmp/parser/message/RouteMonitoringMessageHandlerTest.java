@@ -8,18 +8,18 @@
 
 package org.opendaylight.protocol.bmp.parser.message;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createRouteMonitMsg;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.RouteMonitoringMessage;
 
-public class RouteMonitoringMessageHandlerTest extends AbstractBmpMessageTest {
+class RouteMonitoringMessageHandlerTest extends AbstractBmpMessageTest {
 
     /*
      * 03 <- bmp version
@@ -81,14 +81,14 @@ public class RouteMonitoringMessageHandlerTest extends AbstractBmpMessageTest {
     };
 
     @Test
-    public void testSerializeRouteMonitMessage() throws BmpDeserializationException  {
+    void testSerializeRouteMonitMessage() throws BmpDeserializationException  {
         final ByteBuf buffer = Unpooled.buffer();
         getBmpMessageRegistry().serializeMessage(createRouteMonitMsg(false), buffer);
         assertArrayEquals(ROUTE_MONIT_MSG, ByteArray.readAllBytes(buffer));
     }
 
     @Test
-    public void testParseRouteMonitMessage() throws BmpDeserializationException {
+    void testParseRouteMonitMessage() throws BmpDeserializationException {
         final RouteMonitoringMessage parsedInitMsg = (RouteMonitoringMessage) getBmpMessageRegistry()
                 .parseMessage(Unpooled.copiedBuffer(ROUTE_MONIT_MSG));
         assertEquals(createRouteMonitMsg(true), parsedInitMsg);

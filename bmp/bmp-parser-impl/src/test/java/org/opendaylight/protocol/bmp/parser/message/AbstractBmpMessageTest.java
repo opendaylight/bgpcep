@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bmp.parser.message;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
@@ -15,13 +15,13 @@ import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.BmpMessageRegistry;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 
-public abstract class AbstractBmpMessageTest {
+abstract class AbstractBmpMessageTest {
     private BmpMessageRegistry messageRegistry;
     private BGPActivator bgpActivator;
     private BmpActivator bmpActivator;
 
-    @Before
-    public final void setUp() {
+    @BeforeEach
+    final void setUp() {
         this.bgpActivator = new BGPActivator();
         final BGPExtensionProviderContext context = new SimpleBGPExtensionProviderContext();
         this.bgpActivator.start(context);
