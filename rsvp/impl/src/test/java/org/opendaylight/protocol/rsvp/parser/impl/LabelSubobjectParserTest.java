@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.rsvp.parser.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.label.GeneralizedLabelParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.label.Type1LabelParser;
 import org.opendaylight.protocol.rsvp.parser.impl.subobject.label.WavebandSwitchingLabelParser;
@@ -27,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.label.type.waveband.switching.label._case.WavebandSwitchingLabelBuilder;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
-public class LabelSubobjectParserTest {
+class LabelSubobjectParserTest {
     private static final byte[] GENERALIZED_LABEL_BYTES = {(byte) 0x80, 0x02, 0x00, 0x04, 0x12, 0x00, 0x25,
         (byte) 0xFF};
 
@@ -37,7 +37,7 @@ public class LabelSubobjectParserTest {
         (byte) 0x99, 0x00, 0x00, 0x11, 0x11};
 
     @Test
-    public void testGeneralizedLabel() throws RSVPParsingException {
+    void testGeneralizedLabel() throws RSVPParsingException {
         final GeneralizedLabelParser parser = new GeneralizedLabelParser();
         final GeneralizedLabelBuilder iBuilder = new GeneralizedLabelBuilder();
         iBuilder.setGeneralizedLabel(ByteArray.cutBytes(GENERALIZED_LABEL_BYTES, 2));
@@ -65,7 +65,7 @@ public class LabelSubobjectParserTest {
     }
 
     @Test
-    public void testWavebandLabel() throws RSVPParsingException {
+    void testWavebandLabel() throws RSVPParsingException {
         final WavebandSwitchingLabelParser parser = new WavebandSwitchingLabelParser();
         final WavebandSwitchingLabelBuilder iBuilder = new WavebandSwitchingLabelBuilder()
                 .setWavebandId(Uint32.valueOf(0x1234))
@@ -94,7 +94,7 @@ public class LabelSubobjectParserTest {
     }
 
     @Test
-    public void testTypeOneLabel() throws RSVPParsingException {
+    void testTypeOneLabel() throws RSVPParsingException {
         final Type1LabelParser parser = new Type1LabelParser();
         final Type1LabelCaseBuilder builder = new Type1LabelCaseBuilder()
                 .setType1Label(new Type1LabelBuilder().setType1Label(Uint32.valueOf(0x120025ffL)).build());
