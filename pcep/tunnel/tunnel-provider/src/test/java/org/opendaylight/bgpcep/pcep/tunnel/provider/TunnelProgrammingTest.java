@@ -98,6 +98,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 import org.osgi.framework.BundleContext;
 
 @RunWith(MockitoJUnitRunner.StrictStubs.class)
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class TunnelProgrammingTest extends AbstractConcurrentDataBrokerTest {
     private static final TopologyId TOPOLOGY_ID = new TopologyId("tunnel-topo");
     private static final DataObjectIdentifier<Topology> TOPO_IID = DataObjectIdentifier.builder(NetworkTopology.class)

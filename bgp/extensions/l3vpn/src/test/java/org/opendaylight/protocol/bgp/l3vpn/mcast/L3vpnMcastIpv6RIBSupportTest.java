@@ -50,6 +50,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.opendaylight.yangtools.yang.data.tree.spi.DataTreeCandidates;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class L3vpnMcastIpv6RIBSupportTest extends AbstractRIBSupportTest<L3vpnMcastRoutesIpv6Case, L3vpnMcastRoutesIpv6,
         L3vpnMcastRoute> {
     private static final PathId PATH_ID = new PathId(Uint32.ZERO);
