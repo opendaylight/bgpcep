@@ -7,19 +7,20 @@
  */
 package org.opendaylight.protocol.bmp.spi.registry;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.Notification;
 
-public class SimpleBmpMessageRegistryTest {
+class SimpleBmpMessageRegistryTest {
 
     private static final int MSG_TYPE = 15;
     private final BmpMessageRegistry registry = new SimpleBmpMessageRegistry();
@@ -39,7 +40,7 @@ public class SimpleBmpMessageRegistryTest {
     };
 
     @Test
-    public void testBmpMessageRegistry() throws BmpDeserializationException {
+    void testBmpMessageRegistry() throws BmpDeserializationException {
         final BmpTestParser bmpTestParser = new BmpTestParser();
         registry.registerBmpMessageParser(MSG_TYPE, bmpTestParser);
         registry.registerBmpMessageSerializer(BmpTestMessage.class, bmpTestParser);
@@ -53,22 +54,25 @@ public class SimpleBmpMessageRegistryTest {
         assertArrayEquals(BMP_TEST_MESSAGE, ByteArray.getAllBytes(aggregator));
     }
 
-    @Test(expected = BmpDeserializationException.class)
-    public void testNotBmpTypeException() throws BmpDeserializationException {
+    @Test
+    void testNotBmpTypeException() {
         exceptionMessage[0] = 0x01;
-        registry.parseMessage(Unpooled.copiedBuffer(exceptionMessage));
+        assertThrows(BmpDeserializationException.class,
+            () -> registry.parseMessage(Unpooled.copiedBuffer(exceptionMessage)));
     }
 
-    @Test(expected = BmpDeserializationException.class)
-    public void testLengthException() throws BmpDeserializationException {
+    @Test
+    void testLengthException() {
         exceptionMessage[4] = 0x01;
-        registry.parseMessage(Unpooled.copiedBuffer(exceptionMessage));
+        assertThrows(BmpDeserializationException.class,
+            () -> registry.parseMessage(Unpooled.copiedBuffer(exceptionMessage)));
     }
 
-    @Test(expected = BmpDeserializationException.class)
-    public void testInvalidMessageContextException() throws BmpDeserializationException {
-        registry.parseMessage(Unpooled.copiedBuffer(exceptionMessage, 0,
-                exceptionMessage.length - 2));
+    @Test
+    void testInvalidMessageContextException() {
+        assertThrows(BmpDeserializationException.class,
+            () -> registry.parseMessage(Unpooled.copiedBuffer(exceptionMessage, 0,
+                exceptionMessage.length - 2)));
     }
 
     private static final class BmpTestParser extends AbstractBmpMessageParser {
