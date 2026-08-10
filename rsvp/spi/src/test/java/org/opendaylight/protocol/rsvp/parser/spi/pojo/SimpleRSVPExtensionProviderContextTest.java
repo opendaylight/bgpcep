@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.rsvp.parser.spi.pojo;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectParser;
 import org.opendaylight.protocol.rsvp.parser.spi.EROSubobjectSerializer;
@@ -31,7 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.exclude.route.object.exclude.route.object.SubobjectContainer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
 
-public class SimpleRSVPExtensionProviderContextTest {
+class SimpleRSVPExtensionProviderContextTest {
 
     private final SimpleRSVPExtensionProviderContext context = new SimpleRSVPExtensionProviderContext();
 
@@ -63,8 +63,8 @@ public class SimpleRSVPExtensionProviderContextTest {
     private final LabelSerializer labelSerializer = Mockito.mock(LabelSerializer.class);
     private final LabelType labelType = Mockito.mock(LabelType.class);
 
-    @Before
-    public void setUp() throws RSVPParsingException {
+    @BeforeEach
+    void setUp() throws RSVPParsingException {
         Mockito.doReturn(this.parsedRsvpTeObj).when(this.rsvpTeParser).parseObject(Mockito.any(ByteBuf.class));
         Mockito.doReturn(RsvpTeObject.class).when(this.parsedRsvpTeObj).implementedInterface();
         Mockito.doReturn("parsedRsvpTeObj").when(this.parsedRsvpTeObj).toString();
@@ -105,12 +105,12 @@ public class SimpleRSVPExtensionProviderContextTest {
     }
 
     @Test
-    public void testReferenceCache() {
+    void testReferenceCache() {
         assertNotNull(this.context.getReferenceCache());
     }
 
     @Test
-    public void testServiceForRsvpObject() throws RSVPParsingException {
+    void testServiceForRsvpObject() throws RSVPParsingException {
         this.context.registerRsvpObjectParser(1, 1, this.rsvpTeParser);
         final ByteBuf buffer = Unpooled.buffer();
         assertEquals(this.parsedRsvpTeObj, this.context.getRsvpRegistry().parseRSPVTe(1, 1, buffer));
@@ -121,7 +121,7 @@ public class SimpleRSVPExtensionProviderContextTest {
     }
 
     @Test
-    public void testServiceForXROSubobject() throws RSVPParsingException {
+    void testServiceForXROSubobject() throws RSVPParsingException {
         this.context.registerXROSubobjectParser(2, this.xroObjParser);
         final ByteBuf buffer = Unpooled.buffer();
         assertEquals(this.subObj, this.context.getXROSubobjectHandlerRegistry().parseSubobject(2, buffer, false));
@@ -131,7 +131,7 @@ public class SimpleRSVPExtensionProviderContextTest {
     }
 
     @Test
-    public void testServiceForRROSubobject() throws RSVPParsingException {
+    void testServiceForRROSubobject() throws RSVPParsingException {
         this.context.registerRROSubobjectParser(3, this.rroParser);
         final ByteBuf buffer = Unpooled.buffer();
         assertEquals(this.rroSubObj, this.context.getRROSubobjectHandlerRegistry().parseSubobject(3, buffer));
@@ -142,7 +142,7 @@ public class SimpleRSVPExtensionProviderContextTest {
     }
 
     @Test
-    public void testServiceForEROSubobject() throws RSVPParsingException {
+    void testServiceForEROSubobject() throws RSVPParsingException {
         this.context.registerEROSubobjectParser(4, this.eroParser);
         final ByteBuf buffer = Unpooled.buffer();
         assertEquals(this.eroSubObj, this.context.getEROSubobjectHandlerRegistry().parseSubobject(4, buffer, false));
@@ -153,7 +153,7 @@ public class SimpleRSVPExtensionProviderContextTest {
     }
 
     @Test
-    public void testServiceForLabel() throws RSVPParsingException {
+    void testServiceForLabel() throws RSVPParsingException {
         this.context.registerLabelParser(5, this.labelParser);
         final ByteBuf buffer = Unpooled.buffer();
         assertEquals(this.labelType, this.context.getLabelHandlerRegistry().parseLabel(5, buffer));
