@@ -7,27 +7,27 @@
  */
 package org.opendaylight.protocol.bmp.spi.registry;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.Tlv;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class SimpleBmpTlvRegistryTest {
+@ExtendWith(MockitoExtension.class)
+class SimpleBmpTlvRegistryTest {
     private final SimpleBmpTlvRegistry bmpTlvRegistry = new SimpleBmpTlvRegistry();
     private final byte[] bytes = new byte[]{1, 2, 3};
     private final ByteBuf input = Unpooled.wrappedBuffer(this.bytes);
@@ -38,29 +38,25 @@ public class SimpleBmpTlvRegistryTest {
     @Mock
     private BmpTlvSerializer descriptionTlvSerializer;
 
-    @Before
-    public void setUp() throws BmpDeserializationException {
+    @BeforeEach
+    void setUp() {
         this.bmpTlvRegistry.registerBmpTlvParser(DESCRIPTION_TLV_TYPE, this.descriptionTlvParser);
         this.bmpTlvRegistry.registerBmpTlvSerializer(MockDescriptionTlv.class, this.descriptionTlvSerializer);
-        Mockito.doReturn(new MockDescriptionTlv()).when(this.descriptionTlvParser).parseTlv(this.input);
-        final ArgumentCaptor<Tlv> tlvArg = ArgumentCaptor.forClass(Tlv.class);
-        final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
-        Mockito.doNothing().when(this.descriptionTlvSerializer).serializeTlv(tlvArg.capture(), bufArg.capture());
     }
 
     @Test
-    public void testParserRegistration() {
+    void testParserRegistration() {
         assertNotNull(this.bmpTlvRegistry.registerBmpTlvParser(DESCRIPTION_TLV_TYPE, this.descriptionTlvParser));
     }
 
     @Test
-    public void testSerializerRegistration() {
+    void testSerializerRegistration() {
         assertNotNull(this.bmpTlvRegistry.registerBmpTlvSerializer(MockDescriptionTlv.class,
                 this.descriptionTlvSerializer));
     }
 
     @Test
-    public void testUnrecognizedType() throws BmpDeserializationException {
+    void testUnrecognizedType() throws BmpDeserializationException {
         assertNull(this.bmpTlvRegistry.parseTlv(OTHER_TLV_TYPE, this.input));
         final ByteBuf output = Unpooled.EMPTY_BUFFER;
         this.bmpTlvRegistry.serializeTlv(new MockTlv(), output);
@@ -68,7 +64,12 @@ public class SimpleBmpTlvRegistryTest {
     }
 
     @Test
-    public void testParseTlv() throws BmpDeserializationException {
+    void testParseTlv() throws BmpDeserializationException {
+        Mockito.doReturn(new MockDescriptionTlv()).when(this.descriptionTlvParser).parseTlv(this.input);
+        final ArgumentCaptor<Tlv> tlvArg = ArgumentCaptor.forClass(Tlv.class);
+        final ArgumentCaptor<ByteBuf> bufArg = ArgumentCaptor.forClass(ByteBuf.class);
+        Mockito.doNothing().when(this.descriptionTlvSerializer).serializeTlv(tlvArg.capture(), bufArg.capture());
+
         final Tlv output = this.bmpTlvRegistry.parseTlv(DESCRIPTION_TLV_TYPE, this.input);
         assertNotNull(output);
         assertTrue(output instanceof MockDescriptionTlv);

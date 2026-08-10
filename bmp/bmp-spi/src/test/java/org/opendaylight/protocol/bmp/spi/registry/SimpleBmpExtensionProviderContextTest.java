@@ -7,12 +7,12 @@
  */
 package org.opendaylight.protocol.bmp.spi.registry;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpTlvSerializer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Keepalive;
@@ -20,8 +20,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.description.tlv.DescriptionTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.reason.tlv.ReasonTlv;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class SimpleBmpExtensionProviderContextTest {
+@ExtendWith(MockitoExtension.class)
+class SimpleBmpExtensionProviderContextTest {
 
     private static final SimpleBmpMessageRegistry MESSAGE_REGISTRY = new SimpleBmpMessageRegistry();
     private static final SimpleBmpExtensionProviderContext CONTEXT = new SimpleBmpExtensionProviderContext();
@@ -32,62 +32,62 @@ public class SimpleBmpExtensionProviderContextTest {
     private BmpTlvSerializer tlvSerializer;
 
     @Test
-    public void testRegisterBmpMessageParser() {
+    void testRegisterBmpMessageParser() {
         assertNotNull(CONTEXT.registerBmpMessageParser(TEST_TYPE, MESSAGE_REGISTRY));
     }
 
     @Test
-    public void testRegisterBmpMessageSerializer() {
+    void testRegisterBmpMessageSerializer() {
         assertNotNull(CONTEXT.registerBmpMessageSerializer(Keepalive.class, MESSAGE_REGISTRY));
     }
 
     @Test
-    public void testGetBmpMessageRegistry() {
+    void testGetBmpMessageRegistry() {
         assertNotNull(CONTEXT.getBmpMessageRegistry());
     }
 
     @Test
-    public void testRegisterBmpStatisticsTlvParser() {
+    void testRegisterBmpStatisticsTlvParser() {
         assertNotNull(CONTEXT.registerBmpStatisticsTlvParser(TEST_TYPE, this.tlvParser));
     }
 
     @Test
-    public void testRegisterBmpStatisticsTlvSerializer() {
+    void testRegisterBmpStatisticsTlvSerializer() {
         assertNotNull(CONTEXT.registerBmpStatisticsTlvSerializer(CountTlv.class, this.tlvSerializer));
     }
 
     @Test
-    public void testRegisterBmpInitiationTlvParser() {
+    void testRegisterBmpInitiationTlvParser() {
         assertNotNull(CONTEXT.registerBmpInitiationTlvParser(TEST_TYPE, this.tlvParser));
     }
 
     @Test
-    public void testRegisterBmpInitiationTlvSerializer() {
+    void testRegisterBmpInitiationTlvSerializer() {
         assertNotNull(CONTEXT.registerBmpInitiationTlvSerializer(DescriptionTlv.class, this.tlvSerializer));
     }
 
     @Test
-    public void testRegisterBmpTerminationTlvParser() {
+    void testRegisterBmpTerminationTlvParser() {
         assertNotNull(CONTEXT.registerBmpTerminationTlvParser(TEST_TYPE, this.tlvParser));
     }
 
     @Test
-    public void testRegisterBmpTerminationTlvSerializer() {
+    void testRegisterBmpTerminationTlvSerializer() {
         assertNotNull(CONTEXT.registerBmpTerminationTlvSerializer(ReasonTlv.class, this.tlvSerializer));
     }
 
     @Test
-    public void tetsGetBmpStatisticsTlvRegistry() {
+    void tetsGetBmpStatisticsTlvRegistry() {
         assertNotNull(CONTEXT.getBmpStatisticsTlvRegistry());
     }
 
     @Test
-    public void testGetBmpInitiationTlvRegistry() {
+    void testGetBmpInitiationTlvRegistry() {
         assertNotNull(CONTEXT.getBmpInitiationTlvRegistry());
     }
 
     @Test
-    public void testGetBmpTerminationTlvRegistry() {
+    void testGetBmpTerminationTlvRegistry() {
         assertNotNull(CONTEXT.getBmpTerminationTlvRegistry());
     }
 }
