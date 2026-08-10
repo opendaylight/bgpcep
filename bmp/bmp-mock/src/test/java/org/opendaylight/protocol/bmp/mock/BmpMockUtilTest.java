@@ -7,13 +7,13 @@
  */
 package org.opendaylight.protocol.bmp.mock;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCase;
@@ -26,14 +26,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.peer.header.PeerHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.route.monitoring.message.Update;
 
-public class BmpMockUtilTest {
+class BmpMockUtilTest {
 
     private static final Ipv4AddressNoZone PEER_IP = new Ipv4AddressNoZone("127.0.0.1");
     private static final InetAddress LOCAL_ADDRESS = InetAddresses.forString("127.0.0.2");
     private static final Ipv4Prefix PREFIX = new Ipv4Prefix("1.2.3.4/32");
 
     @Test
-    public void testCreateInitiation() {
+    void testCreateInitiation() {
         final InitiationMessage initiation = BmpMockUtil.createInitiation();
         final Tlvs tlvs = initiation.getTlvs();
         assertEquals("OpenDaylight", tlvs.getDescriptionTlv().getDescription());
@@ -42,7 +42,7 @@ public class BmpMockUtilTest {
     }
 
     @Test
-    public void testCreatePeerUp() {
+    void testCreatePeerUp() {
         final PeerUpNotification peerUp = BmpMockUtil.createPeerUp(PEER_IP, LOCAL_ADDRESS);
         final PeerHeader peerHeader = peerUp.getPeerHeader();
         assertEquals(PEER_IP, peerHeader.getAddress().getIpv4AddressNoZone());
@@ -58,7 +58,7 @@ public class BmpMockUtilTest {
     }
 
     @Test
-    public void testCreateRouteMonitoringPrePolicy() {
+    void testCreateRouteMonitoringPrePolicy() {
         final RouteMonitoringMessage routeMonitoring = BmpMockUtil
                 .createRouteMonitoring(PEER_IP, AdjRibInType.PrePolicy, PREFIX);
         final PeerHeader peerHeader = routeMonitoring.getPeerHeader();
@@ -74,7 +74,7 @@ public class BmpMockUtilTest {
     }
 
     @Test
-    public void testCreateRouteMonitoringPostPolicy() {
+    void testCreateRouteMonitoringPostPolicy() {
         final RouteMonitoringMessage routeMonitoring = BmpMockUtil
                 .createRouteMonitoring(PEER_IP, AdjRibInType.PostPolicy, PREFIX);
         assertEquals(AdjRibInType.PostPolicy, routeMonitoring.getPeerHeader().getAdjRibInType());
