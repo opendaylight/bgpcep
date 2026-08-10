@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.concepts.Registration;
 
+// FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class DefaultRIBExtensionProviderContextTest extends AbstractRIBActivatorTest {
     private volatile boolean ribActivated;
 
