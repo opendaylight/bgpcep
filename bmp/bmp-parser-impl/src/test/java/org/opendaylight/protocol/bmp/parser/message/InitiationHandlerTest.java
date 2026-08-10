@@ -8,18 +8,18 @@
 
 package org.opendaylight.protocol.bmp.parser.message;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createInitMsg;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.InitiationMessage;
 
-public class InitiationHandlerTest extends AbstractBmpMessageTest {
+class InitiationHandlerTest extends AbstractBmpMessageTest {
 
     private static final String STR_INFO = "The information field type 0";
     private static final String SYS_DESCR = "SysDescr type 1";
@@ -58,14 +58,14 @@ public class InitiationHandlerTest extends AbstractBmpMessageTest {
     };
 
     @Test
-    public void testSerializeInitiationMessage() throws BmpDeserializationException {
+    void testSerializeInitiationMessage() throws BmpDeserializationException {
         final ByteBuf buffer = Unpooled.buffer();
         getBmpMessageRegistry().serializeMessage(createInitMsg(SYS_DESCR, SYS_NAME, STR_INFO), buffer);
         assertArrayEquals(INIT_MSG, ByteArray.readAllBytes(buffer));
     }
 
     @Test
-    public void testParseInitiationMessage() throws BmpDeserializationException {
+    void testParseInitiationMessage() throws BmpDeserializationException {
         final InitiationMessage parsedInitMsg = (InitiationMessage) getBmpMessageRegistry()
                 .parseMessage(Unpooled.copiedBuffer(INIT_MSG));
         assertEquals(createInitMsg(SYS_DESCR, SYS_NAME, STR_INFO), parsedInitMsg);

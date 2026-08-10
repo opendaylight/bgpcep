@@ -7,19 +7,19 @@
  */
 package org.opendaylight.protocol.bmp.parser.message;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createPeerDownFSM;
 import static org.opendaylight.protocol.bmp.parser.message.TestUtil.createPeerDownNotification;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bmp.message.rev200120.PeerDownNotification;
 
-public class PeerDownHandlerTest extends AbstractBmpMessageTest {
+class PeerDownHandlerTest extends AbstractBmpMessageTest {
 
     private static final byte[] PEER_DOWN_FSM_DATA = {
         /*
@@ -115,28 +115,28 @@ public class PeerDownHandlerTest extends AbstractBmpMessageTest {
     };
 
     @Test
-    public void testSerializePeerDownNotificationFSM() throws BmpDeserializationException {
+    void testSerializePeerDownNotificationFSM() throws BmpDeserializationException {
         final ByteBuf buffer = Unpooled.buffer();
         getBmpMessageRegistry().serializeMessage(createPeerDownFSM(), buffer);
         assertArrayEquals(PEER_DOWN_FSM_DATA, ByteArray.readAllBytes(buffer));
     }
 
     @Test
-    public void testSerializePeerDownNotification() throws BmpDeserializationException {
+    void testSerializePeerDownNotification() throws BmpDeserializationException {
         final ByteBuf buffer = Unpooled.buffer();
         getBmpMessageRegistry().serializeMessage(createPeerDownNotification(), buffer);
         assertArrayEquals(PEER_DOWN_NOTIFICATION, ByteArray.readAllBytes(buffer));
     }
 
     @Test
-    public void testParsePeerDownNotificationFSM() throws BmpDeserializationException {
+    void testParsePeerDownNotificationFSM() throws BmpDeserializationException {
         final PeerDownNotification parsedPeerDownFSM = (PeerDownNotification) getBmpMessageRegistry().parseMessage(
                 Unpooled.copiedBuffer(PEER_DOWN_FSM_DATA));
         assertEquals(createPeerDownFSM(), parsedPeerDownFSM);
     }
 
     @Test
-    public void testParsePeerDownNotification() throws BmpDeserializationException {
+    void testParsePeerDownNotification() throws BmpDeserializationException {
         final PeerDownNotification parsedPeerDownNotif = (PeerDownNotification) getBmpMessageRegistry().parseMessage(
                 Unpooled.copiedBuffer(PEER_DOWN_NOTIFICATION));
         assertEquals(createPeerDownNotification(), parsedPeerDownNotif);
