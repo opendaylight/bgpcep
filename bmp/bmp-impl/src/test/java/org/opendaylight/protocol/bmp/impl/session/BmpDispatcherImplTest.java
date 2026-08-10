@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bmp.impl.session;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.timeout;
@@ -19,12 +19,12 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.parser.impl.BGPActivator;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionProviderContext;
 import org.opendaylight.protocol.bgp.parser.spi.pojo.SimpleBGPExtensionProviderContext;
@@ -36,8 +36,8 @@ import org.opendaylight.protocol.bmp.parser.BmpActivator;
 import org.opendaylight.protocol.bmp.spi.registry.SimpleBmpExtensionProviderContext;
 import org.opendaylight.protocol.concepts.KeyMapping;
 
-@RunWith(MockitoJUnitRunner.StrictStubs.class)
-public class BmpDispatcherImplTest {
+@ExtendWith(MockitoExtension.class)
+class BmpDispatcherImplTest {
     private static final int PORT = 45678;
     private static final InetSocketAddress CLIENT_REMOTE = new InetSocketAddress("127.0.0.10", PORT);
     private static final InetSocketAddress SERVER = new InetSocketAddress("0.0.0.0", PORT);
@@ -51,8 +51,8 @@ public class BmpDispatcherImplTest {
     @Mock
     private BmpSessionListenerFactory mockedListenerFactory;
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeEach
+    void setUp() throws Exception {
         doNothing().when(mockedSession).handlerAdded(any(ChannelHandlerContext.class));
         doNothing().when(mockedSession).channelRegistered(any(ChannelHandlerContext.class));
         doNothing().when(mockedSession).channelActive(any(ChannelHandlerContext.class));
@@ -68,13 +68,13 @@ public class BmpDispatcherImplTest {
             (channel, sessionListenerFactory) -> BmpDispatcherImplTest.this.mockedSession);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterEach
+    void tearDown() throws Exception {
         dispatcher.close();
     }
 
     @Test
-    public void testCreateServer() throws Exception {
+    void testCreateServer() throws Exception {
         final ChannelFuture futureServer = dispatcher.createServer(SERVER, mockedListenerFactory, KeyMapping.of());
         waitFutureSuccess(futureServer);
         final Channel serverChannel = futureServer.channel();
