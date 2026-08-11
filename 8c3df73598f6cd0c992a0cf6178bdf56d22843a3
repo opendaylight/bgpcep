@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6acd38fd_69bc9557",
+        "filename": "bgp/parser-api/src/test/java/org/opendaylight/protocol/bgp/parser/TableTypeTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-11T08:35:24Z",
+      "side": 1,
+      "message": "assertThrows(NullPointerException.class ...)",
+      "range": {
+        "startLine": 33,
+        "startChar": 10,
+        "endLine": 33,
+        "endChar": 41
+      },
+      "revId": "8c3df73598f6cd0c992a0cf6178bdf56d22843a3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
