@@ -13,10 +13,9 @@ import static org.mockito.Mockito.doReturn;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.collect.Lists;
-import io.netty.util.concurrent.Future;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -231,7 +230,7 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         clientDispatchers.add(clientDispatcher);
         clientRegistry.addPeer(new IpAddressNoZone(new Ipv4AddressNoZone(RIB_ID)), sessionListener,
                 new BGPSessionPreferences(remoteAsNumber, HOLDTIMER, new BgpId(peer),
-                        AS_NUMBER, Lists.newArrayList(bgpParameters)));
+                        AS_NUMBER, List.of(bgpParameters)));
 
         return connectPeer(peer, clientDispatcher);
     }
@@ -262,16 +261,16 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
 
         final BGPPeer bgpPeer = new BGPPeer(tableRegistry, new IpAddressNoZone(peerAddress), null, ribImpl, peerRole,
                 null, null, null, afiSafiAdvertised, gracefulAfiSafiAdvertised, llGracefulTimersAdvertised, peer);
-        final List<BgpParameters> tlvs = Lists.newArrayList(bgpParameters);
         bgpPeerRegistry.addPeer(ipAddress, bgpPeer,
-                new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER, tlvs));
+            new BGPSessionPreferences(AS_NUMBER, HOLDTIMER, new BgpId(RIB_ID), AS_NUMBER,
+                Arrays.asList(bgpParameters)));
         bgpPeer.instantiateServiceInstance();
         return bgpPeer;
     }
 
     private static BGPSessionImpl connectPeer(final Ipv4Address localAddress, final BGPDispatcherImpl dispatcherImpl)
             throws InterruptedException {
-        final Future<BGPSessionImpl> future = dispatcherImpl
+        final var future = dispatcherImpl
                 .createClient(new InetSocketAddress(localAddress.getValue(), PORT.toJava()),
                         new InetSocketAddress(RIB_ID, PORT.toJava()), RETRY_TIMER, true);
         Thread.sleep(200);
@@ -287,17 +286,14 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static BgpParameters createParameter(final boolean addPath,
                                          final boolean addIpv6,
                                          final Map<TablesKey, Boolean> gracefulTables) {
-        final TablesKey ipv4Key = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
-        final List<TablesKey> advertisedTables = Lists.newArrayList(ipv4Key);
+        final var ipv4Key = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
+        final var advertisedTables = new ArrayList<TablesKey>();
+        advertisedTables.add(ipv4Key);
         if (addIpv6) {
-            final TablesKey ipv6Key = new TablesKey(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
-            advertisedTables.add(ipv6Key);
+            advertisedTables.add(new TablesKey(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
         }
-        final List<TablesKey> addPathTables = new ArrayList<>();
-        if (addPath) {
-            addPathTables.add(ipv4Key);
-        }
-        return PeerUtil.createBgpParameters(advertisedTables, addPathTables, gracefulTables, GRACEFUL_RESTART_TIME);
+        return PeerUtil.createBgpParameters(advertisedTables, addPath ? List.of(ipv4Key) : List.of(), gracefulTables,
+            GRACEFUL_RESTART_TIME);
     }
 
     private static Update createSimpleUpdate(final Ipv4Prefix prefix, final PathId pathId,

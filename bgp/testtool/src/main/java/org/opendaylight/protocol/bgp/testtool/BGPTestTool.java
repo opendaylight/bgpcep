@@ -9,11 +9,11 @@ package org.opendaylight.protocol.bgp.testtool;
 
 import static org.opendaylight.protocol.bgp.testtool.BGPPeerBuilder.createPeer;
 
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +55,8 @@ final class BGPTestTool {
     void start(final Arguments arguments) {
         final BGPDispatcher dispatcher = initializeActivator();
 
-        final ArrayList<OptionalCapabilities> optCap = Lists.newArrayList(createMPCapability(Ipv4AddressFamily.VALUE,
-                UnicastSubsequentAddressFamily.VALUE),
+        final var optCap = new ArrayList<>(Arrays.asList(
+            createMPCapability(Ipv4AddressFamily.VALUE,UnicastSubsequentAddressFamily.VALUE),
             createMPCapability(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE),
             createMPCapability(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE),
             createMPCapability(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE),
@@ -64,7 +64,7 @@ final class BGPTestTool {
             createMPCapability(Ipv6AddressFamily.VALUE, McastMplsLabeledVpnSubsequentAddressFamily.VALUE),
             createMPCapability(L2vpnAddressFamily.VALUE, EvpnSubsequentAddressFamily.VALUE),
             createMPCapability(Ipv4AddressFamily.VALUE, RouteTargetConstrainSubsequentAddressFamily.VALUE),
-                createAs4BytesMPCapability(arguments.getAs()));
+            createAs4BytesMPCapability(arguments.getAs())));
         if (arguments.getMultiPathSupport()) {
             optCap.add(createAddPathCapability());
         }
@@ -118,7 +118,7 @@ final class BGPTestTool {
                 .setCParameters(new CParametersBuilder()
                     .addAugmentation(new CParameters1Builder()
                         .setAddPathCapability(new AddPathCapabilityBuilder()
-                            .setAddressFamilies(Lists.newArrayList(new AddressFamiliesBuilder()
+                            .setAddressFamilies(List.of(new AddressFamiliesBuilder()
                                 .setAfi(Ipv4AddressFamily.VALUE)
                                 .setSafi(UnicastSubsequentAddressFamily.VALUE)
                                 .setSendReceive(SendReceive.Both)

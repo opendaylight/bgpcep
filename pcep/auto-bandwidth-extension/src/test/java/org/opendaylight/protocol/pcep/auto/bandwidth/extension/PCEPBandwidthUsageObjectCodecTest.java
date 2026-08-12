@@ -10,9 +10,9 @@ package org.opendaylight.protocol.pcep.auto.bandwidth.extension;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
 import org.opendaylight.protocol.pcep.spi.ObjectHeaderImpl;
@@ -22,7 +22,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controll
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 
 public class PCEPBandwidthUsageObjectCodecTest {
-
     private static final byte[] BW_BYTES = new byte[]{0x05, 0x50, 0x00, 0x0C, 0x00, 0x00, 0x10, 0x00,
         0x00, 0x00, 0x40, 0x00};
 
@@ -32,7 +31,8 @@ public class PCEPBandwidthUsageObjectCodecTest {
         assertEquals(5, codec.getObjectType());
 
         final BandwidthUsageBuilder builder = new BandwidthUsageBuilder()
-                .setBwSample(Lists.newArrayList(new Bandwidth(new byte[]{0x00, 0x00, 0x10, 0x00}),
+                .setBwSample(List.of(
+                    new Bandwidth(new byte[]{0x00, 0x00, 0x10, 0x00}),
                     new Bandwidth(new byte[]{0x00, 0x00, 0x40, 0x00})))
                 .setIgnore(false)
                 .setProcessingRule(false);
@@ -44,5 +44,4 @@ public class PCEPBandwidthUsageObjectCodecTest {
         codec.serializeObject(builder.build(), buffer);
         assertArrayEquals(BW_BYTES, ByteArray.getAllBytes(buffer));
     }
-
 }

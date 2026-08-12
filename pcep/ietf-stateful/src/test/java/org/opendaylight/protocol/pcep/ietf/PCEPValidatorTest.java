@@ -11,7 +11,6 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
@@ -484,13 +483,9 @@ public class PCEPValidatorTest {
         final StatefulPCReportMessageParser parser = new StatefulPCReportMessageParser(
             ctx.getObjectHandlerRegistry());
 
-        final PcrptMessageBuilder builder = new PcrptMessageBuilder();
-
-        final List<Reports> reports = new ArrayList<>();
-        reports.add(new ReportsBuilder().setLsp(lsp).build());
-        builder.setReports(reports);
-        final Message parseResult = parser.parseMessage(result.slice(4, result.readableBytes() - 4),
-            List.of());
+        final PcrptMessageBuilder builder = new PcrptMessageBuilder()
+            .setReports(List.of(new ReportsBuilder().setLsp(lsp).build()));
+        final var parseResult = parser.parseMessage(result.slice(4, result.readableBytes() - 4), List.of());
         assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(), parseResult);
         ByteBuf buf = Unpooled.buffer(result.readableBytes());
         parser.serializeMessage(new PcrptBuilder().setPcrptMessage(builder.build()).build(), buf);
@@ -516,15 +511,13 @@ public class PCEPValidatorTest {
 
         result = Unpooled.wrappedBuffer(Files.readAllBytes(Path.of("src/test/resources/PCRpt.3.bin")));
 
-        final List<Reports> reports2 = new ArrayList<>();
         final var pBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-            .rev250328.pcrpt.message.pcrpt.message.reports.PathBuilder();
-        pBuilder.setEro(ero);
-        pBuilder.setLspa(lspa);
-        pBuilder.setMetrics(Lists.newArrayList(metrics, metrics));
-        pBuilder.setRro(rro);
-        reports2.add(new ReportsBuilder().setSrp(srp).setLsp(lspSrp).setPath(pBuilder.build()).build());
-        builder.setReports(reports2);
+            .rev250328.pcrpt.message.pcrpt.message.reports.PathBuilder()
+            .setEro(ero)
+            .setLspa(lspa)
+            .setMetrics(List.of(metrics, metrics))
+            .setRro(rro);
+        builder.setReports(List.of(new ReportsBuilder().setSrp(srp).setLsp(lspSrp).setPath(pBuilder.build()).build()));
 
         assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
             parser.parseMessage(result.slice(4, result.readableBytes() - 4), List.of()));
@@ -539,16 +532,15 @@ public class PCEPValidatorTest {
 
         result = Unpooled.wrappedBuffer(Files.readAllBytes(Path.of("src/test/resources/PCRpt.5.bin")));
 
-        final List<Reports> reports3 = new ArrayList<>();
         final var pBuilder1 = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.ietf.stateful
-            .rev250328.pcrpt.message.pcrpt.message.reports.PathBuilder();
-        pBuilder1.setEro(ero);
-        pBuilder1.setLspa(lspa);
-        pBuilder1.setMetrics(Lists.newArrayList(metrics, metrics));
-        pBuilder1.setRro(rro);
-        reports3.add(new ReportsBuilder().setSrp(srp).setLsp(lspSrp).setPath(pBuilder.build()).build());
-        reports3.add(new ReportsBuilder().setSrp(srp).setLsp(lspSrp).setPath(pBuilder1.build()).build());
-        builder.setReports(reports3);
+            .rev250328.pcrpt.message.pcrpt.message.reports.PathBuilder()
+            .setEro(ero)
+            .setLspa(lspa)
+            .setMetrics(List.of(metrics, metrics))
+            .setRro(rro);
+        builder.setReports(List.of(
+            new ReportsBuilder().setSrp(srp).setLsp(lspSrp).setPath(pBuilder.build()).build(),
+            new ReportsBuilder().setSrp(srp).setLsp(lspSrp).setPath(pBuilder1.build()).build()));
 
         assertEquals(new PcrptBuilder().setPcrptMessage(builder.build()).build(),
             parser.parseMessage(result.slice(4, result.readableBytes() - 4), List.of()));

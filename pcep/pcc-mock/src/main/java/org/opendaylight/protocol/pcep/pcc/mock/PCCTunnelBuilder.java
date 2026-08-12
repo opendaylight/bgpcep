@@ -9,8 +9,8 @@ package org.opendaylight.protocol.pcep.pcc.mock;
 
 import static org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil.createPath;
 
-import com.google.common.collect.Lists;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.opendaylight.protocol.pcep.pcc.mock.api.LspType;
 import org.opendaylight.protocol.pcep.pcc.mock.spi.MsgBuilderUtil;
@@ -37,7 +37,7 @@ final class PCCTunnelBuilder {
         final Map<PlspId, PCCTunnel> tunnels = new HashMap<>();
         for (int i = 1; i <= lsps; i++) {
             final PCCTunnel tunnel = new PCCTunnel(MsgBuilderUtil.getDefaultPathName(address, Uint32.valueOf(i)),
-                    PCC_DELEGATION, LspType.PCC_LSP, createPath(Lists.newArrayList(DEFAULT_ENDPOINT_HOP)));
+                    PCC_DELEGATION, LspType.PCC_LSP, createPath(List.of(DEFAULT_ENDPOINT_HOP)));
             tunnels.put(new PlspId(Uint32.valueOf(i)), tunnel);
         }
         return tunnels;
