@@ -26,9 +26,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.RIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler;
@@ -52,7 +49,6 @@ import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
@@ -77,7 +73,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPrefBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Origin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.Nlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.update.message.NlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1Builder;
@@ -88,7 +83,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
@@ -219,12 +213,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
     @Test
     public void testHandleMessageAfterException() {
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-            BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(tableRegistry, new RibId(RIB_ID), AS_NUMBER,  new BgpId(RIB_ID),
                 ribExtension,
                 serverDispatcher, codecsRegistry, domBroker, policies,
-                ImmutableList.of(ipv4tt), pathTables);
+                List.of(ipv4tt), Map.of(TABLES_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         ribImpl.instantiateServiceInstance();
 
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(tableRegistry, neighbor.getIpv4AddressNoZone(),
@@ -235,12 +227,11 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         bgpSession.setChannelExtMsgCoder(classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
-        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
-        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
-        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
-        final List<Nlri> nlris = Lists.newArrayList(n1, n2, n3);
-        final UpdateBuilder wrongMessage = new UpdateBuilder();
-        wrongMessage.setNlri(nlris);
+        final UpdateBuilder wrongMessage = new UpdateBuilder()
+            .setNlri(List.of(
+                new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build(),
+                new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build(),
+                new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build()));
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()
@@ -273,12 +264,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
     @Test
     public void testUseCase1() {
-        final Map<TablesKey, PathSelectionMode> pathTables = ImmutableMap.of(TABLES_KEY,
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy());
         final RIBImpl ribImpl = new RIBImpl(tableRegistry, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID),
                 ribExtension,
                 serverDispatcher, codecsRegistry, domBroker, policies,
-                ImmutableList.of(ipv4tt), pathTables);
+                List.of(ipv4tt), Map.of(TABLES_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
         ribImpl.instantiateServiceInstance();
 
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(tableRegistry, neighbor.getIpv4AddressNoZone(),
@@ -289,12 +278,11 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         bgpSession.setChannelExtMsgCoder(classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
-        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build();
-        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build();
-        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build();
-        final List<Nlri> nlris = Lists.newArrayList(n1, n2, n3);
-        final UpdateBuilder wrongMessage = new UpdateBuilder();
-        wrongMessage.setNlri(nlris);
+        final UpdateBuilder wrongMessage = new UpdateBuilder()
+            .setNlri(List.of(
+                new NlriBuilder().setPrefix(new Ipv4Prefix("8.0.1.0/28")).build(),
+                new NlriBuilder().setPrefix(new Ipv4Prefix("127.0.0.1/32")).build(),
+                new NlriBuilder().setPrefix(new Ipv4Prefix("2.2.2.2/24")).build()));
         final Origin origin = new OriginBuilder().setValue(BgpOrigin.Igp).build();
         final AsPath asPath = new AsPathBuilder().setSegments(Collections.emptyList()).build();
         final CNextHop nextHop = new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder()

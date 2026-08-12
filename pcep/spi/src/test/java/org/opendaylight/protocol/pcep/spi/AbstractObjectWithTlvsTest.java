@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.List;
@@ -111,7 +110,7 @@ public class AbstractObjectWithTlvsTest {
         final Abs parser = new Abs(tlvRegistry, viTlvRegistry);
         final ByteBuf buffer = Unpooled.buffer();
 
-        parser.serializeVendorInformationTlvs(Lists.newArrayList(viTlv), buffer);
+        parser.serializeVendorInformationTlvs(List.of(viTlv), buffer);
         verify(viTlvRegistry, only()).serializeVendorInformationTlv(any(VendorInformationTlv.class),
             any(ByteBuf.class));
 

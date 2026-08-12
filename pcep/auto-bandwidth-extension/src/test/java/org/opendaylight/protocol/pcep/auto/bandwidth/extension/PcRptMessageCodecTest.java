@@ -15,10 +15,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Queue;
-import javax.xml.bind.DatatypeConverter;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.pcep.PCEPDeserializerException;
@@ -113,15 +112,14 @@ public class PcRptMessageCodecTest {
 
     @Test
     public void testReportMsgWithRro() throws PCEPDeserializerException {
-        final byte[] parseHexBinary = DatatypeConverter
-                .parseHexBinary("2010003c0084a019001100106e79636e7932316372735f7432313231001200100a0"
-                        + "000d2004008490a0000d40a0000d4001f0006000005dd700000000710001401080a000706200001080a0000d420"
-                        + "000910001400000000000000000000000005050100051000084998968005500008513a43b70810002401080a000"
-                        + "0d42020030801010000000001080a00070620000308010100000000");
+        final byte[] parseHexBinary = HexFormat.of().parseHex("""
+            2010003c0084a019001100106e79636e7932316372735f7432313231001200100a0\
+            000d2004008490a0000d40a0000d4001f0006000005dd700000000710001401080a000706200001080a0000d420\
+            000910001400000000000000000000000005050100051000084998968005500008513a43b70810002401080a000\
+            0d42020030801010000000001080a00070620000308010100000000""");
         final Pcrpt msg = (Pcrpt) ctx.getMessageHandlerRegistry().parseMessage(10,
-                Unpooled.wrappedBuffer(parseHexBinary), Collections.emptyList());
-        assertNotNull(msg.getPcrptMessage().getReports().get(0).getPath()
+                Unpooled.wrappedBuffer(parseHexBinary), List.of());
+        assertNotNull(msg.getPcrptMessage().nonnullReports().getFirst().getPath()
                 .getBandwidth().augmentation(Bandwidth1.class));
     }
-
 }
