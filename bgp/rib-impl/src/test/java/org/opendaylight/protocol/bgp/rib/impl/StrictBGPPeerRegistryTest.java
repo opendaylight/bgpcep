@@ -18,7 +18,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import java.net.InetSocketAddress;
 import java.util.Collections;
@@ -35,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.OpenBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
@@ -58,18 +56,22 @@ class StrictBGPPeerRegistryTest {
     private BGPSessionPreferences mockPreferences;
 
     private static Open createOpen(final Ipv4AddressNoZone bgpId, final AsNumber as) {
-        final List<BgpParameters> params = Lists.newArrayList(new BgpParametersBuilder()
-            .setOptionalCapabilities(Lists.newArrayList(new OptionalCapabilitiesBuilder()
-                .setCParameters(new CParametersBuilder()
-                    .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build())
-                    .build()).build())).build());
-        return new OpenBuilder().setBgpIdentifier(bgpId).setBgpParameters(params).build();
+        return new OpenBuilder()
+            .setBgpIdentifier(bgpId)
+            .setBgpParameters(List.of(new BgpParametersBuilder()
+                .setOptionalCapabilities(List.of(new OptionalCapabilitiesBuilder()
+                    .setCParameters(new CParametersBuilder()
+                        .setAs4BytesCapability(new As4BytesCapabilityBuilder().setAsNumber(as).build())
+                        .build())
+                    .build()))
+                .build()))
+            .build();
     }
 
     @BeforeEach
     void setUp() {
-        this.peerRegistry = new StrictBGPPeerRegistry();
-        this.mockPreferences = new BGPSessionPreferences(LOCAL_AS, 1, new BgpId("0.0.0.1"), LOCAL_AS,
+        peerRegistry = new StrictBGPPeerRegistry();
+        mockPreferences = new BGPSessionPreferences(LOCAL_AS, 1, new BgpId("0.0.0.1"), LOCAL_AS,
                 Collections.emptyList());
     }
 
@@ -95,17 +97,17 @@ class StrictBGPPeerRegistryTest {
 
     @Test
     void testDuplicatePeerConnection() throws BGPDocumentedException {
-        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
-        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
+        peerRegistry.addPeer(REMOTE_IP, peer1, mockPreferences);
+        peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen);
         final var ex = assertThrows(BGPDocumentedException.class,
-            () -> this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen));
+            () -> peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen));
         assertEquals(BGPError.CEASE, ex.getError());
     }
 
     @Test
     void testPeerNotConfigured() {
         assertThrows(IllegalStateException.class,
-            () -> this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen));
+            () -> peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen));
     }
 
     @Test
@@ -113,16 +115,16 @@ class StrictBGPPeerRegistryTest {
         final Ipv4AddressNoZone to2 = new Ipv4AddressNoZone("255.255.255.254");
         final IpAddressNoZone remoteIp2 = new IpAddressNoZone(to2);
 
-        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
+        peerRegistry.addPeer(REMOTE_IP, peer1, mockPreferences);
         final BGPSessionListener session2 = getMockSession();
-        this.peerRegistry.addPeer(remoteIp2, session2, this.mockPreferences);
+        peerRegistry.addPeer(remoteIp2, session2, mockPreferences);
 
-        final BGPSessionListener returnedSession1 = this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
-        assertSame(this.peer1, returnedSession1);
-        final BGPSessionListener returnedSession2 = this.peerRegistry.getPeer(remoteIp2, FROM, to2, this.classicOpen);
+        final BGPSessionListener returnedSession1 = peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen);
+        assertSame(peer1, returnedSession1);
+        final BGPSessionListener returnedSession2 = peerRegistry.getPeer(remoteIp2, FROM, to2, classicOpen);
         assertSame(session2, returnedSession2);
 
-        verifyNoMoreInteractions(this.peer1);
+        verifyNoMoreInteractions(peer1);
         verifyNoMoreInteractions(session2);
     }
 
@@ -132,11 +134,11 @@ class StrictBGPPeerRegistryTest {
         final Ipv4AddressNoZone lower = new Ipv4AddressNoZone("10.10.10.10");
         final IpAddressNoZone remoteIp = new IpAddressNoZone(lower);
 
-        this.peerRegistry.addPeer(remoteIp, this.peer1, this.mockPreferences);
+        peerRegistry.addPeer(remoteIp, peer1, mockPreferences);
 
-        this.peerRegistry.getPeer(remoteIp, higher, lower, createOpen(lower, LOCAL_AS));
+        peerRegistry.getPeer(remoteIp, higher, lower, createOpen(lower, LOCAL_AS));
         final var ex = assertThrows(BGPDocumentedException.class,
-            () -> this.peerRegistry.getPeer(remoteIp, lower, higher, createOpen(higher, LOCAL_AS)));
+            () -> peerRegistry.getPeer(remoteIp, lower, higher, createOpen(higher, LOCAL_AS)));
         assertEquals(BGPError.CEASE, ex.getError());
     }
 
@@ -146,41 +148,41 @@ class StrictBGPPeerRegistryTest {
         final Ipv4AddressNoZone lower = new Ipv4AddressNoZone("123.123.123.122");
         final IpAddressNoZone remoteIp = new IpAddressNoZone(lower);
 
-        this.peerRegistry.addPeer(remoteIp, this.peer1, this.mockPreferences);
+        peerRegistry.addPeer(remoteIp, peer1, mockPreferences);
 
-        this.peerRegistry.getPeer(remoteIp, lower, higher, createOpen(higher, LOCAL_AS));
-        this.peerRegistry.getPeer(remoteIp, higher, lower, createOpen(lower, LOCAL_AS));
-        verify(this.peer1).releaseConnection();
+        peerRegistry.getPeer(remoteIp, lower, higher, createOpen(higher, LOCAL_AS));
+        peerRegistry.getPeer(remoteIp, higher, lower, createOpen(lower, LOCAL_AS));
+        verify(peer1).releaseConnection();
     }
 
     @Test
     void testDuplicatePeersWDifferentIds() throws BGPDocumentedException {
-        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
+        peerRegistry.addPeer(REMOTE_IP, peer1, mockPreferences);
 
-        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
+        peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen);
         final var ex = assertThrows(BGPDocumentedException.class,
-            () -> this.peerRegistry.getPeer(REMOTE_IP, TO, TO, this.classicOpen));
+            () -> peerRegistry.getPeer(REMOTE_IP, TO, TO, classicOpen));
         assertEquals(BGPError.CEASE, ex.getError());
     }
 
     @Test
     void testDuplicatePeersHigherAs() throws BGPDocumentedException {
-        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
+        peerRegistry.addPeer(REMOTE_IP, peer1, mockPreferences);
 
-        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
-        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, createOpen(TO, REMOTE_AS));
-        verify(this.peer1).releaseConnection();
+        peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen);
+        peerRegistry.getPeer(REMOTE_IP, FROM, TO, createOpen(TO, REMOTE_AS));
+        verify(peer1).releaseConnection();
     }
 
     @Test
     void testDuplicatePeersLowerAs() throws Exception {
         final AsNumber as2 = new AsNumber(Uint32.valueOf(3));
 
-        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
+        peerRegistry.addPeer(REMOTE_IP, peer1, mockPreferences);
 
-        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
+        peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen);
         final var ex = assertThrows(BGPDocumentedException.class,
-            () -> this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, createOpen(TO, as2)));
+            () -> peerRegistry.getPeer(REMOTE_IP, FROM, TO, createOpen(TO, as2)));
         assertEquals(BGPError.CEASE, ex.getError());
     }
 
@@ -188,26 +190,26 @@ class StrictBGPPeerRegistryTest {
     void testAsMismatch() {
         final AsNumber as2 = new AsNumber(Uint32.valueOf(3));
 
-        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
+        peerRegistry.addPeer(REMOTE_IP, peer1, mockPreferences);
         final var ex = assertThrows(BGPDocumentedException.class,
-            () -> this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, createOpen(TO, as2)));
+            () -> peerRegistry.getPeer(REMOTE_IP, FROM, TO, createOpen(TO, as2)));
         assertEquals(BGPError.BAD_PEER_AS, ex.getError());
     }
 
     @Test
     void testRegisterPeerSessionListener() throws Exception {
         final PeerRegistrySessionListener sessionListener1 = getMockSessionListener();
-        this.peerRegistry.registerPeerSessionListener(sessionListener1);
+        peerRegistry.registerPeerSessionListener(sessionListener1);
 
         final PeerRegistrySessionListener sessionListener2 = getMockSessionListener();
-        this.peerRegistry.registerPeerSessionListener(sessionListener2);
+        peerRegistry.registerPeerSessionListener(sessionListener2);
 
-        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
-        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
+        peerRegistry.addPeer(REMOTE_IP, peer1, mockPreferences);
+        peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen);
         verify(sessionListener1, times(1)).onSessionCreated(REMOTE_IP);
         verify(sessionListener2, times(1)).onSessionCreated(REMOTE_IP);
 
-        this.peerRegistry.removePeerSession(REMOTE_IP);
+        peerRegistry.removePeerSession(REMOTE_IP);
         verify(sessionListener1, times(1)).onSessionRemoved(REMOTE_IP);
         verify(sessionListener2, times(1)).onSessionRemoved(REMOTE_IP);
     }
@@ -215,18 +217,18 @@ class StrictBGPPeerRegistryTest {
     @Test
     void testClosePeerSessionOneListener() throws BGPDocumentedException {
         final PeerRegistrySessionListener sessionListener1 = getMockSessionListener();
-        final Registration registration1 = this.peerRegistry.registerPeerSessionListener(sessionListener1);
+        final Registration registration1 = peerRegistry.registerPeerSessionListener(sessionListener1);
 
         final PeerRegistrySessionListener sessionListener2 = getMockSessionListener();
-        this.peerRegistry.registerPeerSessionListener(sessionListener2);
+        peerRegistry.registerPeerSessionListener(sessionListener2);
 
-        this.peerRegistry.addPeer(REMOTE_IP, this.peer1, this.mockPreferences);
-        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
-        this.peerRegistry.removePeerSession(REMOTE_IP);
+        peerRegistry.addPeer(REMOTE_IP, peer1, mockPreferences);
+        peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen);
+        peerRegistry.removePeerSession(REMOTE_IP);
 
         registration1.close();
-        this.peerRegistry.getPeer(REMOTE_IP, FROM, TO, this.classicOpen);
-        this.peerRegistry.removePeerSession(REMOTE_IP);
+        peerRegistry.getPeer(REMOTE_IP, FROM, TO, classicOpen);
+        peerRegistry.removePeerSession(REMOTE_IP);
 
         verify(sessionListener1, times(1)).onSessionCreated(REMOTE_IP);
         verify(sessionListener2, times(2)).onSessionCreated(REMOTE_IP);

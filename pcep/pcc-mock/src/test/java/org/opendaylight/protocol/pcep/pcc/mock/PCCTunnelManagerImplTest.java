@@ -14,7 +14,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timer;
@@ -62,9 +61,13 @@ class PCCTunnelManagerImplTest {
     private static final InetAddress ADDRESS = InetAddresses.forString("1.2.4.5");
     private static final Timer TIMER = new HashedWheelTimer();
     private static final byte[] SYMBOLIC_NAME = "tets".getBytes(StandardCharsets.UTF_8);
-    private static final Ero ERO = new EroBuilder().setSubobject(Lists.newArrayList(new SubobjectBuilder()
-        .setSubobjectType(new IpPrefixCaseBuilder().setIpPrefix(new IpPrefixBuilder()
-        .setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build()).build()).build())).build();
+    private static final Ero ERO = new EroBuilder()
+        .setSubobject(List.of(new SubobjectBuilder()
+            .setSubobjectType(new IpPrefixCaseBuilder()
+                .setIpPrefix(new IpPrefixBuilder().setIpPrefix(new IpPrefix(new Ipv4Prefix("127.0.0.2/32"))).build())
+                .build())
+            .build()))
+        .build();
     private final List<PCEPErrors> errorsSession1 = new ArrayList<>();
     private final List<PCEPErrors> errorsSession2 = new ArrayList<>();
     @Mock

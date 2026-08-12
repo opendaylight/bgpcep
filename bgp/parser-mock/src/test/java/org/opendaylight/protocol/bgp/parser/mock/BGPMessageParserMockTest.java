@@ -11,7 +11,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
@@ -47,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPathBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.SegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -61,7 +59,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv6AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.MplsLabeledVpnSubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
 import org.opendaylight.yangtools.binding.Notification;
@@ -142,39 +139,42 @@ class BGPMessageParserMockTest {
      * @param asn this parameter is passed to ASNumber constructor
      */
     private static Update fillMessages(final long asn) {
-
-        final UpdateBuilder builder = new UpdateBuilder();
-
-        final List<Segments> asPath = new ArrayList<>();
-        asPath.add(new SegmentsBuilder().setAsSequence(Lists.newArrayList(new AsNumber(Uint32.valueOf(asn)))).build());
-        final CNextHop nextHop = new Ipv6NextHopCaseBuilder().setIpv6NextHop(
-                new Ipv6NextHopBuilder().setGlobal(new Ipv6AddressNoZone("2001:db8::1"))
-                        .setLinkLocal(new Ipv6AddressNoZone("fe80::c001:bff:fe7e:0")).build()).build();
-
-        final Ipv6Prefix pref1 = new Ipv6Prefix("2001:db8:1:2::/64");
-        final Ipv6Prefix pref2 = new Ipv6Prefix("2001:db8:1:1::/64");
-        final Ipv6Prefix pref3 = new Ipv6Prefix("2001:db8:1::/64");
-
-        final AttributesBuilder paBuilder = new AttributesBuilder();
-        paBuilder.setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build());
-        paBuilder.setAsPath(new AsPathBuilder().setSegments(asPath).build());
-
-        final MpReachNlriBuilder mpReachBuilder = new MpReachNlriBuilder()
-            .setAfi(Ipv6AddressFamily.VALUE)
-            .setSafi(UnicastSubsequentAddressFamily.VALUE)
-            .setCNextHop(nextHop)
-            .setAdvertizedRoutes(new AdvertizedRoutesBuilder().setDestinationType(
-                new DestinationIpv6CaseBuilder().setDestinationIpv6(
-                        new DestinationIpv6Builder().setIpv6Prefixes(Lists.newArrayList(
-                                new Ipv6PrefixesBuilder().setPrefix(pref1).build(),
-                                new Ipv6PrefixesBuilder().setPrefix(pref2).build(),
-                                new Ipv6PrefixesBuilder().setPrefix(pref3).build())).build()).build()).build());
-
-        paBuilder.addAugmentation(new AttributesReachBuilder().setMpReachNlri(mpReachBuilder.build()).build());
-
-        builder.setAttributes(paBuilder.build());
-
-        return builder.build();
+        return new UpdateBuilder()
+            .setAttributes(new AttributesBuilder()
+                .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
+                .setAsPath(new AsPathBuilder()
+                    .setSegments(List.of(new SegmentsBuilder()
+                        .setAsSequence(List.of(new AsNumber(Uint32.valueOf(asn))))
+                        .build()))
+                    .build())
+                .addAugmentation(new AttributesReachBuilder()
+                    .setMpReachNlri(new MpReachNlriBuilder()
+                        .setAfi(Ipv6AddressFamily.VALUE)
+                        .setSafi(UnicastSubsequentAddressFamily.VALUE)
+                        .setCNextHop(new Ipv6NextHopCaseBuilder()
+                            .setIpv6NextHop(new Ipv6NextHopBuilder()
+                                .setGlobal(new Ipv6AddressNoZone("2001:db8::1"))
+                                .setLinkLocal(new Ipv6AddressNoZone("fe80::c001:bff:fe7e:0"))
+                                .build())
+                            .build())
+                        .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                            .setDestinationType(new DestinationIpv6CaseBuilder()
+                                .setDestinationIpv6(new DestinationIpv6Builder()
+                                    .setIpv6Prefixes(List.of(
+                                        new Ipv6PrefixesBuilder()
+                                            .setPrefix(new Ipv6Prefix("2001:db8:1:2::/64"))
+                                            .build(),
+                                        new Ipv6PrefixesBuilder()
+                                            .setPrefix(new Ipv6Prefix("2001:db8:1:1::/64"))
+                                            .build(),
+                                        new Ipv6PrefixesBuilder().setPrefix(new Ipv6Prefix("2001:db8:1::/64")).build()))
+                                    .build())
+                                .build())
+                            .build())
+                        .build())
+                    .build())
+                .build())
+            .build();
     }
 
     @Test
@@ -189,8 +189,9 @@ class BGPMessageParserMockTest {
         final CParameters par = new CParametersBuilder().addAugmentation(new CParameters1Builder()
                 .setMultiprotocolCapability(new MultiprotocolCapabilityBuilder().setAfi(Ipv4AddressFamily.VALUE)
                         .setSafi(MplsLabeledVpnSubsequentAddressFamily.VALUE).build()).build()).build();
-        params.add(new BgpParametersBuilder().setOptionalCapabilities(Lists.newArrayList(
-                new OptionalCapabilitiesBuilder().setCParameters(par).build())).build());
+        params.add(new BgpParametersBuilder()
+            .setOptionalCapabilities(List.of(new OptionalCapabilitiesBuilder().setCParameters(par).build()))
+            .build());
 
         final byte[] input = new byte[]{5, 8, 13, 21};
 

@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.ByteArrayOutputStream;
@@ -180,10 +179,6 @@ class BGPParserTest {
                 new Ipv6NextHopBuilder().setGlobal(new Ipv6AddressNoZone("2001:db8::1"))
                         .setLinkLocal(new Ipv6AddressNoZone("fe80::c001:bff:fe7e:0")).build()).build();
 
-        final List<ClusterIdentifier> clusters = Lists.newArrayList(
-            new ClusterIdentifier(new Ipv4AddressNoZone("1.2.3.4")),
-                new ClusterIdentifier(new Ipv4AddressNoZone("5.6.7.8")));
-
         // check path attributes
 
         final Attributes attrs = message.getAttributes();
@@ -202,7 +197,9 @@ class BGPParserTest {
         paBuilder.setOriginatorId(new OriginatorIdBuilder().setOriginator(new Ipv4AddressNoZone("127.0.0.1")).build());
         assertEquals(paBuilder.getOriginatorId(), attrs.getOriginatorId());
 
-        paBuilder.setClusterId(new ClusterIdBuilder().setCluster(clusters).build());
+        paBuilder.setClusterId(new ClusterIdBuilder().setCluster(List.of(
+            new ClusterIdentifier(new Ipv4AddressNoZone("1.2.3.4")),
+            new ClusterIdentifier(new Ipv4AddressNoZone("5.6.7.8")))).build());
         assertEquals(paBuilder.getClusterId(), attrs.getClusterId());
 
         final MpReachNlriBuilder mpBuilder = new MpReachNlriBuilder()

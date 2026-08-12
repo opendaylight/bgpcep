@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -55,7 +54,7 @@ class Ipv4NlriParserTest {
         0x0, 0x0, 0x0, 0x1, 0x18, 0x1, 0x1, 0x1,
         0x0, 0x0, 0x0, 0x2, 0x18, 0x1, 0x1, 0x1};
     private static final Ipv4Prefix DESTINATION = new Ipv4Prefix("1.1.1.0/24");
-    private static final ArrayList<Ipv4Prefixes> PREFIXES = Lists.newArrayList(
+    private static final List<Ipv4Prefixes> PREFIXES = List.of(
             createIpv4Prefix(1L, DESTINATION),
             createIpv4Prefix(2L, DESTINATION));
     private final Ipv4NlriParser parser = new Ipv4NlriParser();

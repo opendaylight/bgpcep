@@ -7,10 +7,8 @@
  */
 package org.opendaylight.bgpcep.pcep.server.provider;
 
-import com.google.common.collect.Lists;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.pcep.spi.PCEPErrors;
@@ -233,7 +231,7 @@ public final class MessagesUtil {
 
         /* Prepare PcRep Message */
         final PcrepMessageBuilder msgBuilder = new PcrepMessageBuilder()
-                .setReplies(Lists.newArrayList(replyBuilder.build()));
+                .setReplies(List.of(replyBuilder.build()));
         return new PcrepBuilder().setPcrepMessage(msgBuilder.build()).build();
     }
 
@@ -258,22 +256,25 @@ public final class MessagesUtil {
 
         /* Prepare PcRep Message */
         final PcrepMessageBuilder msgBuilder = new PcrepMessageBuilder()
-                .setReplies(Lists.newArrayList(replyBuilder.build()));
+                .setReplies(List.of(replyBuilder.build()));
         return new PcrepBuilder().setPcrepMessage(msgBuilder.build()).build();
     }
 
     public static Pcerr createErrorMsg(final @NonNull PCEPErrors pcepErrors, final Uint32 reqID) {
         final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
         return new PcerrBuilder().setPcerrMessage(msgBuilder
-                .setErrorType(
-                        new RequestCaseBuilder().setRequest(new RequestBuilder()
-                                .setRps(Lists
-                                        .newArrayList(new RpsBuilder().setRp(new RpBuilder().setProcessingRule(false)
-                                                .setIgnore(false).setRequestId(new RequestId(reqID)).build()).build()))
-                                .build()).build())
-                .setErrors(Collections.singletonList(new ErrorsBuilder().setErrorObject(new ErrorObjectBuilder()
-                        .setType(pcepErrors.getErrorType()).setValue(pcepErrors.getErrorValue()).build()).build()))
-                .build()).build();
+            .setErrorType(new RequestCaseBuilder()
+                .setRequest(new RequestBuilder()
+                    .setRps(List.of(new RpsBuilder()
+                        .setRp(new RpBuilder().setProcessingRule(false)
+                            .setIgnore(false)
+                            .setRequestId(new RequestId(reqID)).build())
+                        .build()))
+                    .build())
+                .build())
+            .setErrors(List.of(new ErrorsBuilder().setErrorObject(new ErrorObjectBuilder()
+                .setType(pcepErrors.getErrorType()).setValue(pcepErrors.getErrorValue()).build()).build()))
+            .build()).build();
     }
 
 }

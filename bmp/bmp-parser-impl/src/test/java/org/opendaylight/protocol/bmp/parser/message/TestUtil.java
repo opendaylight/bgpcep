@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bmp.parser.message;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -126,12 +124,13 @@ public final class TestUtil {
     }
 
     public static InitiationMessage createInitMsg(final String sysDescr, final String sysName, final String info) {
-        final InitiationMessageBuilder initMsgBuilder = new InitiationMessageBuilder();
-        final TlvsBuilder tlvsBuilder = new TlvsBuilder();
-        tlvsBuilder.setDescriptionTlv(new DescriptionTlvBuilder().setDescription(sysDescr).build());
-        tlvsBuilder.setNameTlv(new NameTlvBuilder().setName(sysName).build());
-        tlvsBuilder.setStringInformation(Lists.newArrayList(createStringInfo(info)));
-        return initMsgBuilder.setTlvs(tlvsBuilder.build()).build();
+        return  new InitiationMessageBuilder()
+            .setTlvs(new TlvsBuilder()
+                .setDescriptionTlv(new DescriptionTlvBuilder().setDescription(sysDescr).build())
+                .setNameTlv(new NameTlvBuilder().setName(sysName).build())
+                .setStringInformation(List.of(createStringInfo(info)))
+                .build())
+            .build();
     }
 
     private static StringInformation createStringInfo(final String string) {
@@ -145,7 +144,7 @@ public final class TestUtil {
                 .TlvsBuilder tlvsBuilder = new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang
                 .bmp.message.rev200120.termination.TlvsBuilder();
         tlvsBuilder.setReasonTlv(new ReasonTlvBuilder().setReason(Reason.AdministrativelyClosed).build());
-        tlvsBuilder.setStringInformation(Lists.newArrayList(createStringInfo("error1"), createStringInfo("error1")));
+        tlvsBuilder.setStringInformation(List.of(createStringInfo("error1"), createStringInfo("error1")));
         return terminatMsgBuilder.setTlvs(tlvsBuilder.build()).build();
     }
 
@@ -179,8 +178,8 @@ public final class TestUtil {
                 .setReceivedOpen(new ReceivedOpenBuilder(createOpen(multiprotocol)).build())
                 .setRemotePort(PEER_REMOTE_PORT)
                 .setSentOpen((SentOpen) createOpen(multiprotocol))
-                .setInformation(new InformationBuilder().setStringInformation(
-                    ImmutableList.of(new StringInformationBuilder()
+                .setInformation(new InformationBuilder()
+                    .setStringInformation(List.of(new StringInformationBuilder()
                         .setStringTlv(new StringTlvBuilder().setStringInfo("aaaa").build())
                         .build()))
                     .build())
@@ -297,11 +296,13 @@ public final class TestUtil {
     }
 
     private static Attributes createAttributes() {
-        final List<AsNumber> asSequences = Lists.newArrayList(new AsNumber(Uint32.valueOf(72)),
-            new AsNumber(Uint32.valueOf(82)), new AsNumber(Uint32.valueOf(92)));
+        // FIXME: day-0 mistake? the built segment is not used
         final List<Segments> segments = new ArrayList<>();
-        final SegmentsBuilder segmentsBuild = new SegmentsBuilder();
-        segmentsBuild.setAsSequence(asSequences).build();
+        final var segmentsBuild = new SegmentsBuilder();
+        segmentsBuild.setAsSequence(List.of(
+            new AsNumber(Uint32.valueOf(72)),
+            new AsNumber(Uint32.valueOf(82)),
+            new AsNumber(Uint32.valueOf(92)))).build();
 
         return new AttributesBuilder()
             .setAggregator(new AggregatorBuilder().setAsNumber(new AsNumber(Uint32.valueOf(72)))
@@ -310,8 +311,9 @@ public final class TestUtil {
                     .setMetric(new AccumulatedIgpMetric(Uint64.ONE)).build()).build())
             .setAsPath(new AsPathBuilder().setSegments(segments).build())
             .setAtomicAggregate(new AtomicAggregateBuilder().build())
-            .setClusterId(new ClusterIdBuilder().setCluster(Lists.newArrayList(new ClusterIdentifier(IPV4_ADDRESS_30),
-                    new ClusterIdentifier(IPV4_ADDRESS_40))).build())
+            .setClusterId(new ClusterIdBuilder()
+                .setCluster(List.of(new ClusterIdentifier(IPV4_ADDRESS_30), new ClusterIdentifier(IPV4_ADDRESS_40)))
+                .build())
             .setCNextHop(new Ipv4NextHopCaseBuilder().setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(
                     IPV4_ADDRESS_100).build()).build())
             .setCommunities(createCommunities())
@@ -336,27 +338,24 @@ public final class TestUtil {
     }
 
     private static List<Nlri> createNlri() {
-        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("10.10.10.10/24")).build();
-        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("20.20.20.20/24")).build();
-        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("30.30.30.30/24")).build();
-        return Lists.newArrayList(n1, n2, n3);
+        return List.of(
+            new NlriBuilder().setPrefix(new Ipv4Prefix("10.10.10.10/24")).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("20.20.20.20/24")).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("30.30.30.30/24")).build());
     }
 
     private static List<Nlri> createNlriWitNormalizedIpv4Prefixes() {
-        final Nlri n1 = new NlriBuilder().setPrefix(new Ipv4Prefix("10.10.10.0/24")).build();
-        final Nlri n2 = new NlriBuilder().setPrefix(new Ipv4Prefix("20.20.20.0/24")).build();
-        final Nlri n3 = new NlriBuilder().setPrefix(new Ipv4Prefix("30.30.30.0/24")).build();
-        return Lists.newArrayList(n1, n2, n3);
+        return List.of(
+            new NlriBuilder().setPrefix(new Ipv4Prefix("10.10.10.0/24")).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("20.20.20.0/24")).build(),
+            new NlriBuilder().setPrefix(new Ipv4Prefix("30.30.30.0/24")).build());
     }
 
     private static List<WithdrawnRoutes> createWithdrawnRoutes() {
-        final WithdrawnRoutes w1 = new WithdrawnRoutesBuilder()
-                .setPrefix(new Ipv4Prefix("10.10.20.0/24")).build();
-        final WithdrawnRoutes w2 = new WithdrawnRoutesBuilder()
-                .setPrefix(new Ipv4Prefix("20.20.10.0/24")).build();
-        final WithdrawnRoutes w3 = new WithdrawnRoutesBuilder()
-                .setPrefix(new Ipv4Prefix("30.10.10.0/24")).build();
-        return Lists.newArrayList(w1, w2, w3);
+        return List.of(
+            new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("10.10.20.0/24")).build(),
+            new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("20.20.10.0/24")).build(),
+            new WithdrawnRoutesBuilder().setPrefix(new Ipv4Prefix("30.10.10.0/24")).build());
     }
 
     public static StatsReportsMessage createStatsReportMsg(final Ipv4AddressNoZone bgpId) {
