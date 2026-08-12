@@ -10,7 +10,6 @@ package org.opendaylight.protocol.pcep.impl;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -89,21 +88,21 @@ public class SrObjectParserTest {
         final PCEPExplicitRouteObjectParser parser = new PCEPExplicitRouteObjectParser(
             ctx.getEROSubobjectHandlerRegistry());
 
-        final EroBuilder builder = new EroBuilder();
-        builder.setProcessingRule(false);
-        builder.setIgnore(false);
-
-        final SrEroTypeBuilder srEroSubBuilder =
-                new SrEroTypeBuilder()
+        final EroBuilder builder = new EroBuilder()
+            .setProcessingRule(false)
+            .setIgnore(false)
+            .setSubobject(List.of(new SubobjectBuilder()
+                .setSubobjectType(new SrEroTypeBuilder()
                     .setCFlag(false)
                     .setMFlag(false)
                     .setNaiType(NaiType.Ipv4NodeId)
                     .setSid(Uint32.valueOf(123456))
-                    .setNai(new IpNodeIdBuilder().setIpAddress(new IpAddressNoZone(
-                        new Ipv4AddressNoZone("74.125.43.99"))).build());
-        final SubobjectBuilder subobjBuilder = new SubobjectBuilder().setSubobjectType(srEroSubBuilder.build())
-                .setLoose(false);
-        builder.setSubobject(Lists.newArrayList(subobjBuilder.build()));
+                    .setNai(new IpNodeIdBuilder()
+                        .setIpAddress(new IpAddressNoZone(new Ipv4AddressNoZone("74.125.43.99")))
+                        .build())
+                    .build())
+                .setLoose(false)
+                .build()));
 
         final ByteBuf buffer = Unpooled.buffer();
         parser.serializeObject(builder.build(), buffer);

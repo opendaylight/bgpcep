@@ -15,7 +15,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.io.IOException;
@@ -1421,7 +1420,7 @@ public class PCEPObjectParserTest {
                 .setIgnore(false)
                 .setReason(Uint8.valueOf(5))
                 .setTlvs(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930
-                    .close.object.c.close.TlvsBuilder().setVendorInformationTlv(Lists.newArrayList(viTlv)).build());
+                    .close.object.c.close.TlvsBuilder().setVendorInformationTlv(List.of(viTlv)).build());
 
         assertEquals(builder.build(), parser.parseObject(new ObjectHeaderImpl(false, false),
             result.slice(4, result.readableBytes() - 4)));
