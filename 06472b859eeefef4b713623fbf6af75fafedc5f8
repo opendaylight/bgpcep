@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "91357418_6dc19ecc",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/mcast/nlri/L3vpnMcastNlriSerializerTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-12T07:26:41Z",
+      "side": 1,
+      "message": "private and after the test that uses",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 33
+      },
+      "revId": "06472b859eeefef4b713623fbf6af75fafedc5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d85674f9_6582c619",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/mcast/nlri/L3vpnMcastNlriSerializerTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-12T07:26:41Z",
+      "side": 1,
+      "message": "extra whitespace\nalso import static arguments() method and use that instead of of()",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 28
+      },
+      "revId": "06472b859eeefef4b713623fbf6af75fafedc5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "13d8e497_19220964",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/mcast/nlri/L3vpnMcastNlriSerializerTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-12T07:26:41Z",
+      "side": 1,
+      "message": "just name the method source the same as the test method",
+      "range": {
+        "startLine": 62,
+        "startChar": 19,
+        "endLine": 62,
+        "endChar": 23
+      },
+      "revId": "06472b859eeefef4b713623fbf6af75fafedc5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
