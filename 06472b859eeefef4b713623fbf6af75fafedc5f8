@@ -24,6 +24,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "62d70463_6f5bd745",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/mcast/nlri/L3vpnMcastNlriSerializerTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-12T11:29:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "91357418_6dc19ecc",
+      "range": {
+        "startLine": 55,
+        "startChar": 4,
+        "endLine": 55,
+        "endChar": 33
+      },
+      "revId": "06472b859eeefef4b713623fbf6af75fafedc5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d85674f9_6582c619",
@@ -47,6 +71,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "fae01dd4_272648b1",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/mcast/nlri/L3vpnMcastNlriSerializerTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-12T11:29:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d85674f9_6582c619",
+      "range": {
+        "startLine": 57,
+        "startChar": 12,
+        "endLine": 57,
+        "endChar": 28
+      },
+      "revId": "06472b859eeefef4b713623fbf6af75fafedc5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "13d8e497_19220964",
@@ -60,6 +108,30 @@
       "writtenOn": "2026-08-12T07:26:41Z",
       "side": 1,
       "message": "just name the method source the same as the test method",
+      "range": {
+        "startLine": 62,
+        "startChar": 19,
+        "endLine": 62,
+        "endChar": 23
+      },
+      "revId": "06472b859eeefef4b713623fbf6af75fafedc5f8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa471765_d9277e67",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/mcast/nlri/L3vpnMcastNlriSerializerTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-12T11:29:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "13d8e497_19220964",
       "range": {
         "startLine": 62,
         "startChar": 19,
