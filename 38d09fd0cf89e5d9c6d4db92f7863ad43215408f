@@ -22,6 +22,30 @@
       },
       "revId": "38d09fd0cf89e5d9c6d4db92f7863ad43215408f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "69ed0a5d_2c1fd607",
+        "filename": "bmp/bmp-mock/src/test/java/org/opendaylight/protocol/bmp/mock/BmpMockDispatcherTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-13T05:36:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a0ab815_bd285ec8",
+      "range": {
+        "startLine": 58,
+        "startChar": 44,
+        "endLine": 58,
+        "endChar": 56
+      },
+      "revId": "38d09fd0cf89e5d9c6d4db92f7863ad43215408f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
