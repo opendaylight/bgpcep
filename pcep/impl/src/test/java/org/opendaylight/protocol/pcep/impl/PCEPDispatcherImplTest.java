@@ -96,7 +96,7 @@ class PCEPDispatcherImplTest {
     }
 
     @Test
-    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
     void testCreateClientServer() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
@@ -125,7 +125,7 @@ class PCEPDispatcherImplTest {
     }
 
     @Test
-    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
     void testCreateDuplicateClient() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress serverAddr = new InetSocketAddress("0.0.0.0", port);
@@ -147,7 +147,7 @@ class PCEPDispatcherImplTest {
     }
 
     @Test
-    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
     void testReconnectClient() throws InterruptedException, ExecutionException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress clientAddr = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
@@ -171,7 +171,7 @@ class PCEPDispatcherImplTest {
     }
 
     @Test
-    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
     void testCustomizeBootstrap() throws InterruptedException {
         final int port = InetSocketAddressUtil.getRandomPort();
         final InetSocketAddress clientAddr1 = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
