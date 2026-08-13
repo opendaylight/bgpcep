@@ -60,7 +60,7 @@ class PCCDispatcherImplTest {
     }
 
     @Test
-    @Timeout(value = 20000, unit = TimeUnit.MILLISECONDS)
+    @Timeout(value = 20, unit = TimeUnit.SECONDS)
     void testClientReconnect() throws Exception {
         final TestingSessionListenerFactory slf = new TestingSessionListenerFactory();
         final DefaultPCEPSessionNegotiatorFactory nf = new DefaultPCEPSessionNegotiatorFactory(slf,
