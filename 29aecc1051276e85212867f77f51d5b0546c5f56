@@ -24,6 +24,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a2ad46df_88eacd30",
+        "filename": "bmp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/registry/SimpleBmpTlvRegistryTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-13T11:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c84b4744_aa857222",
+      "range": {
+        "startLine": 68,
+        "startChar": 8,
+        "endLine": 68,
+        "endChar": 24
+      },
+      "revId": "29aecc1051276e85212867f77f51d5b0546c5f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a91fa79f_b17ba354",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-08-13T10:54:28Z",
       "side": 1,
       "message": "and this",
+      "range": {
+        "startLine": 71,
+        "startChar": 8,
+        "endLine": 71,
+        "endChar": 26
+      },
+      "revId": "29aecc1051276e85212867f77f51d5b0546c5f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a2076ee_b96ea18b",
+        "filename": "bmp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/registry/SimpleBmpTlvRegistryTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-13T11:34:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a91fa79f_b17ba354",
       "range": {
         "startLine": 71,
         "startChar": 8,
