@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c84b4744_aa857222",
+        "filename": "bmp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/registry/SimpleBmpTlvRegistryTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-13T10:54:28Z",
+      "side": 1,
+      "message": "let\u0027s follow convention from netconf project and move it to the static import",
+      "range": {
+        "startLine": 68,
+        "startChar": 8,
+        "endLine": 68,
+        "endChar": 24
+      },
+      "revId": "29aecc1051276e85212867f77f51d5b0546c5f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a91fa79f_b17ba354",
+        "filename": "bmp/bmp-spi/src/test/java/org/opendaylight/protocol/bmp/spi/registry/SimpleBmpTlvRegistryTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-13T10:54:28Z",
+      "side": 1,
+      "message": "and this",
+      "range": {
+        "startLine": 71,
+        "startChar": 8,
+        "endLine": 71,
+        "endChar": 26
+      },
+      "revId": "29aecc1051276e85212867f77f51d5b0546c5f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
