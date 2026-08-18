@@ -9,10 +9,14 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.embedded.EmbeddedChannel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -37,6 +41,27 @@ class BGPParserTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             0x00, 0x13, 0x04}, ByteArray.readAllBytes(out));
+    }
+
+    // BGPSessionImpl.write() hands the channel an encoded ByteBuf so Netty counts real bytes against
+    // BGPDispatcherImpl.WATER_MARK. That only works if the encoder passes an encoded buffer through.
+    @Test
+    void testEncoderPassesByteBufThrough() {
+        final var payload = new byte[] { 1, 2, 3, 4 };
+        final var written = Unpooled.wrappedBuffer(payload);
+        final var channel = new EmbeddedChannel(new BGPMessageToByteEncoder(registry));
+
+        assertTrue(channel.writeOutbound(written));
+
+        final ByteBuf out = channel.readOutbound();
+        try {
+            assertSame(written, out, "Encoder replaced the buffer instead of passing it through");
+            assertArrayEquals(payload, ByteArray.readAllBytes(out));
+        } finally {
+            out.release();
+        }
+        // finish() reports leftover queued messages, so false means the encoder emitted exactly one.
+        assertFalse(channel.finish());
     }
 
     @Test
