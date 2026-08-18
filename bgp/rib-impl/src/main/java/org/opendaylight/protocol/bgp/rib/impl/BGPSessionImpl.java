@@ -122,22 +122,25 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     private final Ipv4Address bgpId;
     private final BGPPeerRegistry peerRegistry;
     private final ChannelOutputLimiter limiter;
+    private final BGPMessageToByteEncoder encoder;
     private final BGPSessionStateImpl sessionState;
     private final GracefulRestartCapability gracefulCapability;
     private final LlGracefulRestartCapability llGracefulCapability;
     private boolean terminationReasonNotified;
 
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
-            final BGPSessionPreferences localPreferences, final BGPPeerRegistry peerRegistry) {
-        this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry);
+            final BGPSessionPreferences localPreferences, final BGPPeerRegistry peerRegistry,
+            final BGPMessageToByteEncoder encoder) {
+        this(listener, channel, remoteOpen, localPreferences.getHoldTime(), peerRegistry, encoder);
     }
 
     @SuppressFBWarnings(value = "MC_OVERRIDABLE_METHOD_CALL_IN_CONSTRUCTOR",
         justification = "Class not final for mocking and SpotBugs is confused by lambdas around line 200")
     public BGPSessionImpl(final BGPSessionListener listener, final Channel channel, final Open remoteOpen,
-            final int localHoldTimer, final BGPPeerRegistry peerRegistry) {
+            final int localHoldTimer, final BGPPeerRegistry peerRegistry, final BGPMessageToByteEncoder encoder) {
         this.listener = requireNonNull(listener);
         this.channel = requireNonNull(channel);
+        this.encoder = requireNonNull(encoder);
         limiter = new ChannelOutputLimiter(this);
         this.channel.pipeline().addLast(limiter);
 
@@ -373,14 +376,29 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     @SuppressWarnings("checkstyle:illegalCatch")
     synchronized void write(final Notification<?> msg) {
         try {
-            writeEpilogue(channel.write(msg), msg);
+            // Encode here rather than in the pipeline. For a write coming from another thread netty adds
+            // MessageSizeEstimator.size(msg) to the pending bytes of the channel. No estimator is set on the channel,
+            // so DefaultMessageSizeEstimator applies and returns a flat 8 bytes for anything that is not a ByteBuf.
+            writeEpilogue(channel.write(encoder.encodeToBuffer(channel.alloc(), msg)), msg);
         } catch (final Exception e) {
             LOG.warn("Message {} was not sent.", msg, e);
         }
     }
 
+    /**
+     * Writes and flushes a message immediately, but only when the channel can accept more data. If it cannot, the
+     * message is dropped instead of queued. Use it only for control messages such as keepalives and NOTIFICATIONs
+     * that must go out promptly and are safe to drop. Bulk or ordered route data must go through
+     * {@link ChannelOutputLimiter}, which waits for the channel to drain instead of dropping.
+     *
+     * @param msg message to write and flush
+     * @return a future that completes once the message is written and flushed, or a failed future carrying a
+     *         {@link NonWritableChannelException} if the channel cannot accept more data
+     */
     synchronized ChannelFuture writeAndFlush(final Notification<?> msg) {
         if (channel.isWritable()) {
+            // Unlike #write(Notification) this leaves the encoding to the pipeline, so the message counts as
+            // the 8 byte estimate rather than its real size. Nothing piles up here to make that matter.
             return writeEpilogue(channel.writeAndFlush(msg), msg);
         }
         return channel.newFailedFuture(new NonWritableChannelException());

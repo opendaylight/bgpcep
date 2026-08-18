@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.impl.message.update.LocalPreferenceAttributeParser;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -224,6 +226,8 @@ public class PeerTest extends AbstractRIBTestSetup {
         doReturn(pipeline).when(channel).pipeline();
         doCallRealMethod().when(channel).toString();
         doReturn(pipeline).when(pipeline).addLast(any(ChannelHandler.class));
+        final var encoder = new BGPMessageToByteEncoder(ServiceLoader.load(BGPExtensionConsumerContext.class)
+            .findFirst().orElseThrow().getMessageRegistry());
         doReturn(new DefaultChannelPromise(channel)).when(channel).writeAndFlush(any(Notification.class));
         doReturn(new InetSocketAddress("localhost", 12345)).when(channel).remoteAddress();
         doReturn(new InetSocketAddress("localhost", 12345)).when(channel).localAddress();
@@ -244,7 +248,7 @@ public class PeerTest extends AbstractRIBTestSetup {
                 .setHoldTimer(Uint16.valueOf(50))
                 .setMyAsNumber(Uint16.valueOf(72))
                 .setBgpParameters(params).build();
-        session = new BGPSessionImpl(classic, channel, openObj, 30, null);
+        session = new BGPSessionImpl(classic, channel, openObj, 30, null, encoder);
         session.setChannelExtMsgCoder(openObj);
     }
 }
