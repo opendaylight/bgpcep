@@ -37,6 +37,7 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.junit.Before;
@@ -52,6 +53,7 @@ import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
+import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -223,8 +225,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(tableRegistry, neighbor.getIpv4AddressNoZone(),
             ribImpl, null, PeerRole.Ibgp, serverRegistry, AFI_SAFIS_ADVERTIZED, Set.of());
         bgpPeer.instantiateServiceInstance();
+        final var encoder = new BGPMessageToByteEncoder(ServiceLoader.load(BGPExtensionConsumerContext.class)
+            .findFirst().orElseThrow().getMessageRegistry());
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, speakerListener, classicOpen,
-                classicOpen.getHoldTimer().toJava(), null);
+                classicOpen.getHoldTimer().toJava(), null, encoder);
         bgpSession.setChannelExtMsgCoder(classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
@@ -274,8 +278,10 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(tableRegistry, neighbor.getIpv4AddressNoZone(),
             ribImpl, null, PeerRole.Ibgp, serverRegistry, AFI_SAFIS_ADVERTIZED, Set.of());
         bgpPeer.instantiateServiceInstance();
+        final var encoder = new BGPMessageToByteEncoder(ServiceLoader.load(BGPExtensionConsumerContext.class)
+            .findFirst().orElseThrow().getMessageRegistry());
         final BGPSessionImpl bgpSession = new BGPSessionImpl(bgpPeer, speakerListener, classicOpen,
-                classicOpen.getHoldTimer().toJava(), null);
+                classicOpen.getHoldTimer().toJava(), null, encoder);
         bgpSession.setChannelExtMsgCoder(classicOpen);
         bgpPeer.onSessionUp(bgpSession);
 
