@@ -14,6 +14,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -23,6 +24,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.channels.NonWritableChannelException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -369,14 +371,34 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     @SuppressWarnings("checkstyle:illegalCatch")
     synchronized void write(final Notification<?> msg) {
         try {
-            writeEpilogue(channel.write(msg), msg);
+            // Encode here rather than in the pipeline. For a write coming from another thread netty adds
+            // MessageSizeEstimator.size(msg) to the pending bytes of the channel. No estimator is set on the channel,
+            // so DefaultMessageSizeEstimator applies and returns a flat 8 bytes for anything that is not a ByteBuf.
+            writeEpilogue(channel.write(encodeToBuffer(msg)), msg);
+        } catch (final ClosedChannelException e) {
+            // Expected while the session goes down. The close is already logged elsewhere. That is why debug is
+            // enough and the exception does not contain more information.
+            LOG.debug("Message {} was not sent, channel {} is closed and its encoder was removed from the pipeline",
+                msg, channel);
         } catch (final Exception e) {
             LOG.warn("Message {} was not sent.", msg, e);
         }
     }
 
+    /**
+     * Writes and flushes a message immediately, but only when the channel can accept more data. If it cannot, the
+     * message is dropped instead of queued. Use it only for control messages such as keepalives and NOTIFICATIONs
+     * that must go out promptly and are safe to drop. Bulk or ordered route data must go through
+     * {@link ChannelOutputLimiter}, which waits for the channel to drain instead of dropping.
+     *
+     * @param msg message to write and flush
+     * @return a future that completes once the message is written and flushed, or a failed future carrying a
+     *         {@link NonWritableChannelException} if the channel cannot accept more data
+     */
     synchronized ChannelFuture writeAndFlush(final Notification<?> msg) {
         if (channel.isWritable()) {
+            // Unlike #write(Notification) this leaves the encoding to the pipeline, so the message counts as
+            // the 8 byte estimate rather than its real size. Nothing piles up here to make that matter.
             return writeEpilogue(channel.writeAndFlush(msg), msg);
         }
         return channel.newFailedFuture(new NonWritableChannelException());
@@ -644,5 +666,14 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
     @Override
     public ScheduledFuture<?> schedule(final Runnable command, final long delay, final TimeUnit unit) {
         return channel.eventLoop().schedule(command, delay, unit);
+    }
+
+    private ByteBuf encodeToBuffer(final Notification<?> msg) throws ClosedChannelException {
+        final var encoder = channel.pipeline().get(BGPMessageToByteEncoder.class);
+        if (encoder == null) {
+            // Netty removes all handlers once the channel is closed and deregistered.
+            throw new ClosedChannelException();
+        }
+        return encoder.encodeToBuffer(channel.alloc(), msg);
     }
 }
