@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -47,21 +47,21 @@ class BGPParserTest {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             0x00, 0x13, 0x04 }), out);
-        assertTrue(out.get(0) instanceof Keepalive);
+        assertInstanceOf(Keepalive.class, out.get(0));
         decoder.decode(null, Unpooled.wrappedBuffer(new byte[] {
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff, (byte) 0xff,
             0x00, 0x17, 0x03, 0x02, 0x04, 0x04, 0x09 }), out);
-        assertTrue(out.get(1) instanceof Notify);
+        assertInstanceOf(Notify.class, out.get(1));
     }
 
     @Test
     void testHandlerFactory() {
         final BGPHandlerFactory handlers = new BGPHandlerFactory(this.registry);
         assertEquals(1, handlers.getEncoders().length);
-        assertTrue(handlers.getEncoders()[0] instanceof BGPMessageToByteEncoder);
+        assertInstanceOf(BGPMessageToByteEncoder.class, handlers.getEncoders()[0]);
         assertEquals(2, handlers.getDecoders().length);
-        assertTrue(handlers.getDecoders()[0] instanceof BGPMessageHeaderDecoder);
-        assertTrue(handlers.getDecoders()[1] instanceof BGPByteToMessageDecoder);
+        assertInstanceOf(BGPMessageHeaderDecoder.class, handlers.getDecoders()[0]);
+        assertInstanceOf(BGPByteToMessageDecoder.class, handlers.getDecoders()[1]);
     }
 }
