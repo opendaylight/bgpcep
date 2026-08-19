@@ -9,6 +9,7 @@ package org.opendaylight.protocol.pcep.testtool;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -34,7 +35,7 @@ class PCEPTestingToolTest {
         assertEquals(0, ssl.messages().size());
         ssl.onMessage(null, new KeepaliveBuilder().setKeepaliveMessage(new KeepaliveMessageBuilder().build()).build());
         assertEquals(1, ssl.messages().size());
-        assertTrue(ssl.messages().get(0) instanceof KeepaliveMessage);
+        assertInstanceOf(KeepaliveMessage.class, ssl.messages().get(0));
         assertFalse(ssl.isUp());
         ssl.onSessionUp(null);
         assertTrue(ssl.isUp());
