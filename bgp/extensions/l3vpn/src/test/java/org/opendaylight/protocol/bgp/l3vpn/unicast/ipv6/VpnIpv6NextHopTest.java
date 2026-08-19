@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.l3vpn.unicast.ipv6;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -44,7 +44,7 @@ class VpnIpv6NextHopTest {
         assertArrayEquals(nextHop, ByteArray.readAllBytes(buffer));
 
         final CNextHop parsedHop = HANDLER.parseNextHop(Unpooled.wrappedBuffer(nextHop));
-        assertTrue(hop instanceof Ipv6NextHopCase);
+        assertInstanceOf(Ipv6NextHopCase.class, hop);
         assertEquals(hop, parsedHop);
     }
 }
