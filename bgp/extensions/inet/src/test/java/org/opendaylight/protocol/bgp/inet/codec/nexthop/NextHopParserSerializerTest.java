@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.inet.codec.nexthop;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -57,7 +57,7 @@ class NextHopParserSerializerTest {
         assertArrayEquals(ipv4B, ByteArray.readAllBytes(this.buffer));
 
         final CNextHop parsedHop = this.ipv4NextHopParserSerializer.parseNextHop(Unpooled.wrappedBuffer(ipv4B));
-        assertTrue(this.hop instanceof Ipv4NextHopCase);
+        assertInstanceOf(Ipv4NextHopCase.class, parsedHop);
         assertEquals(this.hop, parsedHop);
     }
 
@@ -70,7 +70,7 @@ class NextHopParserSerializerTest {
         assertArrayEquals(IPV6LB, ByteArray.readAllBytes(this.buffer));
 
         final CNextHop parsedHop = this.ipv6NextHopParserSerializer.parseNextHop(Unpooled.wrappedBuffer(IPV6LB));
-        assertTrue(parsedHop instanceof Ipv6NextHopCase);
+        assertInstanceOf(Ipv6NextHopCase.class, parsedHop);
         assertEquals(this.hop, parsedHop);
     }
 

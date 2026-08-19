@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -184,17 +184,17 @@ class FSMTest {
                 speakerListener, new StrictBGPPeerRegistry());
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(0) instanceof Notify);
+        assertInstanceOf(Notify.class, receivedMsgs.get(0));
     }
 
     @Test
     void testAccSessionChar() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(0) instanceof Open);
+        assertInstanceOf(Open.class, receivedMsgs.get(0));
         clientSession.handleMessage(classicOpen);
         assertEquals(2, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(1) instanceof Keepalive);
+        assertInstanceOf(Keepalive.class, receivedMsgs.get(1));
         clientSession.handleMessage(new KeepaliveBuilder().build());
         assertEquals(clientSession.getState(), BGPClientSessionNegotiator.State.FINISHED);
     }
@@ -203,7 +203,7 @@ class FSMTest {
     void testNotAccChars() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(0) instanceof Open);
+        assertInstanceOf(Open.class, receivedMsgs.get(0));
         clientSession.handleMessage(new OpenBuilder()
             .setMyAsNumber(Uint16.valueOf(30))
             .setHoldTimer(Uint16.ONE)
@@ -211,17 +211,16 @@ class FSMTest {
             .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
             .build());
         assertEquals(2, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(1) instanceof Notify);
-        final Notification<?> m = receivedMsgs.get(receivedMsgs.size() - 1);
+        final var notify = assertInstanceOf(Notify.class, receivedMsgs.getLast());
         assertEquals(BGPError.UNSPECIFIC_OPEN_ERROR,
-                BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
+                BGPError.forValue(notify.getErrorCode(), notify.getErrorSubcode()));
     }
 
     @Test
     void testNoAs4BytesCapability() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(0) instanceof Open);
+        assertInstanceOf(Open.class, receivedMsgs.get(0));
 
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
@@ -247,18 +246,17 @@ class FSMTest {
             .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.2"))
             .build());
         assertEquals(2, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(1) instanceof Notify);
-        final Notification<?> m = receivedMsgs.get(receivedMsgs.size() - 1);
+        final var notify = assertInstanceOf(Notify.class, receivedMsgs.getLast());
         assertEquals(BGPError.UNSUPPORTED_CAPABILITY,
-                BGPError.forValue(((Notify) m).getErrorCode(), ((Notify) m).getErrorSubcode()));
-        assertNotNull(((Notify) m).getData());
+                BGPError.forValue(notify.getErrorCode(), notify.getErrorSubcode()));
+        assertNotNull(notify.getData());
     }
 
     @Test
     void testBgpExtendedMessageCapability() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(0) instanceof Open);
+        assertInstanceOf(Open.class, receivedMsgs.get(0));
 
         final List<BgpParameters> tlvs = new ArrayList<>();
         final List<OptionalCapabilities> capas = new ArrayList<>();
@@ -288,7 +286,7 @@ class FSMTest {
             .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.2"))
             .build());
         assertEquals(2, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(1) instanceof Keepalive);
+        assertInstanceOf(Keepalive.class, receivedMsgs.get(1));
     }
 
     @Test
@@ -303,24 +301,22 @@ class FSMTest {
             .setVersion(new ProtocolVersion(Uint8.valueOf(4)))
             .build());
         assertEquals(3, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(2) instanceof Notify);
-        final Notification<?> m = receivedMsgs.get(2);
-        assertEquals(BGPError.FSM_ERROR.getCode(), ((Notify) m).getErrorCode());
-        assertEquals(BGPError.FSM_ERROR.getSubcode(), ((Notify) m).getErrorSubcode());
+        final var notify = assertInstanceOf(Notify.class, receivedMsgs.getLast());
+        assertEquals(BGPError.FSM_ERROR.getCode(), notify.getErrorCode());
+        assertEquals(BGPError.FSM_ERROR.getSubcode(), notify.getErrorSubcode());
     }
 
     @Test
     void sameBGPIDs() {
         clientSession.channelActive(null);
         assertEquals(1, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(0) instanceof Open);
+        assertInstanceOf(Open.class, receivedMsgs.get(0));
 
         clientSession.handleMessage(new OpenBuilder(classicOpen)
                 .setBgpIdentifier(new Ipv4AddressNoZone("1.1.1.1")).build());
         assertEquals(2, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(1) instanceof Notify);
-        final Notification<?> m = receivedMsgs.get(receivedMsgs.size() - 1);
-        assertEquals(BGPError.BAD_BGP_ID, BGPError.forValue(((Notify) m).getErrorCode(),
-                ((Notify) m).getErrorSubcode()));
+        final var notify = assertInstanceOf(Notify.class, receivedMsgs.getLast());
+        assertEquals(BGPError.BAD_BGP_ID, BGPError.forValue(notify.getErrorCode(),
+                notify.getErrorSubcode()));
     }
 }

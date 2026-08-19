@@ -9,10 +9,10 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -1228,7 +1228,7 @@ class PCEPObjectParserTest {
     }
 
     @Test
-    void testIgnoreUknownObject() throws PCEPDeserializerException {
+    void testIgnoreUnknownObject() throws PCEPDeserializerException {
         final Object object =
             ctx.getObjectHandlerRegistry().parseObject(35, 1, new ObjectHeaderImpl(false, false), null);
         assertNull(object);
@@ -1239,8 +1239,8 @@ class PCEPObjectParserTest {
         final Object object =
             ctx.getObjectHandlerRegistry().parseObject(2, 2, new ObjectHeaderImpl(true, true), null);
         assertNotNull(object);
-        assertTrue(object instanceof UnknownObject);
-        assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_TYPE, ((UnknownObject) object).getError());
+        final var unknownObject = assertInstanceOf(UnknownObject.class, object);
+        assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_TYPE, unknownObject.getError());
     }
 
     @Test
@@ -1248,8 +1248,8 @@ class PCEPObjectParserTest {
         final Object object = ctx.getObjectHandlerRegistry()
             .parseObject(35, 1, new ObjectHeaderImpl(true, true), null);
         assertNotNull(object);
-        assertTrue(object instanceof UnknownObject);
-        assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_CLASS, ((UnknownObject) object).getError());
+        final var unknownObject = assertInstanceOf(UnknownObject.class, object);
+        assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_CLASS, unknownObject.getError());
     }
 
     @Test
@@ -1273,8 +1273,7 @@ class PCEPObjectParserTest {
         final Object object = ctx.getObjectHandlerRegistry().parseObject(7, 1,
             new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
         assertNotNull(object);
-        assertTrue(object instanceof Ero);
-        final Ero eroObject = (Ero) object;
+        final Ero eroObject = assertInstanceOf(Ero.class, object);
         assertNull(eroObject.getSubobject());
 
         final ByteBuf buffer = Unpooled.buffer();

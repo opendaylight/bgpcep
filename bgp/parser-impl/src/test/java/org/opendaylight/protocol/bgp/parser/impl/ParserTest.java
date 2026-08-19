@@ -12,9 +12,9 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -256,12 +256,11 @@ class ParserTest {
         ParserTest.reg.serializeMessage(notMsg, bytes);
         assertArrayEquals(NOTIFICATION_BMSG, ByteArray.subByte(bytes.array(),0,bytes.writerIndex()));
 
-        Notification<?> msg = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
+        var msg = assertInstanceOf(Notify.class, ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null));
 
-        assertTrue(msg instanceof Notify);
-        assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, BGPError.forValue(((Notify) msg).getErrorCode(),
-            ((Notify) msg).getErrorSubcode()));
-        assertArrayEquals(new byte[] { 4, 9 }, ((Notify) msg).getData());
+        assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, BGPError.forValue(msg.getErrorCode(),
+            msg.getErrorSubcode()));
+        assertArrayEquals(new byte[] { 4, 9 }, msg.getData());
 
         notMsg = new NotifyBuilder().setErrorCode(BGPError.CONNECTION_NOT_SYNC.getCode()).setErrorSubcode(
             BGPError.CONNECTION_NOT_SYNC.getSubcode()).build();
@@ -270,12 +269,11 @@ class ParserTest {
 
         ParserTest.reg.serializeMessage(notMsg, bytes);
 
-        msg = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
+        msg = assertInstanceOf(Notify.class, ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null));
 
-        assertTrue(msg instanceof Notify);
-        assertEquals(BGPError.CONNECTION_NOT_SYNC, BGPError.forValue(((Notify) msg).getErrorCode(),
-            ((Notify) msg).getErrorSubcode()));
-        assertNull(((Notify) msg).getData());
+        assertEquals(BGPError.CONNECTION_NOT_SYNC, BGPError.forValue(msg.getErrorCode(),
+            msg.getErrorSubcode()));
+        assertNull(msg.getData());
     }
 
     @Test
