@@ -8,10 +8,10 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
@@ -175,12 +175,11 @@ class BGPSessionImplTest {
 
         bgpSession.handleMessage(new UpdateBuilder().build());
         assertEquals(1, listener.getListMsg().size());
-        assertTrue(listener.getListMsg().get(0) instanceof Update);
+        assertInstanceOf(Update.class, listener.getListMsg().get(0));
         bgpSession.close();
         assertEquals(State.IDLE, bgpSession.getState());
         assertEquals(1, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(0) instanceof Notify);
-        final Notify error = (Notify) receivedMsgs.get(0);
+        final Notify error = assertInstanceOf(Notify.class, receivedMsgs.get(0));
         assertEquals(BGPError.CEASE.getCode(), error.getErrorCode());
         assertEquals(BGPError.CEASE.getSubcode(), error.getErrorSubcode());
         verify(speakerListener).close();
@@ -191,8 +190,7 @@ class BGPSessionImplTest {
         bgpSession.handleMessage(classicOpen);
         assertEquals(State.IDLE, bgpSession.getState());
         assertEquals(1, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(0) instanceof Notify);
-        final Notify error = (Notify) receivedMsgs.get(0);
+        final Notify error = assertInstanceOf(Notify.class, receivedMsgs.get(0));
         assertEquals(BGPError.FSM_ERROR.getCode(), error.getErrorCode());
         assertEquals(BGPError.FSM_ERROR.getSubcode(), error.getErrorSubcode());
         verify(speakerListener).close();
@@ -219,8 +217,7 @@ class BGPSessionImplTest {
         bgpSession.sessionUp();
         checkIdleState(listener);
         assertEquals(3, receivedMsgs.size());
-        assertTrue(receivedMsgs.get(2) instanceof Notify);
-        final Notify error = (Notify) receivedMsgs.get(2);
+        final Notify error = assertInstanceOf(Notify.class, receivedMsgs.get(2));
         assertEquals(BGPError.HOLD_TIMER_EXPIRED.getCode(), error.getErrorCode());
         assertEquals(BGPError.HOLD_TIMER_EXPIRED.getSubcode(), error.getErrorSubcode());
         verify(speakerListener).close();
