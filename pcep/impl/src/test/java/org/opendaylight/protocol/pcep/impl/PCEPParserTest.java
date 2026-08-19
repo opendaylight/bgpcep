@@ -9,7 +9,7 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -47,14 +47,14 @@ class PCEPParserTest {
                 32, 2, 0, 4
             }),
             out);
-        assertTrue(out.get(0) instanceof Keepalive);
+        assertInstanceOf(Keepalive.class, out.get(0));
         decoder.decode(null,
             Unpooled.wrappedBuffer(new byte[] {
                 0x20, 0x07, 0, 0x0C, 0x0F, 0x10, 0, 8,
                 0, 0, 0, 5
             }),
             out);
-        assertTrue(out.get(1) instanceof Close);
+        assertInstanceOf(Close.class, out.get(1));
         decoder.decode(null,
             Unpooled.wrappedBuffer(new byte[] {
                 0x20, 06, 00, 0x18, 0x21, 0x10, 00, 0x0c,
@@ -62,16 +62,16 @@ class PCEPParserTest {
                 0x0d, 0x10, 00, 0x08, 00, 00, 0x18, 02
             }),
             out);
-        assertTrue(out.get(2) instanceof Pcerr);
+        assertInstanceOf(Pcerr.class, out.get(2));
     }
 
     @Test
     void testHandlerFactory() {
         PCEPHandlerFactory handlers = new PCEPHandlerFactory(this.registry);
         assertEquals(1, handlers.getEncoders().length);
-        assertTrue(handlers.getEncoders()[0] instanceof PCEPMessageToByteEncoder);
+        assertInstanceOf(PCEPMessageToByteEncoder.class, handlers.getEncoders()[0]);
         assertEquals(2, handlers.getDecoders().length);
-        assertTrue(handlers.getDecoders()[0] instanceof PCEPMessageHeaderDecoder);
-        assertTrue(handlers.getDecoders()[1] instanceof PCEPByteToMessageDecoder);
+        assertInstanceOf(PCEPMessageHeaderDecoder.class, handlers.getDecoders()[0]);
+        assertInstanceOf(PCEPByteToMessageDecoder.class, handlers.getDecoders()[1]);
     }
 }

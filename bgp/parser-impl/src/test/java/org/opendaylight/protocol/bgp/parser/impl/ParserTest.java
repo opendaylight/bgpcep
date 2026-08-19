@@ -12,9 +12,9 @@ import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -258,7 +258,7 @@ class ParserTest {
 
         Notification<?> msg = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
 
-        assertTrue(msg instanceof Notify);
+        assertInstanceOf(Notify.class, msg);
         assertEquals(BGPError.OPT_PARAM_NOT_SUPPORTED, BGPError.forValue(((Notify) msg).getErrorCode(),
             ((Notify) msg).getErrorSubcode()));
         assertArrayEquals(new byte[] { 4, 9 }, ((Notify) msg).getData());
@@ -272,7 +272,7 @@ class ParserTest {
 
         msg = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
 
-        assertTrue(msg instanceof Notify);
+        assertInstanceOf(Notify.class, msg);
         assertEquals(BGPError.CONNECTION_NOT_SYNC, BGPError.forValue(((Notify) msg).getErrorCode(),
             ((Notify) msg).getErrorSubcode()));
         assertNull(((Notify) msg).getData());

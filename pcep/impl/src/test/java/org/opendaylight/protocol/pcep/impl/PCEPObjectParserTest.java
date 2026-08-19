@@ -9,10 +9,10 @@ package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -1240,7 +1240,7 @@ class PCEPObjectParserTest {
         final Object object =
             ctx.getObjectHandlerRegistry().parseObject(2, 2, new ObjectHeaderImpl(true, true), null);
         assertNotNull(object);
-        assertTrue(object instanceof UnknownObject);
+        assertInstanceOf(UnknownObject.class, object);
         assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_TYPE, ((UnknownObject) object).getError());
     }
 
@@ -1249,7 +1249,7 @@ class PCEPObjectParserTest {
         final Object object = ctx.getObjectHandlerRegistry()
             .parseObject(35, 1, new ObjectHeaderImpl(true, true), null);
         assertNotNull(object);
-        assertTrue(object instanceof UnknownObject);
+        assertInstanceOf(UnknownObject.class, object);
         assertEquals(PCEPErrors.UNRECOGNIZED_OBJ_CLASS, ((UnknownObject) object).getError());
     }
 
@@ -1274,7 +1274,7 @@ class PCEPObjectParserTest {
         final Object object = ctx.getObjectHandlerRegistry().parseObject(7, 1,
             new ObjectHeaderImpl(true, true), Unpooled.EMPTY_BUFFER);
         assertNotNull(object);
-        assertTrue(object instanceof Ero);
+        assertInstanceOf(Ero.class, object);
         final Ero eroObject = (Ero) object;
         assertNull(eroObject.getSubobject());
 

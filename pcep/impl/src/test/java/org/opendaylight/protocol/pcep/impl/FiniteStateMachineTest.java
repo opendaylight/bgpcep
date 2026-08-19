@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
@@ -69,10 +69,10 @@ class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     void testSessionCharsAccBoth() {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
-        assertTrue(msgsSend.get(0) instanceof Open);
+        assertInstanceOf(Open.class, msgsSend.get(0));
         serverSession.handleMessage(openMsg);
         assertEquals(2, msgsSend.size());
-        assertTrue(msgsSend.get(1) instanceof Keepalive);
+        assertInstanceOf(Keepalive.class, msgsSend.get(1));
         serverSession.handleMessage(kaMsg);
         assertEquals(serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
@@ -88,12 +88,12 @@ class FiniteStateMachineTest extends AbstractPCEPSessionTest {
                 MAX_UNKNOWN_MESSAGES, SslContextFactoryTest.createTlsConfig());
         negotiator.channelActive(null);
         assertEquals(1, msgsSend.size());
-        assertTrue(msgsSend.get(0) instanceof Starttls);
+        assertInstanceOf(Starttls.class, msgsSend.get(0));
         assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, negotiator.getState());
         negotiator.handleMessage(startTlsMsg);
         assertEquals(DefaultPCEPSessionNegotiator.State.OPEN_WAIT, negotiator.getState());
         assertEquals(2, msgsSend.size());
-        assertTrue(msgsSend.get(1) instanceof Open);
+        assertInstanceOf(Open.class, msgsSend.get(1));
         negotiator.handleMessage(openMsg);
         assertEquals(DefaultPCEPSessionNegotiator.State.KEEP_WAIT, negotiator.getState());
     }
@@ -105,11 +105,11 @@ class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     void testFailedToEstablishTLS() {
         tlsSessionNegotiator.channelActive(null);
         assertEquals(1, msgsSend.size());
-        assertTrue(msgsSend.get(0) instanceof Starttls);
+        assertInstanceOf(Starttls.class, msgsSend.get(0));
         assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, tlsSessionNegotiator.getState());
         tlsSessionNegotiator.handleMessage(startTlsMsg);
         assertEquals(2, msgsSend.size());
-        assertTrue(msgsSend.get(1) instanceof Pcerr);
+        assertInstanceOf(Pcerr.class, msgsSend.get(1));
         final Errors obj = ((Pcerr) msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
         assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorType(), obj.getErrorObject().getType());
         assertEquals(PCEPErrors.NOT_POSSIBLE_WITHOUT_TLS.getErrorValue(), obj.getErrorObject().getValue());
@@ -123,11 +123,11 @@ class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     void testTLSUnexpectedMessage() {
         tlsSessionNegotiator.channelActive(null);
         assertEquals(1, msgsSend.size());
-        assertTrue(msgsSend.get(0) instanceof Starttls);
+        assertInstanceOf(Starttls.class, msgsSend.get(0));
         assertEquals(DefaultPCEPSessionNegotiator.State.START_TLS_WAIT, tlsSessionNegotiator.getState());
         tlsSessionNegotiator.handleMessage(openMsg);
         assertEquals(2, msgsSend.size());
-        assertTrue(msgsSend.get(1) instanceof Pcerr);
+        assertInstanceOf(Pcerr.class, msgsSend.get(1));
         final Errors obj = ((Pcerr) msgsSend.get(1)).getPcerrMessage().getErrors().get(0);
         assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorType(), obj.getErrorObject().getType());
         assertEquals(PCEPErrors.NON_STARTTLS_MSG_RCVD.getErrorValue(), obj.getErrorObject().getValue());
@@ -141,15 +141,15 @@ class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     void testSessionCharsAccMe() {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
-        assertTrue(msgsSend.get(0) instanceof Open);
+        assertInstanceOf(Open.class, msgsSend.get(0));
         final Open remote = (Open) msgsSend.get(0);
         serverSession.handleMessage(openMsg);
         assertEquals(2, msgsSend.size());
-        assertTrue(msgsSend.get(1) instanceof Keepalive);
+        assertInstanceOf(Keepalive.class, msgsSend.get(1));
         serverSession.handleMessage(Util.createErrorMessage(PCEPErrors.NON_ACC_NEG_SESSION_CHAR,
             remote.getOpenMessage().getOpen()));
         assertEquals(3, msgsSend.size());
-        assertTrue(msgsSend.get(2) instanceof Open);
+        assertInstanceOf(Open.class, msgsSend.get(2));
         serverSession.handleMessage(kaMsg);
         assertEquals(serverSession.getState(), DefaultPCEPSessionNegotiator.State.FINISHED);
     }
@@ -163,7 +163,7 @@ class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     void testErrorOneOne() throws Exception {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
-        assertTrue(msgsSend.get(0) instanceof Open);
+        assertInstanceOf(Open.class, msgsSend.get(0));
         serverSession.handleMessage(kaMsg);
         checkEquals(() -> {
             for (final Notification<?> m : msgsSend) {
@@ -185,7 +185,7 @@ class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     void testErrorOneSeven() throws Exception {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
-        assertTrue(msgsSend.get(0) instanceof Open);
+        assertInstanceOf(Open.class, msgsSend.get(0));
         serverSession.handleMessage(openMsg);
         checkEquals(() -> {
             for (final Notification<?> m : msgsSend) {
@@ -207,7 +207,7 @@ class FiniteStateMachineTest extends AbstractPCEPSessionTest {
     void testErrorOneTwo() throws Exception {
         serverSession.channelActive(null);
         assertEquals(1, msgsSend.size());
-        assertTrue(msgsSend.get(0) instanceof OpenMessage);
+        assertInstanceOf(OpenMessage.class, msgsSend.get(0));
         checkEquals(() -> {
             for (final Notification<?> m : msgsSend) {
                 if (m instanceof Pcerr) {
