@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "acf311e8_29efa8da",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/entry/AbstractAdvertizedRoute.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-20T22:33:00Z",
+      "side": 1,
+      "message": "ever heard of @NonNullByDefault?",
+      "range": {
+        "startLine": 31,
+        "startChar": 31,
+        "endLine": 31,
+        "endChar": 39
+      },
+      "revId": "27f8ae1c01931af70839b5ef42d1c834147b72b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4d3f5237_7836bf15",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/entry/AbstractAdvertizedRoute.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-20T22:33:00Z",
+      "side": 1,
+      "message": "Yeah, this is a very bad contract. Also the cache never expires, so we hold on the objects long after steady state.\n\nWe also grow shallow size of each entry by 8/16 bytes -- e.g. 20-28.5% -- on the assumption there are a lot of peers to whom we reflect a particular route.\n\nThat hurts the common case of many routes + (effectively, including filtering) few peers.",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 103,
+        "endChar": 77
+      },
+      "revId": "27f8ae1c01931af70839b5ef42d1c834147b72b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
