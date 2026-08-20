@@ -22,6 +22,30 @@
       },
       "revId": "830dda88db4297180841c20b4d132ca2aec18c00",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5012138_16fd6436",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImplTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-20T13:32:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d8d4c0a3_64192d20",
+      "range": {
+        "startLine": 195,
+        "startChar": 29,
+        "endLine": 195,
+        "endChar": 38
+      },
+      "revId": "830dda88db4297180841c20b4d132ca2aec18c00",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
