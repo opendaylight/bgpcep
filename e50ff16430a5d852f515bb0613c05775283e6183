@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23835a47_e5a70e01",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 357,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-20T21:25:44Z",
+      "side": 1,
+      "message": "yeah, this prevents the actual content being traced, so all we get is \u0027Update\u0027, which is far from being useful",
+      "range": {
+        "startLine": 357,
+        "startChar": 18,
+        "endLine": 357,
+        "endChar": 55
+      },
+      "revId": "e50ff16430a5d852f515bb0613c05775283e6183",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
