@@ -47,7 +47,6 @@ import org.opendaylight.yangtools.binding.Notification;
 public abstract class BGPPeerStateImpl extends DefaultRibReference implements BGPPeerState, BGPAfiSafiState,
         BGPGracelfulRestartState, BGPLlGracelfulRestartState,BGPErrorHandlingState, BGPPeerMessagesState,
         BGPPeerStateProvider, BGPMessagesListener {
-    private static final long NONE = 0L;
     private final IpAddressNoZone neighborAddress;
     private final Set<TablesKey> afiSafisAdvertized;
     private final Set<TablesKey> afiSafisGracefulAdvertized;
@@ -100,10 +99,8 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final synchronized long getTotalPrefixes() {
-        if (prefixesInstalled == null) {
-            return NONE;
-        }
-        return prefixesInstalled.getTotalPrefixesInstalled();
+        final var local = prefixesInstalled;
+        return local == null ? 0 : local.getTotalPrefixesInstalled();
     }
 
     @Override
@@ -124,30 +121,24 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final synchronized long getPrefixesInstalledCount(final TablesKey tablesKey) {
-        if (prefixesInstalled == null) {
-            return NONE;
-        }
-        return prefixesInstalled.getPrefixedInstalledCount(tablesKey);
+        final var local = prefixesInstalled;
+        return local == null ? 0 : local.getPrefixedInstalledCount(tablesKey);
     }
 
     @Override
     public final synchronized long getPrefixesSentCount(final TablesKey tablesKey) {
-        if (prefixesSent == null) {
+        final var local = prefixesSent;
+        if (local == null) {
             return 0;
         }
-        final PrefixesSentCounters counter = prefixesSent.get(tablesKey);
-        if (counter == null) {
-            return NONE;
-        }
-        return counter.getPrefixesSentCount();
+        final var counter = local.get(tablesKey);
+        return counter == null ? 0 : counter.getPrefixesSentCount();
     }
 
     @Override
     public final synchronized long getPrefixesReceivedCount(final TablesKey tablesKey) {
-        if (prefixesReceived == null) {
-            return NONE;
-        }
-        return prefixesReceived.getPrefixedReceivedCount(tablesKey);
+        final var local = prefixesReceived;
+        return local == null ? 0 : local.getPrefixedReceivedCount(tablesKey);
     }
 
     @Override
