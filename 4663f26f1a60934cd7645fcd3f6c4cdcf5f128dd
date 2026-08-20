@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9ff00e95_fa2674a1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-20T22:10:11Z",
+      "side": 1,
+      "message": "This should not be necessary based on the comment in parent patch.",
+      "revId": "4663f26f1a60934cd7645fcd3f6c4cdcf5f128dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
