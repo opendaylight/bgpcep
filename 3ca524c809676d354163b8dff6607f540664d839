@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b8c288f5_c2664d96",
+        "filename": "bgp/extensions/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/AbstractLabeledUnicastRIBSupport.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-20T15:22:06Z",
+      "side": 1,
+      "message": "Including the label in the comparison will yield the wrong answer if only the label changes. Let\u0027s say the operator changes: label 1000 → 2000, prefix stays 10.0.0.0/24. The method returns True, but should be False. The new advertisement for 10.0.0.0/24 already replaces the old one and rebinds the label. Nothing is left stranded, so there is nothing to withdraw. Also the path-id can probably be dropped as well. Since this is only called on an in-place modification the before and after will always share the same path-id.",
+      "revId": "3ca524c809676d354163b8dff6607f540664d839",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e578cd1_979040bc",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-20T15:22:06Z",
+      "side": 1,
+      "message": "I\u0027m not sure about returning false for every other address family other than BGP-LU. Consider a plain IPv4 unicast route:\n1. Operator creates an app-rib IPv4 route with route-key \u003d \"my-route-1\" and prefix \u003d 10.0.0.0/24. ODL advertises 10.0.0.0/24 to the peer. The peer installs it.\n2. Operator edits that same entry, changing only prefix to 10.0.1.0/24. The route-key is untouched.\n3. Because the key didn\u0027t change, the datastore reports this as an in-place modification of one entry.\n4. Thanks to this commit ODL correctly notice the content changed and it advertises 10.0.1.0/24. The peer installs it.\n5. requiresWithdrawalOnReplace() is consulted at AdjRibOutListener.java:146. IPv4 unicast has no override, so it hits return false. No withdrawal is sent.\n6. Nothing in ODL advertises 10.0.0.0/24 any more, and the peer was never told to remove it. \n\nIt will stay leaked forever, right?",
+      "revId": "3ca524c809676d354163b8dff6607f540664d839",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
