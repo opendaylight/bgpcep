@@ -259,20 +259,28 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     @Override
     public final void messageSent(final Notification<?> msg) {
-        if (msg instanceof Notify) {
-            notificationSentCounter.increment();
-        } else if (msg instanceof Update) {
-            updateSentCounter.increment();
+        final LongAdder counter;
+        switch (msg) {
+            case Notify unused -> counter = notificationSentCounter;
+            case Update unused -> counter = updateSentCounter;
+            default -> {
+                return;
+            }
         }
+        counter.increment();
     }
 
     @Override
     public final void messageReceived(final Notification<?> msg) {
-        if (msg instanceof Notify) {
-            notificationReceivedCounter.increment();
-        } else if (msg instanceof Update) {
-            updateReceivedCounter.increment();
+        final LongAdder counter;
+        switch (msg) {
+            case Notify unused -> counter = notificationReceivedCounter;
+            case Update unused -> counter = updateReceivedCounter;
+            default -> {
+                return;
+            }
         }
+        counter.increment();
     }
 
     @Override
