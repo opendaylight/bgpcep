@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a93872af_6c7876fb",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 14
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-20T22:09:43Z",
+      "side": 1,
+      "message": "I honestly do not think this is the right approach.\n\nA deployment needs to be engineered to account for the expected size of RIBs and in-flight updates.\n\nThe approach taken here goes for introducing \"random\" blocking, rather than streamlined operation. I bet it has rather significant repercussions in terms of convergence times in the normal case.\n\nIf the concern is \"we have too many peers in initial convergence leading to large transient memory pressure\", then we should be limiting the number of such peers.",
+      "revId": "ad11afe49e95f119b045b6b95cb34c174c429794",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
