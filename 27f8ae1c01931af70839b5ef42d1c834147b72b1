@@ -45,6 +45,30 @@
       },
       "revId": "27f8ae1c01931af70839b5ef42d1c834147b72b1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a4494e7f_17d50958",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/entry/AbstractAdvertizedRoute.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-20T22:36:56Z",
+      "side": 1,
+      "message": "Just to make the calculation explicit, with/without compressed oops and compact headers:\n\ncompressed:\n5 x 4 + 1 + 12 -\u003e 40\n7 x 4 + 1 + 12 -\u003e 48\n\ncompressed+compact:\n5 x 4 + 1 +  8 -\u003e 32\n7 x 4 + 1 +  8 -\u003e 40\n\nuncompressed:\n5 x 8 + 1 + 12 -\u003e 56\n7 x 8 + 1 + 12 -\u003e 72\n\nuncompressed+compact:\n5 x 8 + 1 +  8 -\u003e 56\n7 x 8 + 1 +  8 -\u003e 72",
+      "parentUuid": "4d3f5237_7836bf15",
+      "range": {
+        "startLine": 102,
+        "startChar": 6,
+        "endLine": 103,
+        "endChar": 77
+      },
+      "revId": "27f8ae1c01931af70839b5ef42d1c834147b72b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
