@@ -22,6 +22,30 @@
       },
       "revId": "fa9ff915ae5388e566207c151562014efc637496",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "60755bd5_21594511",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPMessageToByteEncoder.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-21T17:44:46Z",
+      "side": 1,
+      "message": "This released ByteBuf would not be returned. It is only returned when serialized is true. This is a guard for when serialize throws a RuntimeException. I used this approach rather than catching it.\nI have improved the inline comment to make it more clear.",
+      "parentUuid": "e5184a78_91fdc839",
+      "range": {
+        "startLine": 55,
+        "startChar": 16,
+        "endLine": 55,
+        "endChar": 30
+      },
+      "revId": "fa9ff915ae5388e566207c151562014efc637496",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
