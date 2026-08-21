@@ -22,6 +22,30 @@
       },
       "revId": "75a4e39f9b9466d3716715d402edb2f115495070",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4cc7c0aa_6fce3cc7",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ChannelOutputLimiter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-08-21T17:44:20Z",
+      "side": 1,
+      "message": "Yes, ensureWritable is private but called from the visible write and writeAndFlush methods. Synchronization here just ensures that when a write is in the narrow space after the while and has not reached this.wait() yet, the notifying thread (channelWritabilityChanged) waits until that thread reaches this.wait, and then wakes it.",
+      "parentUuid": "f212fd8f_b6b1016a",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 38
+      },
+      "revId": "75a4e39f9b9466d3716715d402edb2f115495070",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
