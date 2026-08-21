@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f212fd8f_b6b1016a",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/ChannelOutputLimiter.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-21T02:42:55Z",
+      "side": 1,
+      "message": "what locking? ensureWritable() is a private method and this is a public one: so what exact contract and locking is in play here?",
+      "range": {
+        "startLine": 88,
+        "startChar": 4,
+        "endLine": 90,
+        "endChar": 38
+      },
+      "revId": "75a4e39f9b9466d3716715d402edb2f115495070",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
