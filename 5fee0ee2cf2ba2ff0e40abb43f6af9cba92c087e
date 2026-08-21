@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6e425033_fc6de937",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-21T02:37:08Z",
+      "side": 1,
+      "message": "right, but the sequencing is quite clear here: first the session goes up and then we start propagating routes to the peer -- it is in this method that we initialize adj-rib-out.\n\nso what exactly is it that we are avoiding through the registrationExecutor indirection?!",
+      "range": {
+        "startLine": 538,
+        "startChar": 19,
+        "endLine": 540,
+        "endChar": 104
+      },
+      "revId": "5fee0ee2cf2ba2ff0e40abb43f6af9cba92c087e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
