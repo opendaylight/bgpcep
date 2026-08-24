@@ -8,12 +8,9 @@
 package org.opendaylight.protocol.pcep.impl;
 
 import static java.util.Objects.requireNonNull;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.endsWith;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -139,10 +136,8 @@ class PCEPDispatcherImplTest {
             final var cause = assertThrows(ExecutionException.class,
                 () -> pccMock.createClient(clientAddr, RETRY_TIMER, CONNECT_TIMEOUT).get())
                 .getCause();
-            assertThat(cause, instanceOf(IllegalStateException.class));
-            assertThat(cause.getMessage(), allOf(
-                startsWith("A conflicting session for address "),
-                endsWith(" found.")));
+            assertInstanceOf(IllegalStateException.class, cause);
+            assertThat(cause.getMessage()).startsWith("A conflicting session for address ").endsWith(" found.");
         }
     }
 

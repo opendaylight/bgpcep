@@ -7,9 +7,6 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -41,9 +38,8 @@ class ASNumberTest {
 
     @Test
     void testEquals() {
-        assertThat(ASN1, not(equalTo(ASN3)));
-        assertThat(ASN1, not(equalTo(ASN4)));
-        assertThat(ASN1, not(equalTo(new Object())));
+        assertNotEquals(ASN3, ASN1);
+        assertNotEquals(ASN4, ASN1);
         assertNotEquals(ASN1, new Object());
     }
 

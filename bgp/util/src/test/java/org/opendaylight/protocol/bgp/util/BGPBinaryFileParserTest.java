@@ -7,8 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.Is.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayOutputStream;
@@ -41,28 +39,28 @@ class BGPBinaryFileParserTest {
     void testCorrectExtraction() throws IOException {
         final List<byte[]> parsedMessages = extractFromFile("/BgpMessages.bin");
 
-        assertThat(parsedMessages.size(), is(43));
+        assertEquals(43, parsedMessages.size());
 
         // 1st message
-        assertThat(parsedMessages.get(0).length, is(19));
+        assertEquals(19, parsedMessages.get(0).length);
         checkMarker(parsedMessages);
-        assertThat(parsedMessages.get(0)[16], is((byte) 0));
-        assertThat(parsedMessages.get(0)[17], is((byte) 19));
-        assertThat(parsedMessages.get(0)[18], is((byte) 4));
+        assertEquals((byte) 0, parsedMessages.get(0)[16]);
+        assertEquals((byte) 19, parsedMessages.get(0)[17]);
+        assertEquals((byte) 4, parsedMessages.get(0)[18]);
 
         // 39th message
-        assertThat(parsedMessages.get(38).length, is(91));
+        assertEquals(91, parsedMessages.get(38).length);
         checkMarker(parsedMessages);
-        assertThat(parsedMessages.get(38)[16], is((byte) 0));
-        assertThat(parsedMessages.get(38)[17], is((byte) 91));
-        assertThat(parsedMessages.get(38)[18], is((byte) 2));
-        assertThat(parsedMessages.get(38)[90], is((byte) 236));
+        assertEquals((byte) 0, parsedMessages.get(38)[16]);
+        assertEquals((byte) 91, parsedMessages.get(38)[17]);
+        assertEquals((byte) 2, parsedMessages.get(38)[18]);
+        assertEquals((byte) 236, parsedMessages.get(38)[90]);
 
     }
 
     private void checkMarker(final List<byte[]> parsedMessages) {
         for (int i = 0; i < 16; i++) {
-            assertThat(parsedMessages.get(0)[i], is(FF));
+            assertEquals(FF, parsedMessages.get(0)[i]);
         }
     }
 
