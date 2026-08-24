@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "2276aa33_052c72e0",
+        "filename": "bgp/extensions/inet/src/test/java/org/opendaylight/protocol/bgp/inet/codec/nexthop/NextHopParserSerializerTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-24T08:22:47Z",
+      "side": 1,
+      "message": "Shoudn\u0027t this assert \"parsedHop\" instead of \"this.hop\"? Just like below in Ipv6 test",
+      "revId": "a40707a2c25e97ba508400998f90ee3e10d521fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "650c4547_11f6c39f",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/unicast/ipv4/VpnIpv4NextHopTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-24T08:22:47Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "a40707a2c25e97ba508400998f90ee3e10d521fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "230424e3_afb50bc3",
+        "filename": "bgp/extensions/l3vpn/src/test/java/org/opendaylight/protocol/bgp/l3vpn/unicast/ipv6/VpnIpv6NextHopTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-24T08:22:47Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "a40707a2c25e97ba508400998f90ee3e10d521fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1561b8e6_0ae2c0da",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/FSMTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-24T08:22:47Z",
+      "side": 1,
+      "message": "This converts the assertion but keeps the manual ((Notify) m) casts on the following lines, which is the duplication assertInstanceOf exists to remove — and the cast is applied to get(size() - 1) while the assertion checks get(1), so the two only agree because of the size check above. Could this capture the return value, as done in BGPSessionImplTest.testBGPSession()?",
+      "revId": "a40707a2c25e97ba508400998f90ee3e10d521fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
