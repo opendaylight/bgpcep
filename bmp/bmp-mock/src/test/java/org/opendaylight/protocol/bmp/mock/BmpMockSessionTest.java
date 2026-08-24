@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.bmp.mock;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -62,10 +61,10 @@ class BmpMockSessionTest {
 
         final List<Object> messages = captor.getAllValues();
         assertEquals(4, messages.size());
-        assertThat(messages.get(0), instanceOf(InitiationMessage.class));
-        assertThat(messages.get(1), instanceOf(PeerUp.class));
-        assertThat(messages.get(2), instanceOf(RouteMonitoringMessage.class));
-        assertThat(messages.get(3), instanceOf(RouteMonitoringMessage.class));
+        assertInstanceOf(InitiationMessage.class, messages.get(0));
+        assertInstanceOf(PeerUp.class, messages.get(1));
+        assertInstanceOf(RouteMonitoringMessage.class, messages.get(2));
+        assertInstanceOf(RouteMonitoringMessage.class, messages.get(3));
 
         session.close();
         assertFalse(channel.isWritable());
