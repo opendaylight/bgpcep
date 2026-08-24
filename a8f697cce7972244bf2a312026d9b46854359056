@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0ffc9cfd_22938cb0",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/AbstractMessageRegistryTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-24T14:27:12Z",
+      "side": 1,
+      "message": "This drops the actual message from the failure output: Hamcrest printed but: was \"\u003cactual\u003e\", whereas assertTrue can only report expected: \u003ctrue\u003e but was: \u003cfalse\u003e — the same message the previous commit removed 11 files\u0027 worth of. Good example is just above in testInvalidLength(), which already uses the exact-match form. Could these pass the message as the second argument, assertTrue(msg.startsWith(...), msg), or use assertEquals where the text is fully determined? Same at ParserTest, BGPHexFileParserTest, and PCEPDispatcherImplTest.",
+      "revId": "a8f697cce7972244bf2a312026d9b46854359056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23bbee26_d96d2afe",
+        "filename": "concepts/src/test/java/org/opendaylight/protocol/concepts/ASNumberTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-24T14:27:12Z",
+      "side": 1,
+      "message": "Same here.. the meaningful one is the one below.",
+      "revId": "a8f697cce7972244bf2a312026d9b46854359056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4db109e4_433f9aba",
+        "filename": "concepts/src/test/java/org/opendaylight/protocol/concepts/BandwidthTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-24T14:27:12Z",
+      "side": 1,
+      "message": "Hamcrest evaluated actual.equals(expected), so the old line ran B1.equals(new Object()); JUnit evaluates expected.equals(actual), so this now runs Object.equals(B1) and can never fail whatever Bandwidth.equals does. Line 37 already covers the working direction, so could this line just be\ndropped?",
+      "revId": "a8f697cce7972244bf2a312026d9b46854359056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
