@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.isA;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
@@ -27,8 +26,7 @@ class UtilTest {
     @Test
     void testCreateErrorMessageWithOpen() {
         final Pcerr errMsg = Util.createErrorMessage(PCEPErrors.BAD_LABEL_VALUE, OPEN);
-        assertThat(errMsg.getPcerrMessage().getErrorType(), isA(SessionCase.class));
-        final SessionCase sessionCase = (SessionCase) errMsg.getPcerrMessage().getErrorType();
+        final SessionCase sessionCase = assertInstanceOf(SessionCase.class, errMsg.getPcerrMessage().getErrorType());
         assertEquals(OPEN, sessionCase.getSession().getOpen());
         final ErrorObject errorObject = errMsg.getPcerrMessage().getErrors().get(0).getErrorObject();
         assertEquals(PCEPErrors.BAD_LABEL_VALUE.getErrorType(), errorObject.getType());

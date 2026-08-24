@@ -7,9 +7,8 @@
  */
 package org.opendaylight.bgpcep.programming.impl;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -32,7 +31,7 @@ final class MockedNotificationServiceWrapper {
 
         doAnswer(invocation -> {
             final Object notif = invocation.getArguments()[0];
-            assertThat(notif, instanceOf(Notification.class));
+            assertInstanceOf(Notification.class, notif);
             MockedNotificationServiceWrapper.this.publishedNotifications.add((Notification<?>) notif);
             return null;
         }).when(mockedNotificationService).putNotification(any(Notification.class));

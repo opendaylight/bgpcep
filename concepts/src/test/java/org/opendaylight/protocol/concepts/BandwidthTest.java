@@ -7,11 +7,7 @@
  */
 package org.opendaylight.protocol.concepts;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 import io.netty.buffer.Unpooled;
@@ -32,10 +28,9 @@ class BandwidthTest {
 
     @Test
     void testEquals() {
-        assertFalse(B1.equals(null));
-        assertThat(B1, not(equalTo(new Object())));
-        assertThat(B1, equalTo(B1));
-        assertThat(B1, not(equalTo(B2)));
+        assertNotEquals(B1, null);
+        assertEquals(B1, B1);
+        assertNotEquals(B2, B1);
         assertEquals(B2, B3);
         assertNotEquals(B1, new Object());
     }

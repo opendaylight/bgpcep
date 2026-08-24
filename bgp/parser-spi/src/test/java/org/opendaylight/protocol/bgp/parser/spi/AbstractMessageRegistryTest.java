@@ -7,11 +7,10 @@
  */
 package org.opendaylight.protocol.bgp.parser.spi;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.startsWith;
-import static org.hamcrest.MatcherAssert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
@@ -54,7 +53,7 @@ class AbstractMessageRegistryTest {
         assertArrayEquals(KEEPALIVE_BMSG, ByteArray.getAllBytes(buffer));
 
         final Notification<?> not = registry.parseMessage(Unpooled.copiedBuffer(KEEPALIVE_BMSG), null);
-        assertThat(not, instanceOf(Keepalive.class));
+        assertInstanceOf(Keepalive.class, not);
     }
 
     @Test
@@ -91,7 +90,7 @@ class AbstractMessageRegistryTest {
         };
         final BGPParsingException ex = assertThrows(BGPParsingException.class,
             () -> registry.parseMessage(Unpooled.copiedBuffer(testBytes), null));
-        assertThat(ex.getMessage(), startsWith("Size doesn't match size specified in header."));
+        assertThat(ex.getMessage()).startsWith("Size doesn't match size specified in header.");
     }
 
     @Test
