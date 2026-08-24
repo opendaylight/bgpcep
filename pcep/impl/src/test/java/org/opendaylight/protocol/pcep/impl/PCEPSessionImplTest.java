@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.pcep.impl;
 
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -66,7 +65,7 @@ class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         session.handleMessage(new PcreqBuilder().build());
         assertEquals(2, session.getMessages().getReceivedMsgCount().intValue());
         assertEquals(1, listener.messages.size());
-        assertThat(listener.messages.get(0), instanceOf(Pcreq.class));
+        assertInstanceOf(Pcreq.class, listener.messages.get(0));
         assertEquals(2, session.getMessages().getReceivedMsgCount().intValue());
 
         session.handleMessage(closeMsg);
@@ -81,9 +80,8 @@ class PCEPSessionImplTest extends AbstractPCEPSessionTest {
         session.handleMessage(openMsg);
         assertEquals(1, session.getMessages().getReceivedMsgCount().intValue());
         assertEquals(1, msgsSend.size());
-        final var pcErr = msgsSend.get(0);
-        assertThat(pcErr, instanceOf(Pcerr.class));
-        final ErrorObject errorObj = ((Pcerr) pcErr).getPcerrMessage().getErrors().get(0).getErrorObject();
+        final var pcErr = assertInstanceOf(Pcerr.class, msgsSend.get(0));
+        final ErrorObject errorObj = pcErr.getPcerrMessage().getErrors().get(0).getErrorObject();
         assertEquals(PCEPErrors.ATTEMPT_2ND_SESSION, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
     }
 
@@ -97,17 +95,15 @@ class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     void testCapabilityNotSupported() {
         session.handleMalformedMessage(PCEPErrors.CAPABILITY_NOT_SUPPORTED);
         assertEquals(2, msgsSend.size());
-        final var pcErr = msgsSend.get(0);
-        assertThat(pcErr, instanceOf(Pcerr.class));
-        final ErrorObject errorObj = ((Pcerr) pcErr).getPcerrMessage().getErrors().get(0).getErrorObject();
+        final var pcErr = assertInstanceOf(Pcerr.class, msgsSend.get(0));
+        final ErrorObject errorObj = pcErr.getPcerrMessage().getErrors().get(0).getErrorObject();
         assertEquals(PCEPErrors.CAPABILITY_NOT_SUPPORTED, PCEPErrors.forValue(errorObj.getType(), errorObj.getValue()));
         assertEquals(1, session.getMessages().getUnknownMsgReceived().intValue());
         // exceeded max. unknown messages count - terminate session
-        final var closeMsg = msgsSend.get(1);
-        assertThat(closeMsg, instanceOf(CloseMessage.class));
+        final var closeMsg = assertInstanceOf(CloseMessage.class, msgsSend.get(1));
 
         assertEquals(TerminationReason.TOO_MANY_UNKNOWN_MSGS,
-            TerminationReason.forValue(((CloseMessage) closeMsg).getCCloseMessage().getCClose().getReason()));
+            TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
         verify(channel).close();
     }
 
@@ -122,10 +118,9 @@ class PCEPSessionImplTest extends AbstractPCEPSessionTest {
     void testCloseSessionWithReason() {
         session.close(TerminationReason.UNKNOWN);
         assertEquals(1, msgsSend.size());
-        final var closeMsg = msgsSend.get(0);
-        assertThat(closeMsg, instanceOf(CloseMessage.class));
+        final var closeMsg = assertInstanceOf(CloseMessage.class, msgsSend.get(0));
         assertEquals(TerminationReason.UNKNOWN,
-            TerminationReason.forValue(((CloseMessage) closeMsg).getCCloseMessage().getCClose().getReason()));
+            TerminationReason.forValue(closeMsg.getCCloseMessage().getCClose().getReason()));
         verify(channel).close();
     }
 

@@ -7,10 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.util;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -41,7 +40,7 @@ class BGPHexFileParserTest {
         final var ex = assertThrows(IllegalArgumentException.class,
             () -> HexDumpBGPFileParser.parseMessages(getClass().getClassLoader()
                     .getResourceAsStream(BGP_MESSAGE_HEX_INVALID_LENGTH_BIN)));
-        assertThat(ex.getMessage(), containsString("Invalid message at index 0, "
+        assertTrue(ex.getMessage().contains("Invalid message at index 0, "
                 + "length atribute is lower than 19"));
     }
 
@@ -49,6 +48,6 @@ class BGPHexFileParserTest {
     void testParsingInvalidFile() {
         final var ex = assertThrows(NoSuchFileException.class,
             () -> HexDumpBGPFileParser.parseMessages(Path.of("bad file name")));
-        assertThat(ex.getMessage(), containsString("bad file name"));
+        assertTrue(ex.getMessage().contains("bad file name"));
     }
 }
