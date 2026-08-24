@@ -7,14 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.parser.impl;
 
-import static org.hamcrest.CoreMatchers.containsString;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
@@ -164,7 +162,7 @@ class ParserTest {
 
         final Notification<?> m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)),
             null);
-        assertThat(m, instanceOf(Keepalive.class));
+        assertInstanceOf(Keepalive.class, m);
     }
 
     @Test
@@ -177,7 +175,7 @@ class ParserTest {
 
         final BGPDocumentedException ex = assertThrows(BGPDocumentedException.class,
             () -> reg.parseMessage(Unpooled.copiedBuffer(bytes), null));
-        assertThat(ex.getMessage(), containsString("Message length field not within valid range."));
+        assertTrue(ex.getMessage().contains("Message length field not within valid range."));
         assertEquals(BGPError.BAD_MSG_LENGTH, ex.getError());
     }
 
@@ -194,9 +192,7 @@ class ParserTest {
         assertArrayEquals(OPEN_BMSG, ByteArray.getAllBytes(bytes));
 
         final Notification<?> m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
-        assertThat(m, instanceOf(Open.class));
-
-        final Open mo = (Open) m;
+        final var mo = assertInstanceOf(Open.class, m);
         assertEquals(100, mo.getMyAsNumber().intValue());
         assertEquals(180, mo.getHoldTimer().intValue());
         assertEquals(new Ipv4Address("20.20.20.20"), mo.getBgpIdentifier());
@@ -315,7 +311,7 @@ class ParserTest {
     void testParseUpdMsgWithMandatoryAttributesPresent() throws BGPDocumentedException, BGPParsingException {
         final Notification<?> msg = reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MANDATORY_ATTRIBUTES_PRESENT),
             null);
-        assertThat(msg, instanceOf(Update.class));
+        assertInstanceOf(Update.class, msg);
     }
 
     @Test
@@ -348,6 +344,6 @@ class ParserTest {
         final Notification<?> m = ParserTest.reg.parseMessage(
             Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)), null);
 
-        assertThat(m, instanceOf(RouteRefresh.class));
+        assertInstanceOf(RouteRefresh.class, m);
     }
 }
