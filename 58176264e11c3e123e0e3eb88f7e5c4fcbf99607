@@ -16,6 +16,24 @@
       "message": "JUnit short-circuits when the first argument is null and returns before calling equals, so this line passes no matter what the Bandwidth.equals(null) method actually does — and the assertFalse(B1.equals(null)) it replaced was the only null check here. Could this be assertNotEquals(B1, null), which does call B1.equals(null)?",
       "revId": "58176264e11c3e123e0e3eb88f7e5c4fcbf99607",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "8a70e23d_3a9c556b",
+        "filename": "concepts/src/test/java/org/opendaylight/protocol/concepts/BandwidthTest.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-25T12:28:36Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37675cc2_a19daed4",
+      "revId": "58176264e11c3e123e0e3eb88f7e5c4fcbf99607",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
