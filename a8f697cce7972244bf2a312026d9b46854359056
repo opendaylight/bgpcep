@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e487b3d_80eee4d4",
+        "filename": "bgp/parser-spi/src/test/java/org/opendaylight/protocol/bgp/parser/spi/AbstractMessageRegistryTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-25T06:13:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0ffc9cfd_22938cb0",
+      "revId": "a8f697cce7972244bf2a312026d9b46854359056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "23bbee26_d96d2afe",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "71b3ec05_301b5255",
+        "filename": "concepts/src/test/java/org/opendaylight/protocol/concepts/ASNumberTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-25T06:13:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "23bbee26_d96d2afe",
+      "revId": "a8f697cce7972244bf2a312026d9b46854359056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4db109e4_433f9aba",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-08-24T14:27:12Z",
       "side": 1,
       "message": "Hamcrest evaluated actual.equals(expected), so the old line ran B1.equals(new Object()); JUnit evaluates expected.equals(actual), so this now runs Object.equals(B1) and can never fail whatever Bandwidth.equals does. Line 37 already covers the working direction, so could this line just be\ndropped?",
+      "revId": "a8f697cce7972244bf2a312026d9b46854359056",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "03576af9_f82c55bb",
+        "filename": "concepts/src/test/java/org/opendaylight/protocol/concepts/BandwidthTest.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-08-25T06:13:19Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4db109e4_433f9aba",
       "revId": "a8f697cce7972244bf2a312026d9b46854359056",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
