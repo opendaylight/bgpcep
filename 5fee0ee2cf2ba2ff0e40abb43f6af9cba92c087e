@@ -22,6 +22,30 @@
       },
       "revId": "5fee0ee2cf2ba2ff0e40abb43f6af9cba92c087e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6ca40064_cd99892e",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeer.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 540,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-25T19:52:23Z",
+      "side": 1,
+      "message": "Right, the executor is not needed for sequencing, the Adj-RIB-Out commit already establishes that.\nThe indirection is needed because BGPSessionImpl.sessionUp() invokes listener.onSessionUp() while holding synchronized (listener), where the listener is this BGPPeer. Therefore, even if BGPPeer.onSessionUp() itself is not synchronized, an inline callback still runs while the session thread owns the BGPPeer monitor.\n`registerPeer()` synchronously invokes `LocRibWriter.onPeerAdded()`, acquiring the LocRibWriter monitor. An inline invocation therefore establishes BGPPeer -\u003e LocRibWriter, while route propagation in LocRibWriter.onDataTreeChanged() establishes LocRibWriter -\u003e BGPPeer through the synchronized refreshRibOut()/initializeRibOut() methods. Those two paths can deadlock.\nRunning registration on another thread ensures that the thread performing registerPeer() does not own the BGPPeer monitor. The session thread can return from onSessionUp() and release it without waiting for registration. \nI agree that a dedicated executor per peer may be excessive. We can use a suitable shared managed executor instead, but we cannot use a direct executor here unless the locking contract in BGPSessionImpl.sessionUp() is changed.",
+      "parentUuid": "6e425033_fc6de937",
+      "range": {
+        "startLine": 538,
+        "startChar": 19,
+        "endLine": 540,
+        "endChar": 104
+      },
+      "revId": "5fee0ee2cf2ba2ff0e40abb43f6af9cba92c087e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
