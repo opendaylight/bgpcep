@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "6303a3a4_af4ee0ae",
+        "filename": "bgp/extensions/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/AbstractLabeledUnicastRIBSupport.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-26T08:17:48Z",
+      "side": 1,
+      "message": "Agreed. The check now compares only the prefix. A label-only update rebinds the existing route without a withdrawal, and path-id is omitted because it cannot change during an in-place modification. Added regression coverage.",
+      "parentUuid": "b8c288f5_c2664d96",
+      "revId": "3ca524c809676d354163b8dff6607f540664d839",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "5e578cd1_979040bc",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-08-20T15:22:06Z",
       "side": 1,
       "message": "I\u0027m not sure about returning false for every other address family other than BGP-LU. Consider a plain IPv4 unicast route:\n1. Operator creates an app-rib IPv4 route with route-key \u003d \"my-route-1\" and prefix \u003d 10.0.0.0/24. ODL advertises 10.0.0.0/24 to the peer. The peer installs it.\n2. Operator edits that same entry, changing only prefix to 10.0.1.0/24. The route-key is untouched.\n3. Because the key didn\u0027t change, the datastore reports this as an in-place modification of one entry.\n4. Thanks to this commit ODL correctly notice the content changed and it advertises 10.0.1.0/24. The peer installs it.\n5. requiresWithdrawalOnReplace() is consulted at AdjRibOutListener.java:146. IPv4 unicast has no override, so it hits return false. No withdrawal is sent.\n6. Nothing in ODL advertises 10.0.0.0/24 any more, and the peer was never told to remove it. \n\nIt will stay leaked forever, right?",
+      "revId": "3ca524c809676d354163b8dff6607f540664d839",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce1e1892_8b398d9e",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/RIBSupport.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-26T08:17:48Z",
+      "side": 1,
+      "message": "The default now compares route content excluding attributes, so an in-place prefix/NLRI change withdraws the old route, while an attribute-only update does not. LU and L3VPN provide narrower family-specific checks.",
+      "parentUuid": "5e578cd1_979040bc",
       "revId": "3ca524c809676d354163b8dff6607f540664d839",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
