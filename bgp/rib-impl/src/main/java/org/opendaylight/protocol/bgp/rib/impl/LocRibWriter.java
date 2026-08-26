@@ -48,6 +48,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RibOutEntryFactory;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -331,9 +332,14 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             newRoutes.addAll(entry.newBestPaths(ribSupport, e.getKey().getRouteId()));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
-        peerTracker.getNonInternalPeers().parallelStream()
+
+        final var peers = peerTracker.getNonInternalPeers().stream()
             .filter(toPeer -> toPeer.supportsTable(entryDep.getLocalTablesKey()))
-            .forEach(toPeer -> toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes));
+            .toList();
+        // Sharing needs at least two receivers, so a single one keeps nothing. One factory for all peers of this
+        // update, dropped when walkThrough() returns.
+        final var entryFactory = peers.size() > 1 ? RibOutEntryFactory.newSharing() : RibOutEntryFactory.unshared();
+        peers.parallelStream().forEach(toPeer -> toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes, entryFactory));
     }
 
     private void updateLocRib(final List<AdvertizedRoute<C, S>> newRoutes, final List<StaleBestPathRoute> staleRoutes,

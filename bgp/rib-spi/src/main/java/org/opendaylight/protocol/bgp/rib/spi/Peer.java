@@ -12,6 +12,7 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RibOutEntryFactory;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.RouteTargetMembershipConsumer;
@@ -42,13 +43,14 @@ public interface Peer extends PeerTrackerInformation, RouteTargetMembershipConsu
     /**
      * Update peers ribout after path selection processing.
      *
-     * @param entryDep    RouteEntryDependenciesContainer
-     * @param staleRoutes routes to be removed.
-     * @param newRoutes   routes to be advertized.
+     * @param entryDep     RouteEntryDependenciesContainer
+     * @param staleRoutes  routes to be removed.
+     * @param newRoutes    routes to be advertised.
+     * @param entryFactory builds the entries to write. All peers receiving one update get the same factory.
      */
     <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void refreshRibOut(
         @NonNull RouteEntryDependenciesContainer entryDep, @NonNull List<StaleBestPathRoute> staleRoutes,
-        @NonNull List<AdvertizedRoute<C, S>> newRoutes);
+        @NonNull List<AdvertizedRoute<C, S>> newRoutes, @NonNull RibOutEntryFactory entryFactory);
 
     /**
      * Stores under peers rib Out already present routes, before proceed to process any new route advertizement.
