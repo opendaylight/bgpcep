@@ -33,6 +33,7 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.parser.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RibOutEntryFactory;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
@@ -195,7 +196,7 @@ public class Bgpcep1080Test extends AbstractRIBTestSetup {
     private void submitRibOutTransaction() {
         doReturn(getRib().getRibSupportContext().getRIBSupport(IPV4_UNICAST)).when(entryDep).getRIBSupport();
         doReturn(getRib().getPeerTracker()).when(entryDep).getPeerTracker();
-        peer.refreshRibOut(entryDep, List.of(), List.of());
+        peer.refreshRibOut(entryDep, List.of(), List.of(), RibOutEntryFactory.unshared());
     }
 
     private void arm() {
