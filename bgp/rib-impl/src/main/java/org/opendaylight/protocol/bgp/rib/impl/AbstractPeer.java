@@ -36,6 +36,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AbstractAdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RibOutEntryFactory;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteKeyIdentifier;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
@@ -302,7 +303,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             final var routePath = createRoutePath(ribSupport, tableRibout, initRoute, addPathSupported);
             final var effAttrs = applyExportPolicy(entryDep, fromPeerId, route, routePath, initRoute.getAttributes());
             if (effAttrs != null) {
-                storeRoute(ribSupport, initRoute, route, routePath, effAttrs, tx);
+                // This dump fills in one peer, so an entry built here has no second peer to share with.
+                storeRoute(ribSupport, initRoute, routePath, effAttrs, tx, RibOutEntryFactory.unshared());
             }
         }
 
@@ -323,7 +325,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     @Override
     public final synchronized void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
-            final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute> newRoutes) {
+            final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute> newRoutes,
+            final RibOutEntryFactory entryFactory) {
         if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", peerId);
             return;
@@ -364,7 +367,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
                 final var route = newRoute.getRoute();
                 final var effAttrs = applyExportPolicy(entryDep, fromPeerId, route, routePath, attributes);
                 if (effAttrs != null) {
-                    storeRoute(ribSupport, newRoute, route, routePath, effAttrs, tx);
+                    storeRoute(ribSupport, newRoute, routePath, effAttrs, tx, entryFactory);
                 }
             }
         }
@@ -411,7 +414,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
                 final var effAttrs = applyExportPolicy(entryDep, fromPeerId, route, routePath,
                     actualBestRoute.getAttributes());
                 if (effAttrs != null) {
-                    storeRoute(ribSupport, actualBestRoute, route, routePath, effAttrs, tx);
+                    // This re-evaluation covers one peer, so an entry built here has no second peer to share with.
+                    storeRoute(ribSupport, actualBestRoute, routePath, effAttrs, tx, RibOutEntryFactory.unshared());
                     continue;
                 }
             }
@@ -463,11 +467,12 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     }
 
     @GuardedBy("this")
-    private void storeRoute(final RIBSupport ribSupport, final RouteKeyIdentifier advRoute, final MapEntryNode route,
-            final YangInstanceIdentifier routePath, final ContainerNode effAttr, final DOMDataTreeWriteOperations tx) {
+    private void storeRoute(final RIBSupport ribSupport, final AbstractAdvertizedRoute advRoute,
+            final YangInstanceIdentifier routePath, final ContainerNode effAttr, final DOMDataTreeWriteOperations tx,
+            final RibOutEntryFactory entryFactory) {
         LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, peerId);
-        tx.put(LogicalDatastoreType.OPERATIONAL, routePath, ribSupport.createRoute(route,
-            (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
+        final var key = (NodeIdentifierWithPredicates) routePath.getLastPathArgument();
+        tx.put(LogicalDatastoreType.OPERATIONAL, routePath, entryFactory.entryFor(ribSupport, advRoute, key, effAttr));
     }
 
     @GuardedBy("this")
