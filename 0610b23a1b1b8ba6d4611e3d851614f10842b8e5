@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cfedd942_09778cf1",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T14:02:57Z",
+      "side": 1,
+      "message": "We have the import now.. this can be shortened",
+      "revId": "0610b23a1b1b8ba6d4611e3d851614f10842b8e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "66b247cb_a80cda12",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T14:02:57Z",
+      "side": 1,
+      "message": "We have bunch of new behaviour which remains untested. The existing tests cover the losing race well. Could we also cover the mirror case, where the listener is registered after the peer - i.e. registerPeerAddedListener replaying already-registered peers? That is the other half of the fix. A case asserting initializeRibOut is never called for a PeerRole.Internal peer, and one asserting LocRibWriter.close() closes the listener registration, would also be cheap here.",
+      "revId": "0610b23a1b1b8ba6d4611e3d851614f10842b8e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9919ed4_64e470e6",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPPeerTracker.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T14:02:57Z",
+      "side": 1,
+      "message": "The implementation also replays every already-registered peer to the new listener, which is what makes the LocRibWriter-created-after-the-peers case work, but the javadoc only promises notification of future registrations. Could we spell out in the contract that existing peers are replayed before this call returns, that a concurrently registering peer is delivered exactly once, that the listener runs on the registering thread with no tracker lock held, and that a thrown RuntimeException must not abort the registration?",
+      "revId": "0610b23a1b1b8ba6d4611e3d851614f10842b8e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
