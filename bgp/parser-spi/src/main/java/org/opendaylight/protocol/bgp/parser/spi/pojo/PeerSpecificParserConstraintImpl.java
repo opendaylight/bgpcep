@@ -11,17 +11,23 @@ package org.opendaylight.protocol.bgp.parser.spi.pojo;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableClassToInstanceMap;
-import com.google.common.collect.ImmutableClassToInstanceMap.Builder;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 import org.opendaylight.protocol.bgp.parser.spi.PeerConstraint;
 import org.opendaylight.protocol.bgp.parser.spi.PeerSpecificParserConstraintProvider;
 
 public class PeerSpecificParserConstraintImpl implements PeerSpecificParserConstraintProvider {
-    @SuppressWarnings("rawtypes")
-    private static final AtomicReferenceFieldUpdater<PeerSpecificParserConstraintImpl, ImmutableClassToInstanceMap>
-            CONSTRAINTS_UPDATER = AtomicReferenceFieldUpdater.newUpdater(PeerSpecificParserConstraintImpl.class,
-                ImmutableClassToInstanceMap.class, "constraints");
+    private static final VarHandle VH;
+
+    static {
+        try {
+            VH = MethodHandles.lookup().findVarHandle(
+                PeerSpecificParserConstraintImpl.class, "constraints", ImmutableClassToInstanceMap.class);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     private volatile ImmutableClassToInstanceMap<PeerConstraint> constraints = ImmutableClassToInstanceMap.of();
 
@@ -35,18 +41,22 @@ public class PeerSpecificParserConstraintImpl implements PeerSpecificParserConst
         requireNonNull(classType);
         requireNonNull(peerConstraint);
 
-        ImmutableClassToInstanceMap<PeerConstraint> local = constraints;
+        var local = constraints;
         while (!local.containsKey(classType)) {
-            final Builder<PeerConstraint> builder = ImmutableClassToInstanceMap.builder();
-            builder.putAll(local);
-            builder.put(classType, peerConstraint);
-            if (CONSTRAINTS_UPDATER.compareAndSet(this, local, builder.build())) {
+            final var updated = ImmutableClassToInstanceMap.<PeerConstraint>builder()
+                .putAll(local)
+                .put(classType, peerConstraint)
+                .build();
+
+            final var witness = (ImmutableClassToInstanceMap<PeerConstraint>)
+                VH.compareAndExchange(this, local, updated);
+            if (witness == local) {
                 // Successfully updated, finished
                 return true;
             }
 
             // Raced with another update, retry
-            local = constraints;
+            local = witness;
         }
         return false;
     }
