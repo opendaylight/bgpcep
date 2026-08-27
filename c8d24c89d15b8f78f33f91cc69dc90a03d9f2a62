@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5e7f241b_ec35d004",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-27T15:48:22Z",
+      "side": 1,
+      "message": "What exactly is the purported benefit here?",
+      "revId": "c8d24c89d15b8f78f33f91cc69dc90a03d9f2a62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
