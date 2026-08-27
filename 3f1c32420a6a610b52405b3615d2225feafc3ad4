@@ -33,6 +33,108 @@
       "message": "recheck",
       "revId": "3f1c32420a6a610b52405b3615d2225feafc3ad4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0c50048b_297870cd",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T13:00:27Z",
+      "side": 1,
+      "message": "Since the remaining overrides below are left unannotated, remove the Nonnull from here as well.. to keep it consistent.",
+      "revId": "3f1c32420a6a610b52405b3615d2225feafc3ad4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6b26dd33_9da651c3",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T13:00:27Z",
+      "side": 1,
+      "message": "This introduces 2 potential future issues. Not concrete bugs now, but we can simply plug both of them right here:\n\nIssue 1: the peerId is mutable. So if the peerId changes between the registration and de-registration, this would remove the wrong key and leave a dead peer in \"peers\" permanently.\n\nIssue 2: there is a potential deadlock issue. The getter is synchronized by peer\u0027s lock and registerPeer() and removeRegistration() call it while holding tracker\u0027s lock. And the reverse order exists as well in BGPPeer - when it registers and closes the registration. There is nothing closing the loop now, but a simple refactor can make that happen.\n\nOne fix for both of these issues: store the peerID into a variable and let the returned registration close using that. With that we\u0027re closing what we registered AND we\u0027re not mixing the locks.",
+      "revId": "3f1c32420a6a610b52405b3615d2225feafc3ad4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e42a8d6d_afe4ae50",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T13:00:27Z",
+      "side": 1,
+      "message": "This removes whatever is under the peer ID right now, which may be a newer registration for another neighbour that took the same BGP Identifier over — RFC 6286 requires it to be unique only within an AS. Now that the snapshots are rebuilt here, that evicts the live peer and LocRibWriter stops refreshing its adj-rib-out. Could we use peers.remove(peerId, peer) and rebuild only when it removed something?",
+      "revId": "3f1c32420a6a610b52405b3615d2225feafc3ad4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1b1de9ab_b9277ad3",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImplTest.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T13:00:27Z",
+      "side": 1,
+      "message": "Could we add one more case here? Register two different Peer mocks under the same PeerId, then close the first registration. On the current code both snapshots come back empty and the live peer is gone. That\u0027s the issue I pointed to in the other comment. The suggested two-argument remove would guard against this exact scenario.",
+      "revId": "3f1c32420a6a610b52405b3615d2225feafc3ad4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62b09a3a_46bc17c7",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImplTest.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T13:00:27Z",
+      "side": 1,
+      "message": "These two assertions can be simply joined as assertEquals(Set.of(peerA, peerB), Set.copyOf(tracker.getPeers())). Same for the 2 places below.",
+      "revId": "3f1c32420a6a610b52405b3615d2225feafc3ad4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e58df131_48bb2982",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPPeerTracker.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-08-27T13:00:27Z",
+      "side": 1,
+      "message": "Even though this was not added by this patch, please fix the javadocs of this method and getNonInternalPeers(). Something like \"Returns all registered peers\" and \"Returns all registered peers except those with the Internal role.\"",
+      "revId": "3f1c32420a6a610b52405b3615d2225feafc3ad4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
