@@ -240,7 +240,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
                 final var toPeer = peerTracker.getPeer(peerUuid.getPeerId());
                 if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
                     LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
-                    final var routesToStore = new ArrayList<ActualBestPathRoutes<C, S>>();
+                    final var routesToStore = new ArrayList<ActualBestPathRoutes<?, ?>>();
                     for (var entry : routeEntries.entrySet()) {
                         routesToStore.addAll(entry.getValue()
                             .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey())));
@@ -318,7 +318,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
     private void walkThrough(final DOMDataTreeWriteOperations tx,
             final Set<Entry<RouteUpdateKey, RouteEntry<C, S>>> toUpdate) {
         final var staleRoutes = new ArrayList<StaleBestPathRoute>();
-        final var newRoutes = new ArrayList<AdvertizedRoute<C, S>>();
+        final var newRoutes = new ArrayList<AdvertizedRoute<?, ?>>();
         for (var e : toUpdate) {
             LOG.trace("Walking through {}", e);
             final var entry = e.getValue();
@@ -336,7 +336,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
             .forEach(toPeer -> toPeer.refreshRibOut(entryDep, staleRoutes, newRoutes));
     }
 
-    private void updateLocRib(final List<AdvertizedRoute<C, S>> newRoutes, final List<StaleBestPathRoute> staleRoutes,
+    private void updateLocRib(final List<AdvertizedRoute<?, ?>> newRoutes, final List<StaleBestPathRoute> staleRoutes,
             final DOMDataTreeWriteOperations tx) {
         final var locRibTarget = entryDep.getLocRibTableTarget();
 
@@ -379,7 +379,7 @@ final class LocRibWriter<C extends Routes & DataObject & ChoiceIn<Tables>, S ext
         final var toPeer = peerTracker.getPeer(peerId);
         if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
             LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
-            final var routesToStore = new ArrayList<ActualBestPathRoutes<C, S>>();
+            final var routesToStore = new ArrayList<ActualBestPathRoutes<?, ?>>();
             for (var entry : routeEntries.entrySet()) {
                 routesToStore.addAll(entry.getValue()
                     .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey())));
