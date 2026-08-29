@@ -398,28 +398,28 @@ public abstract class AbstractRIBSupport<
     @Override
     public final Update buildUpdate(final Collection<MapEntryNode> advertised, final Collection<MapEntryNode> withdrawn,
             final Attributes attr) {
-        final UpdateBuilder ub = new UpdateBuilder();
-        final AttributesBuilder ab = new AttributesBuilder(attr);
-        final CNextHop hop = ab.getCNextHop();
+        final var ub = new UpdateBuilder();
+        final var ab = new AttributesBuilder(attr);
+        final var hop = ab.getCNextHop();
 
         LOG.debug("cnextHop before={}", hop);
         // do not preserve next hop in attributes if we are using MpReach
         ab.setCNextHop(null);
 
         if (!advertised.isEmpty()) {
-            final MpReachNlri mb = buildReach(advertised, hop);
+            final var mb = buildReach(advertised, hop);
             ab.addAugmentation(new AttributesReachBuilder().setMpReachNlri(mb).build());
             LOG.debug("mpreach nexthop={}", mb);
         }
         if (!withdrawn.isEmpty()) {
-            final MpUnreachNlri mb = buildUnreach(withdrawn);
+            final var mb = buildUnreach(withdrawn);
             ab.addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mb).build());
             LOG.debug("mpunrach mb={}", mb);
         }
 
-        ub.setAttributes(ab.build());
-        LOG.debug("update {}", ub.build());
-        return ub.build();
+        final var update = ub.setAttributes(ab.build()).build();
+        LOG.debug("update {}", update);
+        return update;
     }
 
     private static final class DeleteRoute implements ApplyRoute {
