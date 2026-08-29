@@ -12,18 +12,14 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class AllPathsRouteEntry<C extends Routes & DataObject, S extends ChildOf<? super C>>
-        extends AddPathAbstractRouteEntry<C, S> {
+final class AllPathsRouteEntry extends AddPathAbstractRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(AllPathsRouteEntry.class);
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<?, ?> ribSupport, final long localAs,
             final int size) {
         // Select the best path for the case when AddPath is not supported
         final var selector = new AddPathSelector(localAs);

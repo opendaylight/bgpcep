@@ -12,14 +12,10 @@ import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
 import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class NPathsRouteEntry<C extends Routes & DataObject, S extends ChildOf<? super C>>
-        extends AddPathAbstractRouteEntry<C, S> {
+final class NPathsRouteEntry extends AddPathAbstractRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(NPathsRouteEntry.class);
 
     private final int npaths;
@@ -29,7 +25,7 @@ final class NPathsRouteEntry<C extends Routes & DataObject, S extends ChildOf<? 
     }
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<?, ?> ribSupport, final long localAs,
             final int size) {
         final int limit = Math.min(npaths, size);
         return switch (limit) {
@@ -39,7 +35,7 @@ final class NPathsRouteEntry<C extends Routes & DataObject, S extends ChildOf<? 
         };
     }
 
-    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport<C, S> ribSupport, final long localAs,
+    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport<?, ?> ribSupport, final long localAs,
             final int size, final int limit) {
         // Scratch pool of offsets, we set them to true as we use them up.
         final var offsets = new boolean[size];
