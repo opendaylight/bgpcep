@@ -15,10 +15,8 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
-import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -40,13 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer.NodeResult;
@@ -88,18 +82,17 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
      * generic because the route support and the route entries must use the same route type parameters.
      */
     @Test
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>>
-            void survivingBestPathMustNotBeReportedStale() {
-        final RIBSupport<C, S> support = ribContext.getRIBSupport(TABLES_KEY);
+    public void survivingBestPathMustNotBeReportedStale() {
+        final var support = ribContext.getRIBSupport(TABLES_KEY);
 
         // A separate entry adds both routers first, so the RouteKeyOffsets cache (shared by all route entries) stores
         // its RouteKey instances for the RouterA and RouterB pair. RouterB goes first so the entry under test still
         // creates its own RouteKey for RouterA alone.
-        final RouteEntry<C, S> keepAlive = new AddPathBestNPathSelection(2).createRouteEntry();
+        final var keepAlive = new AddPathBestNPathSelection(2).createRouteEntry();
         keepAlive.addRoute(ROUTER_B, PATH_B, routeB);
         keepAlive.addRoute(ROUTER_A, PATH_A, routeA);
 
-        final RouteEntry<C, S> entry = new AddPathBestNPathSelection(2).createRouteEntry();
+        final var entry = new AddPathBestNPathSelection(2).createRouteEntry();
         // First selection has only RouterA, using the RouteKey instance this entry created.
         entry.addRoute(ROUTER_A, PATH_A, routeA);
         entry.selectBest(support, AS);
