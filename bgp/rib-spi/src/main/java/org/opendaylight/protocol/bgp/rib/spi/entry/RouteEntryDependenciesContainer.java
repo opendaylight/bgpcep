@@ -12,12 +12,7 @@ import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 /**
@@ -29,8 +24,7 @@ public interface RouteEntryDependenciesContainer {
      *
      * @return RIBSupport
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-        @NonNull RIBSupport<C, S> getRIBSupport();
+    @NonNull RIBSupport<?, ?> getRIBSupport();
 
     /**
      * Returns the table key(AFI/SAFI) corresponding to the Route Entry.
