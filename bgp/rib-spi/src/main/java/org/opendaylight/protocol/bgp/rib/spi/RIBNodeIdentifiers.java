@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
@@ -22,6 +23,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 /**
  * Utility constant {@link NodeIdentifier}s for various RIB constructs.
  */
+@NonNullByDefault
 public final class RIBNodeIdentifiers {
     public static final NodeIdentifier BGPRIB_NID = NodeIdentifier.create(BgpRib.QNAME);
     public static final NodeIdentifier RIB_NID = NodeIdentifier.create(Rib.QNAME);

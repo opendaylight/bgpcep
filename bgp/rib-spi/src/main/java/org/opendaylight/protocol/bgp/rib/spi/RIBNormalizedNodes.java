@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -18,11 +19,10 @@ import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 /**
  * Utility constant {@link NormalizedNode}s.
  */
+@NonNullByDefault
 public final class RIBNormalizedNodes {
-    public static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(
-        UPTODATE_NID, Boolean.FALSE);
-    public static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(
-        UPTODATE_NID, Boolean.TRUE);
+    public static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_FALSE = ImmutableNodes.leafNode(UPTODATE_NID, false);
+    public static final LeafNode<Boolean> ATTRIBUTES_UPTODATE_TRUE = ImmutableNodes.leafNode(UPTODATE_NID, true);
 
     public static final ContainerNode NOT_UPTODATE_ATTRIBUTES = ImmutableNodes.newContainerBuilder()
             .withNodeIdentifier(ATTRIBUTES_NID).withChild(ATTRIBUTES_UPTODATE_FALSE).build();
@@ -30,6 +30,6 @@ public final class RIBNormalizedNodes {
             .withNodeIdentifier(ATTRIBUTES_NID).withChild(ATTRIBUTES_UPTODATE_TRUE).build();
 
     private RIBNormalizedNodes() {
-
+        // hidden on purpose
     }
 }
