@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.eclipse.jdt.annotation.Nullable;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.linkstate.impl.nlri.LinkstateNlriParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.pojo.SimpleNlriTypeRegistry;
@@ -35,7 +35,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
@@ -45,7 +44,7 @@ import org.slf4j.LoggerFactory;
 public final class LinkstateRIBSupport
         extends AbstractRIBSupport<LinkstateRoutesCase, LinkstateRoutes, LinkstateRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(LinkstateRIBSupport.class);
-    private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLinkstateDestination.QNAME);
+    private static final @NonNull NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLinkstateDestination.QNAME);
 
     public LinkstateRIBSupport(final BindingNormalizedNodeSerializer mappingService) {
         super(mappingService,
@@ -70,31 +69,21 @@ public final class LinkstateRIBSupport
     }
 
     @Override
-    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
-                                                                          final YangInstanceIdentifier routesPath,
-                                                                          final ContainerNode destination,
-                                                                          final ContainerNode attributes,
-                                                                          final ApplyRoute function) {
-        return destination == null ? List.of()
-            : processRoute(destination.childByArg(LinkstateRIBSupport.NLRI_ROUTES_LIST), routesPath, attributes,
-                function, tx);
-    }
-
-    private List<NodeIdentifierWithPredicates> processRoute(final @Nullable DataContainerChild routes,
-            final YangInstanceIdentifier routesPath, final ContainerNode attributes, final ApplyRoute function,
-            final DOMDataTreeWriteTransaction tx) {
-        if (routes != null) {
-            if (routes instanceof UnkeyedListNode) {
-                final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                for (final UnkeyedListEntryNode linkstateDest : routesList) {
-                    final NodeIdentifierWithPredicates routeKey = createRouteKey(linkstateDest);
-                    function.apply(tx, base, routeKey, linkstateDest, attributes);
-                    keys.add(routeKey);
-                }
-                return keys;
+    protected List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
+            final ApplyRoute function) {
+        final var routes = destination.childByArg(LinkstateRIBSupport.NLRI_ROUTES_LIST);
+        if (routes instanceof UnkeyedListNode routesList) {
+            final var base = routesYangInstanceIdentifier(routesPath);
+            final var keys = new ArrayList<NodeIdentifierWithPredicates>(routesList.size());
+            for (var linkstateDest : routesList.body()) {
+                final var routeKey = createRouteKey(linkstateDest);
+                function.apply(tx, base, routeKey, linkstateDest, attributes);
+                keys.add(routeKey);
             }
+            return keys;
+        }
+        if (routes != null) {
             LOG.warn("Routes {} are not a map", routes);
         }
         return List.of();

@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
@@ -39,7 +40,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
@@ -50,9 +50,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S extends ChildOf<? super C> & L3vpnIpRoute>
         extends AbstractRIBSupport<C, S, VpnRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
-    private final NodeIdentifier nlriRoutesListNid;
-    private final NodeIdentifier labelStackNid;
-    private final NodeIdentifier lvNid;
+
+    private final @NonNull NodeIdentifier nlriRoutesListNid;
+    private final @NonNull NodeIdentifier labelStackNid;
+    private final @NonNull NodeIdentifier lvNid;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -108,33 +109,29 @@ public abstract class AbstractVpnRIBSupport<C extends Routes & DataObject, S ext
     }
 
     @Override
-    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
-                                                                          final YangInstanceIdentifier routesPath,
-                                                                          final ContainerNode destination,
-                                                                          final ContainerNode attributes,
-                                                                          final ApplyRoute function) {
-        if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(nlriRoutesListNid);
-            if (routes != null) {
-                if (routes instanceof UnkeyedListNode routeListNode) {
-                    LOG.debug("{} routes are found", routeListNode.size());
-                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                    for (final UnkeyedListEntryNode vpnDest : routesList) {
-                        final NodeIdentifierWithPredicates key = createRouteKey(vpnDest);
-                        LOG.debug("Route {} is processed.", key);
-                        function.apply(tx, base, key, vpnDest, attributes);
-                        keys.add(key);
-                    }
-                    return keys;
-                }
-                LOG.warn("Routes {} are not a map", routes);
+    protected List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
+            final ApplyRoute function) {
+        final var routes = destination.childByArg(nlriRoutesListNid);
+        if (routes instanceof UnkeyedListNode routesList) {
+            final var size = routesList.size();
+            // FIXME: remove this debug
+            LOG.debug("{} routes are found", size);
+            final var base = routesYangInstanceIdentifier(routesPath);
+            final var keys = new ArrayList<NodeIdentifierWithPredicates>(size);
+            for (var vpnDest : routesList.body()) {
+                final var key = createRouteKey(vpnDest);
+                // FIXME: remove this debug
+                LOG.debug("Route {} is processed.", key);
+                function.apply(tx, base, key, vpnDest, attributes);
+                keys.add(key);
             }
-        } else {
-            LOG.debug("Destination is null.");
+            return keys;
         }
-        return Collections.emptyList();
+        if (routes != null) {
+            LOG.warn("Routes {} are not a map", routes);
+        }
+        return List.of();
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode l3vpn) {

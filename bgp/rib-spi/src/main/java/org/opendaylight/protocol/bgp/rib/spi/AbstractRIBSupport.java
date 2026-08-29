@@ -270,6 +270,7 @@ public abstract class AbstractRIBSupport<
         return routesContainerIdentifier;
     }
 
+    // FIXME: require a List here
     protected abstract Collection<NodeIdentifierWithPredicates> processDestination(
         @NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier routesPath,
         @NonNull ContainerNode destination, ContainerNode attributes, @NonNull ApplyRoute applyFunction);

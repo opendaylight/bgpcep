@@ -51,12 +51,13 @@ abstract class AbstractLabeledUnicastRIBSupport<
         C extends Routes & DataObject,
         S extends ChildOf<? super C> & LabeledUnicastRoutesList>
         extends AbstractRIBSupport<C, S, LabeledUnicastRoute> {
-    private static final NodeIdentifier LABEL_STACK_NID
-            = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
-    private static final NodeIdentifier LV_NID
-            = NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
-    private static final NodeIdentifier NLRI_ROUTES_LIST = NodeIdentifier.create(CLabeledUnicastDestination.QNAME);
     private static final Logger LOG = LoggerFactory.getLogger(AbstractLabeledUnicastRIBSupport.class);
+    private static final @NonNull NodeIdentifier LABEL_STACK_NID =
+        NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
+    private static final @NonNull NodeIdentifier LV_NID =
+        NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-value").intern());
+    private static final @NonNull NodeIdentifier NLRI_ROUTES_LIST =
+        NodeIdentifier.create(CLabeledUnicastDestination.QNAME);
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -86,31 +87,25 @@ abstract class AbstractLabeledUnicastRIBSupport<
     }
 
     @Override
-    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
-                                                                          final YangInstanceIdentifier routesPath,
-                                                                          final ContainerNode destination,
-                                                                          final ContainerNode attributes,
-                                                                          final ApplyRoute function) {
-        if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(NLRI_ROUTES_LIST);
-            if (routes != null) {
-                if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                    for (final UnkeyedListEntryNode labeledUcastDest : routesList) {
-                        final NodeIdentifierWithPredicates routeKey = createRouteKey(labeledUcastDest);
-                        function.apply(tx, base, routeKey, labeledUcastDest, attributes);
-                        keys.add(routeKey);
-                    }
-                    return keys;
-                }
-                LOG.warn("Routes {} are not a map", routes);
+    protected final List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
+            final ApplyRoute function) {
+        final var routes = destination.childByArg(NLRI_ROUTES_LIST);
+        if (routes instanceof UnkeyedListNode routesList) {
+            final var base = routesYangInstanceIdentifier(routesPath);
+            final var keys = new ArrayList<NodeIdentifierWithPredicates>(routesList.size());
+            for (var labeledUcastDest : routesList.body()) {
+                final var routeKey = createRouteKey(labeledUcastDest);
+                function.apply(tx, base, routeKey, labeledUcastDest, attributes);
+                keys.add(routeKey);
             }
+            return keys;
         }
-        return Collections.emptyList();
+        if (routes != null) {
+            LOG.warn("Routes {} are not a map", routes);
+        }
+        return List.of();
     }
-
 
     protected List<CLabeledUnicastDestination> extractRoutes(final Collection<MapEntryNode> routes) {
         return routes.stream().map(this::extractCLabeledUnicastDestination).collect(Collectors.toList());

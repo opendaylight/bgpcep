@@ -7,13 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.l3vpn.mcast;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -35,7 +34,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
@@ -53,9 +51,10 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
         S extends ChildOf<? super C> & L3vpnMcastRoutes>
         extends AbstractRIBSupport<C, S, L3vpnMcastRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractL3vpnMcastIpRIBSupport.class);
-    private final NodeIdentifier nlriRoutesList;
-    private final NodeIdentifier rdNid;
-    private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects;
+
+    private final @NonNull NodeIdentifier nlriRoutesList;
+    private final @NonNull NodeIdentifier rdNid;
+    private final ImmutableSet<Class<? extends BindingObject>> cacheableNlriObjects;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -86,37 +85,31 @@ abstract class AbstractL3vpnMcastIpRIBSupport<
     }
 
     @Override
-    public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
+    public final ImmutableSet<Class<? extends BindingObject>> cacheableNlriObjects() {
         return cacheableNlriObjects;
     }
 
     protected abstract IpPrefix createPrefix(String prefix);
 
     @Override
-    protected final Collection<NodeIdentifierWithPredicates> processDestination(
-            final DOMDataTreeWriteTransaction tx,
-            final YangInstanceIdentifier routesPath,
-            final ContainerNode destination,
-            final ContainerNode attributes,
+    protected final List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
             final ApplyRoute function) {
-        if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(nlriRoutesList);
-            if (routes != null) {
-                if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                    for (final UnkeyedListEntryNode l3vpnDest : routesList) {
-                        final YangInstanceIdentifier.NodeIdentifierWithPredicates routeKey = createRouteKey(l3vpnDest);
-                        function.apply(tx, base, routeKey, l3vpnDest, attributes);
-                        keys.add(routeKey);
-                    }
-                    return keys;
-                }
-                LOG.warn("Routes {} are not a map", routes);
+        final var routes = destination.childByArg(nlriRoutesList);
+        if (routes instanceof UnkeyedListNode routesList) {
+            final var base = routesYangInstanceIdentifier(routesPath);
+            final var keys = new ArrayList<NodeIdentifierWithPredicates>(routesList.size());
+            for (var l3vpnDest : routesList.body()) {
+                final var routeKey = createRouteKey(l3vpnDest);
+                function.apply(tx, base, routeKey, l3vpnDest, attributes);
+                keys.add(routeKey);
             }
+            return keys;
         }
-        return Collections.emptyList();
+        if (routes != null) {
+            LOG.warn("Routes {} are not a map", routes);
+        }
+        return List.of();
     }
 
     final List<L3vpnMcastDestination> extractRoutes(final Collection<MapEntryNode> routes) {
