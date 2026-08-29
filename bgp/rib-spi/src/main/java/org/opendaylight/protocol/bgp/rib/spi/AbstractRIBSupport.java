@@ -77,7 +77,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode.BuilderFactory;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
-import org.opendaylight.yangtools.yang.data.api.schema.builder.DataContainerNodeBuilder;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
@@ -335,13 +334,8 @@ public abstract class AbstractRIBSupport<
     @Override
     public final MapEntryNode createRoute(final MapEntryNode route, final NodeIdentifierWithPredicates key,
             final ContainerNode attributes) {
-        final DataContainerNodeBuilder<NodeIdentifierWithPredicates, MapEntryNode> builder;
-        if (route != null) {
-            builder = BUILDER_FACTORY.newMapEntryBuilder(route);
-        } else {
-            builder = BUILDER_FACTORY.newMapEntryBuilder();
-        }
-
+        final var builder = route != null ? BUILDER_FACTORY.newMapEntryBuilder(route)
+            : BUILDER_FACTORY.newMapEntryBuilder();
         return builder
             .withNodeIdentifier(key)
             .withChild(ImmutableNodes.leafNode(pathIdNid, extractPathId(key)))
