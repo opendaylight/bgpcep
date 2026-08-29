@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -20,14 +19,8 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 class RIBSupportContextImpl extends RIBSupportContext {
     private final RIBSupport<?, ?> ribSupport;
@@ -43,27 +36,24 @@ class RIBSupportContextImpl extends RIBSupportContext {
                                                                 final YangInstanceIdentifier tableId,
                                                                 final MpReachNlri nlri,
                                                                 final Attributes attributes) {
-        final ContainerNode domNlri = this.codecs.serializeReachNlri(nlri);
-        final ContainerNode routeAttributes = this.codecs.serializeAttributes(attributes);
-        return this.ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
+        final var domNlri = codecs.serializeReachNlri(nlri);
+        final var routeAttributes = codecs.serializeAttributes(attributes);
+        return ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
     }
 
     @Override
     public void createEmptyTableStructure(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tableId) {
-        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, this.ribSupport.emptyTable());
+        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, ribSupport.emptyTable());
     }
 
     @Override
     public void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tableId,
             final MpUnreachNlri nlri) {
-        this.ribSupport.deleteRoutes(tx, tableId, this.codecs.serializeUnreachNlri(nlri));
+        ribSupport.deleteRoutes(tx, tableId, codecs.serializeUnreachNlri(nlri));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    @SuppressFBWarnings("NM_CONFUSING")
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            RIBSupport<C, S> getRibSupport() {
-        return (RIBSupport<C, S>) this.ribSupport;
+    public RIBSupport<?, ?> getRibSupport() {
+        return ribSupport;
     }
 }

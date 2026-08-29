@@ -11,11 +11,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 
 public final class AddPathBestNPathSelection implements PathSelectionMode {
     private final int npaths;
@@ -31,8 +26,7 @@ public final class AddPathBestNPathSelection implements PathSelectionMode {
     }
 
     @Override
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            RouteEntry<C, S> createRouteEntry() {
-        return new NPathsRouteEntry<>(this.npaths);
+    public RouteEntry createRouteEntry() {
+        return new NPathsRouteEntry(npaths);
     }
 }
