@@ -11,20 +11,17 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.BindingObject;
 import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.EntryObject;
 import org.opendaylight.yangtools.binding.Grouping;
@@ -34,7 +31,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
@@ -44,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
 abstract class AbstractIPRibSupport<
-        C extends Routes & DataObject & ChoiceIn<Tables>,
+        C extends Routes & DataObject,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & EntryObject<?, ?>>
         extends AbstractRIBSupport<C, S, R> {
@@ -79,28 +75,30 @@ abstract class AbstractIPRibSupport<
     }
 
     @Override
-    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+    protected final List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
                                                                           final YangInstanceIdentifier routesPath,
                                                                           final ContainerNode destination,
                                                                           final ContainerNode attributes,
                                                                           final ApplyRoute function) {
-        if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(nlriRoutesList);
-            if (routes instanceof UnkeyedListNode) {
-                // Instance identifier to table/(choice routes)/(map of route)
-                final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                for (final UnkeyedListEntryNode ipDest : routesList) {
-                    final NodeIdentifierWithPredicates routeKey = createRouteKey(ipDest);
-                    function.apply(tx, base, routeKey, ipDest, attributes);
-                    keys.add(routeKey);
-                }
-                return keys;
-            }
-            LOG.warn("Routes {} are not a map", routes);
+        if (destination == null) {
+            return List.of();
         }
-        return List.of();
+        final var routesNode = destination.childByArg(nlriRoutesList);
+        if (!(routesNode instanceof UnkeyedListNode routes)) {
+            LOG.warn("Routes {} are not a map", routesNode);
+            return List.of();
+        }
+
+        // Instance identifier to table/(choice routes)/(map of route)
+        final var base = routesYangInstanceIdentifier(routesPath);
+        final var routesList = routes.body();
+        final var keys = new ArrayList<NodeIdentifierWithPredicates>(routesList.size());
+        for (var ipDest : routesList) {
+            final var routeKey = createRouteKey(ipDest);
+            function.apply(tx, base, routeKey, ipDest, attributes);
+            keys.add(routeKey);
+        }
+        return keys;
     }
 
     /**
@@ -110,7 +108,7 @@ abstract class AbstractIPRibSupport<
      * @return Nid with Route Key
      */
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode prefixes) {
-        final DataContainerChild prefixLeaf = prefixes.childByArg(routePrefixIdentifier());
+        final var prefixLeaf = prefixes.childByArg(routePrefixIdentifier());
         checkState(prefixLeaf != null);
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), prefixLeaf.body(),
             prefixes.findChildByArg(routePathIdNid()));

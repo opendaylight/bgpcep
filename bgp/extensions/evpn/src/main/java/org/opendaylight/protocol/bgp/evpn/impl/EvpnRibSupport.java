@@ -7,11 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.evpn.impl;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -34,7 +32,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
@@ -75,34 +72,35 @@ final class EvpnRibSupport extends AbstractRIBSupport<EvpnRoutesCase, EvpnRoutes
     }
 
     @Override
-    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
-                                                                          final YangInstanceIdentifier routesPath,
-                                                                          final ContainerNode destination,
-                                                                          final ContainerNode attributes,
-                                                                          final ApplyRoute function) {
-        if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(NLRI_ROUTES_LIST);
-            if (routes != null) {
-                if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                    for (final UnkeyedListEntryNode evpnDest : routesList) {
-                        final NodeIdentifierWithPredicates routeKey = createRouteKey(evpnDest);
-                        function.apply(tx, base, routeKey, evpnDest, attributes);
-                        keys.add(routeKey);
-                    }
-                    return keys;
-                }
-                LOG.warn("Routes {} are not a map", routes);
-            }
+    protected List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
+            final ApplyRoute function) {
+        if (destination == null) {
+            return List.of();
         }
-        return Collections.emptyList();
+        final var routesNode = destination.childByArg(NLRI_ROUTES_LIST);
+        if (routesNode == null) {
+            return List.of();
+        }
+        if (!(routesNode instanceof UnkeyedListNode routes)) {
+            LOG.warn("Routes {} are not a map", routesNode);
+            return List.of();
+        }
+
+        final var base = routesYangInstanceIdentifier(routesPath);
+        final var routesList = routes.body();
+        final var keys = new ArrayList<NodeIdentifierWithPredicates>(routesList.size());
+        for (var evpnDest : routesList) {
+            final var routeKey = createRouteKey(evpnDest);
+            function.apply(tx, base, routeKey, evpnDest, attributes);
+            keys.add(routeKey);
+        }
+        return keys;
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode evpn) {
-        final ByteBuf buffer = Unpooled.buffer();
-        final EvpnDestination dest = EvpnNlriParser.extractRouteKeyDestination(evpn);
+        final var buffer = Unpooled.buffer();
+        final var dest = EvpnNlriParser.extractRouteKeyDestination(evpn);
         EvpnNlriParser.serializeNlri(List.of(dest), buffer);
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
                 ByteArray.encodeBase64(buffer), evpn.findChildByArg(routePathIdNid()));

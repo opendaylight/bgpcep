@@ -58,7 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
 import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.EntryObject;
@@ -86,7 +85,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRIBSupport<
-        C extends Routes & DataObject & ChoiceIn<Tables>,
+        C extends Routes & DataObject,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & EntryObject<?, ?>> implements RIBSupport<C, S> {
     public static final String ROUTE_KEY = "route-key";
@@ -526,9 +525,8 @@ public abstract class AbstractRIBSupport<
         final var node = mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
         if (node instanceof Route route) {
             return (R) route;
-        } else {
-            throw new VerifyException("node " + node + " is not a Route");
         }
+        throw new VerifyException("node " + node + " is not a Route");
     }
 
     @Override
