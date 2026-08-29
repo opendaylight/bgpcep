@@ -271,43 +271,6 @@ public abstract class AbstractRIBSupport<
         return routesContainerIdentifier;
     }
 
-    /**
-     * Given the destination as ContainerNode, implementation needs to parse the DOM model
-     * from this point onward:
-     *
-     * {@code /bgp-mp:mp-unreach-nlri/bgp-mp:withdrawn-routes/bgp-mp:destination-type}
-     * and delete the routes from its RIBs.
-     *
-     * @param tx           DOMDataWriteTransaction to be passed into implementation
-     * @param tablePath    YangInstanceIdentifier to be passed into implementation
-     * @param destination  ContainerNode DOM representation of NLRI in Update message
-     * @param routesNodeId NodeIdentifier
-     */
-    private void deleteDestinationRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
-            final ContainerNode destination, final NodeIdentifier routesNodeId) {
-        processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
-    }
-
-    /**
-     * Given the destination as ContainerNode, implementation needs to parse the DOM model
-     * from this point onward:
-     *
-     * {@code /bgp-mp:mp-reach-nlri/bgp-mp:advertized-routes/bgp-mp:destination-type}
-     * and put the routes to its RIBs.
-     *
-     * @param tx           DOMDataWriteTransaction to be passed into implementation
-     * @param tablePath    YangInstanceIdentifier to be passed into implementation
-     * @param destination  ContainerNode DOM representation of NLRI in Update message
-     * @param attributes   ContainerNode to be passed into implementation
-     * @param routesNodeId NodeIdentifier
-     * @return List of processed route identifiers
-     */
-    private Collection<NodeIdentifierWithPredicates> putDestinationRoutes(final DOMDataTreeWriteTransaction tx,
-            final YangInstanceIdentifier tablePath, final ContainerNode destination, final ContainerNode attributes,
-            final NodeIdentifier routesNodeId) {
-        return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, putRoute);
-    }
-
     protected abstract Collection<NodeIdentifierWithPredicates> processDestination(DOMDataTreeWriteTransaction tx,
             YangInstanceIdentifier routesPath, ContainerNode destination, ContainerNode attributes,
             ApplyRoute applyFunction);
@@ -405,7 +368,7 @@ public abstract class AbstractRIBSupport<
         if (routes != null) {
             final var destination = getDestination(routes, destinationNid);
             if (destination != null) {
-                deleteDestinationRoutes(tx, tablePath, destination, routesNodeId);
+                processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
             }
         } else {
             LOG.debug("Withdrawn routes are not present in NLRI {}", nlri);
@@ -430,7 +393,7 @@ public abstract class AbstractRIBSupport<
         if (routes != null) {
             final var destination = getDestination(routes, destinationNid);
             if (destination != null) {
-                return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
+                return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, putRoute);
             }
         } else {
             LOG.debug("Advertized routes are not present in NLRI {}", nlri);
