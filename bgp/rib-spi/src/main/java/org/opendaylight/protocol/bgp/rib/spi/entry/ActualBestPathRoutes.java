@@ -9,9 +9,6 @@ package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
@@ -20,9 +17,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  *
  * @author Claudio D. Gasparini
  */
-public final class ActualBestPathRoutes<C extends Routes & DataObject, S extends ChildOf<? super C>>
-        extends AbstractAdvertizedRoute<C, S> {
-    public ActualBestPathRoutes(final RIBSupport<C, S> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
+public final class ActualBestPathRoutes extends AbstractAdvertizedRoute {
+    public ActualBestPathRoutes(final RIBSupport<?, ?> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
             final ContainerNode attributes, final boolean depreferenced) {
         super(ribSupport, route, fromPeerId, attributes, depreferenced);
     }

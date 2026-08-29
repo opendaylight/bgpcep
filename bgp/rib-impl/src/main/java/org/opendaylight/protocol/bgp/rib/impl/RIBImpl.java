@@ -54,13 +54,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -90,8 +86,8 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
     private final CodecsRegistry codecsRegistry;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final DataTreeChangeExtension domService;
-    private final Map<DOMTransactionChain, LocRibWriter<?, ?>> txChainToLocRibWriter = new HashMap<>();
-    private final Map<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
+    private final HashMap<DOMTransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
+    private final HashMap<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final RibId ribId;
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
@@ -161,21 +157,20 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
         }
     }
 
-    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void createLocRibWriter(final TablesKey key) {
-        final RIBSupport<C, S> ribSupport = ribContextRegistry.getRIBSupport(key);
+    private synchronized void createLocRibWriter(final TablesKey key) {
+        final var ribSupport = ribContextRegistry.getRIBSupport(key);
         if (ribSupport == null) {
             return;
         }
         LOG.debug("Creating LocRIB writer for key {}", key);
-        final DOMTransactionChain txChain = createPeerDOMChain();
+        final var txChain = createPeerDOMChain();
         addCallback(txChain);
-        PathSelectionMode pathSelectionStrategy = bestPathSelectionStrategies.get(key);
+        var pathSelectionStrategy = bestPathSelectionStrategies.get(key);
         if (pathSelectionStrategy == null) {
             pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
         }
 
-        final LocRibWriter<C, S> locRibWriter = LocRibWriter.create(
+        final var locRibWriter = LocRibWriter.create(
                 ribSupport,
                 verifyNotNull(tableTypeRegistry.getAfiSafiType(key)),
                 txChain,
@@ -232,7 +227,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
 
     private synchronized void onFailure(final DOMTransactionChain chain, final Throwable cause) {
         LOG.error("Broken chain in RIB {}", getInstanceIdentifier(), cause);
-        final LocRibWriter<?, ?> locRibWriter = txChainToLocRibWriter.remove(chain);
+        final var locRibWriter = txChainToLocRibWriter.remove(chain);
         if (locRibWriter != null) {
             final DOMTransactionChain newChain = createPeerDOMChain();
             addCallback(newChain);
