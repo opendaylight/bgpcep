@@ -22,11 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
@@ -77,9 +75,9 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     private final DOMDataBroker domDataBroker;
 
     @GuardedBy("this")
-    private final Map<WithKey<Neighbor, NeighborKey>, PeerBean> peers = new HashMap<>();
+    private final HashMap<WithKey<Neighbor, NeighborKey>, PeerBean> peers = new HashMap<>();
     @GuardedBy("this")
-    private final Map<String, List<PeerBean>> peersGroups = new HashMap<>();
+    private final HashMap<String, List<PeerBean>> peersGroups = new HashMap<>();
     @GuardedBy("this")
     private RibImpl ribImpl;
     @GuardedBy("this")
@@ -132,11 +130,9 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.info("BGPClusterSingletonService {} close service instance", serviceGroupIdentifier.value());
         instantiated.set(false);
 
-        final List<ListenableFuture<?>> futurePeerCloseList = peers.values().stream()
-                .map(PeerBean::closeServiceInstance).collect(Collectors.toList());
-        final SettableFuture<Empty> done = SettableFuture.create();
-
-        final ListenableFuture<List<Object>> futureResult = Futures.allAsList(futurePeerCloseList);
+        final var futurePeerCloseList = peers.values().stream().map(PeerBean::closeServiceInstance).toList();
+        final var done = SettableFuture.<Empty>create();
+        final var futureResult = Futures.allAsList(futurePeerCloseList);
         Futures.addCallback(futureResult, new FutureCallback<List<?>>() {
             @Override
             public void onSuccess(final List<?> result) {
@@ -212,8 +208,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     @VisibleForTesting
     @Holding("this")
     void initiateRibInstance(final Global global) {
-        final String ribInstanceName = getRibInstanceName(bgpIid);
-        ribImpl.start(global, ribInstanceName, tableTypeRegistry);
+        ribImpl.start(global, getRibInstanceName(bgpIid), tableTypeRegistry);
         if (instantiated.get()) {
             ribImpl.instantiateServiceInstance();
         }
@@ -221,7 +216,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
 
     @Holding("this")
     private List<PeerBean> closeBoundPeers() {
-        final List<PeerBean> filtered = new ArrayList<>(peers.size());
+        final var filtered = new ArrayList<PeerBean>(peers.size());
         peers.forEach((key, peer) -> {
             if (closePeer(peer)) {
                 filtered.add(peer);
@@ -251,16 +246,9 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     @Holding("this")
     void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification) {
         for (var neighborModification : dataObjectModification.modifiedChildren()) {
-            switch (neighborModification.modificationType()) {
-                case DELETE:
-                    onNeighborRemoved((Neighbor) neighborModification.dataBefore());
-                    break;
-                case SUBTREE_MODIFIED:
-                case WRITE:
-                    onNeighborModified((Neighbor) neighborModification.dataAfter());
-                    break;
-                default:
-                    break;
+            switch (neighborModification) {
+                case DataObjectDeleted<?> deleted -> onNeighborRemoved((Neighbor) deleted.dataBefore());
+                case WithDataAfter<?> present -> onNeighborModified((Neighbor) present.dataAfter());
             }
         }
     }
@@ -268,7 +256,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     @Holding("this")
     private void onNeighborModified(final Neighbor neighbor) {
         //restart peer instance with a new configuration
-        final PeerBean bgpPeer = peers.get(getNeighborInstanceIdentifier(bgpIid, neighbor.key()));
+        final var bgpPeer = peers.get(getNeighborInstanceIdentifier(bgpIid, neighbor.key()));
         if (bgpPeer == null) {
             onNeighborCreated(neighbor);
         } else if (!bgpPeer.containsEqualConfiguration(neighbor)) {
@@ -280,18 +268,14 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     @Holding("this")
     void onNeighborCreated(final Neighbor neighbor) {
         LOG.info("Creating Peer instance {} with configuration: {}", neighbor.getNeighborAddress(), neighbor);
-        final PeerBean bgpPeer;
-        if (OpenConfigMappingUtil.isApplicationPeer(neighbor)) {
-            bgpPeer = new AppPeerBean(stateProviderRegistry);
-        } else {
-            bgpPeer = new BgpPeerBean(rpcRegistry, stateProviderRegistry);
-        }
+        final var bgpPeer = OpenConfigMappingUtil.isApplicationPeer(neighbor) ? new AppPeerBean(stateProviderRegistry)
+            : new BgpPeerBean(rpcRegistry, stateProviderRegistry);
         final var neighborInstanceIdentifier = getNeighborInstanceIdentifier(bgpIid, neighbor.key());
         initiatePeerInstance(neighbor, bgpPeer);
         peers.put(neighborInstanceIdentifier, bgpPeer);
 
-        final Optional<String> peerGroupName = getPeerGroupName(neighbor.getConfig());
-        peerGroupName.ifPresent(s -> peersGroups.computeIfAbsent(s, k -> new ArrayList<>()).add(bgpPeer));
+        getPeerGroupName(neighbor.getConfig()).ifPresent(
+            s -> peersGroups.computeIfAbsent(s, k -> new ArrayList<>()).add(bgpPeer));
         LOG.info("Peer instance created {}", neighbor.getNeighborAddress());
     }
 
@@ -307,11 +291,14 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         if (config == null) {
             return Optional.empty();
         }
-        final NeighborPeerGroupConfig aug = config.augmentation(NeighborPeerGroupConfig.class);
-        if (aug == null || aug.getPeerGroup() == null) {
+        final var aug = config.augmentation(NeighborPeerGroupConfig.class);
+        if (aug == null) {
             return Optional.empty();
         }
-        final String peerGroupName = aug.getPeerGroup();
+        final var peerGroupName = aug.getPeerGroup();
+        if (peerGroupName == null) {
+            return Optional.empty();
+        }
         if (peerGroupName.equals(APPLICATION_PEER_GROUP_NAME)) {
             return APPLICATION_PEER_GROUP_NAME_OPT;
         }
@@ -341,10 +328,9 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     @Holding("this")
     public void onNeighborRemoved(final Neighbor neighbor) {
         LOG.info("Removing Peer instance: {}", neighbor.getNeighborAddress());
-        final PeerBean bgpPeer = peers.remove(getNeighborInstanceIdentifier(bgpIid, neighbor.key()));
+        final var bgpPeer = peers.remove(getNeighborInstanceIdentifier(bgpIid, neighbor.key()));
 
-        final Optional<String> groupName = getPeerGroupName(neighbor.getConfig());
-        groupName.ifPresent(s -> peersGroups.computeIfPresent(s, (k, groupPeers) -> {
+        getPeerGroupName(neighbor.getConfig()).ifPresent(s -> peersGroups.computeIfPresent(s, (k, groupPeers) -> {
             groupPeers.remove(bgpPeer);
             return groupPeers.isEmpty() ? null : groupPeers;
         }));
