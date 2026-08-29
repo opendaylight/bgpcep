@@ -8,32 +8,24 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 abstract class ForwardingRIBExtensionConsumerContext implements RIBExtensionConsumerContext {
     @Override
-    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>>
-            RIBSupport<C, S> getRIBSupport(final TablesKey key) {
+    public final RIBSupport<?, ?> getRIBSupport(final TablesKey key) {
         return delegate().getRIBSupport(key);
     }
 
     @Override
-    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>>
-            RIBSupport<C, S> getRIBSupport(final AddressFamily afi, final SubsequentAddressFamily safi) {
+    public final RIBSupport<?, ?> getRIBSupport(final AddressFamily afi, final SubsequentAddressFamily safi) {
         return delegate().getRIBSupport(afi, safi);
     }
 
     @Override
-    public final <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>>
-            RIBSupport<C, S> getRIBSupport(final NodeIdentifierWithPredicates key) {
+    public final RIBSupport<?, ?> getRIBSupport(final NodeIdentifierWithPredicates key) {
         return delegate().getRIBSupport(key);
     }
 
