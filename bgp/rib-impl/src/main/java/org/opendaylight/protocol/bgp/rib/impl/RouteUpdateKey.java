@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 
 /**
@@ -16,40 +17,30 @@ import org.opendaylight.protocol.bgp.rib.spi.RouterId;
  * This is used to internally track updates which need to be processed.
  */
 final class RouteUpdateKey {
-    private final RouterId peerId;
-    private final String routeId;
+    private final @NonNull RouterId peerId;
+    private final @NonNull String routeId;
 
     RouteUpdateKey(final RouterId peerId, final String routeKey) {
         this.peerId = requireNonNull(peerId);
-        this.routeId = requireNonNull(routeKey);
+        routeId = requireNonNull(routeKey);
     }
 
-    RouterId getPeerId() {
-        return this.peerId;
+    @NonNull RouterId getPeerId() {
+        return peerId;
     }
 
-    String getRouteId() {
-        return this.routeId;
+    @NonNull String getRouteId() {
+        return routeId;
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + this.peerId.hashCode();
-        result = prime * result + this.routeId.hashCode();
-        return result;
+        return 31 * 31 + 31 * peerId.hashCode() + routeId.hashCode();
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof RouteUpdateKey)) {
-            return false;
-        }
-        RouteUpdateKey other = (RouteUpdateKey) obj;
-        return peerId.equals(other.peerId) && routeId.equals(other.routeId);
+        return this == obj || obj instanceof RouteUpdateKey other
+            && peerId.equals(other.peerId) && routeId.equals(other.routeId);
     }
 }

@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNull;
 
+import java.lang.ref.Reference;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
@@ -102,9 +102,8 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
         final var stale = entry.removeStalePaths(support, PREFIX);
 
         // Keep a strong reference until the last addRoute method is called.
-        assertNotNull(keepAlive);
-        assertTrue("RouterA path is still best after the second selection and must not be reported stale",
-            stale.isEmpty());
+        Reference.reachabilityFence(keepAlive);
+        assertNull("RouterA path is still best after the second selection and must not be reported stale", stale);
     }
 
     private MapEntryNode buildRoute(final Uint32 pathId, final long localPref) {
