@@ -22,6 +22,30 @@
       },
       "revId": "4d796985b987a542baeb3e71f5bd750d5bc447fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8f56fa63_88de3ccf",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-29T07:37:50Z",
+      "side": 1,
+      "message": "but also: this seems to be papering over the real problem: a withdraw\u0026advertise means that for a period of time the route is non-existent.\n\nthat is wrong: the route should be flipping atomically from old to new.",
+      "parentUuid": "24149d1b_0057febc",
+      "range": {
+        "startLine": 143,
+        "startChar": 59,
+        "endLine": 144,
+        "endChar": 39
+      },
+      "revId": "4d796985b987a542baeb3e71f5bd750d5bc447fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
