@@ -55,10 +55,10 @@ import org.slf4j.LoggerFactory;
  */
 final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSentCounters {
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibOutListener.class);
-    private static final QName PREFIX_QNAME = QName.create(Ipv4Route.QNAME, "prefix").intern();
-    private static final QName PATHID_QNAME = QName.create(Ipv4Route.QNAME, "path-id").intern();
-    private static final NodeIdentifier ROUTE_KEY_PREFIX_LEAF = NodeIdentifier.create(PREFIX_QNAME);
-    private static final NodeIdentifier ROUTE_KEY_PATHID_LEAF = NodeIdentifier.create(PATHID_QNAME);
+    private static final @NonNull NodeIdentifier ROUTE_KEY_PREFIX_LEAF =
+        NodeIdentifier.create(QName.create(Ipv4Route.QNAME, "prefix").intern());
+    private static final @NonNull NodeIdentifier ROUTE_KEY_PATHID_LEAF =
+        NodeIdentifier.create(QName.create(Ipv4Route.QNAME, "path-id").intern());
 
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
@@ -76,8 +76,11 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
         this.support = requireNonNull(support);
         codecs = registry.getCodecs(this.support);
         this.mpSupport = mpSupport;
-        final YangInstanceIdentifier adjRibOutId = ribId.node(PEER_NID).node(IdentifierUtils.domPeerId(peerId))
-                .node(ADJRIBOUT_NID).node(TABLES_NID).node(support.tablesKey());
+        final var adjRibOutId = ribId.node(PEER_NID)
+            .node(IdentifierUtils.domPeerId(peerId))
+            .node(ADJRIBOUT_NID)
+            .node(TABLES_NID)
+            .node(support.tablesKey());
         /*
          *  After listener registration should always be executed ODTC. Even when empty table is present
          *  in data store. Within this first ODTC execution we should advertise present routes and than
@@ -123,35 +126,29 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
     }
 
     private void processRouteChange(final DataTreeCandidateNode route) {
-        final Update update;
         switch (route.modificationType()) {
-            case UNMODIFIED:
+            case null -> throw new NullPointerException();
+            case UNMODIFIED ->
                 LOG.debug("Skipping unmodified route {}", route.name());
-                return;
-            case DELETE:
-            case DISAPPEARED:
+            case DELETE, DISAPPEARED -> {
                 // FIXME: we can batch deletions into a single batch
-                update = withdraw((MapEntryNode) route.getDataBefore());
+                final var update = withdraw((MapEntryNode) route.getDataBefore());
                 LOG.debug("Withdrawing routes {}", update);
-                break;
-            case APPEARED:
-            case SUBTREE_MODIFIED:
-            case WRITE:
-                update = advertise((MapEntryNode) route.getDataAfter());
+                session.write(update);
+            }
+            case APPEARED, SUBTREE_MODIFIED, WRITE -> {
+                final var update = advertise((MapEntryNode) route.getDataAfter());
                 LOG.debug("Advertising routes {}", update);
-                break;
-            default:
-                LOG.warn("Ignoring unhandled modification type {}", route.modificationType());
-                return;
+                session.write(update);
+            }
         }
-        session.write(update);
     }
 
     private Attributes routeAttributes(final MapEntryNode route) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("AdjRibOut parsing route {}", NormalizedNodes.toStringTree(route));
         }
-        final ContainerNode advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route,
+        final var advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(route,
                 support.routeAttributesIdentifier()).orElse(null);
         return codecs.deserializeAttributes(advertisedAttrs);
     }
