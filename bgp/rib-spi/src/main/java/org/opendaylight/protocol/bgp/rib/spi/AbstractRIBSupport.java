@@ -119,6 +119,9 @@ public abstract class AbstractRIBSupport<
     private final @NonNull MapEntryNode emptyTable;
     private final @NonNull QName routeQname;
     private final @NonNull QName routeKeyQname;
+    /**
+     * The {@link NodeIdentifier} of the AFI/SAFI-specific container under the NLRI destination.
+     */
     private final @NonNull NodeIdentifier destinationNid;
     private final @NonNull NodeIdentifier pathIdNid;
     private final @NonNull NodeIdentifier prefixTypeNid;
@@ -142,7 +145,7 @@ public abstract class AbstractRIBSupport<
      * @param listClass        Binding class of the route list, nust not be null;
      * @param afi              Address Family
      * @param safi             Subsequent Address Family
-     * @param destContainerQname destination Container Qname
+     * @param destContainerQname destination Container QName
      */
     protected AbstractRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
@@ -269,16 +272,6 @@ public abstract class AbstractRIBSupport<
      */
     public final @NonNull NodeIdentifier routesContainerIdentifier() {
         return routesContainerIdentifier;
-    }
-
-    /**
-     * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
-     * the NLRI destination.
-     *
-     * @return Container identifier, may not be null.
-     */
-    private NodeIdentifier destinationContainerIdentifier() {
-        return destinationNid;
     }
 
     /**
@@ -411,9 +404,9 @@ public abstract class AbstractRIBSupport<
     @Override
     public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri, final NodeIdentifier routesNodeId) {
-        final DataContainerChild routes = nlri.childByArg(WITHDRAWN_ROUTES);
+        final var routes = nlri.childByArg(WITHDRAWN_ROUTES);
         if (routes != null) {
-            final ContainerNode destination = getDestination(routes, destinationContainerIdentifier());
+            final var destination = getDestination(routes, destinationNid);
             if (destination != null) {
                 deleteDestinationRoutes(tx, tablePath, destination, routesNodeId);
             }
@@ -436,9 +429,9 @@ public abstract class AbstractRIBSupport<
                                                                     final ContainerNode nlri,
                                                                     final ContainerNode attributes,
                                                                     final NodeIdentifier routesNodeId) {
-        final DataContainerChild routes = nlri.childByArg(ADVERTISED_ROUTES);
+        final var routes = nlri.childByArg(ADVERTISED_ROUTES);
         if (routes != null) {
-            final ContainerNode destination = getDestination(routes, destinationContainerIdentifier());
+            final var destination = getDestination(routes, destinationNid);
             if (destination != null) {
                 return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
             }
