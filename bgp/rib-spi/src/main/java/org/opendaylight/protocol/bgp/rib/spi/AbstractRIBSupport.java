@@ -403,23 +403,23 @@ public abstract class AbstractRIBSupport<
         final var ab = new AttributesBuilder(attr);
         final var hop = ab.getCNextHop();
 
-        LOG.debug("cnextHop before={}", hop);
+        LOG.trace("cnextHop before={}", hop);
         // do not preserve next hop in attributes if we are using MpReach
         ab.setCNextHop(null);
 
         if (!advertised.isEmpty()) {
             final var mb = buildReach(advertised, hop);
             ab.addAugmentation(new AttributesReachBuilder().setMpReachNlri(mb).build());
-            LOG.debug("mpreach nexthop={}", mb);
+            LOG.trace("mpreach nexthop={}", mb);
         }
         if (!withdrawn.isEmpty()) {
             final var mb = buildUnreach(withdrawn);
             ab.addAugmentation(new AttributesUnreachBuilder().setMpUnreachNlri(mb).build());
-            LOG.debug("mpunrach mb={}", mb);
+            LOG.trace("mpunrach mb={}", mb);
         }
 
         final var update = ub.setAttributes(ab.build()).build();
-        LOG.debug("update {}", update);
+        LOG.trace("update {}", update);
         return update;
     }
 
