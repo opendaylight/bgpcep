@@ -272,16 +272,6 @@ public abstract class AbstractRIBSupport<
     }
 
     /**
-     * Return the {@link NodeIdentifier} of the AFI/SAFI-specific container under
-     * the NLRI destination.
-     *
-     * @return Container identifier, may not be null.
-     */
-    private NodeIdentifier destinationContainerIdentifier() {
-        return destinationNid;
-    }
-
-    /**
      * Given the destination as ContainerNode, implementation needs to parse the DOM model
      * from this point onward:
      *
@@ -411,9 +401,9 @@ public abstract class AbstractRIBSupport<
     @Override
     public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri, final NodeIdentifier routesNodeId) {
-        final DataContainerChild routes = nlri.childByArg(WITHDRAWN_ROUTES);
+        final var routes = nlri.childByArg(WITHDRAWN_ROUTES);
         if (routes != null) {
-            final ContainerNode destination = getDestination(routes, destinationContainerIdentifier());
+            final var destination = getDestination(routes, destinationNid);
             if (destination != null) {
                 deleteDestinationRoutes(tx, tablePath, destination, routesNodeId);
             }
@@ -436,9 +426,9 @@ public abstract class AbstractRIBSupport<
                                                                     final ContainerNode nlri,
                                                                     final ContainerNode attributes,
                                                                     final NodeIdentifier routesNodeId) {
-        final DataContainerChild routes = nlri.childByArg(ADVERTISED_ROUTES);
+        final var routes = nlri.childByArg(ADVERTISED_ROUTES);
         if (routes != null) {
-            final ContainerNode destination = getDestination(routes, destinationContainerIdentifier());
+            final var destination = getDestination(routes, destinationNid);
             if (destination != null) {
                 return putDestinationRoutes(tx, tablePath, destination, attributes, routesNodeId);
             }
