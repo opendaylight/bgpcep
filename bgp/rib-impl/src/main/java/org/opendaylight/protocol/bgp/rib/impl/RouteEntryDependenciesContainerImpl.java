@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
@@ -22,24 +23,19 @@ import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
-final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
-    private final RIBSupport<?, ?> ribSupport;
-    private final YangInstanceIdentifier locRibTarget;
-    private final BGPRibRoutingPolicy routingPolicies;
-    private final AfiSafiType afiSafiType;
-    private final BGPPeerTracker peerTracker;
-
-    RouteEntryDependenciesContainerImpl(
-            final RIBSupport<?, ?> ribSupport,
-            final BGPPeerTracker peerTracker,
-            final BGPRibRoutingPolicy routingPolicies,
-            final AfiSafiType afiSafiType,
-            final YangInstanceIdentifier locRibTarget) {
-        this.ribSupport = requireNonNull(ribSupport);
-        this.peerTracker = requireNonNull(peerTracker);
-        this.afiSafiType = requireNonNull(afiSafiType);
-        this.routingPolicies = requireNonNull(routingPolicies);
-        this.locRibTarget = requireNonNull(locRibTarget);
+@NonNullByDefault
+record RouteEntryDependenciesContainerImpl(
+        RIBSupport<?, ?> ribSupport,
+        BGPPeerTracker peerTracker,
+        BGPRibRoutingPolicy routingPolicies,
+        AfiSafiType afiSafiType,
+        YangInstanceIdentifier locRibTarget) implements RouteEntryDependenciesContainer {
+    RouteEntryDependenciesContainerImpl {
+        requireNonNull(ribSupport);
+        requireNonNull(peerTracker);
+        requireNonNull(afiSafiType);
+        requireNonNull(routingPolicies);
+        requireNonNull(locRibTarget);
     }
 
     @Override
