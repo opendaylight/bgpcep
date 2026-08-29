@@ -393,14 +393,13 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             ribSupport.extractRouteKey(route.name()), rtCache);
 
         final var bindingAttrs = ribSupport.attributeFromContainerNode(attrs);
-        final var optExportAttrs = entryDep.getRoutingPolicies().applyExportPolicies(routeEntry, bindingAttrs,
+        final var exportAttrs = entryDep.getRoutingPolicies().applyExportPolicies(routeEntry, bindingAttrs,
             entryDep.getAfiSafType());
-        if (optExportAttrs.isEmpty()) {
+        if (exportAttrs == null) {
             // Discards route
             return null;
         }
 
-        final var exportAttrs = optExportAttrs.orElseThrow();
         // If the same object is returned we can just reuse 'attrs' instead. Since we are in control of lifecycle here,
         // we use identity comparison, as equality is too costly for the common case -- assuming export policy will not
         // churn objects when it does not have to

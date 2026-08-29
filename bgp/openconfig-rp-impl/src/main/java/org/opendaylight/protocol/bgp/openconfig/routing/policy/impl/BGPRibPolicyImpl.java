@@ -20,7 +20,6 @@ import java.util.concurrent.ExecutionException;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.RouteAttributeContainer;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -45,6 +44,7 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
         DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class).build();
     private static final List<String> DEFAULT_IMPORT_POLICY = List.of("default-odl-import-policy");
     private static final List<String> DEFAULT_EXPORT_POLICY = List.of("default-odl-export-policy");
+
     private final DefaultPolicyType defaultExportPolicy;
     private final DefaultPolicyType defaultImportPolicy;
     private final List<String> exportPolicy;
@@ -52,8 +52,10 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     private final StatementRegistryConsumer policyRegistry;
     private final RouteEntryBaseAttributes ribBaseParameters;
     private final DataBroker databroker;
+
+    // FIXME: use a DataTreeChangeListener to materialize and update this cache?
     private final LoadingCache<String, List<Statement>> statements = CacheBuilder.newBuilder()
-            .build(new CacheLoader<String, List<Statement>>() {
+            .build(new CacheLoader<>() {
                 @Override
                 public List<Statement> load(final String key) throws ExecutionException, InterruptedException {
                     return loadStatements(key);
@@ -66,22 +68,14 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
         this.policyRegistry = requireNonNull(policyRegistry);
         this.databroker = requireNonNull(databroker);
         requireNonNull(policyConfig);
-
-
-        List<String> epolicy = policyConfig.getExportPolicy();
-        if (epolicy == null) {
-            epolicy = DEFAULT_EXPORT_POLICY;
-        }
-        List<String> ipolicy = policyConfig.getImportPolicy();
-        if (ipolicy == null) {
-            ipolicy = DEFAULT_IMPORT_POLICY;
-        }
-
         defaultExportPolicy = requireNonNull(policyConfig.getDefaultExportPolicy());
         defaultImportPolicy = requireNonNull(policyConfig.getDefaultImportPolicy());
-        exportPolicy = requireNonNull(epolicy);
-        importPolicy = requireNonNull(ipolicy);
         ribBaseParameters = new PolicyRIBBaseParametersImpl(localAs, originatorId, clusterId);
+
+        final var epolicy = policyConfig.getExportPolicy();
+        exportPolicy = epolicy != null ? epolicy : DEFAULT_EXPORT_POLICY;
+        final var ipolicy = policyConfig.getImportPolicy();
+        importPolicy = ipolicy != null ? ipolicy : DEFAULT_IMPORT_POLICY;
     }
 
     private List<Statement> loadStatements(final String key) throws ExecutionException, InterruptedException {
@@ -97,40 +91,30 @@ final class BGPRibPolicyImpl implements BGPRibRoutingPolicy {
     }
 
     @Override
-    public Optional<Attributes> applyImportPolicies(final BGPRouteEntryImportParameters policyParameters,
+    public Attributes applyImportPolicies(final BGPRouteEntryImportParameters policyParameters,
             final Attributes attributes, final AfiSafiType afiSafiType) {
-        RouteAttributeContainer currentAttributes = routeAttributeContainerFalse(attributes);
-        for (final String policyName : importPolicy) {
-            for (final Statement statement : statements.getUnchecked(policyName)) {
-                currentAttributes = policyRegistry
-                        .applyImportStatement(ribBaseParameters, afiSafiType, policyParameters, currentAttributes,
-                                statement);
+        var result = routeAttributeContainerFalse(attributes);
+        for (var policyName : importPolicy) {
+            for (var statement : statements.getUnchecked(policyName)) {
+                result = policyRegistry.applyImportStatement(ribBaseParameters, afiSafiType, policyParameters, result,
+                    statement);
             }
         }
-        if (!currentAttributes.anyConditionSatisfied()) {
-            if (DefaultPolicyType.REJECTROUTE.equals(defaultImportPolicy)) {
-                return Optional.empty();
-            }
-        }
-        return Optional.ofNullable(currentAttributes.getAttributes());
+        return !result.anyConditionSatisfied() && DefaultPolicyType.REJECTROUTE.equals(defaultImportPolicy) ? null
+            : result.getAttributes();
     }
 
     @Override
-    public Optional<Attributes> applyExportPolicies(final BGPRouteEntryExportParameters policyParameters,
+    public Attributes applyExportPolicies(final BGPRouteEntryExportParameters policyParameters,
             final Attributes attributes, final AfiSafiType afiSafi) {
-        RouteAttributeContainer currentAttributes = routeAttributeContainerFalse(attributes);
-        for (final String policyName : exportPolicy) {
-            for (final Statement statement : statements.getUnchecked(policyName)) {
-                currentAttributes = policyRegistry.applyExportStatement(
-                        ribBaseParameters, afiSafi, policyParameters, currentAttributes, statement);
+        var result = routeAttributeContainerFalse(attributes);
+        for (var policyName : exportPolicy) {
+            for (var statement : statements.getUnchecked(policyName)) {
+                result = policyRegistry.applyExportStatement(ribBaseParameters, afiSafi, policyParameters, result,
+                    statement);
             }
         }
-        if (!currentAttributes.anyConditionSatisfied()) {
-            if (DefaultPolicyType.REJECTROUTE.equals(defaultExportPolicy)) {
-                return Optional.empty();
-            }
-        }
-
-        return Optional.ofNullable(currentAttributes.getAttributes());
+        return !result.anyConditionSatisfied() && DefaultPolicyType.REJECTROUTE.equals(defaultExportPolicy) ? null
+            : result.getAttributes();
     }
 }
