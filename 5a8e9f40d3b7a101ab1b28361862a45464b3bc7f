@@ -22,6 +22,30 @@
       },
       "revId": "5a8e9f40d3b7a101ab1b28361862a45464b3bc7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "135e7ecc_38607422",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/AbstractRIBSupport.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-29T20:10:18Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "5013808c_a2b15450",
+      "range": {
+        "startLine": 275,
+        "startChar": 7,
+        "endLine": 276,
+        "endChar": 28
+      },
+      "revId": "5a8e9f40d3b7a101ab1b28361862a45464b3bc7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
