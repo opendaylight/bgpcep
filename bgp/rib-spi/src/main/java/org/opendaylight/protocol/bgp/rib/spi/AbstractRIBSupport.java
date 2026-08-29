@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -464,19 +465,25 @@ public abstract class AbstractRIBSupport<
         return routesPath.getUnchecked(routesTablePaths);
     }
 
+    // FIXME: final
     @Override
     public R fromNormalizedNode(final YangInstanceIdentifier routePath, final NormalizedNode normalizedNode) {
-        final var node = mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
-        if (node instanceof Route route) {
-            return (R) route;
+        return listClass.cast(toDataObject(requireNonNull(routePath), requireNonNull(normalizedNode)));
+    }
+
+    @NonNullByDefault
+    private DataObject toDataObject(final YangInstanceIdentifier path, final NormalizedNode normalizedNode) {
+        final var pathAndObject = mappingService.fromNormalizedNode(path, normalizedNode);
+        if (pathAndObject == null) {
+            throw new VerifyException("Node at " + path + " is not representable");
         }
-        throw new VerifyException("node " + node + " is not a Route");
+        return verifyNotNull(pathAndObject.getValue());
     }
 
     @Override
     public Attributes attributeFromContainerNode(final ContainerNode advertisedAttrs) {
-        final YangInstanceIdentifier path = routeDefaultYii.node(routeAttributesIdentifier());
-        return (Attributes) verifyNotNull(mappingService.fromNormalizedNode(path, advertisedAttrs).getValue());
+        return (Attributes) toDataObject(routeDefaultYii.node(routeAttributesIdentifier()),
+            requireNonNull(advertisedAttrs));
     }
 
     @Override
