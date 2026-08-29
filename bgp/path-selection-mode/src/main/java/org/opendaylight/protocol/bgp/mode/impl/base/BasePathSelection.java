@@ -9,20 +9,14 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 
 final class BasePathSelection implements PathSelectionMode {
     BasePathSelection() {
     }
 
     @Override
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            RouteEntry<C, S> createRouteEntry() {
-        return new BaseRouteEntry<>();
+    public RouteEntry createRouteEntry() {
+        return new BaseRouteEntry();
     }
 
     @Override
