@@ -13,17 +13,13 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedInts;
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
@@ -47,11 +43,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParametersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.c.parameters.As4BytesCapability;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
@@ -72,11 +65,11 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     private static final Logger LOG = LoggerFactory.getLogger(StrictBGPPeerRegistry.class);
 
     @GuardedBy("this")
-    private final Map<IpAddressNoZone, BGPSessionListener> peers = new HashMap<>();
+    private final HashMap<IpAddressNoZone, BGPSessionListener> peers = new HashMap<>();
     @GuardedBy("this")
-    private final Map<IpAddressNoZone, BGPSessionId> sessionIds = new HashMap<>();
+    private final HashMap<IpAddressNoZone, BGPSessionId> sessionIds = new HashMap<>();
     @GuardedBy("this")
-    private final Map<IpAddressNoZone, BGPSessionPreferences> peerPreferences = new HashMap<>();
+    private final HashMap<IpAddressNoZone, BGPSessionPreferences> peerPreferences = new HashMap<>();
     private final Set<PeerRegistryListener> listeners = ConcurrentHashMap.newKeySet();
     private final Set<PeerRegistrySessionListener> sessionListeners = ConcurrentHashMap.newKeySet();
 
@@ -88,52 +81,49 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     @Override
     public synchronized void addPeer(final IpAddressNoZone oldIp, final BGPSessionListener peer,
             final BGPSessionPreferences preferences) {
-        IpAddressNoZone fullIp = getFullIp(oldIp);
-        Preconditions.checkArgument(!peers.containsKey(fullIp),
-                "Peer for %s already present", fullIp);
+        var fullIp = getFullIp(oldIp);
+        Preconditions.checkArgument(!peers.containsKey(fullIp), "Peer for %s already present", fullIp);
         peers.put(fullIp, requireNonNull(peer));
         requireNonNull(preferences.getMyAs());
         requireNonNull(preferences.getParams());
         requireNonNull(preferences.getBgpId());
         peerPreferences.put(fullIp, preferences);
-        for (final PeerRegistryListener peerRegistryListener : listeners) {
+        for (var peerRegistryListener : listeners) {
             peerRegistryListener.onPeerAdded(fullIp, preferences);
         }
     }
 
     private static IpAddressNoZone getFullIp(final IpAddressNoZone ip) {
-        final Ipv6AddressNoZone addr = ip.getIpv6AddressNoZone();
+        final var addr = ip.getIpv6AddressNoZone();
         return addr == null ? ip : new IpAddressNoZone(Ipv6Util.getFullForm(addr));
     }
 
     @Override
     public synchronized void removePeer(final IpAddressNoZone oldIp) {
-        IpAddressNoZone fullIp = getFullIp(oldIp);
+        var fullIp = getFullIp(oldIp);
         peers.remove(fullIp);
-        for (final PeerRegistryListener peerRegistryListener : listeners) {
+        for (var peerRegistryListener : listeners) {
             peerRegistryListener.onPeerRemoved(fullIp);
         }
     }
 
     @Override
     public synchronized void removePeerSession(final IpAddressNoZone oldIp) {
-        IpAddressNoZone fullIp = getFullIp(oldIp);
+        var fullIp = getFullIp(oldIp);
         sessionIds.remove(fullIp);
-        for (final PeerRegistrySessionListener peerRegistrySessionListener : sessionListeners) {
+        for (var peerRegistrySessionListener : sessionListeners) {
             peerRegistrySessionListener.onSessionRemoved(fullIp);
         }
     }
 
     @Override
     public boolean isPeerConfigured(final IpAddressNoZone oldIp) {
-        IpAddressNoZone fullIp = getFullIp(oldIp);
-        return peers.containsKey(fullIp);
+        return peers.containsKey(getFullIp(oldIp));
     }
 
     private void checkPeerConfigured(final IpAddressNoZone ip) {
         Preconditions.checkState(isPeerConfigured(ip),
-                "BGP peer with ip: %s not configured, configured peers are: %s",
-                ip, peers.keySet());
+            "BGP peer with ip: %s not configured, configured peers are: %s", ip, peers.keySet());
     }
 
     @Override
@@ -142,17 +132,17 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
         requireNonNull(ip);
         requireNonNull(sourceId);
         requireNonNull(remoteId);
-        final AsNumber remoteAsNumber = AsNumberUtil.advertizedAsNumber(openObj);
+        final var remoteAsNumber = AsNumberUtil.advertizedAsNumber(openObj);
         requireNonNull(remoteAsNumber);
 
-        final BGPSessionPreferences prefs = getPeerPreferences(ip);
+        final var prefs = getPeerPreferences(ip);
 
         checkPeerConfigured(ip);
 
-        final BGPSessionId currentConnection = new BGPSessionId(sourceId, remoteId, remoteAsNumber);
-        final BGPSessionListener p = peers.get(ip);
+        final var currentConnection = new BGPSessionId(sourceId, remoteId, remoteAsNumber);
+        final var peer = peers.get(ip);
 
-        final BGPSessionId previousConnection = sessionIds.get(ip);
+        final var previousConnection = sessionIds.get(ip);
 
         if (previousConnection != null) {
 
@@ -161,20 +151,18 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
             // Session reestablished with different ids
             if (!previousConnection.equals(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Same session already present {}", ip,
-                        currentConnection, previousConnection);
+                    currentConnection, previousConnection);
                 throw new BGPDocumentedException(
-                        String.format("BGP session with %s %s has to be dropped. Same session already present %s",
-                                ip, currentConnection, previousConnection),
-                        BGPError.CEASE);
-
+                    "BGP session with %s %s has to be dropped. Same session already present %s".formatted(
+                        ip, currentConnection, previousConnection), BGPError.CEASE);
                 // Session reestablished with lower source bgp id, dropping current
             } else if (previousConnection.isHigherDirection(currentConnection)
                     || previousConnection.hasHigherAsNumber(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present",
-                        ip, currentConnection);
+                    ip, currentConnection);
                 throw new BGPDocumentedException(
-                        String.format("BGP session with %s initiated %s has to be dropped. "
-                                + "Opposite session already present", ip, currentConnection), BGPError.CEASE);
+                    "BGP session with %s initiated %s has to be dropped. Opposite session already present".formatted(
+                        ip, currentConnection), BGPError.CEASE);
 
                 // Session reestablished with higher source bgp id, dropping previous
             } else if (currentConnection.isHigherDirection(previousConnection)
@@ -187,18 +175,18 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
                 LOG.warn("BGP session with {} initiated from {} to {} has to be dropped. Same session already present",
                         ip, sourceId, remoteId);
                 throw new BGPDocumentedException(
-                        String.format("BGP session with %s initiated %s has to be dropped. "
-                                        + "Same session already present", ip, currentConnection), BGPError.CEASE);
+                    "BGP session with %s initiated %s has to be dropped. Same session already present".formatted(
+                        ip, currentConnection), BGPError.CEASE);
             }
         }
         validateAs(remoteAsNumber, openObj, prefs);
 
         // Map session id to peer IP address
         sessionIds.put(ip, currentConnection);
-        for (final PeerRegistrySessionListener peerRegistrySessionListener : sessionListeners) {
+        for (var peerRegistrySessionListener : sessionListeners) {
             peerRegistrySessionListener.onSessionCreated(ip);
         }
-        return p;
+        return peer;
     }
 
     private static void validateAs(final AsNumber remoteAs, final Open openObj, final BGPSessionPreferences localPref)
@@ -214,27 +202,27 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
             LOG.warn("Remote and local BGP Identifiers are the same: {}", openObj.getBgpIdentifier());
             throw new BGPDocumentedException("Remote and local BGP Identifiers are the same.", BGPError.BAD_BGP_ID);
         }
-        final List<BgpParameters> prefs = openObj.getBgpParameters();
-        if (prefs != null) {
-            final As4BytesCapability localCap = getAs4BytesCapability(localPref.getParams());
-            if (localCap != null && getAs4BytesCapability(prefs) == null) {
-                throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.",
-                        BGPError.UNSUPPORTED_CAPABILITY, serializeAs4BytesCapability(localCap));
-            }
-            if (!prefs.containsAll(localPref.getParams())) {
-                LOG.info("BGP Open message session parameters differ, session still accepted.");
-            }
-        } else {
+        final var prefs = openObj.getBgpParameters();
+        if (prefs == null) {
             throw new BGPDocumentedException("Open message unacceptable. Check the configuration of BGP speaker.",
-                    BGPError.UNSPECIFIC_OPEN_ERROR);
+                BGPError.UNSPECIFIC_OPEN_ERROR);
+        }
+
+        final var localCap = getAs4BytesCapability(localPref.getParams());
+        if (localCap != null && getAs4BytesCapability(prefs) == null) {
+            throw new BGPDocumentedException("The peer must advertise AS4Bytes capability.",
+                BGPError.UNSUPPORTED_CAPABILITY, serializeAs4BytesCapability(localCap));
+        }
+        if (!prefs.containsAll(localPref.getParams())) {
+            LOG.info("BGP Open message session parameters differ, session still accepted.");
         }
     }
 
     private static @Nullable As4BytesCapability getAs4BytesCapability(final List<BgpParameters> prefs) {
-        for (final BgpParameters param : prefs) {
-            for (final OptionalCapabilities capa : param.nonnullOptionalCapabilities()) {
-                final CParameters cParam = capa.getCParameters();
-                final As4BytesCapability asCapa = cParam.getAs4BytesCapability();
+        for (var param : prefs) {
+            for (var capa : param.nonnullOptionalCapabilities()) {
+                final var cParam = capa.getCParameters();
+                final var asCapa = cParam.getAs4BytesCapability();
                 if (asCapa != null) {
                     return asCapa;
                 }
@@ -244,8 +232,8 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     }
 
     private static byte[] serializeAs4BytesCapability(final As4BytesCapability as4Capability) {
-        final ByteBuf buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.BYTES /*4 byte value*/);
-        final As4CapabilityHandler serializer = new As4CapabilityHandler();
+        final var buffer = Unpooled.buffer(1 /*CODE*/ + 1 /*LENGTH*/ + Integer.BYTES /*4 byte value*/);
+        final var serializer = new As4CapabilityHandler();
         serializer.serializeCapability(new CParametersBuilder().setAs4BytesCapability(as4Capability).build(), buffer);
         return buffer.array();
     }
@@ -267,14 +255,17 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
      */
     public static IpAddressNoZone getIpAddress(final SocketAddress socketAddress) {
         requireNonNull(socketAddress);
-        Preconditions.checkArgument(socketAddress instanceof InetSocketAddress,
-                "Expecting InetSocketAddress but was %s", socketAddress.getClass());
-        final InetAddress inetAddress = ((InetSocketAddress) socketAddress).getAddress();
-
-        Preconditions.checkArgument(inetAddress instanceof Inet4Address
-                || inetAddress instanceof Inet6Address, "Expecting %s or %s but was %s",
-                Inet4Address.class, Inet6Address.class, inetAddress.getClass());
-        return IetfInetUtil.ipAddressNoZoneFor(inetAddress);
+        if (!(socketAddress instanceof InetSocketAddress inetSocketAddress)) {
+            throw new IllegalArgumentException("Expecting InetSocketAddress but was " + socketAddress.getClass());
+        }
+        final var inetAddress = inetSocketAddress.getAddress();
+        return switch (inetAddress) {
+            case Inet4Address inet4 -> new IpAddressNoZone(IetfInetUtil.ipv4AddressFor(inet4));
+            case Inet6Address inet6 -> new IpAddressNoZone(IetfInetUtil.ipv6AddressFor(inet6));
+            default -> throw new IllegalArgumentException(
+                "Expecting %s or %s but was %s".formatted(Inet4Address.class, Inet6Address.class,
+                    inetAddress.getClass()));
+        };
     }
 
     @Deactivate
@@ -287,9 +278,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this)
-            .add("peers", peers.keySet())
-            .toString();
+        return MoreObjects.toStringHelper(this).add("peers", peers.keySet()).toString();
     }
 
     /**
@@ -297,7 +286,6 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
      * remote Open message.
      */
     private static final class BGPSessionId {
-
         private final Ipv4Address from;
         private final Ipv4Address to;
         private final AsNumber asNumber;
@@ -355,17 +343,14 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
 
         @Override
         public String toString() {
-            return MoreObjects.toStringHelper(this)
-                .add("from", from)
-                .add("to", to)
-                .toString();
+            return MoreObjects.toStringHelper(this).add("from", from).add("to", to).toString();
         }
     }
 
     @Override
     public synchronized Registration registerPeerRegisterListener(final PeerRegistryListener listener) {
         listeners.add(listener);
-        for (final Entry<IpAddressNoZone, BGPSessionPreferences> entry : peerPreferences.entrySet()) {
+        for (var entry : peerPreferences.entrySet()) {
             listener.onPeerAdded(entry.getKey(), entry.getValue());
         }
         return new AbstractRegistration() {
@@ -379,7 +364,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
     @Override
     public synchronized Registration registerPeerSessionListener(final PeerRegistrySessionListener listener) {
         sessionListeners.add(listener);
-        for (final IpAddressNoZone ipAddress : sessionIds.keySet()) {
+        for (var ipAddress : sessionIds.keySet()) {
             listener.onSessionCreated(ipAddress);
         }
         return new AbstractRegistration() {
