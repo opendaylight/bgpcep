@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryDependenciesContainer;
@@ -18,24 +18,19 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
-final class RouteEntryDependenciesContainerImpl implements RouteEntryDependenciesContainer {
-    private final @NonNull RIBSupport<?, ?> ribSupport;
-    private final @NonNull YangInstanceIdentifier locRibTarget;
-    private final @NonNull BGPRibRoutingPolicy routingPolicies;
-    private final @NonNull AfiSafiType afiSafiType;
-    private final @NonNull BGPPeerTracker peerTracker;
-
-    RouteEntryDependenciesContainerImpl(
-            final RIBSupport<?, ?> ribSupport,
-            final BGPPeerTracker peerTracker,
-            final BGPRibRoutingPolicy routingPolicies,
-            final AfiSafiType afiSafiType,
-            final YangInstanceIdentifier locRibTarget) {
-        this.ribSupport = requireNonNull(ribSupport);
-        this.peerTracker = requireNonNull(peerTracker);
-        this.afiSafiType = requireNonNull(afiSafiType);
-        this.routingPolicies = requireNonNull(routingPolicies);
-        this.locRibTarget = requireNonNull(locRibTarget);
+@NonNullByDefault
+record RouteEntryDependenciesContainerImpl(
+        RIBSupport<?, ?> ribSupport,
+        BGPPeerTracker peerTracker,
+        BGPRibRoutingPolicy routingPolicies,
+        AfiSafiType afiSafiType,
+        YangInstanceIdentifier locRibTarget) implements RouteEntryDependenciesContainer {
+    RouteEntryDependenciesContainerImpl {
+        requireNonNull(ribSupport);
+        requireNonNull(peerTracker);
+        requireNonNull(afiSafiType);
+        requireNonNull(routingPolicies);
+        requireNonNull(locRibTarget);
     }
 
     @Override
