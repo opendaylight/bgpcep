@@ -85,7 +85,7 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractRIBSupport<
+public abstract non-sealed class AbstractRIBSupport<
         C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & EntryObject<?, ?>> implements RIBSupport<C, S> {
@@ -103,7 +103,7 @@ public abstract class AbstractRIBSupport<
 
     // Instance identifier to table/(choice routes)/(map of route)
     private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath = CacheBuilder.newBuilder()
-            .weakValues().build(new CacheLoader<YangInstanceIdentifier, YangInstanceIdentifier>() {
+            .weakValues().build(new CacheLoader<>() {
                 @Override
                 public YangInstanceIdentifier load(final YangInstanceIdentifier routesTablePaths) {
                     return routesTablePaths.node(routesContainerIdentifier()).node(routeQName());
@@ -526,9 +526,8 @@ public abstract class AbstractRIBSupport<
         final var node = mappingService.fromNormalizedNode(routePath, normalizedNode).getValue();
         if (node instanceof Route route) {
             return (R) route;
-        } else {
-            throw new VerifyException("node " + node + " is not a Route");
         }
+        throw new VerifyException("node " + node + " is not a Route");
     }
 
     @Override
