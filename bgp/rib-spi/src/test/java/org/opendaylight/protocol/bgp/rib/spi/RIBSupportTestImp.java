@@ -8,7 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.spi;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.test.rev180515.bgp.rib.rib.loc.rib.tables.routes.Ipv4RoutesCase;
@@ -28,8 +29,8 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
     private static final String ROUTE_KEY = "prefix";
     private static final String PREFIX = "1.2.3.4/32";
 
-    private static final NodeIdentifierWithPredicates PREFIX_NII = NodeIdentifierWithPredicates.of(Ipv4Route.QNAME,
-            QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX);
+    private static final @NonNull NodeIdentifierWithPredicates PREFIX_NII =
+        NodeIdentifierWithPredicates.of(Ipv4Route.QNAME, QName.create(Ipv4Route.QNAME, ROUTE_KEY).intern(), PREFIX);
 
     static final QName QNAME = YangModuleInfoImpl.qnameOf("ipv4-prefixes");
 
@@ -51,11 +52,9 @@ public final class RIBSupportTestImp extends AbstractRIBSupport<Ipv4RoutesCase, 
 
     @Override
     protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
-                                                                          final YangInstanceIdentifier routesPath,
-                                                                          final ContainerNode destination,
-                                                                          final ContainerNode attributes,
-                                                                          final ApplyRoute applyFunction) {
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
+            final ApplyRoute applyFunction) {
         applyFunction.apply(tx, routesPath.node(Ipv4Route.QNAME), PREFIX_NII, destination, attributes);
-        return Collections.emptySet();
+        return List.of();
     }
 }
