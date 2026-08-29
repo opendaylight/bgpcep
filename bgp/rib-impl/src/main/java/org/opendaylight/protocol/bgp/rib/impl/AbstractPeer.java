@@ -277,8 +277,18 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
         }
+
+        final var ribSupport = entryDep.getRIBSupport();
+        final var tableRibout = getRibOutIId(ribSupport.tablesKey());
+        final var tk = ribSupport.getTablesKey();
+        final var addPathSupported = supportsAddPathSupported(tk);
+
         final var tx = ribOutChain.newWriteOnlyTransaction();
-        deleteRouteRibOut(entryDep.getRIBSupport(), staleRoutes, tx);
+
+        for (var staleRoute : staleRoutes) {
+            removeRoute(ribSupport, addPathSupported, tableRibout, staleRoute, tx);
+        }
+
         installRouteRibOut(entryDep, newRoutes, tx);
 
         final var future = tx.commit();
@@ -415,16 +425,6 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             final YangInstanceIdentifier tableRibout, final RouteKeyIdentifier advRoute, final boolean withAddPath) {
         return ribSupport.createRouteIdentifier(tableRibout,
             withAddPath ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
-    }
-
-    @Holding("this")
-    private void deleteRouteRibOut(final RIBSupport<?, ?> ribSupport, final List<StaleBestPathRoute> staleRoutes,
-            final DOMDataTreeWriteOperations tx) {
-        final var tableRibout = getRibOutIId(ribSupport.tablesKey());
-        final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
-        for (var staleRoute : staleRoutes) {
-            removeRoute(ribSupport, addPathSupported, tableRibout, staleRoute, tx);
-        }
     }
 
     @Holding("this")
