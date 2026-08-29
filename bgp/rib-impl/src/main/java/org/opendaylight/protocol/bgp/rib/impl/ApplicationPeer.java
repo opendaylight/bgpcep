@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
@@ -15,6 +14,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
+import com.google.common.base.VerifyException;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -32,10 +32,8 @@ import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers;
@@ -53,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
@@ -85,26 +82,26 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
     private static final String APP_PEER_GROUP = "application-peers";
 
     private final LoadingCache<NodeIdentifierWithPredicates, YangInstanceIdentifier> tablesIId =
-        CacheBuilder.newBuilder().build(new CacheLoader<NodeIdentifierWithPredicates, YangInstanceIdentifier>() {
+        CacheBuilder.newBuilder().build(new CacheLoader<>() {
             @Override
             public YangInstanceIdentifier load(final NodeIdentifierWithPredicates key) {
                 return peerRibOutIId.node(RIBNodeIdentifiers.TABLES_NID).node(key);
             }
         });
 
+    private final HashSet<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
+    private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
     private final YangInstanceIdentifier adjRibsInId;
     private final YangInstanceIdentifier peerRibOutIId;
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+
     private EffectiveRibInWriter effectiveRibInWriter;
     private AdjRibInWriter adjRibInWriter;
     private Registration registration;
-    private final Set<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
-    private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
     private Registration trackerRegistration;
     private YangInstanceIdentifier peerPath;
 
-    public ApplicationPeer(
-            final BGPTableTypeRegistryConsumer tableTypeRegistry,
+    public ApplicationPeer(final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final ApplicationRibId applicationRibId, final Ipv4AddressNoZone ipAddress, final RIB rib) {
         super(rib, applicationRibId.getValue(), APP_PEER_GROUP, PeerRole.Internal, null, null,
             new IpAddressNoZone(ipAddress), rib.getLocalTablesKeys(), Set.of(), Map.of());
@@ -134,16 +131,15 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
 
         createDomChain();
         adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
-        final RIBSupportContextRegistry context = rib.getRibSupportContext();
+        final var context = rib.getRibSupportContext();
         peerPath = createPeerPath(peerId);
-        adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables, Map.of(),
-            () -> {
-                synchronized (this) {
-                    if (getDomChain() != null) {
-                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
-                    }
+        adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables, Map.of(), () -> {
+            synchronized (this) {
+                if (getDomChain() != null) {
+                    registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
                 }
-            });
+            }
+        });
 
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
@@ -175,49 +171,46 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
      */
     @Override
     public synchronized void onDataTreeChanged(final List<DataTreeCandidate> changes) {
-        final DOMTransactionChain chain = getDomChain();
+        final var chain = getDomChain();
         if (chain == null) {
             LOG.trace("Skipping data changed called to Application Peer. Change : {}", changes);
             return;
         }
-        final DOMDataTreeWriteTransaction tx = chain.newWriteOnlyTransaction();
+
+        final var tx = chain.newWriteOnlyTransaction();
         LOG.debug("Received data change to ApplicationRib {}", changes);
-        for (final DataTreeCandidate tc : changes) {
+        for (var tc : changes) {
             LOG.debug("Modification Type {}", tc.getRootNode().modificationType());
-            final YangInstanceIdentifier path = tc.getRootPath();
-            final PathArgument lastArg = path.getLastPathArgument();
-            verify(lastArg instanceof NodeIdentifierWithPredicates,
-                    "Unexpected type %s in path %s", lastArg.getClass(), path);
-            final NodeIdentifierWithPredicates tableKey = (NodeIdentifierWithPredicates) lastArg;
+            final var path = tc.getRootPath();
+            final var lastArg = path.getLastPathArgument();
+            if (!(lastArg instanceof NodeIdentifierWithPredicates tableKey)) {
+                throw new VerifyException("Unexpected type %s in path %s".formatted(lastArg.getClass(), path));
+            }
             if (!supportedTables.contains(tableKey)) {
                 LOG.trace("Skipping received data change for non supported family {}.", tableKey);
                 continue;
             }
-            for (final DataTreeCandidateNode child : tc.getRootNode().childNodes()) {
-                final PathArgument childIdentifier = child.name();
-                final YangInstanceIdentifier tableId = adjRibsInId.node(tableKey).node(childIdentifier);
+
+            for (var child : tc.getRootNode().childNodes()) {
+                final var childIdentifier = child.name();
+                final var tableId = adjRibsInId.node(tableKey).node(childIdentifier);
                 switch (child.modificationType()) {
-                    case DELETE:
-                    case DISAPPEARED:
+                    case null -> throw new NullPointerException();
+                    case UNMODIFIED -> {
+                        // No-op
+                    }
+                    case DELETE, DISAPPEARED -> {
                         LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
                         tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
-                        break;
-                    case UNMODIFIED:
-                        // No-op
-                        break;
-                    case SUBTREE_MODIFIED:
+                    }
+                    case SUBTREE_MODIFIED -> {
                         if (ROUTES_NID.equals(childIdentifier)) {
                             processRoutesTable(child, tableId, tx, tableId);
                         } else {
                             processWrite(child, tableId, tx);
                         }
-                        break;
-                    case WRITE:
-                    case APPEARED:
-                        processWrite(child, tableId, tx);
-                        break;
-                    default:
-                        break;
+                    }
+                    case APPEARED, WRITE -> processWrite(child, tableId, tx);
                 }
             }
         }
@@ -248,29 +241,28 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
             final YangInstanceIdentifier identifier, final DOMDataTreeWriteTransaction tx,
             final YangInstanceIdentifier routeTableIdentifier) {
         for (var child : node.childNodes()) {
-            final YangInstanceIdentifier childIdentifier = identifier.node(child.name());
+            final var childIdentifier = identifier.node(child.name());
             switch (child.modificationType()) {
-                case DELETE:
+                case DELETE -> {
                     LOG.trace("App peer -> AdjRibsIn path delete: {}", childIdentifier);
                     tx.delete(LogicalDatastoreType.OPERATIONAL, childIdentifier);
-                    break;
-                case UNMODIFIED:
+                }
+                case UNMODIFIED -> {
                     // No-op
-                    break;
-                case SUBTREE_MODIFIED:
+                }
+                case SUBTREE_MODIFIED -> {
                     // For be ables to use DELETE when we remove specific routes as we do when we remove the whole
                     // routes, we need to go deeper three levels
-                    if (!routeTableIdentifier.equals(childIdentifier.getParent().getParent().getParent())) {
+                    if (!routeTableIdentifier.equals(childIdentifier.coerceParent().coerceParent().getParent())) {
                         processRoutesTable(child, childIdentifier, tx, routeTableIdentifier);
                     } else {
                         processRouteWrite(child, childIdentifier, tx);
                     }
-                    break;
-                case WRITE:
-                    processRouteWrite(child, childIdentifier, tx);
-                    break;
-                default:
-                    break;
+                }
+                case WRITE -> processRouteWrite(child, childIdentifier, tx);
+                default -> {
+                    // FIXME: no-op?
+                }
             }
         }
     }
