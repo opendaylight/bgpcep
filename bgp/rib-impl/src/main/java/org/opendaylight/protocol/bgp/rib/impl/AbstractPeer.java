@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -304,7 +305,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             return;
         }
 
-        final var ribSupport = entryDep.<C, S>getRIBSupport();
+        final var ribSupport = entryDep.getRIBSupport();
         final var tk = ribSupport.tablesKey();
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
 
@@ -370,10 +371,11 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             : ribSupport.attributeToContainerNode(routePath.node(ribSupport.routeAttributesIdentifier()), exportAttrs);
     }
 
+    @Holding("this")
     private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void installRouteRibOut(
             final RouteEntryDependenciesContainer entryDep, final List<AdvertizedRoute<C, S>> routes,
             final DOMDataTreeWriteOperations tx) {
-        final var ribSupport = entryDep.<C, S>getRIBSupport();
+        final var ribSupport = entryDep.getRIBSupport();
         final var tk = ribSupport.getTablesKey();
         final var peerTracker = entryDep.getPeerTracker();
         final boolean addPathSupported = supportsAddPathSupported(tk);
@@ -415,15 +417,17 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             withAddPath ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
     }
 
-    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void deleteRouteRibOut(final RIBSupport<C, S> ribSupport, final List<StaleBestPathRoute> staleRoutesIid,
-                final DOMDataTreeWriteOperations tx) {
+    @Holding("this")
+    private void deleteRouteRibOut(final RIBSupport<?, ?> ribSupport, final List<StaleBestPathRoute> staleRoutes,
+            final DOMDataTreeWriteOperations tx) {
         final var tableRibout = getRibOutIId(ribSupport.tablesKey());
         final boolean addPathSupported = supportsAddPathSupported(ribSupport.getTablesKey());
-        staleRoutesIid.forEach(
-            staleRouteIid -> removeRoute(ribSupport, addPathSupported, tableRibout, staleRouteIid, tx));
+        for (var staleRoute : staleRoutes) {
+            removeRoute(ribSupport, addPathSupported, tableRibout, staleRoute, tx);
+        }
     }
 
+    @Holding("this")
     private void storeRoute(final RIBSupport<?, ?> ribSupport, final RouteKeyIdentifier advRoute,
             final MapEntryNode route, final YangInstanceIdentifier routePath, final ContainerNode effAttr,
             final DOMDataTreeWriteOperations tx) {
@@ -432,12 +436,12 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
     }
 
-    private synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void removeRoute(final RIBSupport<C, S> ribSupport, final boolean addPathSupported,
-                final YangInstanceIdentifier tableRibout, final StaleBestPathRoute staleRouteIid,
-                final DOMDataTreeWriteOperations tx) {
+    @Holding("this")
+    private void removeRoute(final RIBSupport<?, ?> ribSupport, final boolean addPathSupported,
+            final YangInstanceIdentifier tableRibout, final StaleBestPathRoute staleRoute,
+            final DOMDataTreeWriteOperations tx) {
         if (addPathSupported) {
-            for (var id : staleRouteIid.getAddPathRouteKeyIdentifiers()) {
+            for (var id : staleRoute.getAddPathRouteKeyIdentifiers()) {
                 final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout, id);
                 LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
                 tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
@@ -445,20 +449,20 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             return;
         }
 
-        if (!staleRouteIid.isNonAddPathBestPathNew()) {
+        if (!staleRoute.isNonAddPathBestPathNew()) {
             return;
         }
 
         final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
-                staleRouteIid.getNonAddPathRouteKeyIdentifier());
+                staleRoute.getNonAddPathRouteKeyIdentifier());
         LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
     // FIXME: why is this different from removeRoute()?
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void deleteRoute(
-            final RIBSupport<C, S> ribSupport,  final boolean addPathSupported,
-            final YangInstanceIdentifier tableRibout, final AbstractAdvertizedRoute<C, S> advRoute,
+    @Holding("this")
+    private void deleteRoute(final RIBSupport<?, ?> ribSupport, final boolean addPathSupported,
+            final YangInstanceIdentifier tableRibout, final AbstractAdvertizedRoute<?, ?> advRoute,
             final DOMDataTreeWriteOperations tx) {
         final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
             addPathSupported ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
