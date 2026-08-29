@@ -46,13 +46,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -216,9 +211,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     }
 
     @Override
-    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
-                    final List<ActualBestPathRoutes<C, S>> routesToStore) {
+    public final synchronized void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
+            final List<ActualBestPathRoutes> routesToStore) {
         if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -270,9 +264,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     }
 
     @Override
-    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
-                final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute<C, S>> newRoutes) {
+    public final synchronized void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
+            final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute> newRoutes) {
         if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -334,9 +327,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     }
 
     @Override
-    public final synchronized <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            void reEvaluateAdvertizement(final RouteEntryDependenciesContainer entryDep,
-                final List<ActualBestPathRoutes<C, S>> routesToStore) {
+    public final synchronized void reEvaluateAdvertizement(final RouteEntryDependenciesContainer entryDep,
+                final List<ActualBestPathRoutes> routesToStore) {
         if (ribOutChain == null) {
             LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
             return;
@@ -448,7 +440,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     // FIXME: why is this different from removeRoute()?
     @Holding("this")
     private void deleteRoute(final RIBSupport<?, ?> ribSupport, final boolean addPathSupported,
-            final YangInstanceIdentifier tableRibout, final AbstractAdvertizedRoute<?, ?> advRoute,
+            final YangInstanceIdentifier tableRibout, final AbstractAdvertizedRoute advRoute,
             final DOMDataTreeWriteOperations tx) {
         final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
             addPathSupported ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());

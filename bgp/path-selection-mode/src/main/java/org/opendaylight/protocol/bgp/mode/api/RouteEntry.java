@@ -16,20 +16,15 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 /**
- * A single route entry inside a route table. Maintains the attributes of
- * from all contributing peers. The information is stored in arrays with a
- * shared map of offsets for peers to allow lookups. This is needed to
- * maintain low memory overhead in face of large number of routes and peers,
- * where individual object overhead becomes the dominating factor.
+ * A single route entry inside a route table. Maintains the attributes of from all contributing peers. The information
+ * is stored in arrays with a shared map of offsets for peers to allow lookups. This is needed to maintain low memory
+ * overhead in face of large number of routes and peers, where individual object overhead becomes the dominating factor.
  */
-public interface RouteEntry<C extends Routes & DataObject, S extends ChildOf<? super C>> {
+public interface RouteEntry {
     /**
      * Remove route.
      *
@@ -45,7 +40,7 @@ public interface RouteEntry<C extends Routes & DataObject, S extends ChildOf<? s
      * @param localAs The local autonomous system number
      * @return return true if it has changed
      */
-    boolean selectBest(RIBSupport<C, S> ribSupport, long localAs);
+    boolean selectBest(RIBSupport<?, ?> ribSupport, long localAs);
 
     /**
      * Add Route.
@@ -63,7 +58,7 @@ public interface RouteEntry<C extends Routes & DataObject, S extends ChildOf<? s
      * @param ribSupport RIB Support
      * @param entryInfo  Route Entry Info wrapper
      */
-    @NonNull List<ActualBestPathRoutes<C, S>> actualBestPaths(@NonNull RIBSupport<C, S> ribSupport,
+    @NonNull List<ActualBestPathRoutes> actualBestPaths(@NonNull RIBSupport<?, ?> ribSupport,
             @NonNull RouteEntryInfo entryInfo);
 
     /**
@@ -73,7 +68,8 @@ public interface RouteEntry<C extends Routes & DataObject, S extends ChildOf<? s
      * @param routeKey   of stale route
      * @return list containing list of stale best path
      */
-    @NonNull Optional<StaleBestPathRoute> removeStalePaths(@NonNull RIBSupport<C, S> ribSupport,
+    // FIXME: @NonNullByDefault on interface and @Nullable return here
+    @NonNull Optional<StaleBestPathRoute> removeStalePaths(@NonNull RIBSupport<?, ?> ribSupport,
             @NonNull String routeKey);
 
     /**
@@ -82,5 +78,5 @@ public interface RouteEntry<C extends Routes & DataObject, S extends ChildOf<? s
      * @param ribSupport RIB Support
      * @param routeKey   route key
      */
-    @NonNull List<AdvertizedRoute<C, S>> newBestPaths(@NonNull RIBSupport<C, S> ribSupport, @NonNull String routeKey);
+    @NonNull List<AdvertizedRoute> newBestPaths(@NonNull RIBSupport<?, ?> ribSupport, @NonNull String routeKey);
 }

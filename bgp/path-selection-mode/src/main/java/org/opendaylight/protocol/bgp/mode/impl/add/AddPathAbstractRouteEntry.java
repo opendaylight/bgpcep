@@ -22,9 +22,6 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -38,15 +35,13 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This class is NOT thread-safe.
  */
-public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S extends ChildOf<? super C>>
-        implements RouteEntry<C, S> {
-    private static final class Stale<C extends Routes & DataObject, S extends ChildOf<? super C>>
-            extends StaleBestPathRoute {
+public abstract class AddPathAbstractRouteEntry implements RouteEntry {
+    private static final class Stale extends StaleBestPathRoute {
         private final List<NodeIdentifierWithPredicates> addPathRouteKeyIdentifier;
         private final List<NodeIdentifierWithPredicates> staleRouteKeyIdentifier;
         private final boolean isNonAddPathBestPathNew;
 
-        Stale(final RIBSupport<C, S> ribSupport, final String routeKey, final List<Uint32> staleRoutesPathIds,
+        Stale(final RIBSupport<?, ?> ribSupport, final String routeKey, final List<Uint32> staleRoutesPathIds,
                 final List<Uint32> withdrawalRoutePathIds, final boolean isNonAddPathBestPathNew) {
             super(ribSupport.createRouteListArgument(routeKey));
             this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
@@ -94,7 +89,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
     private long pathIdCounter = 0L;
     private boolean isNonAddPathBestPathNew;
 
-    private MapEntryNode createRoute(final RIBSupport<C, S> ribSup, final String routeKey, final AddPathBestPath path) {
+    private MapEntryNode createRoute(final RIBSupport<?, ?> ribSup, final String routeKey, final AddPathBestPath path) {
         final var map = offsets;
         final var route = map.getValue(values, map.offsetOf(path.getRouteKey()));
         return ribSup.createRoute(route, ribSup.createRouteListArgument(path.getPathIdLong(), routeKey),
@@ -136,7 +131,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
     }
 
     @Override
-    public final Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport<C, S> ribSupport,
+    public final Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport<?, ?> ribSupport,
             final String routeKey) {
         final List<Uint32> stalePaths;
         if (bestPathRemoved != null && !bestPathRemoved.isEmpty()) {
@@ -156,22 +151,21 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
         }
 
         return stalePaths.isEmpty() && removedPaths.isEmpty() ? Optional.empty()
-                : Optional.of(new Stale<>(ribSupport, routeKey, stalePaths, removedPaths, isNonAddPathBestPathNew));
+            : Optional.of(new Stale(ribSupport, routeKey, stalePaths, removedPaths, isNonAddPathBestPathNew));
     }
 
     @Override
-    public final List<AdvertizedRoute<C, S>> newBestPaths(final RIBSupport<C, S> ribSupport,
-            final String routeKey) {
+    public final List<AdvertizedRoute> newBestPaths(final RIBSupport<?, ?> ribSupport, final String routeKey) {
         if (newBestPathToBeAdvertised == null || newBestPathToBeAdvertised.isEmpty()) {
             return List.of();
         }
-        final var advertized = new ArrayList<AdvertizedRoute<C, S>>(newBestPathToBeAdvertised.size());
-        final var firstBestPath = bestPath.isEmpty() ? null : bestPath.get(0);
+        final var advertized = new ArrayList<AdvertizedRoute>(newBestPathToBeAdvertised.size());
+        final var firstBestPath = bestPath.isEmpty() ? null : bestPath.getFirst();
         for (var path : newBestPathToBeAdvertised) {
             final var routeAddPath = createRoute(ribSupport, routeKey, path);
             // FIXME: can we use identity check here?
             final boolean isFirstBestPath = firstBestPath != null && firstBestPath.equals(path);
-            final var adv = new AdvertizedRoute<>(ribSupport, isFirstBestPath, routeAddPath, path.getAttributes(),
+            final var adv = new AdvertizedRoute(ribSupport, isFirstBestPath, routeAddPath, path.getAttributes(),
                 path.getPeerId(), path.isDepreferenced());
             advertized.add(adv);
         }
@@ -180,15 +174,15 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
     }
 
     @Override
-    public final List<ActualBestPathRoutes<C, S>> actualBestPaths(final RIBSupport<C, S> ribSupport,
+    public final List<ActualBestPathRoutes> actualBestPaths(final RIBSupport<?, ?> ribSupport,
             final RouteEntryInfo entryInfo) {
         if (bestPath == null || bestPath.isEmpty()) {
             return List.of();
         }
-        final var preexistentRoutes = new ArrayList<ActualBestPathRoutes<C, S>>();
+        final var preexistentRoutes = new ArrayList<ActualBestPathRoutes>();
         for (var path : bestPath) {
             final var route = createRoute(ribSupport, entryInfo.getRouteKey(), path);
-            final var adv = new ActualBestPathRoutes<>(ribSupport, route, path.getPeerId(), path.getAttributes(),
+            final var adv = new ActualBestPathRoutes(ribSupport, route, path.getPeerId(), path.getAttributes(),
                 path.isDepreferenced());
             preexistentRoutes.add(adv);
         }
@@ -196,12 +190,12 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
     }
 
     @Override
-    public final boolean selectBest(final RIBSupport<C, S> ribSupport, final long localAs) {
-        final int size = offsets.size();
-        return isBestPathNew(size == 0 ? ImmutableList.of() : selectBest(ribSupport, localAs, size));
+    public final boolean selectBest(final RIBSupport<?, ?> ribSupport, final long localAs) {
+        final int size;
+        return isBestPathNew((size = offsets.size()) == 0 ? ImmutableList.of() : selectBest(ribSupport, localAs, size));
     }
 
-    protected abstract ImmutableList<AddPathBestPath> selectBest(RIBSupport<C, S> ribSupport, long localAs, int size);
+    protected abstract ImmutableList<AddPathBestPath> selectBest(RIBSupport<?, ?> ribSupport, long localAs, int size);
 
     /**
      * Process a specific route offset into specified selector.
@@ -209,7 +203,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
      * @param selector selector to update
      * @param offset offset to process
      */
-    protected final void processOffset(final RIBSupport<C, S> ribSupport, final AddPathSelector selector,
+    protected final void processOffset(final RIBSupport<?, ?> ribSupport, final AddPathSelector selector,
             final int offset) {
         final var key = offsets.getKey(offset);
         final var route = offsets.getValue(values, offset);
@@ -218,7 +212,7 @@ public abstract class AddPathAbstractRouteEntry<C extends Routes & DataObject, S
         selector.processPath(ribSupport.extractAttributes(route), key, offset, pathId);
     }
 
-    protected final AddPathBestPath bestPathAt(final RIBSupport<C, S> ribSupport, final int offset) {
+    protected final AddPathBestPath bestPathAt(final RIBSupport<?, ?> ribSupport, final int offset) {
         final var route = verifyNotNull(offsets.getValue(values, offset));
         return new AddPathBestPath(new BestPathStateImpl(ribSupport.extractAttributes(route)), offsets.getKey(offset),
             offsets.getValue(pathsId, offset), offset);

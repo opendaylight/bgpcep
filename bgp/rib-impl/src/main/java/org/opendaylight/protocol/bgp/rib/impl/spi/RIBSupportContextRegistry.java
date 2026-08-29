@@ -9,12 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public interface RIBSupportContextRegistry {
@@ -24,8 +19,7 @@ public interface RIBSupportContextRegistry {
      * @param key AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-        @Nullable RIBSupport<C, S> getRIBSupport(TablesKey key);
+    @Nullable RIBSupport<?, ?> getRIBSupport(TablesKey key);
 
     /**
      * Acquire a RIB Support Context for a AFI/SAFI combination.
@@ -33,9 +27,8 @@ public interface RIBSupportContextRegistry {
      * @param key Tables key with AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    default <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>>
-            @Nullable RIBSupport<C, S> getRIBSupport(final NodeIdentifierWithPredicates key) {
-        final RIBSupportContext support = getRIBSupportContext(key);
+    default @Nullable RIBSupport<?, ?> getRIBSupport(final NodeIdentifierWithPredicates key) {
+        final var support = getRIBSupportContext(key);
         return support == null ? null : support.getRibSupport();
     }
 
