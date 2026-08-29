@@ -15,8 +15,6 @@ import org.opendaylight.protocol.bgp.parser.BGPTreatAsWithdrawException;
 
 /**
  * Enumeration of possible treatments an UPDATE message and attributes can get based on the configuration of a peer.
- *
- * @author Robert Varga
  */
 @NonNullByDefault
 public enum RevisedErrorHandling {
@@ -27,7 +25,7 @@ public enum RevisedErrorHandling {
         @Override
         public BGPDocumentedException reportError(final BGPError error, final @Nullable Exception cause,
                 final String format, final Object... args) throws BGPDocumentedException {
-            throw new BGPDocumentedException(String.format(format, args), error, cause);
+            throw new BGPDocumentedException(format.formatted(args), error, cause);
         }
     },
     /**

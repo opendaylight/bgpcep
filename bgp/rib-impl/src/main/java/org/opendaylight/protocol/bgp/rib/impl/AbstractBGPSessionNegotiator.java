@@ -23,7 +23,6 @@ import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
-import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.SessionNegotiator;
 import org.opendaylight.protocol.util.Ipv6Util;
 import org.opendaylight.protocol.util.Values;
@@ -97,43 +96,41 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
             return;
         }
         // Open can be sent first either from ODL (IDLE) or from peer (OPEN_CONFIRM)
-        final IpAddressNoZone remoteIp = getRemoteIp();
+        final var remoteIp = getRemoteIp();
         try {
             // Check if peer is configured in registry before retrieving preferences
             if (!registry.isPeerConfigured(remoteIp)) {
-                final BGPDocumentedException cause = new BGPDocumentedException(
-                        String.format("BGP peer with ip: %s not configured, check configured peers in : %s",
-                                remoteIp, registry), BGPError.CONNECTION_REJECTED);
-                negotiationFailed(cause);
+                negotiationFailed(new BGPDocumentedException(
+                    "BGP peer with ip: %s not configured, check configured peers in : %s".formatted(
+                        remoteIp, registry), BGPError.CONNECTION_REJECTED));
                 return;
             }
 
-            final BGPSessionPreferences preferences = registry.getPeerPreferences(remoteIp);
-            final Uint16 as = openASNumber(preferences.getMyAs().getValue().longValue());
+            final var preferences = registry.getPeerPreferences(remoteIp);
+            final var as = openASNumber(preferences.getMyAs().getValue().longValue());
             sendMessage(new OpenBuilder().setMyAsNumber(as).setHoldTimer(Uint16.valueOf(preferences.getHoldTime()))
                 .setBgpIdentifier(preferences.getBgpId()).setBgpParameters(preferences.getParams()).build());
             if (state != State.FINISHED) {
                 state = State.OPEN_SENT;
                 pending = channel.eventLoop().schedule(() -> {
                     synchronized (AbstractBGPSessionNegotiator.this) {
-                        AbstractBGPSessionNegotiator.this.pending = null;
-                        if (AbstractBGPSessionNegotiator.this.state != State.FINISHED) {
-                            AbstractBGPSessionNegotiator.this
-                                    .sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
+                        pending = null;
+                        if (state != State.FINISHED) {
+                            sendMessage(buildErrorNotify(BGPError.HOLD_TIMER_EXPIRED));
                             negotiationFailed(new BGPDocumentedException("HoldTimer expired", BGPError.FSM_ERROR));
-                            AbstractBGPSessionNegotiator.this.state = State.FINISHED;
+                            state = State.FINISHED;
                         }
                     }
                 }, INITIAL_HOLDTIMER, TimeUnit.MINUTES);
             }
-        } catch (final Exception e) {
+        } catch (Exception e) {
             LOG.warn("Unexpected negotiation failure", e);
             negotiationFailedCloseChannel(e);
         }
     }
 
     private IpAddressNoZone getRemoteIp() {
-        final IpAddressNoZone remoteIp = StrictBGPPeerRegistry.getIpAddress(channel.remoteAddress());
+        final var remoteIp = StrictBGPPeerRegistry.getIpAddress(channel.remoteAddress());
         if (remoteIp.getIpv6AddressNoZone() != null) {
             return new IpAddressNoZone(Ipv6Util.getFullForm(remoteIp.getIpv6AddressNoZone()));
         }
@@ -143,38 +140,39 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     synchronized void handleMessage(final Notification<?> msg) {
         LOG.debug("Channel {} handling message in state {}, msg: {}", channel, state, msg);
         switch (state) {
-            case FINISHED:
-                sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
-                return;
-            case IDLE:
+            case null -> throw new NullPointerException();
+            case FINISHED -> sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
+            case IDLE -> {
                 // to avoid race condition when Open message was sent by the peer before startNegotiation could be
                 // executed
-                if (msg instanceof Open) {
+                if (msg instanceof Open open) {
                     startNegotiation();
-                    handleOpen((Open) msg);
+                    handleOpen(open);
                     return;
                 }
                 sendMessage(buildErrorNotify(BGPError.FSM_ERROR));
-                break;
-            case OPEN_CONFIRM:
-                if (msg instanceof Keepalive) {
-                    negotiationSuccessful();
-                    LOG.info("BGP Session with peer {} established successfully.", channel);
-                } else if (msg instanceof Notify) {
-                    final Notify ntf = (Notify) msg;
-                    negotiationFailed(new BGPDocumentedException("Peer refusal",
+            }
+            case OPEN_CONFIRM -> {
+                switch (msg) {
+                    case Keepalive ka -> {
+                        negotiationSuccessful();
+                        LOG.info("BGP Session with peer {} established successfully.", channel);
+                    }
+                    case Notify ntf ->
+                        negotiationFailed(new BGPDocumentedException("Peer refusal",
                             BGPError.forValue(ntf.getErrorCode(), ntf.getErrorSubcode())));
+                    default -> {
+                        // no-op
+                    }
                 }
                 state = State.FINISHED;
-                return;
-            case OPEN_SENT:
-                if (msg instanceof Open) {
-                    handleOpen((Open) msg);
+            }
+            case OPEN_SENT -> {
+                if (msg instanceof Open open) {
+                    handleOpen(open);
                     return;
                 }
-                break;
-            default:
-                break;
+            }
         }
 
         // Catch-all for unexpected message
@@ -190,7 +188,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     }
 
     private static Notify buildErrorNotify(final BGPError err, final byte[] data) {
-        final NotifyBuilder builder = new NotifyBuilder().setErrorCode(err.getCode()).setErrorSubcode(err.getSubcode());
+        final var builder = new NotifyBuilder().setErrorCode(err.getCode()).setErrorSubcode(err.getSubcode());
         if (data != null && data.length != 0) {
             builder.setData(data);
         }
@@ -199,10 +197,10 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
 
     @SuppressWarnings("checkstyle:illegalCatch")
     private synchronized void handleOpen(final Open openObj) {
-        final IpAddressNoZone remoteIp = getRemoteIp();
-        final BGPSessionPreferences preferences = registry.getPeerPreferences(remoteIp);
+        final var remoteIp = getRemoteIp();
+        final var preferences = registry.getPeerPreferences(remoteIp);
         try {
-            final BGPSessionListener peer = registry.getPeer(remoteIp, getSourceId(openObj, preferences),
+            final var peer = registry.getPeer(remoteIp, getSourceId(openObj, preferences),
                     getDestinationId(openObj, preferences), openObj);
             sendMessage(new KeepaliveBuilder().build());
             state = State.OPEN_CONFIRM;
@@ -217,12 +215,11 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
 
     private synchronized void negotiationFailed(final Throwable cause) {
         LOG.warn("Channel {} negotiation failed: {}", channel, cause.getMessage());
-        if (cause instanceof BGPDocumentedException) {
+        if (cause instanceof BGPDocumentedException documented) {
             // although sendMessage() can also result in calling this method, it won't create a cycle.
             // In case sendMessage() fails to deliver the message, this method gets called with different
             // exception (definitely not with BGPDocumentedException).
-            sendMessage(buildErrorNotify(((BGPDocumentedException) cause).getError(),
-                    ((BGPDocumentedException) cause).getData()));
+            sendMessage(buildErrorNotify(documented.getError(), documented.getData()));
         }
         if (state == State.OPEN_CONFIRM) {
             registry.removePeerSession(getRemoteIp());
@@ -274,11 +271,10 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
     private void sendMessage(final Notification<?> msg) {
         channel.writeAndFlush(msg).addListener((ChannelFutureListener) f -> {
             if (!f.isSuccess()) {
-                LOG.warn("Failed to send message {} to channel {}", msg, AbstractBGPSessionNegotiator.this.channel,
-                        f.cause());
+                LOG.warn("Failed to send message {} to channel {}", msg, channel, f.cause());
                 negotiationFailedCloseChannel(f.cause());
             } else {
-                LOG.trace("Message {} sent to channel {}", msg, AbstractBGPSessionNegotiator.this.channel);
+                LOG.trace("Message {} sent to channel {}", msg, channel);
             }
         });
     }

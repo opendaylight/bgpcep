@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.util;
 
 import com.google.common.base.Preconditions;
@@ -27,7 +26,7 @@ public final class StatisticsUtil {
      */
     public static String formatElapsedTime(final long seconds) {
         Preconditions.checkArgument(seconds >= 0);
-        return String.format("%1d:%02d:%02d:%02d",
+        return "%1d:%02d:%02d:%02d".formatted(
                 TimeUnit.SECONDS.toDays(seconds),
                 TimeUnit.SECONDS.toHours(seconds) - TimeUnit.DAYS.toHours(TimeUnit.SECONDS.toDays(seconds)),
                 TimeUnit.SECONDS.toMinutes(seconds) - TimeUnit.HOURS.toMinutes(TimeUnit.SECONDS.toHours(seconds)),
