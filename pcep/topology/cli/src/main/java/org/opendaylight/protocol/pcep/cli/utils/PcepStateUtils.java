@@ -20,10 +20,8 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.Error;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.Preferences;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.error.messages.grouping.ErrorMessages;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.LocalPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.Messages;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.PeerCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.PeerPref;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.pcep.session.state.grouping.PcepSessionState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.stats.rev250930.reply.time.grouping.ReplyTime;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.stats.rev181109.PcepTopologyNodeStatsAug;
@@ -59,18 +57,17 @@ public final class PcepStateUtils {
      */
     public static void displayNodeState(final @NonNull DataBroker dataBroker,
             final @NonNull PrintStream stream, final @NonNull String topologyId, final @NonNull String nodeId) {
-        final Node node = readNodeFromDataStore(dataBroker, topologyId, nodeId);
+        final var node = readNodeFromDataStore(dataBroker, topologyId, nodeId);
         if (node == null) {
-            stream.println(String.format("Node [%s] not found", nodeId));
+            stream.println("Node [%s] not found".formatted(nodeId));
             return;
         }
-        final PcepTopologyNodeStatsAug state = node.augmentation(PcepTopologyNodeStatsAug.class);
+        final var state = node.augmentation(PcepTopologyNodeStatsAug.class);
         if (state == null) {
-            stream.println(String.format("State not found for [%s]", nodeId));
+            stream.println("State not found for [%s]".formatted(nodeId));
             return;
         }
-        final PcepSessionState nodeState = state.getPcepSessionState();
-        displayNodeState(topologyId, nodeId, nodeState, stream);
+        displayNodeState(topologyId, nodeId, state.getPcepSessionState(), stream);
     }
 
     private static void displayNodeState(
@@ -78,34 +75,29 @@ public final class PcepStateUtils {
             final String nodeId,
             final PcepSessionState pcepSessionState,
             final PrintStream stream) {
-        final ShellTable table = new ShellTable();
+        final var table = new ShellTable();
         table.column("Attribute").alignLeft();
         table.column("Value").alignLeft();
 
         showNodeState(table, topologyId, nodeId, pcepSessionState);
 
         addHeader(table, "Local preferences");
-        final LocalPref localPref = pcepSessionState.getLocalPref();
+        final var localPref = pcepSessionState.getLocalPref();
         showPreferences(table, localPref);
-        if (localPref.getSpeakerEntityIdValue() != null) {
-            table.addRow().addContent("Speaker Entity Identifier",
-                    Arrays.toString(localPref.getSpeakerEntityIdValue()));
+        final var speakerEntityId = localPref.getSpeakerEntityIdValue();
+        if (speakerEntityId != null) {
+            // FIXME: better format: hex-encode?
+            table.addRow().addContent("Speaker Entity Identifier", Arrays.toString(speakerEntityId));
         }
 
         addHeader(table, "Peer preferences");
-        final PeerPref peerPref = pcepSessionState.getPeerPref();
-        showPreferences(table, peerPref);
-
+        showPreferences(table, pcepSessionState.getPeerPref());
         showCapabilities(table, pcepSessionState.getPeerCapabilities());
 
-        final Messages messages = pcepSessionState.getMessages();
+        final var messages = pcepSessionState.getMessages();
         showMessages(table, messages);
-
-        final ErrorMessages error = messages.getErrorMessages();
-        showErrorMessages(table, error);
-
-        final ReplyTime reply = messages.getReplyTime();
-        showReplyMessages(table, reply);
+        showErrorMessages(table, messages.getErrorMessages());
+        showReplyMessages(table, messages.getReplyTime());
 
         table.print(stream, StandardCharsets.UTF_8, true);
     }
@@ -148,8 +140,7 @@ public final class PcepStateUtils {
         table.addRow().addContent("Unknown Msg Received", messages.getUnknownMsgReceived());
 
         addHeader(table, " Stateful Messages");
-        table.addRow().addContent("Last Received RptMsg Timestamp", messages
-                .getLastReceivedRptMsgTimestamp());
+        table.addRow().addContent("Last Received RptMsg Timestamp", messages.getLastReceivedRptMsgTimestamp());
         table.addRow().addContent("Received RptMsg", messages.getReceivedRptMsgCount());
         table.addRow().addContent("Sent Init Msg", messages.getSentInitMsgCount());
         table.addRow().addContent("Sent Upd Msg", messages.getSentUpdMsgCount());

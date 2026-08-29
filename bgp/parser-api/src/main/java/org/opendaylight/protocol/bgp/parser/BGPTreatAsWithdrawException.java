@@ -16,6 +16,7 @@ import org.eclipse.jdt.annotation.Nullable;
  * Handling procedures are not in effect.
  */
 public final class BGPTreatAsWithdrawException extends AbstractBGPException {
+    @java.io.Serial
     private static final long serialVersionUID = 1L;
 
     public BGPTreatAsWithdrawException(final @NonNull BGPError error, final @NonNull String format,
@@ -25,11 +26,11 @@ public final class BGPTreatAsWithdrawException extends AbstractBGPException {
 
     public BGPTreatAsWithdrawException(final @NonNull BGPError error, final byte[] data, final @NonNull String format,
             final Object... args) {
-        super(String.format(format, args), error, data, null);
+        super(format.formatted(args), error, data, null);
     }
 
     public BGPTreatAsWithdrawException(final @NonNull BGPError error, final @Nullable Exception cause,
             final @NonNull String format, final Object... args) {
-        super(String.format(format, args), error, null, cause);
+        super(format.formatted(args), error, null, cause);
     }
 }

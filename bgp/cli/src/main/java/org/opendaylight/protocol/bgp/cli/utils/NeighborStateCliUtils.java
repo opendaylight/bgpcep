@@ -14,21 +14,16 @@ import java.util.Set;
 import org.apache.karaf.shell.support.table.ShellTable;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.bgp.neighbor.prefix.counters_state.Prefixes;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.State;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Timers;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Transport;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.BgpCapability;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.BgpNeighborStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborAfiSafiStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborTimersStateAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.NeighborTransportStateAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.bgp.neighbor_state.augmentation.Messages;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.bgp.neighbor_state.augmentation.messages.Received;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.bgp.neighbor_state.augmentation.messages.Sent;
 
 //NeighborStateCliUtils sends Neighbor Operational State to PrintStream
 final class NeighborStateCliUtils {
@@ -40,16 +35,16 @@ final class NeighborStateCliUtils {
             final @NonNull Neighbor neighbor, final @NonNull PrintStream stream) {
         final State neighborState = neighbor.getState();
         if (neighborState == null) {
-            stream.println(String.format("No BgpSessionState found for [%s]", neighborId));
+            stream.println("No BgpSessionState found for [%s]".formatted(neighborId));
             return;
         }
 
-        final ShellTable table = new ShellTable();
+        final var table = new ShellTable();
         table.column("Attribute").alignLeft();
         table.column("Value").alignLeft();
         table.addRow().addContent("Neighbor Address", neighborId);
 
-        final NeighborStateAugmentation stateAug = neighborState.augmentation(NeighborStateAugmentation.class);
+        final var stateAug = neighborState.augmentation(NeighborStateAugmentation.class);
         if (stateAug != null) {
             table.addRow().addContent("Session State", stateAug.getSessionState());
             printCapabilitiesState(stateAug.getSupportedCapabilities(), table);
@@ -81,16 +76,14 @@ final class NeighborStateCliUtils {
 
     private static void printAfiSafisState(final Collection<AfiSafi> afiSafis, final ShellTable table) {
         afiSafis.forEach(afiSafi -> printAfiSafiState(afiSafi, table));
-
     }
 
     private static void printAfiSafiState(final AfiSafi afiSafi, final ShellTable table) {
-        final NeighborAfiSafiStateAugmentation state = afiSafi.getState()
-                .augmentation(NeighborAfiSafiStateAugmentation.class);
+        final var state = afiSafi.getState().augmentation(NeighborAfiSafiStateAugmentation.class);
         addHeader(table, "AFI state");
         table.addRow().addContent("Family", afiSafi.getAfiSafiName().implementedInterface().getSimpleName());
         table.addRow().addContent("Active", state.getActive());
-        final Prefixes prefixes = state.getPrefixes();
+        final var prefixes = state.getPrefixes();
         if (prefixes == null) {
             return;
         }
@@ -102,19 +95,19 @@ final class NeighborStateCliUtils {
     }
 
     private static void printMessagesState(final State neighborState, final ShellTable table) {
-        final BgpNeighborStateAugmentation state = neighborState.augmentation(BgpNeighborStateAugmentation.class);
+        final var state = neighborState.augmentation(BgpNeighborStateAugmentation.class);
         if (state == null) {
             return;
         }
         addHeader(table, "Messages state");
-        final Messages messages = state.getMessages();
+        final var messages = state.getMessages();
         table.addRow().addContent("Messages Received", "");
 
-        final Received received = messages.getReceived();
+        final var received = messages.getReceived();
         table.addRow().addContent("NOTIFICATION", received.getNOTIFICATION());
         table.addRow().addContent("UPDATE", received.getUPDATE());
 
-        final Sent sent = messages.getSent();
+        final var sent = messages.getSent();
         table.addRow().addContent("Messages Sent", "");
         table.addRow().addContent("NOTIFICATION", sent.getNOTIFICATION());
         table.addRow().addContent("UPDATE", sent.getUPDATE());
@@ -124,14 +117,13 @@ final class NeighborStateCliUtils {
         if (transport == null) {
             return;
         }
-        final NeighborTransportStateAugmentation state = transport.getState()
-                .augmentation(NeighborTransportStateAugmentation.class);
+        final var state = transport.getState().augmentation(NeighborTransportStateAugmentation.class);
         if (state == null) {
             return;
         }
         addHeader(table, "Transport state");
 
-        final IpAddress remoteAddress = state.getRemoteAddress();
+        final var remoteAddress = state.getRemoteAddress();
         final String stringRemoteAddress;
         if (remoteAddress.getIpv4Address() == null) {
             stringRemoteAddress = remoteAddress.getIpv6Address().getValue();
@@ -148,8 +140,7 @@ final class NeighborStateCliUtils {
             return;
         }
 
-        final NeighborTimersStateAugmentation state = timers.getState()
-                .augmentation(NeighborTimersStateAugmentation.class);
+        final var state = timers.getState().augmentation(NeighborTimersStateAugmentation.class);
         if (state == null) {
             return;
         }

@@ -17,6 +17,7 @@ import com.google.common.annotations.Beta;
  */
 @Beta
 public final class ParameterLengthOverflowException extends Exception {
+    @java.io.Serial
     private static final long serialVersionUID = 1L;
 
     public ParameterLengthOverflowException(final String message) {
@@ -26,7 +27,7 @@ public final class ParameterLengthOverflowException extends Exception {
     public static void throwIf(final boolean expression, final String format, final Object... args)
             throws ParameterLengthOverflowException {
         if (expression) {
-            throw new ParameterLengthOverflowException(String.format(format, args));
+            throw new ParameterLengthOverflowException(format.formatted(args));
         }
     }
 }

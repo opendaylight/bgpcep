@@ -59,9 +59,9 @@ public final class BGPOperationalStateUtils {
     public static void displayBgpOperationalState(final @NonNull DataBroker dataBroker,
             final @NonNull PrintStream stream, final @NonNull String ribId, final @Nullable String group,
             final @Nullable String neighbor) {
-        final Bgp globalBgp = readGlobalFromDataStore(dataBroker, ribId);
+        final var globalBgp = readGlobalFromDataStore(dataBroker, ribId);
         if (globalBgp == null) {
-            stream.println(String.format("RIB not found for [%s]", ribId));
+            stream.println("RIB not found for [%s]".formatted(ribId));
             return;
         }
         if (neighbor == null && group == null) {
