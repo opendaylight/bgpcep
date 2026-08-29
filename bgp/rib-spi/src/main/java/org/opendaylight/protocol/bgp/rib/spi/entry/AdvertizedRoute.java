@@ -24,16 +24,19 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  */
 public final class AdvertizedRoute<C extends Routes & DataObject & ChoiceIn<Tables>,
         S extends ChildOf<? super C>> extends AbstractAdvertizedRoute<C, S> {
+    private final boolean isFirstBestPath;
 
     public AdvertizedRoute(final RIBSupport<C, S> ribSupport, final MapEntryNode route,
             final ContainerNode attributes, final PeerId fromPeerId, final boolean depreferenced) {
-        this(ribSupport, true, route, attributes, fromPeerId, depreferenced);
+        super(ribSupport, route, fromPeerId, attributes, depreferenced);
+        isFirstBestPath = true;
     }
 
     public AdvertizedRoute(final RIBSupport<C, S> ribSupport, final boolean isFirstBestPath,
             final MapEntryNode route, final ContainerNode attributes, final PeerId fromPeerId,
             final boolean depreferenced) {
-        super(ribSupport, route, fromPeerId, attributes, depreferenced, isFirstBestPath);
+        super(ribSupport, route, fromPeerId, attributes, depreferenced);
+        this.isFirstBestPath = isFirstBestPath;
     }
 
     public boolean isFirstBestPath() {

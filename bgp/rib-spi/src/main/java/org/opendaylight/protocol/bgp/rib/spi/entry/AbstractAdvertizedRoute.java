@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -28,26 +29,16 @@ public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & Ch
     private final PeerId fromPeerId;
     private final MapEntryNode route;
     private final ContainerNode attributes;
-    private final NodeIdentifierWithPredicates addPathRouteKeyIdentifier;
-    private final NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier;
+    private final @NonNull NodeIdentifierWithPredicates addPathRouteKeyIdentifier;
+    private final @NonNull NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier;
     private final boolean depreferenced;
-
-    // Note: this field hides in the alignment shadow of 'depreferenced', but is used only in AdvertizedRoute.
-    // TODO: move this field back when we require JDK15+ (see https://bugs.openjdk.java.net/browse/JDK-8237767)
-    final boolean isFirstBestPath;
 
     AbstractAdvertizedRoute(final RIBSupport<C, S> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
             final ContainerNode attributes, final boolean depreferenced) {
-        this(ribSupport, route, fromPeerId, attributes, depreferenced, false);
-    }
-
-    AbstractAdvertizedRoute(final RIBSupport<C, S> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
-            final ContainerNode attributes, final boolean depreferenced, final boolean isFirstBestPath) {
         this.fromPeerId = fromPeerId;
         this.route = route;
         this.attributes = attributes;
         this.depreferenced = depreferenced;
-        this.isFirstBestPath = isFirstBestPath;
         addPathRouteKeyIdentifier = ribSupport.toAddPathListArgument(route.name());
         nonAddPathRouteKeyIdentifier = ribSupport.toNonPathListArgument(addPathRouteKeyIdentifier);
     }
