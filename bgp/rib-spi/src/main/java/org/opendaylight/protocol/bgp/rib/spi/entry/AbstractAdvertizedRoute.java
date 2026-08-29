@@ -10,10 +10,8 @@ package org.opendaylight.protocol.bgp.rib.spi.entry;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -24,8 +22,8 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  *
  * @author Claudio D. Gasparini
  */
-public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject & ChoiceIn<Tables>,
-        S extends ChildOf<? super C>> implements RouteKeyIdentifier {
+public abstract class AbstractAdvertizedRoute<C extends Routes & DataObject, S extends ChildOf<? super C>>
+        implements RouteKeyIdentifier {
     private final PeerId fromPeerId;
     private final MapEntryNode route;
     private final ContainerNode attributes;

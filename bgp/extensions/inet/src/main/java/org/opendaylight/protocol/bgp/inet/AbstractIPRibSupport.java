@@ -18,13 +18,11 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.BindingObject;
 import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.EntryObject;
 import org.opendaylight.yangtools.binding.Grouping;
@@ -44,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * Common {@link org.opendaylight.protocol.bgp.rib.spi.RIBSupport} class for IPv4 and IPv6 addresses.
  */
 abstract class AbstractIPRibSupport<
-        C extends Routes & DataObject & ChoiceIn<Tables>,
+        C extends Routes & DataObject,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & EntryObject<?, ?>>
         extends AbstractRIBSupport<C, S, R> {
