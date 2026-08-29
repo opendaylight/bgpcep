@@ -213,15 +213,15 @@ public abstract class AbstractRIBSupport<
         return emptyTable;
     }
 
-    public final QName routeQName() {
+    public final @NonNull QName routeQName() {
         return routeQname;
     }
 
-    protected final NodeIdentifier prefixNid() {
+    protected final @NonNull NodeIdentifier prefixNid() {
         return prefixTypeNid;
     }
 
-    protected final NodeIdentifier routeNid() {
+    protected final @NonNull NodeIdentifier routeNid() {
         return routesListIdentifier;
     }
 
@@ -232,7 +232,7 @@ public abstract class AbstractRIBSupport<
      * @param hop    CNextHop as it was parsed from Attributes, to be included in MpReach object
      * @return MpReachNlri
      */
-    private MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
+    private @NonNull MpReachNlri buildReach(final Collection<MapEntryNode> routes, final CNextHop hop) {
         return new MpReachNlriBuilder()
             .setAfi(tk.getAfi())
             .setSafi(tk.getSafi())
@@ -247,7 +247,7 @@ public abstract class AbstractRIBSupport<
      * @param routes Collection of MapEntryNode DOM representation of routes
      * @return MpUnreachNlri
      */
-    private MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
+    private @NonNull MpUnreachNlri buildUnreach(final Collection<MapEntryNode> routes) {
         return new MpUnreachNlriBuilder()
             .setAfi(tk.getAfi())
             .setSafi(tk.getSafi())
@@ -267,7 +267,7 @@ public abstract class AbstractRIBSupport<
      *
      * @return Container identifier, may not be null.
      */
-    public final NodeIdentifier routesContainerIdentifier() {
+    public final @NonNull NodeIdentifier routesContainerIdentifier() {
         return routesContainerIdentifier;
     }
 
