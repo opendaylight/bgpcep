@@ -64,7 +64,6 @@ import org.opendaylight.yangtools.binding.EntryObject;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.util.ImmutableOffsetMapTemplate;
 import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.common.QNameModule;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -88,47 +87,48 @@ public abstract class AbstractRIBSupport<
         C extends Routes & DataObject,
         S extends ChildOf<? super C>,
         R extends Route & ChildOf<? super S> & EntryObject<?, ?>> implements RIBSupport<C, S> {
-    public static final String ROUTE_KEY = "route-key";
+    // FIXME: document this constant
+    public static final @NonNull String ROUTE_KEY = "route-key";
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractRIBSupport.class);
-    private static final NodeIdentifier ADVERTISED_ROUTES = NodeIdentifier.create(AdvertizedRoutes.QNAME);
-    private static final NodeIdentifier WITHDRAWN_ROUTES = NodeIdentifier.create(WithdrawnRoutes.QNAME);
-    private static final NodeIdentifier DESTINATION_TYPE = NodeIdentifier.create(DestinationType.QNAME);
-    private static final DataObjectReference<Tables> TABLES_II =
+    private static final @NonNull NodeIdentifier ADVERTISED_ROUTES = NodeIdentifier.create(AdvertizedRoutes.QNAME);
+    private static final @NonNull NodeIdentifier WITHDRAWN_ROUTES = NodeIdentifier.create(WithdrawnRoutes.QNAME);
+    private static final @NonNull NodeIdentifier DESTINATION_TYPE = NodeIdentifier.create(DestinationType.QNAME);
+    private static final @NonNull DataObjectReference<Tables> TABLES_II =
         DataObjectReference.builder(BgpRib.class).child(Rib.class).child(LocRib.class).child(Tables.class).build();
-    private static final ApplyRoute DELETE_ROUTE = new DeleteRoute();
-    private static final ImmutableOffsetMapTemplate<QName> TABLES_KEY_TEMPLATE = ImmutableOffsetMapTemplate.ordered(
-        ImmutableList.of(AFI_QNAME, SAFI_QNAME));
-    private static final BuilderFactory BUILDER_FACTORY = ImmutableNodes.builderFactory();
+    private static final @NonNull ApplyRoute DELETE_ROUTE = new DeleteRoute();
+    private static final @NonNull ImmutableOffsetMapTemplate<QName> TABLES_KEY_TEMPLATE =
+        ImmutableOffsetMapTemplate.ordered(ImmutableList.of(AFI_QNAME, SAFI_QNAME));
+    private static final @NonNull BuilderFactory BUILDER_FACTORY = ImmutableNodes.builderFactory();
 
     // Instance identifier to table/(choice routes)/(map of route)
-    private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath = CacheBuilder.newBuilder()
-            .weakValues().build(new CacheLoader<YangInstanceIdentifier, YangInstanceIdentifier>() {
-                @Override
-                public YangInstanceIdentifier load(final YangInstanceIdentifier routesTablePaths) {
-                    return routesTablePaths.node(routesContainerIdentifier()).node(routeQName());
-                }
-            });
-    private final NodeIdentifier routesContainerIdentifier;
-    private final NodeIdentifier routesListIdentifier;
-    private final NodeIdentifier routeAttributesIdentifier;
-    private final Class<C> cazeClass;
-
-    private final Class<S> containerClass;
-    private final Class<R> listClass;
-    private final ApplyRoute putRoute = new PutRoute();
-    private final MapEntryNode emptyTable;
-    private final QName routeQname;
-    private final QName routeKeyQname;
-    private final NodeIdentifier destinationNid;
-    private final NodeIdentifier pathIdNid;
-    private final NodeIdentifier prefixTypeNid;
-    private final NodeIdentifier rdNid;
-    protected final BindingNormalizedNodeSerializer mappingService;
+    private final LoadingCache<YangInstanceIdentifier, YangInstanceIdentifier> routesPath =
+        CacheBuilder.newBuilder().weakValues().build(new CacheLoader<>() {
+            @Override
+            public YangInstanceIdentifier load(final YangInstanceIdentifier routesTablePaths) {
+                return routesTablePaths.node(routesContainerIdentifier()).node(routeQName());
+            }
+        });
+    private final @NonNull NodeIdentifier routesContainerIdentifier;
+    private final @NonNull NodeIdentifier routesListIdentifier;
+    private final @NonNull NodeIdentifier routeAttributesIdentifier;
+    private final @NonNull Class<C> cazeClass;
+    private final @NonNull Class<S> containerClass;
+    private final @NonNull Class<R> listClass;
+    private final @NonNull ApplyRoute putRoute = new PutRoute();
+    private final @NonNull MapEntryNode emptyTable;
+    private final @NonNull QName routeQname;
+    private final @NonNull QName routeKeyQname;
+    private final @NonNull NodeIdentifier destinationNid;
+    private final @NonNull NodeIdentifier pathIdNid;
+    private final @NonNull NodeIdentifier prefixTypeNid;
+    private final @NonNull NodeIdentifier rdNid;
+    protected final @NonNull BindingNormalizedNodeSerializer mappingService;
     protected final YangInstanceIdentifier routeDefaultYii;
     private final @NonNull TablesKey tk;
-    private final NodeIdentifierWithPredicates tablesKey;
+    private final @NonNull NodeIdentifierWithPredicates tablesKey;
     private final ImmutableList<PathArgument> relativeRoutesPath;
-    private final ImmutableOffsetMapTemplate<QName> routeKeyTemplate;
+    private final @NonNull ImmutableOffsetMapTemplate<QName> routeKeyTemplate;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -161,16 +161,18 @@ public abstract class AbstractRIBSupport<
             TABLES_KEY_TEMPLATE.instantiateWithValues(afiQName, safiQName));
         destinationNid = NodeIdentifier.create(destContainerQname);
 
-        final QNameModule module = cazeQName.getModule();
+        final var module = cazeQName.getModule();
         routesContainerIdentifier = NodeIdentifier.create(containerQName.bindTo(module));
         routeAttributesIdentifier = NodeIdentifier.create(Attributes.QNAME.bindTo(module));
         routeQname = listQName.bindTo(module);
         routeKeyQname = QName.create(module, ROUTE_KEY).intern();
         routesListIdentifier = NodeIdentifier.create(routeQname);
 
-        emptyTable = (MapEntryNode) mappingService.toNormalizedDataObject(TABLES_II, new TablesBuilder().withKey(tk)
+        emptyTable = (MapEntryNode) mappingService.toNormalizedDataObject(TABLES_II, new TablesBuilder()
+            .withKey(tk)
             .setAttributes(new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329
-                .rib.tables.AttributesBuilder().build()).build()).node();
+                .rib.tables.AttributesBuilder().build())
+            .build()).node();
         pathIdNid = NodeIdentifier.create(QName.create(routeQName(), "path-id").intern());
         prefixTypeNid = NodeIdentifier.create(QName.create(destContainerQname, "prefix").intern());
         rdNid = NodeIdentifier.create(QName.create(destContainerQname, "route-distinguisher").intern());
@@ -500,11 +502,11 @@ public abstract class AbstractRIBSupport<
         }
     }
 
-    protected final NodeIdentifier routePathIdNid() {
+    protected final @NonNull NodeIdentifier routePathIdNid() {
         return pathIdNid;
     }
 
-    protected final ImmutableOffsetMapTemplate<QName> routeKeyTemplate() {
+    protected final @NonNull ImmutableOffsetMapTemplate<QName> routeKeyTemplate() {
         return routeKeyTemplate;
     }
 
