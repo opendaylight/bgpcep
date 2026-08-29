@@ -278,6 +278,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             return;
         }
 
+        final var peerTracker = entryDep.getPeerTracker();
         final var ribSupport = entryDep.getRIBSupport();
         final var tableRibout = getRibOutIId(ribSupport.tablesKey());
         final var tk = ribSupport.getTablesKey();
@@ -288,8 +289,34 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         for (var staleRoute : staleRoutes) {
             removeRoute(ribSupport, addPathSupported, tableRibout, staleRoute, tx);
         }
+        for (var newRoute : newRoutes) {
+            final var fromPeerId = newRoute.getFromPeerId();
+            if (!filterRoutes(fromPeerId, tk) || !newRoute.isFirstBestPath() && !addPathSupported) {
+                continue;
+            }
+            if (!supportsLLGR() && newRoute.isDepreferenced()) {
+                // https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04#section-4.3
+                //     o  The route SHOULD NOT be advertised to any neighbor from which the
+                //        Long-lived Graceful Restart Capability has not been received.  The
+                //        exception is described in the Optional Partial Deployment
+                //        Procedure section (Section 4.7).  Note that this requirement
+                //        implies that such routes should be withdrawn from any such
+                //        neighbor.
+                deleteRoute(ribSupport, addPathSupported, tableRibout, newRoute, tx);
+                continue;
+            }
 
-        installRouteRibOut(entryDep, newRoutes, tx);
+            final var fromPeer = peerTracker.getPeer(fromPeerId);
+            final var attributes = newRoute.getAttributes();
+            if (fromPeer != null && attributes != null) {
+                final var routePath = createRoutePath(ribSupport, tableRibout, newRoute, addPathSupported);
+                final var route = newRoute.getRoute();
+                final var effAttrs = applyExportPolicy(entryDep, fromPeerId, route, routePath, attributes);
+                if (effAttrs != null) {
+                    storeRoute(ribSupport, newRoute, route, routePath, effAttrs, tx);
+                }
+            }
+        }
 
         final var future = tx.commit();
         submitted = future;
@@ -379,46 +406,6 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         // churn objects when it does not have to
         return exportAttrs == bindingAttrs ? attrs
             : ribSupport.attributeToContainerNode(routePath.node(ribSupport.routeAttributesIdentifier()), exportAttrs);
-    }
-
-    @Holding("this")
-    private <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> void installRouteRibOut(
-            final RouteEntryDependenciesContainer entryDep, final List<AdvertizedRoute<C, S>> routes,
-            final DOMDataTreeWriteOperations tx) {
-        final var ribSupport = entryDep.getRIBSupport();
-        final var tk = ribSupport.getTablesKey();
-        final var peerTracker = entryDep.getPeerTracker();
-        final boolean addPathSupported = supportsAddPathSupported(tk);
-        final var tableRibout = getRibOutIId(ribSupport.tablesKey());
-
-        for (var advRoute : routes) {
-            final var fromPeerId = advRoute.getFromPeerId();
-            if (!filterRoutes(fromPeerId, tk) || !advRoute.isFirstBestPath() && !addPathSupported) {
-                continue;
-            }
-            if (!supportsLLGR() && advRoute.isDepreferenced()) {
-                // https://tools.ietf.org/html/draft-uttaro-idr-bgp-persistence-04#section-4.3
-                //     o  The route SHOULD NOT be advertised to any neighbor from which the
-                //        Long-lived Graceful Restart Capability has not been received.  The
-                //        exception is described in the Optional Partial Deployment
-                //        Procedure section (Section 4.7).  Note that this requirement
-                //        implies that such routes should be withdrawn from any such
-                //        neighbor.
-                deleteRoute(ribSupport, addPathSupported, tableRibout, advRoute, tx);
-                continue;
-            }
-
-            final var fromPeer = peerTracker.getPeer(fromPeerId);
-            final var attributes = advRoute.getAttributes();
-            if (fromPeer != null && attributes != null) {
-                final var routePath = createRoutePath(ribSupport, tableRibout, advRoute, addPathSupported);
-                final var route = advRoute.getRoute();
-                final var effAttrs = applyExportPolicy(entryDep, fromPeerId, route, routePath, attributes);
-                if (effAttrs != null) {
-                    storeRoute(ribSupport, advRoute, route, routePath, effAttrs, tx);
-                }
-            }
-        }
     }
 
     private static YangInstanceIdentifier createRoutePath(final RIBSupport<?, ?> ribSupport,
