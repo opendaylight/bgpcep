@@ -10,22 +10,17 @@ package org.opendaylight.protocol.bgp.rib.spi;
 import static java.util.Objects.requireNonNull;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderContext {
-    private final ConcurrentMap<NodeIdentifierWithPredicates, RIBSupport<?, ?>> domSupports = new ConcurrentHashMap<>();
-    private final ConcurrentMap<TablesKey, RIBSupport<?, ?>> supports = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<NodeIdentifierWithPredicates, RIBSupport<?, ?>> domSupports =
+        new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<TablesKey, RIBSupport<?, ?>> supports = new ConcurrentHashMap<>();
 
     @Override
     public Registration registerRIBSupport(final RIBSupport<?, ?> support) {
@@ -52,22 +47,17 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
     }
 
     @Override
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> RIBSupport<C, S> getRIBSupport(
-            final AddressFamily afi, final SubsequentAddressFamily safi) {
+    public RIBSupport<?, ?> getRIBSupport(final AddressFamily afi, final SubsequentAddressFamily safi) {
         return getRIBSupport(new TablesKey(afi, safi));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> RIBSupport<C, S> getRIBSupport(
-            final TablesKey key) {
-        return (RIBSupport<C, S>) supports.get(requireNonNull(key));
+    public RIBSupport<?, ?> getRIBSupport(final TablesKey key) {
+        return supports.get(requireNonNull(key));
     }
 
     @Override
-    @SuppressWarnings("unchecked")
-    public <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> RIBSupport<C, S> getRIBSupport(
-            final NodeIdentifierWithPredicates key) {
-        return (RIBSupport<C, S>) domSupports.get(key);
+    public RIBSupport<?, ?> getRIBSupport(final NodeIdentifierWithPredicates key) {
+        return domSupports.get(key);
     }
 }

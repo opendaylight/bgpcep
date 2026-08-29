@@ -7,16 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
-import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
@@ -24,16 +19,15 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
  * has to know how to handle individual NLRI fields, whose encoding is specific to a AFI/SAFI pair. This interface
  * exposes an entry point for locating the AFI/SAFI-specific implementation handler.
  */
+@NonNullByDefault
 public interface RIBExtensionConsumerContext {
-
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
      *
      * @param key AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> @Nullable RIBSupport<C, S> getRIBSupport(
-        @NonNull TablesKey key);
+    @Nullable RIBSupport<?, ?> getRIBSupport(TablesKey key);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
@@ -42,8 +36,7 @@ public interface RIBExtensionConsumerContext {
      * @param safi Subsequent Address Family identifier
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> @Nullable RIBSupport<C, S> getRIBSupport(
-            @NonNull AddressFamily afi, @NonNull SubsequentAddressFamily safi);
+    @Nullable RIBSupport<?, ?> getRIBSupport(AddressFamily afi, SubsequentAddressFamily safi);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
@@ -51,7 +44,5 @@ public interface RIBExtensionConsumerContext {
      * @param key Tables key with AFI/SAFI
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-
-    <C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<C>> @Nullable RIBSupport<C, S> getRIBSupport(
-            @NonNull NodeIdentifierWithPredicates key);
+    @Nullable RIBSupport<?, ?> getRIBSupport(NodeIdentifierWithPredicates key);
 }
