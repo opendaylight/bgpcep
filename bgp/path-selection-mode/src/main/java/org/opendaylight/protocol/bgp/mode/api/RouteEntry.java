@@ -16,10 +16,8 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.ChoiceIn;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
@@ -31,7 +29,7 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  * maintain low memory overhead in face of large number of routes and peers,
  * where individual object overhead becomes the dominating factor.
  */
-public interface RouteEntry<C extends Routes & DataObject & ChoiceIn<Tables>, S extends ChildOf<? super C>> {
+public interface RouteEntry<C extends Routes & DataObject, S extends ChildOf<? super C>> {
     /**
      * Remove route.
      *
