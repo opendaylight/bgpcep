@@ -274,7 +274,7 @@ public abstract class AbstractRIBSupport<
             YangInstanceIdentifier routesPath, ContainerNode destination, ContainerNode attributes,
             ApplyRoute applyFunction);
 
-    private static ContainerNode getDestination(final DataContainerChild routes, final NodeIdentifier destinationId) {
+    private @Nullable ContainerNode getDestination(final @NonNull DataContainerChild routes) {
         if (!(routes instanceof ContainerNode routesContainer)) {
             LOG.warn("Advertized routes {} are not a container, ignoring it", routes);
             return null;
@@ -284,9 +284,9 @@ public abstract class AbstractRIBSupport<
             LOG.warn("Destination {} is not a choice, ignoring it", destination);
             return null;
         }
-        final var destChild = destinationChoice.childByArg(destinationId);
+        final var destChild = destinationChoice.childByArg(destinationNid);
         if (destChild == null) {
-            LOG.debug("Specified container {} is not present in destination {}", destinationId, destination);
+            LOG.debug("Specified container {} is not present in destination {}", destinationNid, destination);
             return null;
         }
         if (destChild instanceof ContainerNode destContainer) {
@@ -360,7 +360,7 @@ public abstract class AbstractRIBSupport<
             final ContainerNode nlri, final NodeIdentifier routesNodeId) {
         final var routes = nlri.childByArg(WITHDRAWN_ROUTES);
         if (routes != null) {
-            final var destination = getDestination(routes, destinationNid);
+            final var destination = getDestination(routes);
             if (destination != null) {
                 processDestination(tx, tablePath.node(routesNodeId), destination, null, DELETE_ROUTE);
             }
@@ -371,21 +371,17 @@ public abstract class AbstractRIBSupport<
 
     @Override
     public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
-                                                                    final YangInstanceIdentifier tablePath,
-                                                                    final ContainerNode nlri,
-                                                                    final ContainerNode attributes) {
+            final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes) {
         return putRoutes(tx, tablePath, nlri, attributes, ROUTES_NID);
     }
 
     @Override
     public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
-                                                                    final YangInstanceIdentifier tablePath,
-                                                                    final ContainerNode nlri,
-                                                                    final ContainerNode attributes,
-                                                                    final NodeIdentifier routesNodeId) {
+            final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes,
+            final NodeIdentifier routesNodeId) {
         final var routes = nlri.childByArg(ADVERTISED_ROUTES);
         if (routes != null) {
-            final var destination = getDestination(routes, destinationNid);
+            final var destination = getDestination(routes);
             if (destination != null) {
                 return processDestination(tx, tablePath.node(routesNodeId), destination, attributes, putRoute);
             }
