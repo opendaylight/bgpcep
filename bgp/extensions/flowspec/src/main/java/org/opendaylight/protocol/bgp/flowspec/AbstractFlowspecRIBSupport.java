@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -71,17 +72,9 @@ public abstract class AbstractFlowspecRIBSupport<
     protected abstract @NonNull DestinationType buildWithdrawnDestination(MapEntryNode route, @Nullable PathId pathId);
 
     @Override
-    protected final Collection<NodeIdentifierWithPredicates> processDestination(
-        final DOMDataTreeWriteTransaction tx,
-        final YangInstanceIdentifier routesPath,
-        final ContainerNode destination,
-        final ContainerNode attributes,
-        final ApplyRoute function
-    ) {
-        if (destination == null) {
-            return Collections.emptyList();
-        }
-
+    protected final List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
+            final ApplyRoute function) {
         final var routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),
             nlriParser.stringNlri(destination), destination.findChildByArg(routePathIdNid()));
         function.apply(tx, routesYangInstanceIdentifier(routesPath), routeKey, destination, attributes);

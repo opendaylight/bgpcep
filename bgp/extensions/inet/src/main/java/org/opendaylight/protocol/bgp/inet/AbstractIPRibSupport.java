@@ -11,7 +11,6 @@ import static com.google.common.base.Preconditions.checkState;
 
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
@@ -32,7 +31,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 import org.slf4j.Logger;
@@ -49,8 +47,8 @@ abstract class AbstractIPRibSupport<
     private static final Logger LOG = LoggerFactory.getLogger(AbstractIPRibSupport.class);
 
     private final @NonNull ImmutableSet<Class<? extends BindingObject>> cacheableNlriObjects;
-    private final NodeIdentifier prefixNid;
-    private final NodeIdentifier nlriRoutesList;
+    private final @NonNull NodeIdentifier nlriRoutesList;
+    private final @NonNull NodeIdentifier prefixNid;
 
     AbstractIPRibSupport(
             final BindingNormalizedNodeSerializer mappingService,
@@ -67,7 +65,7 @@ abstract class AbstractIPRibSupport<
         prefixNid = NodeIdentifier.create(QName.create(routeQName(), "prefix").intern());
     }
 
-    final NodeIdentifier routePrefixIdentifier() {
+    final @NonNull NodeIdentifier routePrefixIdentifier() {
         return prefixNid;
     }
 
@@ -77,25 +75,22 @@ abstract class AbstractIPRibSupport<
     }
 
     @Override
-    protected Collection<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
-                                                                          final YangInstanceIdentifier routesPath,
-                                                                          final ContainerNode destination,
-                                                                          final ContainerNode attributes,
-                                                                          final ApplyRoute function) {
-        if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(nlriRoutesList);
-            if (routes instanceof UnkeyedListNode) {
-                // Instance identifier to table/(choice routes)/(map of route)
-                final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                for (final UnkeyedListEntryNode ipDest : routesList) {
-                    final NodeIdentifierWithPredicates routeKey = createRouteKey(ipDest);
-                    function.apply(tx, base, routeKey, ipDest, attributes);
-                    keys.add(routeKey);
-                }
-                return keys;
+    protected final List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
+            final ApplyRoute function) {
+        final var routes = destination.childByArg(nlriRoutesList);
+        if (routes instanceof UnkeyedListNode routesList) {
+            // Instance identifier to table/(choice routes)/(map of route)
+            final var base = routesYangInstanceIdentifier(routesPath);
+            final var keys = new ArrayList<NodeIdentifierWithPredicates>(routesList.size());
+            for (var ipDest : routesList.body()) {
+                final var routeKey = createRouteKey(ipDest);
+                function.apply(tx, base, routeKey, ipDest, attributes);
+                keys.add(routeKey);
             }
+            return keys;
+        }
+        if (routes != null) {
             LOG.warn("Routes {} are not a map", routes);
         }
         return List.of();
@@ -108,7 +103,7 @@ abstract class AbstractIPRibSupport<
      * @return Nid with Route Key
      */
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode prefixes) {
-        final DataContainerChild prefixLeaf = prefixes.childByArg(routePrefixIdentifier());
+        final var prefixLeaf = prefixes.childByArg(prefixNid);
         checkState(prefixLeaf != null);
         return PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(), prefixLeaf.body(),
             prefixes.findChildByArg(routePathIdNid()));
