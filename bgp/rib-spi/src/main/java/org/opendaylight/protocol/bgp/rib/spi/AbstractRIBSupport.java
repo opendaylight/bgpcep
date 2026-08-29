@@ -273,9 +273,9 @@ public abstract class AbstractRIBSupport<
         return routesContainerIdentifier;
     }
 
-    protected abstract Collection<NodeIdentifierWithPredicates> processDestination(DOMDataTreeWriteTransaction tx,
-            YangInstanceIdentifier routesPath, ContainerNode destination, ContainerNode attributes,
-            ApplyRoute applyFunction);
+    protected abstract Collection<NodeIdentifierWithPredicates> processDestination(
+        @NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier routesPath,
+        @NonNull ContainerNode destination, ContainerNode attributes, @NonNull ApplyRoute applyFunction);
 
     private @Nullable ContainerNode getDestination(final @NonNull DataContainerChild routes) {
         if (!(routes instanceof ContainerNode routesContainer)) {
@@ -439,7 +439,7 @@ public abstract class AbstractRIBSupport<
             final var b = ImmutableNodes.newMapEntryBuilder().withNodeIdentifier(routeKey);
             route.body().forEach(b::withChild);
             // Add attributes
-            b.withChild(BUILDER_FACTORY.newContainerBuilder(attributes)
+            b.withChild(BUILDER_FACTORY.newContainerBuilder(requireNonNull(attributes))
                 .withNodeIdentifier(routeAttributesIdentifier())
                 .build());
             tx.put(LogicalDatastoreType.OPERATIONAL, base.node(routeKey), b.build());

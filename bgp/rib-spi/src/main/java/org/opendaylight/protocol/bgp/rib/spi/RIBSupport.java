@@ -95,6 +95,7 @@ public interface RIBSupport<C extends Routes & DataObject, S extends ChildOf<? s
      * @param tablePath YangInstanceIdentifier
      * @param nlri      ContainerNode DOM representation of NLRI in Update message
      */
+    // FIXME: operate on DOMDataTreeWriteOperations
     void deleteRoutes(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
             @NonNull ContainerNode nlri);
 
@@ -111,6 +112,7 @@ public interface RIBSupport<C extends Routes & DataObject, S extends ChildOf<? s
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param routesNodeId NodeIdentifier of "routes" data node
      */
+    // FIXME: operate on DOMDataTreeWriteOperations
     void deleteRoutes(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
             @NonNull ContainerNode nlri, @NonNull NodeIdentifier routesNodeId);
 
@@ -124,6 +126,7 @@ public interface RIBSupport<C extends Routes & DataObject, S extends ChildOf<? s
      * @param attributes ContainerNode
      * @return List of processed route Identifiers
      */
+    // FIXME: operate on DOMDataTreeWriteOperations
     Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataTreeWriteTransaction tx,
             @NonNull YangInstanceIdentifier tablePath, @NonNull ContainerNode nlri, @NonNull ContainerNode attributes);
 
@@ -142,6 +145,7 @@ public interface RIBSupport<C extends Routes & DataObject, S extends ChildOf<? s
      * @param routesNodeId NodeIdentifier of "routes" data node
      * @return List of processed routes identifiers
      */
+    // FIXME: operate on DOMDataTreeWriteOperations
     Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataTreeWriteTransaction tx,
             @NonNull YangInstanceIdentifier tablePath, @NonNull ContainerNode nlri, @NonNull ContainerNode attributes,
             @NonNull NodeIdentifier routesNodeId);
@@ -250,6 +254,7 @@ public interface RIBSupport<C extends Routes & DataObject, S extends ChildOf<? s
     @NonNull ContainerNode attributeToContainerNode(YangInstanceIdentifier routePath, Attributes attributes);
 
     interface ApplyRoute {
+        // FIXME: operate on DOMDataTreeWriteOperations
         void apply(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier base,
                 @NonNull NodeIdentifierWithPredicates routeKey, @NonNull DataContainerNode route,
                 ContainerNode attributes);
