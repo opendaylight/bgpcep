@@ -320,8 +320,12 @@ final class LocRibWriter
                 continue;
             }
 
-            entry.removeStalePaths(ribSupport, e.getKey().getRouteId()).ifPresent(staleRoutes::add);
-            newRoutes.addAll(entry.newBestPaths(ribSupport, e.getKey().getRouteId()));
+            final var routeId = e.getKey().getRouteId();
+            final var staleRoute = entry.removeStalePaths(ribSupport, routeId);
+            if (staleRoute != null) {
+                staleRoutes.add(staleRoute);
+            }
+            newRoutes.addAll(entry.newBestPaths(ribSupport, routeId));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
         peerTracker.getNonInternalPeers().parallelStream()

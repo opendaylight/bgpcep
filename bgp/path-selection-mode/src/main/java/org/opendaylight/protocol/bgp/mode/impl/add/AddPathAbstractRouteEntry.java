@@ -12,7 +12,6 @@ import static com.google.common.base.Verify.verifyNotNull;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
@@ -131,8 +130,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport<?, ?> ribSupport,
-            final String routeKey) {
+    public final StaleBestPathRoute removeStalePaths(final RIBSupport<?, ?> ribSupport, final String routeKey) {
         final List<Uint32> stalePaths;
         if (bestPathRemoved != null && !bestPathRemoved.isEmpty()) {
             stalePaths = bestPathRemoved.stream().map(AddPathBestPath::getPathIdLong)
@@ -150,8 +148,8 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
             removedPaths = List.of();
         }
 
-        return stalePaths.isEmpty() && removedPaths.isEmpty() ? Optional.empty()
-            : Optional.of(new Stale(ribSupport, routeKey, stalePaths, removedPaths, isNonAddPathBestPathNew));
+        return stalePaths.isEmpty() && removedPaths.isEmpty() ? null
+            : new Stale(ribSupport, routeKey, stalePaths, removedPaths, isNonAddPathBestPathNew);
     }
 
     @Override
