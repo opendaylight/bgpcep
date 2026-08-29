@@ -323,26 +323,24 @@ public abstract class AbstractRIBSupport<
             ApplyRoute applyFunction);
 
     private static ContainerNode getDestination(final DataContainerChild routes, final NodeIdentifier destinationId) {
-        if (routes instanceof ContainerNode) {
-            final DataContainerChild destination = ((ContainerNode) routes).childByArg(DESTINATION_TYPE);
-            if (destination instanceof ChoiceNode) {
-                final DataContainerChild ret = ((ChoiceNode) destination).childByArg(destinationId);
-                if (ret != null) {
-                    if (ret instanceof ContainerNode) {
-                        return (ContainerNode) ret;
-                    }
-
-                    LOG.debug("Specified node {} is not a container, ignoring it", ret);
-                } else {
-                    LOG.debug("Specified container {} is not present in destination {}", destinationId, destination);
-                }
-            } else {
-                LOG.warn("Destination {} is not a choice, ignoring it", destination);
-            }
-        } else {
+        if (!(routes instanceof ContainerNode routesContainer)) {
             LOG.warn("Advertized routes {} are not a container, ignoring it", routes);
+            return null;
         }
-
+        final var destination = routesContainer.childByArg(DESTINATION_TYPE);
+        if (!(destination instanceof ChoiceNode destinationChoice)) {
+            LOG.warn("Destination {} is not a choice, ignoring it", destination);
+            return null;
+        }
+        final var destChild = destinationChoice.childByArg(destinationId);
+        if (destChild == null) {
+            LOG.debug("Specified container {} is not present in destination {}", destinationId, destination);
+            return null;
+        }
+        if (destChild instanceof ContainerNode destContainer) {
+            return destContainer;
+        }
+        LOG.debug("Specified node {} is not a container, ignoring it", destChild);
         return null;
     }
 
