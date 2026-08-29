@@ -109,11 +109,11 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         new TablesKey(Ipv6AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE);
     private static final ImmutableList<Communities> STALE_LLGR_COMMUNUTIES =
         ImmutableList.of(StaleCommunities.STALE_LLGR);
-    private static final Attributes STALE_LLGR_ATTRIBUTES = new org.opendaylight.yang.gen.v1.urn.opendaylight.params
-            .xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder()
+    private static final @NonNull Attributes STALE_LLGR_ATTRIBUTES = new org.opendaylight.yang.gen.v1.urn.opendaylight
+            .params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder()
             .setCommunities(STALE_LLGR_COMMUNUTIES)
             .build();
-    private static final ChoiceNode EMPTY_ROUTES = ImmutableNodes.newChoiceBuilder()
+    private static final @NonNull ChoiceNode EMPTY_ROUTES = ImmutableNodes.newChoiceBuilder()
         .withNodeIdentifier(ROUTES_NID)
         .build();
 
@@ -461,7 +461,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         final var advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(routeAfter,
             ribSupport.routeAttributesIdentifier()).orElse(null);
         final var routeAttrs = ribSupport.attributeFromContainerNode(advertisedAttrs);
-        final Optional<Attributes> optEffAtt;
+        final @Nullable Attributes effAttrs;
         // In case we want to add LLGR_STALE we do not process route through policies since it may be
         // considered as received with LLGR_STALE from peer which is not true.
         if (longLivedStale) {
@@ -471,23 +471,24 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 deleteRoute(tx, ribSupport, routePath, routeBefore);
                 return;
             }
-            optEffAtt = Optional.of(wrapLongLivedStale(routeAttrs));
+            effAttrs = wrapLongLivedStale(routeAttrs);
         } else {
-            optEffAtt = ribPolicies.applyImportPolicies(peerImportParameters, routeAttrs,
+            effAttrs = ribPolicies.applyImportPolicies(peerImportParameters, routeAttrs,
                 verifyNotNull(tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey())));
         }
-        if (optEffAtt.isEmpty()) {
+        if (effAttrs == null) {
             deleteRoute(tx, ribSupport, routePath, routeBefore);
             return;
         }
+
         handleRouteTarget(ModificationType.WRITE, ribSupport, routePath, routeAfter);
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, routeAfter);
         CountersUtil.increment(prefixesInstalled.get(tablesKey), tablesKey);
 
-        final var attToStore = optEffAtt.orElseThrow();
-        if (!attToStore.equals(routeAttrs)) {
+        // deep comparison to prevent datastore churn
+        if (!effAttrs.equals(routeAttrs)) {
             final var attPath = routePath.node(ribSupport.routeAttributesIdentifier());
-            tx.put(LogicalDatastoreType.OPERATIONAL, attPath, ribSupport.attributeToContainerNode(attPath, attToStore));
+            tx.put(LogicalDatastoreType.OPERATIONAL, attPath, ribSupport.attributeToContainerNode(attPath, effAttrs));
         }
     }
 
@@ -525,7 +526,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private static Attributes wrapLongLivedStale(final Attributes attrs) {
+    private static @NonNull Attributes wrapLongLivedStale(final Attributes attrs) {
         if (attrs == null) {
             return STALE_LLGR_ATTRIBUTES;
         }
