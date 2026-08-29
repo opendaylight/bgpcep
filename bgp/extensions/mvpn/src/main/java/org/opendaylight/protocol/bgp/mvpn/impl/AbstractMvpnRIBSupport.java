@@ -7,12 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mvpn.impl;
 
-import com.google.common.collect.ImmutableCollection;
 import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.McastVpnSubsequentAddressFamily;
@@ -30,7 +29,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
@@ -46,8 +44,8 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject, S extends C
         extends AbstractRIBSupport<C, S, MvpnRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMvpnRIBSupport.class);
 
-    private final NodeIdentifier nlriRoutesList;
-    private final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects;
+    private final @NonNull NodeIdentifier nlriRoutesList;
+    private final ImmutableSet<Class<? extends BindingObject>> cacheableNlriObjects;
 
     /**
      * Default constructor. Requires the QName of the container augmented under the routes choice
@@ -76,7 +74,7 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject, S extends C
     }
 
     @Override
-    public final ImmutableCollection<Class<? extends BindingObject>> cacheableNlriObjects() {
+    public final ImmutableSet<Class<? extends BindingObject>> cacheableNlriObjects() {
         return cacheableNlriObjects;
     }
 
@@ -86,31 +84,26 @@ abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject, S extends C
     }
 
     @Override
-    protected final Collection<NodeIdentifierWithPredicates> processDestination(
-            final DOMDataTreeWriteTransaction tx,
-            final YangInstanceIdentifier routesPath,
-            final ContainerNode destination,
-            final ContainerNode attributes,
+    protected final List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
             final ApplyRoute function) {
-        if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(nlriRoutesList);
-            if (routes != null) {
-                if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                    for (final UnkeyedListEntryNode mvpnDest : routesList) {
-                        final NodeIdentifierWithPredicates routeKey = createRouteKey(mvpnDest);
-                        function.apply(tx, base, routeKey, mvpnDest, attributes);
-                        keys.add(routeKey);
-                    }
-                    return keys;
-                }
-                LOG.warn("Routes {} are not a map", routes);
+        final var routes = destination.childByArg(nlriRoutesList);
+        if (routes instanceof UnkeyedListNode routesList) {
+            final var base = routesYangInstanceIdentifier(routesPath);
+            final var keys = new ArrayList<NodeIdentifierWithPredicates>(routesList.size());
+            for (var mvpnDest : routesList.body()) {
+                final var routeKey = createRouteKey(mvpnDest);
+                function.apply(tx, base, routeKey, mvpnDest, attributes);
+                keys.add(routeKey);
             }
+            return keys;
         }
-        return Collections.emptyList();
+        if (routes != null) {
+            LOG.warn("Routes {} are not a map", routes);
+        }
+        return List.of();
     }
 
+    @NonNullByDefault
     abstract NodeIdentifierWithPredicates createRouteKey(UnkeyedListEntryNode mvpn);
 }
