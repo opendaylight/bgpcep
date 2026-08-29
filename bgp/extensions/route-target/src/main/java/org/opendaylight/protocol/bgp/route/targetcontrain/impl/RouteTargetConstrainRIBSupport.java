@@ -12,7 +12,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,7 +43,6 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.DataContainerChild;
 import org.opendaylight.yangtools.yang.data.api.schema.DataContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -131,30 +129,24 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
-    protected Collection<NodeIdentifierWithPredicates> processDestination(
-            final DOMDataTreeWriteTransaction tx,
-            final YangInstanceIdentifier routesPath,
-            final ContainerNode destination,
-            final ContainerNode attributes,
+    protected List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+            final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
             final ApplyRoute function) {
-        if (destination != null) {
-            final DataContainerChild routes = destination.childByArg(NLRI_ROUTES_LIST);
-            if (routes != null) {
-                if (routes instanceof UnkeyedListNode) {
-                    final YangInstanceIdentifier base = routesYangInstanceIdentifier(routesPath);
-                    final Collection<UnkeyedListEntryNode> routesList = ((UnkeyedListNode) routes).body();
-                    final List<NodeIdentifierWithPredicates> keys = new ArrayList<>(routesList.size());
-                    for (final UnkeyedListEntryNode rtDest : routesList) {
-                        final NodeIdentifierWithPredicates routeKey = createRouteKey(rtDest);
-                        function.apply(tx, base, routeKey, rtDest, attributes);
-                        keys.add(routeKey);
-                    }
-                    return keys;
-                }
-                LOG.warn("Routes {} are not a map", routes);
+        final var routes = destination.childByArg(NLRI_ROUTES_LIST);
+        if (routes instanceof UnkeyedListNode routesList) {
+            final var base = routesYangInstanceIdentifier(routesPath);
+            final var keys = new ArrayList<NodeIdentifierWithPredicates>(routesList.size());
+            for (var rtDest : routesList.body()) {
+                final var routeKey = createRouteKey(rtDest);
+                function.apply(tx, base, routeKey, rtDest, attributes);
+                keys.add(routeKey);
             }
+            return keys;
         }
-        return Collections.emptyList();
+        if (routes != null) {
+            LOG.warn("Routes {} are not a map", routes);
+        }
+        return List.of();
     }
 
     private NodeIdentifierWithPredicates createRouteKey(final UnkeyedListEntryNode routeTarget) {
