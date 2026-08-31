@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e3afd040_d9a04383",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-31T07:38:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cfedd942_09778cf1",
+      "revId": "0610b23a1b1b8ba6d4611e3d851614f10842b8e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "4320aee0_bfd4495a",
@@ -31,6 +49,30 @@
       "writtenOn": "2026-08-29T19:46:53Z",
       "side": 1,
       "message": "do we really need this reference?",
+      "range": {
+        "startLine": 82,
+        "startChar": 50,
+        "endLine": 82,
+        "endChar": 72
+      },
+      "revId": "0610b23a1b1b8ba6d4611e3d851614f10842b8e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6f6e530_9755c572",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-31T07:38:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4320aee0_bfd4495a",
       "range": {
         "startLine": 82,
         "startChar": 50,
@@ -58,6 +100,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dad30612_9fd05f95",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-31T07:38:56Z",
+      "side": 1,
+      "message": "Added coverage for replaying an already-registered peer to a newly registered listener, skipping initializeRibOut() for an Internal peer, and closing the peer-added listener registration from LocRibWriter.close().",
+      "parentUuid": "66b247cb_a80cda12",
+      "revId": "0610b23a1b1b8ba6d4611e3d851614f10842b8e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f9919ed4_64e470e6",
@@ -71,6 +131,24 @@
       "writtenOn": "2026-08-27T14:02:57Z",
       "side": 1,
       "message": "The implementation also replays every already-registered peer to the new listener, which is what makes the LocRibWriter-created-after-the-peers case work, but the javadoc only promises notification of future registrations. Could we spell out in the contract that existing peers are replayed before this call returns, that a concurrently registering peer is delivered exactly once, that the listener runs on the registering thread with no tracker lock held, and that a thrown RuntimeException must not abort the registration?",
+      "revId": "0610b23a1b1b8ba6d4611e3d851614f10842b8e5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "36f0e82b_b7cf7e2b",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPPeerTracker.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-31T07:38:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f9919ed4_64e470e6",
       "revId": "0610b23a1b1b8ba6d4611e3d851614f10842b8e5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
