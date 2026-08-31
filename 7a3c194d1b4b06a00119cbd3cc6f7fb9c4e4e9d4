@@ -16,6 +16,24 @@
       "message": "so this needs a deeper look into the order of initialization",
       "revId": "7a3c194d1b4b06a00119cbd3cc6f7fb9c4e4e9d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a1341eb_0fe62e9b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-08-31T16:03:59Z",
+      "side": 1,
+      "message": "Peer registration now explicitly waits for both the peer/table structure commit and the Adj-RIB-Out initialization commit. Tests cover both completion orders and verify that registration happens exactly once.",
+      "parentUuid": "fad93be9_84f4f2c0",
+      "revId": "7a3c194d1b4b06a00119cbd3cc6f7fb9c4e4e9d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
