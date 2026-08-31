@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fad93be9_84f4f2c0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 22
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-08-31T08:32:45Z",
+      "side": 1,
+      "message": "so this needs a deeper look into the order of initialization",
+      "revId": "7a3c194d1b4b06a00119cbd3cc6f7fb9c4e4e9d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
