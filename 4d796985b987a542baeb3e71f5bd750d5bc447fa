@@ -46,6 +46,30 @@
       },
       "revId": "4d796985b987a542baeb3e71f5bd750d5bc447fa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c3a45d43_5f88c9a4",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AdjRibOutListener.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-09-01T19:51:42Z",
+      "side": 1,
+      "message": "Agreed. For the BGP-LU label-only case, RFC 8277 defines the new advertisement as an implicit replacement, so no withdrawal is needed. I will remove the withdraw-and-advertise path from this change and keep it as a single re-advertisement. A generic NLRI replacement requiring an explicit withdrawal would need both operations encoded in one UPDATE and should be handled separately.",
+      "parentUuid": "8f56fa63_88de3ccf",
+      "range": {
+        "startLine": 143,
+        "startChar": 59,
+        "endLine": 144,
+        "endChar": 39
+      },
+      "revId": "4d796985b987a542baeb3e71f5bd750d5bc447fa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
