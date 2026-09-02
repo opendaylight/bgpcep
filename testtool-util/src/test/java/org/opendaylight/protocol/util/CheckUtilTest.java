@@ -29,6 +29,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -77,13 +78,13 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void testReadDataOperationalNull() {
-        assertThrows(AssertionError.class,
+        assertThrows(ConditionTimeoutException.class,
             () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT));
     }
 
     @Test
     public void testReadDataConfigurationNull() {
-        assertThrows(AssertionError.class,
+        assertThrows(ConditionTimeoutException.class,
             () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT));
     }
 
@@ -91,20 +92,22 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     public void testReadDataOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
 
-        assertThrows(AssertionError.class, () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, result -> {
-            assertNotNull(result.getNode());
-            return result;
-        }, TIMEOUT));
+        assertThrows(ConditionTimeoutException.class,
+            () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, result -> {
+                assertNotNull(result.getNode());
+                return result;
+            }, TIMEOUT));
     }
 
     @Test
     public void testReadDataConfigurationFail() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
 
-        assertThrows(AssertionError.class, () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, result -> {
-            assertNotNull(result.getNode());
-            return result;
-        }, TIMEOUT));
+        assertThrows(ConditionTimeoutException.class,
+            () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, result -> {
+                assertNotNull(result.getNode());
+                return result;
+            }, TIMEOUT));
     }
 
     @Test
@@ -147,7 +150,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     public void testCheckNotPresentOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
 
-        assertThrows(AssertionError.class, () -> checkNotPresentOperational(getDataBroker(), TOPOLOGY_IID));
+        assertThrows(ConditionTimeoutException.class, () -> checkNotPresentOperational(getDataBroker(), TOPOLOGY_IID));
     }
 
     @Test
@@ -162,13 +165,13 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void testCheckEquals() throws Exception {
-        assertThrows(AssertionError.class, () -> checkEquals(Assert::fail, TIMEOUT));
+        assertThrows(ConditionTimeoutException.class, () -> checkEquals(Assert::fail, TIMEOUT));
     }
 
     @Test
     public void testCheckReceivedMessagesNotEqual() {
         doReturn(0).when(listenerCheck).getListMessageSize();
-        assertThrows(AssertionError.class, () -> checkReceivedMessages(listenerCheck, 1, TIMEOUT));
+        assertThrows(ConditionTimeoutException.class, () -> checkReceivedMessages(listenerCheck, 1, TIMEOUT));
     }
 
     @Test
