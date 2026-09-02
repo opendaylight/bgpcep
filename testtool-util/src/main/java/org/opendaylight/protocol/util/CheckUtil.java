@@ -8,36 +8,38 @@
 package org.opendaylight.protocol.util;
 
 import static com.google.common.base.Verify.verify;
+import static org.awaitility.Awaitility.dontCatchUncaughtExceptions;
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Stopwatch;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.util.concurrent.Future;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.ReadTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public final class CheckUtil {
-    private static final int SLEEP_FOR = 200;
+    private static final Duration POLL_INTERVAL = Duration.ofMillis(200);
     private static final int TIMEOUT = 30;
+    private static final int FUTURE_TIMEOUT_SECONDS = 200;
 
     private CheckUtil() {
         // Hidden on purpose
     }
 
     public static <T extends Future<?>> void waitFutureSuccess(final T future) {
-        waitFutureSuccess(future, SLEEP_FOR, TimeUnit.SECONDS);
+        waitFutureSuccess(future, FUTURE_TIMEOUT_SECONDS, TimeUnit.SECONDS);
     }
 
     @VisibleForTesting
@@ -49,113 +51,113 @@ public final class CheckUtil {
     }
 
     public static <R, T extends DataObject> R readDataOperational(final DataBroker dataBroker,
-            final DataObjectIdentifier<T> iid, final Function<T, R> function) throws InterruptedException,
-                ExecutionException {
+            final DataObjectIdentifier<T> iid, final Function<T, R> function) {
         return readDataOperational(dataBroker, iid, function, TIMEOUT);
     }
 
     @VisibleForTesting
     static <R, T extends DataObject> R readDataOperational(final DataBroker dataBroker,
-            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout)
-            throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout) {
         return readData(dataBroker, OPERATIONAL, iid, function, timeout);
     }
 
     public static <R, T extends DataObject> R readDataConfiguration(final DataBroker dataBroker,
-            final DataObjectIdentifier<T> iid, final Function<T, R> function) throws InterruptedException,
-                ExecutionException {
+            final DataObjectIdentifier<T> iid, final Function<T, R> function) {
         return readDataConfiguration(dataBroker, iid, function, TIMEOUT);
     }
 
     @VisibleForTesting
     static <R, T extends DataObject> R readDataConfiguration(final DataBroker dataBroker,
-            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout)
-            throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout) {
         return readData(dataBroker, CONFIGURATION, iid, function, timeout);
     }
 
     private static <R, T extends DataObject> R readData(final DataBroker dataBroker, final LogicalDatastoreType ldt,
-            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout)
-            throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid, final Function<T, R> function, final int timeout) {
+        final var result = new AtomicReference<R>();
+        dontCatchUncaughtExceptions().atMost(Duration.ofSeconds(timeout)).pollInterval(POLL_INTERVAL)
+            .pollDelay(Duration.ZERO)
+            .untilAsserted(() -> {
+                final ListenableFuture<Optional<T>> future;
+                try (var tx = dataBroker.newReadOnlyTransaction()) {
+                    future = tx.read(ldt, iid);
+                }
 
-        AssertionError lastError;
-        final Stopwatch sw = Stopwatch.createStarted();
-        do {
-            final ListenableFuture<Optional<T>> future;
-            try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                future = tx.read(ldt, iid);
-            }
-
-            try {
-                return function.apply(future.get().orElseThrow(() -> new AssertionError("Data not present at " + iid)));
-            } catch (final AssertionError e) {
-                lastError = e;
-                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
-            }
-        } while (sw.elapsed(TimeUnit.SECONDS) <= timeout);
-
-        throw lastError;
+                try {
+                    result.set(function.apply(future.get().orElseThrow(
+                        () -> new AssertionError("Data not present at " + iid))));
+                } catch (ExecutionException e) {
+                    // untilAsserted() retries AssertionError only, so surface a failed read as one
+                    throw new AssertionError("Failed to read " + iid, e);
+                } catch (InterruptedException e) {
+                    // Anything but an AssertionError aborts the poll, which is what an interrupt calls for
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while reading " + iid, e);
+                }
+            });
+        return result.get();
     }
 
     public static <T extends DataObject> T checkPresentOperational(final DataBroker dataBroker,
-            final DataObjectIdentifier<T> iid) throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid) {
         return readData(dataBroker, OPERATIONAL, iid, bgpRib -> bgpRib, TIMEOUT);
     }
 
     public static <T extends DataObject> T checkPresentConfiguration(final DataBroker dataBroker,
-            final DataObjectIdentifier<T> iid) throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid) {
         return readData(dataBroker, CONFIGURATION, iid, bgpRib -> bgpRib, TIMEOUT);
     }
 
     public static <T extends DataObject> void checkNotPresentOperational(final DataBroker dataBroker,
-            final DataObjectIdentifier<T> iid) throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid) {
         checkNotPresent(dataBroker, OPERATIONAL, iid);
     }
 
     public static <T extends DataObject> void checkNotPresentConfiguration(final DataBroker dataBroker,
-            final DataObjectIdentifier<T> iid) throws InterruptedException, ExecutionException {
+            final DataObjectIdentifier<T> iid) {
         checkNotPresent(dataBroker, CONFIGURATION, iid);
     }
 
     private static <T extends DataObject> void checkNotPresent(final DataBroker dataBroker,
-            final LogicalDatastoreType ldt, final DataObjectIdentifier<T> iid) throws InterruptedException,
-                ExecutionException {
-        AssertionError lastError;
-        final Stopwatch sw = Stopwatch.createStarted();
-        do {
-            final ListenableFuture<Boolean> future;
-            try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
-                future = tx.exists(ldt, iid);
-            }
+            final LogicalDatastoreType ldt, final DataObjectIdentifier<T> iid) {
+        dontCatchUncaughtExceptions().atMost(Duration.ofSeconds(10)).pollInterval(Duration.ofMillis(10))
+            .pollDelay(Duration.ZERO)
+            .untilAsserted(() -> {
+                final ListenableFuture<Boolean> future;
+                try (var tx = dataBroker.newReadOnlyTransaction()) {
+                    future = tx.exists(ldt, iid);
+                }
 
-            if (!future.get()) {
-                return;
-            }
-
-            lastError = new AssertionError("Data still exists at " + iid);
-            Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
-        } while (sw.elapsed(TimeUnit.SECONDS) <= 10);
-
-        throw lastError;
+                try {
+                    if (future.get()) {
+                        throw new AssertionError("Data still exists at " + iid);
+                    }
+                } catch (ExecutionException e) {
+                    throw new AssertionError("Failed to read " + iid, e);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while reading " + iid, e);
+                }
+            });
     }
 
-    public static void checkEquals(final CheckEquals function) throws Exception {
+    public static void checkEquals(final CheckEquals function) {
         checkEquals(function, TIMEOUT);
     }
 
-    public static void checkEquals(final CheckEquals function, final int timeout) throws Exception {
-        AssertionError lastError = null;
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= timeout) {
-            try {
-                function.check();
-                return;
-            } catch (final AssertionError e) {
-                lastError = e;
-                Uninterruptibles.sleepUninterruptibly(10, TimeUnit.MILLISECONDS);
-            }
-        }
-        throw lastError;
+    public static void checkEquals(final CheckEquals function, final int timeout) {
+        dontCatchUncaughtExceptions().atMost(Duration.ofSeconds(timeout)).pollInterval(Duration.ofMillis(10))
+            .pollDelay(Duration.ZERO)
+            .untilAsserted(() -> {
+                try {
+                    function.check();
+                } catch (ExecutionException e) {
+                    throw new AssertionError("Check failed", e);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    throw new IllegalStateException("Interrupted while checking", e);
+                }
+            });
     }
 
     public static void checkReceivedMessages(final ListenerCheck listener, final int numberOfMessages) {
@@ -165,15 +167,14 @@ public final class CheckUtil {
     @VisibleForTesting
     static void checkReceivedMessages(final ListenerCheck listener, final int numberOfMessages,
             final int timeout) {
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.SECONDS) <= timeout) {
-            if (listener.getListMessageSize() != numberOfMessages) {
-                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
-            } else {
-                return;
-            }
-        }
-        throw new AssertionError("Expected " + numberOfMessages + " but received " + listener.getListMsg());
+        dontCatchUncaughtExceptions().atMost(Duration.ofSeconds(timeout)).pollInterval(POLL_INTERVAL)
+            .pollDelay(Duration.ZERO)
+            .untilAsserted(() -> {
+                if (listener.getListMessageSize() != numberOfMessages) {
+                    throw new AssertionError("Expected " + numberOfMessages + " but received "
+                        + listener.getListMsg());
+                }
+            });
     }
 
     public interface ListenerCheck {
