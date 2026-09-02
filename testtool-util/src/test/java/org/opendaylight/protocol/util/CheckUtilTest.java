@@ -7,9 +7,11 @@
  */
 package org.opendaylight.protocol.util;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
@@ -29,7 +31,7 @@ import io.netty.channel.ChannelFuture;
 import io.netty.util.concurrent.GenericFutureListener;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import org.junit.Assert;
+import org.awaitility.core.ConditionTimeoutException;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -77,13 +79,13 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void testReadDataOperationalNull() {
-        assertThrows(AssertionError.class,
+        assertThrows(ConditionTimeoutException.class,
             () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT));
     }
 
     @Test
     public void testReadDataConfigurationNull() {
-        assertThrows(AssertionError.class,
+        assertThrows(ConditionTimeoutException.class,
             () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, test -> false, TIMEOUT));
     }
 
@@ -91,20 +93,24 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     public void testReadDataOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
 
-        assertThrows(AssertionError.class, () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, result -> {
-            assertNotNull(result.getNode());
-            return result;
-        }, TIMEOUT));
+        final ConditionTimeoutException ex = assertThrows(ConditionTimeoutException.class,
+            () -> readDataOperational(getDataBroker(), TOPOLOGY_IID, result -> {
+                assertNotNull("node is missing", result.getNode());
+                return result;
+            }, TIMEOUT));
+        assertEquals("node is missing", ex.getCause().getMessage());
     }
 
     @Test
     public void testReadDataConfigurationFail() throws Exception {
         storeTopo(LogicalDatastoreType.CONFIGURATION);
 
-        assertThrows(AssertionError.class, () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, result -> {
-            assertNotNull(result.getNode());
-            return result;
-        }, TIMEOUT));
+        final ConditionTimeoutException ex = assertThrows(ConditionTimeoutException.class,
+            () -> readDataConfiguration(getDataBroker(), TOPOLOGY_IID, result -> {
+                assertNotNull("node is missing", result.getNode());
+                return result;
+            }, TIMEOUT));
+        assertEquals("node is missing", ex.getCause().getMessage());
     }
 
     @Test
@@ -147,7 +153,7 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
     public void testCheckNotPresentOperationalFail() throws Exception {
         storeTopo(LogicalDatastoreType.OPERATIONAL);
 
-        assertThrows(AssertionError.class, () -> checkNotPresentOperational(getDataBroker(), TOPOLOGY_IID));
+        assertThrows(ConditionTimeoutException.class, () -> checkNotPresentOperational(getDataBroker(), TOPOLOGY_IID));
     }
 
     @Test
@@ -162,13 +168,15 @@ public class CheckUtilTest extends AbstractConcurrentDataBrokerTest {
 
     @Test
     public void testCheckEquals() throws Exception {
-        assertThrows(AssertionError.class, () -> checkEquals(Assert::fail, TIMEOUT));
+        final ConditionTimeoutException ex = assertThrows(ConditionTimeoutException.class,
+            () -> checkEquals(() -> fail("check did not hold"), TIMEOUT));
+        assertEquals("check did not hold", ex.getCause().getMessage());
     }
 
     @Test
     public void testCheckReceivedMessagesNotEqual() {
         doReturn(0).when(listenerCheck).getListMessageSize();
-        assertThrows(AssertionError.class, () -> checkReceivedMessages(listenerCheck, 1, TIMEOUT));
+        assertThrows(ConditionTimeoutException.class, () -> checkReceivedMessages(listenerCheck, 1, TIMEOUT));
     }
 
     @Test
