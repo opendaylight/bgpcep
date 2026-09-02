@@ -14,7 +14,6 @@ import static org.opendaylight.bgpcep.bgp.topology.provider.Ipv4ReachabilityTopo
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
-import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -68,7 +67,7 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     }
 
     @Test
-    public void testIpv6ReachabilityTopologyBuilder() throws InterruptedException, ExecutionException {
+    public void testIpv6ReachabilityTopologyBuilder() {
         // create route
         updateIpv6Route(createIpv6Route(NEXT_HOP));
 
