@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd59a165_1ca237e4",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-09-02T10:42:18Z",
+      "side": 1,
+      "message": "The year could be updated to current.",
+      "revId": "0d28378adbdae391175704cdf60b5a4cbd4c9875",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf711776_8649c94a",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-09-02T10:42:18Z",
+      "side": 1,
+      "message": "Prefixes count in original tests were checked on all three nodes, could be keep it? For checking if topology is empty, contains all prefixes, etc.\nWe would need to finish cluster setup first\nhttps://lf-opendaylight.atlassian.net/browse/BGPCEP-1099",
+      "revId": "0d28378adbdae391175704cdf60b5a4cbd4c9875",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "84fadcd4_2bfb7379",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_1route.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-09-02T10:42:18Z",
+      "side": 1,
+      "message": "We could you the current year.",
+      "revId": "0d28378adbdae391175704cdf60b5a4cbd4c9875",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
