@@ -14,7 +14,6 @@ import static org.junit.Assert.assertNull;
 import static org.opendaylight.protocol.util.CheckUtil.checkNotPresentOperational;
 import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 
-import java.util.concurrent.ExecutionException;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.mdsal.binding.api.WriteTransaction;
@@ -71,7 +70,7 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     }
 
     @Test
-    public void testIpv4ReachabilityTopologyBuilder() throws InterruptedException, ExecutionException {
+    public void testIpv4ReachabilityTopologyBuilder() {
         // create route
         updateIpv4Route(createIpv4Route(NEXT_HOP));
 

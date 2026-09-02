@@ -30,7 +30,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -171,7 +170,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     }
 
     @Test
-    public void testLinkstateTopologyBuilderTopologyTypes() throws InterruptedException, ExecutionException {
+    public void testLinkstateTopologyBuilderTopologyTypes() {
         readDataOperational(getDataBroker(), linkstateTopoBuilder.getInstanceIdentifier(), topology -> {
             assertEquals(LinkstateTopologyBuilder.LINKSTATE_TOPOLOGY_TYPE, topology.getTopologyTypes());
             return topology;
@@ -179,7 +178,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     }
 
     @Test
-    public void testIsisLinkstateTopologyBuilder() throws InterruptedException, ExecutionException {
+    public void testIsisLinkstateTopologyBuilder() {
         // create node
         updateLinkstateRoute(linkstateNodeRouteIID,
                 createLinkstateNodeRoute(ProtocolId.IsisLevel2, "node1", NODE_1_AS, ROUTER_1_ID));
@@ -265,7 +264,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     }
 
     @Test
-    public void testOspfLinkstateTopologyBuilder() throws InterruptedException, ExecutionException {
+    public void testOspfLinkstateTopologyBuilder() {
         // create node
         updateLinkstateRoute(linkstateNodeRouteIID,
                 createLinkstateNodeRoute(ProtocolId.Ospf, "node1", NODE_1_AS, ROUTER_1_ID));
