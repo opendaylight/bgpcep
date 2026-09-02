@@ -244,6 +244,10 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
         </dependency>
