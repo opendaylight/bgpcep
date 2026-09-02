@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import com.google.common.base.Stopwatch;
-import com.google.common.util.concurrent.Uninterruptibles;
-import java.util.concurrent.TimeUnit;
+import static org.awaitility.Awaitility.await;
+
+import java.time.Duration;
 import java.util.function.Function;
 import org.junit.jupiter.api.Assertions;
 import org.opendaylight.protocol.bgp.rib.spi.State;
@@ -17,8 +17,8 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 
 public final class CheckUtil {
-    private static final int SLEEP_FOR_MILLIS = 50;
-    private static final int TIMEOUT_SECONDS = 10;
+    private static final Duration SLEEP_FOR_MILLIS = Duration.ofMillis(50);
+    private static final Duration TIMEOUT_SECONDS = Duration.ofSeconds(10);
 
     private CheckUtil() {
         // Hidden on purpose
@@ -51,30 +51,15 @@ public final class CheckUtil {
     }
 
     private static <T> void checkInLoop(final State state, final T object, final Function<T, State> function,
-                                    final int sleepForMillis, final int timeoutSeconds) {
-        final long timeoutNanos = TimeUnit.SECONDS.toNanos(timeoutSeconds);
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.NANOSECONDS) <= timeoutNanos) {
-            if (state != function.apply(object)) {
-                Uninterruptibles.sleepUninterruptibly(sleepForMillis, TimeUnit.MILLISECONDS);
-            } else {
-                return;
-            }
-        }
-        Assertions.fail();
+            final Duration sleepFor, final Duration timeout) {
+        await().atMost(timeout).pollInterval(sleepFor).untilAsserted(
+            () -> Assertions.assertEquals(state, function.apply(object)));
     }
 
     public static void checkStateIsNotRestarting(final BGPPeer peer, final int restartTimeSeconds) {
-        final long restartTimeNanos = TimeUnit.SECONDS.toNanos(restartTimeSeconds + 1);
-        final Stopwatch sw = Stopwatch.createStarted();
-        while (sw.elapsed(TimeUnit.NANOSECONDS) <= restartTimeNanos) {
-            final BGPGracelfulRestartState restartState = peer.getPeerState().getBGPGracelfulRestart();
-            if (restartState.isPeerRestarting() || restartState.isLocalRestarting()) {
-                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR_MILLIS, TimeUnit.MILLISECONDS);
-            } else {
-                return;
-            }
-        }
-        Assertions.fail();
+        await().atMost(Duration.ofSeconds(restartTimeSeconds + 1)).pollInterval(SLEEP_FOR_MILLIS).untilAsserted(() -> {
+                final BGPGracelfulRestartState restartState = peer.getPeerState().getBGPGracelfulRestart();
+                Assertions.assertFalse(restartState.isPeerRestarting() || restartState.isLocalRestarting());
+            });
     }
 }
