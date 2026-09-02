@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -15,19 +16,18 @@ import static org.opendaylight.protocol.util.CheckTestUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckTestUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.util.CheckTestUtil.waitFutureSuccess;
 
-import com.google.common.base.Stopwatch;
 import com.google.common.net.InetAddresses;
-import com.google.common.util.concurrent.Uninterruptibles;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.opendaylight.protocol.concepts.KeyMapping;
@@ -57,7 +57,7 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 abstract class PCCMockCommon {
     private static final Uint8 KEEP_ALIVE = Uint8.valueOf(30);
     private static final Uint8 DEAD_TIMER = Uint8.valueOf(120);
-    private static final long SLEEP_FOR = 50;
+    private static final Duration SLEEP_FOR = Duration.ofMillis(50);
     private final int port = InetSocketAddressUtil.getRandomPort();
     final InetSocketAddress remoteAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
     final InetSocketAddress localAddress = InetSocketAddressUtil.getRandomLoopbackInetSocketAddress(port);
@@ -92,18 +92,13 @@ abstract class PCCMockCommon {
 
     static TestingSessionListener checkSessionListenerNotNull(final TestingSessionListenerFactory factory,
             final String localAddress) {
-        final Stopwatch sw = Stopwatch.createStarted();
-        TestingSessionListener listener;
         final InetAddress address = InetAddresses.forString(localAddress);
-        while (sw.elapsed(TimeUnit.SECONDS) <= 60) {
-            listener = factory.getSessionListenerByRemoteAddress(address);
-            if (listener == null) {
-                Uninterruptibles.sleepUninterruptibly(SLEEP_FOR, TimeUnit.MILLISECONDS);
-            } else {
-                return listener;
-            }
-        }
-        throw new NullPointerException();
+        final var listener = new AtomicReference<TestingSessionListener>();
+        await().atMost(Duration.ofSeconds(60)).pollInterval(SLEEP_FOR).until(() -> {
+            listener.set(factory.getSessionListenerByRemoteAddress(address));
+            return listener.get() != null;
+        });
+        return listener.get();
     }
 
     Channel createServer(final TestingSessionListenerFactory factory,
