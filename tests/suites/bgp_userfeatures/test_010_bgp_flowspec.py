@@ -14,11 +14,11 @@ import logging
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
 from libraries import flowspec
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -60,12 +60,16 @@ log = logging.getLogger(__name__)
 class TestBgpFlowspec:
 
     def prepare_config_files(self):
-        infra.shell(f"cp {BGP_VARIABLES_FOLDER}/{CFG2} tmp/")
-        infra.shell(f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{CFG2}")
-        infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{CFG2}")
-        infra.shell(f"cp variables/bgpflowspec/{CFG1} tmp/")
-        infra.shell(f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{CFG1}")
-        infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{CFG1}")
+        controller_testlib.infra.shell(f"cp {BGP_VARIABLES_FOLDER}/{CFG2} tmp/")
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{CFG2}"
+        )
+        controller_testlib.infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{CFG2}")
+        controller_testlib.infra.shell(f"cp variables/bgpflowspec/{CFG1} tmp/")
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{CFG1}"
+        )
+        controller_testlib.infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{CFG1}")
 
     def setup_test_case(self, cfg_file: str):
         flowspec.verify_flowspec_data_is_empty()
@@ -108,13 +112,17 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging("step_flowspec_test_1"):
             # Testing flowspec values for bgp-flowspec.cfg.
             self.setup_test_case(CFG1)
-            utils.wait_until_function_pass(15, 1, self.verify_flowspec_data, EXP1)
+            controller_testlib.utils.wait_until_function_pass(
+                15, 1, self.verify_flowspec_data, EXP1
+            )
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging("step_flowspec_test_2"):
             # Testing flowspec values for bgp-flowspec-redirect.cfg.
             self.setup_test_case(CFG2)
-            utils.wait_until_function_pass(15, 1, self.verify_flowspec_data, EXP2)
+            controller_testlib.utils.wait_until_function_pass(
+                15, 1, self.verify_flowspec_data, EXP2
+            )
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging(

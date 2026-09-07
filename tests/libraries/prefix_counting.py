@@ -13,7 +13,7 @@ import re
 import time
 
 from netconf_testlib import templated_requests
-from libraries import utils
+import controller_testlib.utils
 from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP
@@ -194,4 +194,6 @@ def wait_until_ip_topology_is_empty(retry_count: int = 20, interval: int = 1):
     Returns:
         None
     """
-    utils.wait_until_function_pass(retry_count, interval, verify_ip_topology_is_empty)
+    controller_testlib.utils.wait_until_function_pass(
+        retry_count, interval, verify_ip_topology_is_empty
+    )

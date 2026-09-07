@@ -15,11 +15,12 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
 from libraries import prefix_counting
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -109,11 +110,11 @@ class TestEbgpPeersBasic:
 
     def setup_everything(self):
         """Configure karaf logging level"""
-        infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
-        infra.execute_karaf_command(
+        controller_testlib.karaf.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
+        controller_testlib.karaf.execute_karaf_command(
             f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
         )
-        infra.execute_karaf_command(
+        controller_testlib.karaf.execute_karaf_command(
             f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
         )
 
@@ -185,25 +186,29 @@ class TestEbgpPeersBasic:
             )
         with allure_step_with_separate_logging("step_connect_ibgp_peer1"):
             # Connect BGP peer.
-            self.ibgp_peer1_process = infra.shell(
+            self.ibgp_peer1_process = controller_testlib.infra.shell(
                 f"{iBGP_PEER1_COMMAND} {iBGP_PEER1_OPTIONS}", run_in_background=True
             )
-            utils.verify_process_did_not_stop_immediately(self.ibgp_peer1_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.ibgp_peer1_process.pid
+            )
             prefix_counting.check_example_ipv4_topology_does_not_contain("prefix")
 
         with allure_step_with_separate_logging("step_connect_ebgp_peer1"):
             # Connect BGP peer.
-            self.ebgp_peer1_process = infra.shell(
+            self.ebgp_peer1_process = controller_testlib.infra.shell(
                 f"{eBGP_PEER1_COMMAND} {eBGP_PEER1_OPTIONS}", run_in_background=True
             )
-            utils.verify_process_did_not_stop_immediately(self.ebgp_peer1_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.ebgp_peer1_process.pid
+            )
 
         with allure_step_with_separate_logging(
             "step_check_ipv4_topology_for_first_path"
         ):
             # The IPv4 topology shall contain the route announced by
             # the first eBGP.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
                 bgp.check_example_ipv4_topology_content,
@@ -217,10 +222,10 @@ class TestEbgpPeersBasic:
             "step_ibgp_check_log_for_introduced_prefixes"
         ):
             # Check incomming updates for introduced routes.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 iBGP_PEER1_LOG_FILE,
                 eBGP_PEER1_PREFIX_COUNT,
@@ -236,28 +241,30 @@ class TestEbgpPeersBasic:
 
         with allure_step_with_separate_logging("step_connect_ebgp_peer2"):
             # Check incomming updates for introduced routes.
-            self.ebgp_peer2_process = infra.shell(
+            self.ebgp_peer2_process = controller_testlib.infra.shell(
                 f"{eBGP_PEER2_COMMAND} {eBGP_PEER2_OPTIONS}", run_in_background=True
             )
-            utils.verify_process_did_not_stop_immediately(self.ebgp_peer2_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.ebgp_peer2_process.pid
+            )
 
         with allure_step_with_separate_logging("step_disconnect_ebgp_peer1"):
             # Stop BGP peer and store logs.
             bgp.stop_bgp_speaker(self.ebgp_peer1_process)
-            infra.backup_file(eBGP_PEER1_LOG_FILE)
+            controller_testlib.infra.backup_file(eBGP_PEER1_LOG_FILE)
 
         with allure_step_with_separate_logging(
             "step_check_ipv4_topology_for_second_path"
         ):
             # The IPv4 topology shall contain the route announced by
             # the second eBGP now.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
                 bgp.check_example_ipv4_topology_content,
                 f'"node-id":"{eBGP_PEER2_NEXT_HOP}"',
             )
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
                 bgp.check_example_ipv4_topology_content,
@@ -269,10 +276,10 @@ class TestEbgpPeersBasic:
         ):
             # Check incomming updates for updated routes.
             total_prefix_count = eBGP_PEER1_PREFIX_COUNT + eBGP_PEER2_PREFIX_COUNT
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 iBGP_PEER1_LOG_FILE,
                 total_prefix_count,
@@ -289,11 +296,11 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging("step_disconnect_ebgp_peer2"):
             # Stop BGP peer and store logs.
             bgp.stop_bgp_speaker(self.ebgp_peer2_process)
-            infra.backup_file(eBGP_PEER2_LOG_FILE)
+            controller_testlib.infra.backup_file(eBGP_PEER2_LOG_FILE)
 
         with allure_step_with_separate_logging("step_check_for_empty_ipv4_topology"):
             # The IPv4 topology shall be empty.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
                 prefix_counting.check_example_ipv4_topology_does_not_contain,
@@ -307,10 +314,10 @@ class TestEbgpPeersBasic:
             prefixes_to_be_removed = max(
                 eBGP_PEER1_PREFIX_COUNT, eBGP_PEER2_PREFIX_COUNT
             )
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "withdrawn_prefix_received:",
                 iBGP_PEER1_LOG_FILE,
                 prefixes_to_be_removed,
@@ -319,7 +326,7 @@ class TestEbgpPeersBasic:
         with allure_step_with_separate_logging("step_disconnect_ibgp_peer1"):
             # Stop BGP peer and store logs.
             bgp.stop_bgp_speaker(self.ibgp_peer1_process)
-            infra.backup_file(iBGP_PEER1_LOG_FILE)
+            controller_testlib.infra.backup_file(iBGP_PEER1_LOG_FILE)
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
             # Delete all previously configured BGP peers.
@@ -409,7 +416,7 @@ class TestEbgpPeersBasic:
                 "PEER_AS": eBGP_AS,
                 "PREFIXLEN": f"{eBGP_PEER1_FIRST_PREFIX_IP}/{PREFIX_LEN}",
             }
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
                 templated_requests.get_templated_request,
@@ -428,7 +435,7 @@ class TestEbgpPeersBasic:
                 "PEER_AS": DEFAULT_AS,
                 "PREFIXLEN": f"{iBGP_PEER1_FIRST_PREFIX_IP}/{PREFIX_LEN}",
             }
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_TOPOLOGY_CHECK_COUNT,
                 DEFAULT_TOPOLOGY_CHECK_PERIOD,
                 templated_requests.get_templated_request,

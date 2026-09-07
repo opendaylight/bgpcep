@@ -16,10 +16,10 @@ from typing import List
 
 import requests
 
-from libraries import AuthStandalone
-from libraries import infra
+import controller_testlib.infra
+import controller_testlib.utils
+from netconf_testlib import AuthStandalone
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from variables.pcepuser.titanium import variables as pcep_variables
 
@@ -68,7 +68,9 @@ def get_pcep_topology() -> requests.Response:
         f"Response code for get pcep topology does not meach expected 200, "
         f"but is {resp.status_code}"
     )
-    resp_text = utils.truncate_long_text(resp.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE)
+    resp_text = controller_testlib.utils.truncate_long_text(
+        resp.text, MAX_HTTP_RESPONSE_BODY_LOG_SIZE
+    )
     log.debug(f"Response: {resp_text}")
     log.info(f"Response code: {resp.status_code}")
     log.debug(f"Response headers: {resp.headers}")
@@ -379,7 +381,7 @@ def wait_until_concrete_number_of_lsps_reported(
     Returns:
         None
     """
-    utils.wait_until_function_returns_value(
+    controller_testlib.utils.wait_until_function_returns_value(
         int(timeout / interval),
         interval,
         total_lsp_count,
@@ -432,7 +434,7 @@ def start_pcc_mock(
 
     command_parts.append(f"2>&1 >tmp/{log_file_name}")
 
-    process = infra.shell(
+    process = controller_testlib.infra.shell(
         " ".join(command_parts), use_shell=True, run_in_background=True
     )
 
@@ -457,7 +459,9 @@ def stop_pcc_mock_process(process: subprocess.Popen, timeout: int = 5):
     output = process.stdout
     log.debug(f"Pcc mock process output: {output=}")
     log.info(f"Killing pcc mock process with PID {process.pid}")
-    infra.stop_process_by_pid(process.pid, gracefully=True, timeout=timeout)
+    controller_testlib.infra.stop_process_by_pid(
+        process.pid, gracefully=True, timeout=timeout
+    )
 
 
 def start_pcc_mock_with_flapping(
@@ -494,7 +498,7 @@ def start_pcc_mock_with_flapping(
         {log_file_name} \
         {interval}"
 
-    process = infra.shell(
+    process = controller_testlib.infra.shell(
         start_mock_script_command, use_shell=True, run_in_background=True
     )
 
@@ -515,8 +519,10 @@ def kill_all_pcc_mock_simulators(gracefully: bool = True):
         None
     """
     signal_to_be_sent = "INT" if gracefully else "KILL"
-    infra.shell(f"pkill --signal {signal_to_be_sent} -f pcep-pcc-mock")
-    infra.shell(f"pkill --signal {signal_to_be_sent} mock.sh")
+    controller_testlib.infra.shell(
+        f"pkill --signal {signal_to_be_sent} -f pcep-pcc-mock"
+    )
+    controller_testlib.infra.shell(f"pkill --signal {signal_to_be_sent} mock.sh")
 
 
 def run_updater(
@@ -583,7 +589,7 @@ def run_updater(
         command_parts.append(f"--tunnelnumber  '{tunnel_no}'")
     command_parts.append("2>&1")
 
-    rc, stdout = infra.shell(" ".join(command_parts))
+    rc, stdout = controller_testlib.infra.shell(" ".join(command_parts))
     assert rc == 0, f"Updater scipt returned non zero return code {rc=} {stdout=}"
 
     return rc, stdout

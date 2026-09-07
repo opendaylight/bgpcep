@@ -15,10 +15,11 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -89,11 +90,15 @@ class TestBasic:
         self.bgp_speaker_process = bgp.start_bgp_speaker(
             ammount=3, my_ip=TOOLS_IP, peer_ip=ODL_IP, log_level=BGP_TOOL_LOG_LEVEL
         )
-        utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+        controller_testlib.utils.verify_process_did_not_stop_immediately(
+            self.bgp_speaker_process.pid
+        )
 
     def verify_number_of_speaker_connections(self, how_many):
         """Run ss command parse it for number of established connections."""
-        count = infra.count_port_occurrences(BGP_TOOL_PORT, "ESTAB", "python")
+        count = controller_testlib.infra.count_port_occurrences(
+            BGP_TOOL_PORT, "ESTAB", "python"
+        )
         assert (
             count == how_many
         ), f"Number of found occurences of bgp speaker process port {count} "
@@ -101,13 +106,13 @@ class TestBasic:
 
     def check_speaker_is_connected(self):
         """Give it several tries to see exactly one established connection."""
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             5, 1, self.verify_number_of_speaker_connections, 1
         )
 
     def check_speaker_is_not_connected(self):
         """Give it a few tries to see zero established connections."""
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             5, 1, self.verify_number_of_speaker_connections, 0
         )
 
@@ -122,7 +127,7 @@ class TestBasic:
         self, folder_name: str, retry: int = 10, interval: int = 1
     ):
         """Wait until Compare_Topology matches expected result."""
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             retry, interval, self.compare_topology, folder_name
         )
 
@@ -131,7 +136,7 @@ class TestBasic:
     ):
         """Verify that Compare_Topology keeps passing, it will hold its
         last result."""
-        utils.verify_function_does_not_fail_within_timeout(
+        controller_testlib.utils.verify_function_does_not_fail_within_timeout(
             retry, interval, self.compare_topology, folder_name
         )
 
@@ -179,11 +184,11 @@ class TestBasic:
 
         with allure_step_with_separate_logging("step_test_suite_setup"):
             # Configure karaf logging level.
-            infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
             )
 
@@ -256,7 +261,9 @@ class TestBasic:
             self.bgp_speaker_process = bgp.start_bgp_speaker(
                 ammount=3, my_ip=TOOLS_IP, peer_ip=ODL_IP, log_level=BGP_TOOL_LOG_LEVEL
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging(
             "step_check_talking_connection_is_established"
@@ -367,7 +374,9 @@ class TestBasic:
                 peer_ip=ODL_IP,
                 log_level=BGP_TOOL_LOG_LEVEL,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging(
             "step_check_listening_connection_is_not_established_yet"
@@ -437,7 +446,9 @@ class TestBasic:
                 firstprefix="8.0.0.240",
                 log_level=BGP_TOOL_LOG_LEVEL,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging(
             "step_check_listening_connection_is_established_case_2"
@@ -479,7 +490,9 @@ class TestBasic:
                 updates="single",
                 log_level=BGP_TOOL_LOG_LEVEL,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging(
             "step_check_listening_connection_is_established_case_3"

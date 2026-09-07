@@ -13,8 +13,8 @@ import allure
 import pytest
 import time
 
+import controller_testlib.utils
 from libraries import pcep
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -104,7 +104,7 @@ class TestPcepUser:
             # Verifies that get-stat RPC does return correct statistics containing
             # all PCC devices and all reported LSPs from both simulators and no extra
             # nodes.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 5,
                 0.1,
                 pcep.verify_global_pcep_statistics,
@@ -146,7 +146,7 @@ class TestPcepUser:
         ):
             # Verifies that PCEP statistics does not yet reflect changes in
             # PCEP topology, lost connection to the second simulator.
-            utils.verify_function_never_passes_within_timeout(
+            controller_testlib.utils.verify_function_never_passes_within_timeout(
                 5,
                 0.1,
                 pcep.verify_global_pcep_statistics,
@@ -174,7 +174,7 @@ class TestPcepUser:
         ):
             # Verifies that get-stat RPC does return correct statistics containing
             # only PCC devices and LSPs from first simulator.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 5,
                 0.1,
                 pcep.verify_global_pcep_statistics,

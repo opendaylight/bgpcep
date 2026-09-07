@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -73,15 +73,23 @@ class TestBgpfunctionalMultipath:
 
     def setup_config_files(self, add_path="disable"):
         """Copies exabgp config files."""
-        rc, output = infra.shell("which python")
+        rc, output = controller_testlib.infra.shell("which python")
         log.warn(output)
-        infra.shell(f"cp {BGP_VAR_FOLDER}/{DEFAUTL_RPC_CFG} tmp/")
-        infra.shell(f"cp {EXARPCSCRIPT} tmp/")
-        infra.shell(f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{DEFAUTL_RPC_CFG}")
-        infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{DEFAUTL_RPC_CFG}")
-        infra.shell(f"sed -i -e 's/ROUTEREFRESH/enable/g' tmp/{DEFAUTL_RPC_CFG}")
-        infra.shell(f"sed -i -e 's/ADDPATH/{add_path}/g' tmp/{DEFAUTL_RPC_CFG}")
-        rc, stdout = infra.shell(f"cat tmp/{DEFAUTL_RPC_CFG}")
+        controller_testlib.infra.shell(f"cp {BGP_VAR_FOLDER}/{DEFAUTL_RPC_CFG} tmp/")
+        controller_testlib.infra.shell(f"cp {EXARPCSCRIPT} tmp/")
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{DEFAUTL_RPC_CFG}"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{DEFAUTL_RPC_CFG}"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ROUTEREFRESH/enable/g' tmp/{DEFAUTL_RPC_CFG}"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ADDPATH/{add_path}/g' tmp/{DEFAUTL_RPC_CFG}"
+        )
+        rc, stdout = controller_testlib.infra.shell(f"cat tmp/{DEFAUTL_RPC_CFG}")
         log.info(stdout)
 
     def store_rib_configuration(self):
@@ -200,11 +208,11 @@ class TestBgpfunctionalMultipath:
             try:
                 self.log_loc_rib_operational()
                 update_messages = 4
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     6, 2, self.verify_expected_update_count, update_messages
                 )
             finally:
-                utils.run_function_ignore_errors(
+                controller_testlib.utils.run_function_ignore_errors(
                     self.stop_exabgp_and_remove_odl_and_app_peer_configuration
                 )
 
@@ -217,10 +225,10 @@ class TestBgpfunctionalMultipath:
                 self.log_loc_rib_operational()
                 # From neon onwards there is extra BGP End-Of-RIB message
                 update_messages = 3
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     2, 2, self.verify_expected_update_count, update_messages
                 )
             finally:
-                utils.run_function_ignore_errors(
+                controller_testlib.utils.run_function_ignore_errors(
                     self.stop_exabgp_and_remove_odl_and_app_peer_configuration
                 )

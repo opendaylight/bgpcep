@@ -17,11 +17,12 @@ from typing import List
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from libraries import prefix_counting
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -66,7 +67,7 @@ class TestIbgpPeersBasic:
         templated_requests.get_templated_request(tempalate_path, None, verify=True)
 
     def wait_until_expected_topology(self, template_path, retry_count=20, interval=1):
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             retry_count, interval, self.verify_topology_is_as_expected, template_path
         )
 
@@ -107,7 +108,7 @@ class TestIbgpPeersBasic:
             log_file=BGP_PEER1_LOG_FILE,
             multiplicity=int(BGP_PEERS_COUNT / 2),
         )
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             BGP_PEERS_COUNT,
             1,
             prefix_counting.check_example_ipv4_topology_contains,
@@ -126,7 +127,7 @@ class TestIbgpPeersBasic:
             log_file=BGP_PEER2_LOG_FILE,
             multiplicity=int(BGP_PEERS_COUNT / 2),
         )
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             BGP_PEERS_COUNT,
             1,
             prefix_counting.check_example_ipv4_topology_contains,
@@ -157,7 +158,7 @@ class TestIbgpPeersBasic:
         ]
         peers_data = peers1_data + peers2_data
         templated_requests.get_jinja_templated_request(
-            temlate_dir=f"{BGP_DATA_FOLDER}/cluster_id/peer_rib_out_manypeers",
+            template_dir=f"{BGP_DATA_FOLDER}/cluster_id/peer_rib_out_manypeers",
             mapping={
                 "peers_data": peers_data,
                 "skipped_prefix": skipped_prefix,
@@ -200,11 +201,11 @@ class TestIbgpPeersBasic:
 
         with allure_step_with_separate_logging("step_test_suite_setup"):
             # Configure karaf logging level.
-            infra.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(f"log:set {ODL_LOG_LEVEL}")
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.bgpcep"
             )
-            infra.execute_karaf_command(
+            controller_testlib.karaf.execute_karaf_command(
                 f"log:set {ODL_BGP_LOG_LEVEL} org.opendaylight.protocol"
             )
 
@@ -235,22 +236,22 @@ class TestIbgpPeersBasic:
             "step_tc1_bgp_peer1_check_log_for_introduced_prefixes"
         ):
             # Check incomming updates for new routes.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_CHECK_TIMEOUT,
                 DEFAULT_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 f"tmp/{BGP_PEER1_LOG_FILE}",
                 (PREFIX_COUNT * 2 - PREFIXES_PER_PEER) * int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 f"nlri_prefix_received: {BGP_PEER2_FIRST_PREFIX_IP}/{PREFIX_LEN}",
                 f"tmp/{BGP_PEER1_LOG_FILE}",
                 int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", f"tmp/{BGP_PEER1_LOG_FILE}", 0
             )
 
@@ -258,44 +259,46 @@ class TestIbgpPeersBasic:
             "step_tc1_bgp_peer2_check_log_for_introduced_prefixes"
         ):
             # Check incomming updates for new routes.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_CHECK_TIMEOUT,
                 DEFAULT_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 (PREFIX_COUNT * 2 - PREFIXES_PER_PEER) * int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 f"nlri_prefix_received: {BGP_PEER1_FIRST_PREFIX_IP}/{PREFIX_LEN}",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", f"tmp/{BGP_PEER2_LOG_FILE}", 0
             )
 
         with allure_step_with_separate_logging("step_tc1_disconnect_bgp_peer1"):
             # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer1_process)
-            infra.shell(f"tmp/{BGP_PEER1_LOG_FILE} results/tc1_{BGP_PEER1_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"tmp/{BGP_PEER1_LOG_FILE} results/tc1_{BGP_PEER1_LOG_FILE}"
+            )
 
         with allure_step_with_separate_logging(
             "step_tc1_bgp_peer2_check_log_for_withdrawn_prefixes"
         ):
             # Check incomming updates for withdrawn routes.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_CHECK_TIMEOUT,
                 DEFAULT_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "withdrawn_prefix_received:",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 PREFIX_COUNT * int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 f"withdrawn_prefix_received: {BGP_PEER1_FIRST_PREFIX_IP}/{PREFIX_LEN}",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 int(BGP_PEERS_COUNT / 2),
@@ -305,13 +308,15 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging("step_tc1_disconnect_bgp_peer2"):
             # Stop BGP peers & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer2_process)
-            infra.shell(f"tmp/{BGP_PEER2_LOG_FILE} results/tc1_{BGP_PEER2_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"tmp/{BGP_PEER2_LOG_FILE} results/tc1_{BGP_PEER2_LOG_FILE}"
+            )
 
         with allure_step_with_separate_logging(
             "step_tc1_check_for_empty_ipv4_topology"
         ):
             # Checks for empty topology after.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 10,
                 1,
                 prefix_counting.check_example_ipv4_topology_does_not_contain,
@@ -361,22 +366,22 @@ class TestIbgpPeersBasic:
             "step_tc2_bgp_peer1_check_log_for_introduced_prefixes"
         ):
             # Check incomming updates for new routes.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_CHECK_TIMEOUT,
                 DEFAULT_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 f"tmp/{BGP_PEER1_LOG_FILE}",
                 (PREFIX_COUNT * 2 - PREFIXES_PER_PEER) * int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 f"nlri_prefix_received: {BGP_PEER2_FIRST_PREFIX_IP}/{PREFIX_LEN}",
                 f"tmp/{BGP_PEER1_LOG_FILE}",
                 int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", f"tmp/{BGP_PEER1_LOG_FILE}", 0
             )
 
@@ -384,44 +389,46 @@ class TestIbgpPeersBasic:
             "step_tc2_bgp_peer2_check_log_for_introduced_prefixes"
         ):
             # Check incomming updates for new routes.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_CHECK_TIMEOUT,
                 DEFAULT_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 PREFIX_COUNT * int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 f"nlri_prefix_received: {BGP_PEER1_FIRST_PREFIX_IP}/{PREFIX_LEN}",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", f"tmp/{BGP_PEER2_LOG_FILE}", 0
             )
 
         with allure_step_with_separate_logging("step_tc2_disconnect_bgp_peer1"):
             # Stop BGP peers & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer1_process)
-            infra.shell(f"tmp/{BGP_PEER1_LOG_FILE} results/tc2_{BGP_PEER1_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"tmp/{BGP_PEER1_LOG_FILE} results/tc2_{BGP_PEER1_LOG_FILE}"
+            )
 
         with allure_step_with_separate_logging(
             "step_tc2_bgp_peer2_check_log_for_withdrawn_prefixes"
         ):
             # Check incomming updates for withdrawn routes.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_CHECK_TIMEOUT,
                 DEFAULT_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "withdrawn_prefix_received:",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 PREFIX_COUNT * int(BGP_PEERS_COUNT / 2),
                 exact=False,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 f"withdrawn_prefix_received: {BGP_PEER1_FIRST_PREFIX_IP}/{PREFIX_LEN}",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 int(BGP_PEERS_COUNT / 2),
@@ -431,13 +438,15 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging("step_tc2_disconnect_bgp_peer2"):
             # Stop BGP peers & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer2_process)
-            infra.shell(f"tmp/{BGP_PEER2_LOG_FILE} results/tc2_{BGP_PEER2_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"tmp/{BGP_PEER2_LOG_FILE} results/tc2_{BGP_PEER2_LOG_FILE}"
+            )
 
         with allure_step_with_separate_logging(
             "step_tc2_check_for_empty_ipv4_topology"
         ):
             # Checks for empty topology after
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 10,
                 1,
                 prefix_counting.check_example_ipv4_topology_does_not_contain,
@@ -487,10 +496,10 @@ class TestIbgpPeersBasic:
             "step_tc3_bgp_peer1_check_log_for_no_updates"
         ):
             # Check for no updates received by iBGP peer No. 1.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_CHECK_TIMEOUT * 2,
                 DEFAULT_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "total_received_update_message_counter: 1",
                 f"tmp/{BGP_PEER1_LOG_FILE}",
                 BGP_PEERS_COUNT,
@@ -500,16 +509,18 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging("step_tc3_disconnect_bgp_peer1"):
             # Stop BGP peers & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer1_process)
-            infra.shell(f"tmp/{BGP_PEER1_LOG_FILE} results/tc3_{BGP_PEER1_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"tmp/{BGP_PEER1_LOG_FILE} results/tc3_{BGP_PEER1_LOG_FILE}"
+            )
 
         with allure_step_with_separate_logging(
             "step_tc3_bgp_peer2_check_log_for_no_updates"
         ):
             # Check for no updates received by iBGP peer No. 2.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_CHECK_TIMEOUT * 4,
                 DEFAULT_CHECK_PERIOD,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "total_received_update_message_counter: 1",
                 f"tmp/{BGP_PEER2_LOG_FILE}",
                 4,
@@ -519,13 +530,15 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging("step_tc3_disconnect_bgp_peer2"):
             # Stop BGP peers & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer2_process)
-            infra.shell(f"tmp/{BGP_PEER2_LOG_FILE} results/tc3_{BGP_PEER2_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"tmp/{BGP_PEER2_LOG_FILE} results/tc3_{BGP_PEER2_LOG_FILE}"
+            )
 
         with allure_step_with_separate_logging(
             "step_tc3_check_for_empty_ipv4_topology"
         ):
             # Checks for empty topology after
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 10,
                 1,
                 prefix_counting.check_example_ipv4_topology_does_not_contain,
@@ -578,7 +591,7 @@ class TestIbgpPeersBasic:
             bgp_peer_ip = ipaddress.IPv4Address(BGP_PEERS1_IP)
             prefix_to_be_skipped = ipaddress.IPv4Address(BGP_PEER1_FIRST_PREFIX_IP)
             for _ in range(int(BGP_PEERS_COUNT / 2)):
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     DEFAULT_CHECK_TIMEOUT,
                     DEFAULT_CHECK_PERIOD,
                     self.check_peer_adj_rib_out,
@@ -596,7 +609,7 @@ class TestIbgpPeersBasic:
             bgp_peer_ip = ipaddress.IPv4Address(BGP_PEERS2_IP)
             prefix_to_be_skipped = ipaddress.IPv4Address(BGP_PEER2_FIRST_PREFIX_IP)
             for _ in range(int(BGP_PEERS_COUNT / 2)):
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     DEFAULT_CHECK_TIMEOUT,
                     DEFAULT_CHECK_PERIOD,
                     self.check_peer_adj_rib_out,
@@ -609,15 +622,19 @@ class TestIbgpPeersBasic:
         with allure_step_with_separate_logging("step_tc4_disconnect_bgp_peers"):
             # Stop BGP peers & store logs.
             bgp.stop_bgp_speaker(self.bgp_peer1_process)
-            infra.shell(f"tmp/{BGP_PEER1_LOG_FILE} results/tc4_{BGP_PEER1_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"tmp/{BGP_PEER1_LOG_FILE} results/tc4_{BGP_PEER1_LOG_FILE}"
+            )
             bgp.stop_bgp_speaker(self.bgp_peer2_process)
-            infra.shell(f"tmp/{BGP_PEER2_LOG_FILE} results/tc4_{BGP_PEER2_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"tmp/{BGP_PEER2_LOG_FILE} results/tc4_{BGP_PEER2_LOG_FILE}"
+            )
 
         with allure_step_with_separate_logging(
             "step_tc4_check_for_empty_ipv4_topology"
         ):
             # Checks for empty topology after
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 10,
                 1,
                 prefix_counting.check_example_ipv4_topology_does_not_contain,

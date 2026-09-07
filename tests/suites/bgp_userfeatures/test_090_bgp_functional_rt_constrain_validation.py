@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -81,7 +81,9 @@ class TestBgpfunctionalRtConstrainValidation:
     ):
         """Read contents of file {dir}/{totest}/announce_{totest}.hex and send
         it to odl."""
-        announce_hex = infra.get_file_content(f"{dir}/{to_test}/announce_{to_test}.hex")
+        announce_hex = controller_testlib.infra.get_file_content(
+            f"{dir}/{to_test}/announce_{to_test}.hex"
+        )
         bgp_rpc_client.play_send(announce_hex)
 
     def play_to_odl_routes_removal_template_bgprpcclient(
@@ -89,7 +91,9 @@ class TestBgpfunctionalRtConstrainValidation:
     ):
         """Read contents of file {dir}/{totest}/withdraw_{totest}.hex and send
         it to odl to remove rt argument from odl."""
-        withdraw_hex = infra.get_file_content(f"{dir}/{to_test}/withdraw_{to_test}.hex")
+        withdraw_hex = controller_testlib.infra.get_file_content(
+            f"{dir}/{to_test}/withdraw_{to_test}.hex"
+        )
         bgp_rpc_client.play_clean()
         bgp_rpc_client.play_send(withdraw_hex)
 
@@ -113,12 +117,12 @@ class TestBgpfunctionalRtConstrainValidation:
 
     def verify_reported_data(self, url, exprspfile):
         """Verifies expected response"""
-        expresponse = infra.get_file_content(exprspfile)
+        expresponse = controller_testlib.infra.get_file_content(exprspfile)
         log.info(f"expected_responseL {expresponse}")
         rsp = templated_requests.get_request(url)
         log.info(f"actual_response: {rsp}")
         log.info(f"actual_response_content: {rsp.content}")
-        utils.verify_jsons_match(expresponse, rsp.content)
+        controller_testlib.utils.verify_jsons_match(expresponse, rsp.content)
 
     def verify_empty_reproted_data(self):
         """Verify empty data response"""
@@ -183,7 +187,7 @@ class TestBgpfunctionalRtConstrainValidation:
                 "PATH": f"peer=bgp:%2F%2F{ODL_2_IP}/effective-rib-in",
                 "BGP_RIB": RIB_NAME,
             }
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 3,
                 2,
                 templated_requests.get_templated_request,
@@ -200,7 +204,7 @@ class TestBgpfunctionalRtConstrainValidation:
                 BGP_RPC_CLIENT3, "rt_constrain_type_0", RT_CONSTRAIN_DIR
             )
             mapping = {"PATH": "loc-rib", "BGP_RIB": RIB_NAME}
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 3,
                 2,
                 templated_requests.get_templated_request,
@@ -213,7 +217,7 @@ class TestBgpfunctionalRtConstrainValidation:
             "step_check_presence_of_l3vpn_route_in_node_2_effective_rib_in_table"
         ):
             # Checks l3vpn route is present in node 2 effective-rib-in table.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 3,
                 2,
                 templated_requests.get_templated_request,
@@ -227,7 +231,7 @@ class TestBgpfunctionalRtConstrainValidation:
         ):
             # Checks that each node received or did not receive update message
             # containing given hex message.
-            announce = infra.get_file_content(
+            announce = controller_testlib.infra.get_file_content(
                 f"{RT_CONSTRAIN_DIR}/ext_l3vpn_rt_arg/announce_ext_l3vpn_rt_arg.hex"
             )
             announce_hex = announce.strip()
@@ -244,7 +248,7 @@ class TestBgpfunctionalRtConstrainValidation:
                 "PATH": f"peer=bgp:%2F%2F{ODL_4_IP}/effective-rib-in",
                 "BGP_RIB": {RIB_NAME},
             }
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 3,
                 2,
                 templated_requests.get_templated_request,
@@ -274,7 +278,9 @@ class TestBgpfunctionalRtConstrainValidation:
         with allure_step_with_separate_logging("step_kill_talking_bgp_speakers"):
             # Abort all Python speakers.
             for i in range(3):
-                infra.shell(f"cp tmp/play.py.090.{2+i} results/play.py.090.{2+i}")
+                controller_testlib.infra.shell(
+                    f"cp tmp/play.py.090.{2+i} results/play.py.090.{2+i}"
+                )
             bgp.kill_all_bgp_speakers()
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):

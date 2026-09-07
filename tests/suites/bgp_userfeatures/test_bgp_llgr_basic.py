@@ -15,8 +15,8 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -55,19 +55,27 @@ class TestBgpLlgrBasic:
     gobgp_process = None
 
     def prepare_gobgp_config_file(self):
-        infra.shell("cp variables/bgpfunctional/gobgp/gobgp.cfg tmp/")
-        infra.shell(f"sed -i -e 's/GOBGPIP/{TOOLS_IP}/g' tmp/gobgp.cfg")
-        infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/gobgp.cfg")
-        infra.shell(f"sed -i -e 's/ROUTERID/{TOOLS_IP}/g' tmp/gobgp.cfg")
-        infra.shell("sed -i -e 's/ROUTEREFRESH/disable/g' tmp/gobgp.cfg")
-        infra.shell("sed -i -e 's/ADDPATH/disable/g' tmp/gobgp.cfg")
-        rc, stdout = infra.shell("cat tmp/gobgp.cfg")
+        controller_testlib.infra.shell(
+            "cp variables/bgpfunctional/gobgp/gobgp.cfg tmp/"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/GOBGPIP/{TOOLS_IP}/g' tmp/gobgp.cfg"
+        )
+        controller_testlib.infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/gobgp.cfg")
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ROUTERID/{TOOLS_IP}/g' tmp/gobgp.cfg"
+        )
+        controller_testlib.infra.shell(
+            "sed -i -e 's/ROUTEREFRESH/disable/g' tmp/gobgp.cfg"
+        )
+        controller_testlib.infra.shell("sed -i -e 's/ADDPATH/disable/g' tmp/gobgp.cfg")
+        rc, stdout = controller_testlib.infra.shell("cat tmp/gobgp.cfg")
         log.info(f"Updated tmp/gobgp.cfg config:\n{stdout}")
 
     def download_gobgp_binary(self):
         """Downloads gobgp binary and untar the binary zip file."""
-        infra.download_file(GOBGP_BINARY_URL)
-        infra.shell(f"tar -xzf tmp/{FILE_NAME} -C tmp")
+        controller_testlib.infra.download_file(GOBGP_BINARY_URL)
+        controller_testlib.infra.shell(f"tar -xzf tmp/{FILE_NAME} -C tmp")
 
     @allure.description(
         textwrap.dedent(
@@ -118,5 +126,5 @@ class TestBgpLlgrBasic:
         with allure_step_with_separate_logging("step_stop_gobgp"):
             # Save gobgp logs as gobgp.log, and stop gobgp with SIGINT bash
             # signal.
-            infra.backup_file(src_file_name="gobgp.log")
+            controller_testlib.infra.backup_file(src_file_name="gobgp.log")
             bgp.stop_gobgp(self.gobgp_process)

@@ -13,10 +13,10 @@ import logging
 
 import allure
 
+import controller_testlib.utils
+import controller_testlib.infra
 from libraries import bgp
-from libraries import infra
 from libraries import prefix_counting
-from libraries import utils
 from libraries.variables import variables
 
 TEST_DURATION_MULTIPLIER = variables.TEST_DURATION_MULTIPLIER
@@ -62,7 +62,7 @@ class BaseTestSinglePeerPrefixCount:
             # timeout for case when BGP boots slower than restconf.
             # TODO: Choose which tags to assign and make sure they are assigned
             # correctly.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 120, 1, prefix_counting.check_ipv4_topology_is_empty
             )
 
@@ -120,12 +120,12 @@ class BaseTestSinglePeerPrefixCount:
             "step_store_result_for_talking_bgp_speaker"
         ):
             # Store results for debugging.
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 f"totals-{RESULTS_FILE_NAME}",
                 target_file_name=f"prefixcount-talking-totals-{RESULTS_FILE_NAME}",
                 src_dir=".",
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 f"performance-{RESULTS_FILE_NAME}",
                 target_file_name=f"prefixcount-talking-performance-{RESULTS_FILE_NAME}",
                 src_dir=".",
@@ -209,12 +209,12 @@ class BaseTestSinglePeerPrefixCount:
             "step_store_result_for_listening_bgp_speaker"
         ):
             # Store results for debugging.
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 f"totals-{RESULTS_FILE_NAME}",
                 target_file_name=f"prefixcount-listening-totals-{RESULTS_FILE_NAME}",
                 src_dir=".",
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 f"performance-{RESULTS_FILE_NAME}",
                 target_file_name=(
                     f"prefixcount-listening-performance-{RESULTS_FILE_NAME}"

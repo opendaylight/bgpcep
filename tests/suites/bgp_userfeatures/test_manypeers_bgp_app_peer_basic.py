@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -106,7 +106,7 @@ class TestBgpAppPeerBasic:
 
     def wait_for_topology_to_change_to(self, template_path, retry_count=10, interval=1):
         """Wait until Compare_Topology matches expected result."""
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             retry_count, interval, self.compare_topology, template_path
         )
 
@@ -183,11 +183,11 @@ class TestBgpAppPeerBasic:
             "step_tc1_bgp_application_peer_post_3_initial_routes"
         ):
             # Start BGP application peer tool and give it 30s.
-            infra.shell(
+            controller_testlib.infra.shell(
                 f"{BGP_APP_PEER_POST_COMMAND} {SCRIPT_URI_OPT} {BGP_APP_PEER_OPTIONS}",
                 timeout=BGP_APP_PEER_TIMEOUT,
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_app_peer.log",
                 target_file_name="bgp_app_peer_initial_post_tc1.log",
@@ -202,32 +202,34 @@ class TestBgpAppPeerBasic:
 
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer"):
             # Start BGP peer tool.
-            self.bgp_speaker_process = infra.shell(
+            self.bgp_speaker_process = controller_testlib.infra.shell(
                 f"{BGP_PEER_COMMAND} {BGP_PEER_OPTIONS}", run_in_background=True
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging(
             "step_tc1_bgp_peer_check_incomming_updates_for_3_introduced_prefixes"
         ):
             # Check incomming updates for new routes.
-            infra.wait_for_string_in_file(
+            controller_testlib.infra.wait_for_string_in_file(
                 20,
                 1,
                 "nlri_prefix_received:",
                 "bgp_peer.log",
                 threshold=3 * BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", "bgp_peer.log", 0
             )
 
@@ -235,14 +237,14 @@ class TestBgpAppPeerBasic:
             "step_tc1_bgp_application_peer_delete_3_initial_routes"
         ):
             # Start BGP application peer tool and give him 30s.
-            infra.shell(
+            controller_testlib.infra.shell(
                 (
                     f"{BGP_APP_PEER_DELETE_COMMAND} {SCRIPT_URI_OPT} "
                     f"{BGP_APP_PEER_OPTIONS}"
                 ),
                 timeout=BGP_APP_PEER_TIMEOUT,
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_app_peer.log",
                 target_file_name="bgp_app_peer_initial_delete_tc1.log",
@@ -260,34 +262,34 @@ class TestBgpAppPeerBasic:
             "step_tc1_peer_check_incomming_updates_for_3_withdrawn_prefixes"
         ):
             # Check incomming updates for new routes.
-            infra.wait_for_string_in_file(
+            controller_testlib.infra.wait_for_string_in_file(
                 10,
                 1,
                 "withdrawn_prefix_received:",
                 "bgp_peer.log",
                 threshold=3 * BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.16/28",
                 "bgp_peer.log",
                 BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.32/28",
                 "bgp_peer.log",
                 BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received:", "bgp_peer.log", 3 * BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_tc1_stop_bgp_peer"):
             # Stop BGP peer tool.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_peer.log",
                 target_file_name="bgp_peer_tc1.log",
@@ -295,19 +297,21 @@ class TestBgpAppPeerBasic:
 
         with allure_step_with_separate_logging("step_tc2_reconnect_bgp_peer"):
             # Start BGP peer tool.
-            self.bgp_speaker_process = infra.shell(
+            self.bgp_speaker_process = controller_testlib.infra.shell(
                 f"{BGP_PEER_COMMAND} {BGP_PEER_OPTIONS}", run_in_background=True
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
-            utils.wait_until_function_pass(
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
+            controller_testlib.utils.wait_until_function_pass(
                 10,
                 1,
-                infra.verify_string_occurence_count_in_file,
+                controller_testlib.infra.verify_string_occurence_count_in_file,
                 "nlri_prefix_received:",
                 "bgp_peer.log",
                 0,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", "bgp_peer.log", 0
             )
 
@@ -324,11 +328,11 @@ class TestBgpAppPeerBasic:
                 log_level="debug",
                 timeout=30,
             )
-            infra.shell(
+            controller_testlib.infra.shell(
                 f"{BGP_APP_PEER_PUT_COMMAND} {SCRIPT_URI_OPT} {BGP_APP_PEER_OPTIONS}",
                 timeout=BGP_APP_PEER_TIMEOUT,
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_app_peer.log",
                 target_file_name="bgp_app_peer_put_tc2.log",
@@ -345,23 +349,23 @@ class TestBgpAppPeerBasic:
             "step_tc2_bgp_peer_check_incomming_updates_for_3_introduced_prefixes"
         ):
             # Check incomming updates for new routes.
-            infra.wait_for_string_in_file(
+            controller_testlib.infra.wait_for_string_in_file(
                 10,
                 1,
                 "nlri_prefix_received:",
                 "bgp_peer.log",
                 threshold=3 * BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", "bgp_peer.log", 0
             )
 
@@ -369,14 +373,14 @@ class TestBgpAppPeerBasic:
             "step_tc2_bgp_application_peer_delete_all_routes"
         ):
             # Start BGP application peer tool and give him 30s.
-            infra.shell(
+            controller_testlib.infra.shell(
                 (
                     f"{BGP_APP_PEER_DELETE_ALL_COMMAND} {SCRIPT_URI_OPT} "
                     f"{BGP_APP_PEER_OPTIONS}"
                 ),
                 timeout=BGP_APP_PEER_TIMEOUT,
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_app_peer.log",
                 target_file_name="bgp_app_peer_delete_all_tc2.log",
@@ -394,34 +398,34 @@ class TestBgpAppPeerBasic:
             "step_tc2_bgp_peer_check_incomming_updates_for_3_withdrawn_prefixes"
         ):
             # Check incomming updates for new routes.
-            infra.wait_for_string_in_file(
+            controller_testlib.infra.wait_for_string_in_file(
                 10,
                 1,
                 "withdrawn_prefix_received:",
                 "bgp_peer.log",
                 threshold=3 * BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.16/28",
                 "bgp_peer.log",
                 BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.32/28",
                 "bgp_peer.log",
                 BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received:", "bgp_peer.log", 3 * BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_tc2_stop_bgp_peer"):
             # Stop BGP peer tool.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_peer.log",
                 target_file_name="bgp_peer_tc2.log",
@@ -431,11 +435,11 @@ class TestBgpAppPeerBasic:
             "step_tc3_bgp_application_peer_put_3_routes"
         ):
             # Start BGP application peer tool and give him 30s.
-            infra.shell(
+            controller_testlib.infra.shell(
                 f"{BGP_APP_PEER_PUT_COMMAND} {SCRIPT_URI_OPT} {BGP_APP_PEER_OPTIONS}",
                 timeout=BGP_APP_PEER_TIMEOUT,
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_app_peer.log",
                 target_file_name="bgp_app_peer_put_tc3.log",
@@ -452,31 +456,33 @@ class TestBgpAppPeerBasic:
             "step_tc3_reconnect_bgp_peer_and_check_incomming_updates_for_3_introduced_prefixes"
         ):
             # Start BGP peer tool.
-            self.bgp_speaker_process = infra.shell(
+            self.bgp_speaker_process = controller_testlib.infra.shell(
                 f"{BGP_PEER_COMMAND} {BGP_PEER_OPTIONS}", run_in_background=True
             )
 
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
-            infra.wait_for_string_in_file(
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
+            controller_testlib.infra.wait_for_string_in_file(
                 20,
                 1,
                 "nlri_prefix_received:",
                 "bgp_peer.log",
                 threshold=3 * BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received:", "bgp_peer.log", 3 * BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.16/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received: 8.0.1.32/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received:", "bgp_peer.log", 0
             )
 
@@ -484,14 +490,14 @@ class TestBgpAppPeerBasic:
             "step_tc3_bgp_application_peer_delete_all_routes"
         ):
             # Start BGP application peer tool and give him 30s.
-            infra.shell(
+            controller_testlib.infra.shell(
                 (
                     f"{BGP_APP_PEER_DELETE_ALL_COMMAND} {SCRIPT_URI_OPT} "
                     f"{BGP_APP_PEER_OPTIONS}"
                 ),
                 timeout=BGP_APP_PEER_TIMEOUT,
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_app_peer.log",
                 target_file_name="bgp_app_peer_delete_all_tc3.log",
@@ -509,34 +515,34 @@ class TestBgpAppPeerBasic:
             "step_tc3_bgp_peer_check_incomming_updates_for_3_withdrawn_prefixes"
         ):
             # Check incomming updates for new routes.
-            infra.wait_for_string_in_file(
+            controller_testlib.infra.wait_for_string_in_file(
                 10,
                 1,
                 "withdrawn_prefix_received:",
                 "bgp_peer.log",
                 threshold=3 * BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.0/28", "bgp_peer.log", BGP_PEERS_COUNT
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.16/28",
                 "bgp_peer.log",
                 BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "withdrawn_prefix_received: 8.0.1.32/28",
                 "bgp_peer.log",
                 BGP_PEERS_COUNT,
             )
-            infra.verify_string_occurence_count_in_file(
+            controller_testlib.infra.verify_string_occurence_count_in_file(
                 "nlri_prefix_received:", "bgp_peer.log", 3 * BGP_PEERS_COUNT
             )
 
         with allure_step_with_separate_logging("step_tc3_stop_bgp_peer"):
             # Stop BGP peer tool.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_dir=".",
                 src_file_name="bgp_peer.log",
                 target_file_name="bgp_peer_tc3.log",

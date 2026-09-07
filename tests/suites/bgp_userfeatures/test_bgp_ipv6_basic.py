@@ -16,11 +16,11 @@ import time
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
-from libraries import karaf
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -68,40 +68,48 @@ class TestBgpIpv6Basic:
 
     def configure_ipv6_network(self):
         """Reconfigures basic network settings on controller."""
-        rc, stdout = infra.shell("ip route | grep '^default' | awk '{print $5}'")
+        rc, stdout = controller_testlib.infra.shell(
+            "ip route | grep '^default' | awk '{print $5}'"
+        )
         assert rc == 0, f"Failed to get interface set for default route: {stdout}"
         main_net_interface = stdout
-        infra.shell(
+        controller_testlib.infra.shell(
             (
                 f"ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} "
                 f"dev {main_net_interface}"
             )
         )
-        infra.shell(f"ip -6 route add default via {IPV6_IP_GW}")
-        rc, stdout = infra.shell("ip -6 addr show")
+        controller_testlib.infra.shell(f"ip -6 route add default via {IPV6_IP_GW}")
+        rc, stdout = controller_testlib.infra.shell("ip -6 addr show")
         log.info(stdout)
-        rc, stdout = infra.shell("ip -6 route show")
+        rc, stdout = controller_testlib.infra.shell("ip -6 route show")
         log.info(stdout)
 
     def setup_config_file(self, config_file, exabgp_ip, odl_ip, router_id):
-        infra.shell(f"sed -i -e 's/EXABGPIP/{exabgp_ip}/g' {config_file}")
-        infra.shell(f"sed -i -e 's/ODLIP/{odl_ip}/g' {config_file}")
-        infra.shell(f"sed -i -e 's/ROUTERID/{router_id}/g' {config_file}")
-        infra.shell(f"sed -i -e 's/ROUTEREFRESH/disable/g' {config_file}")
-        infra.shell(f"sed -i -e 's/ADDPATH/disable/g' {config_file}")
-        rc, stdout = infra.shell(f"cat {config_file}")
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/EXABGPIP/{exabgp_ip}/g' {config_file}"
+        )
+        controller_testlib.infra.shell(f"sed -i -e 's/ODLIP/{odl_ip}/g' {config_file}")
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ROUTERID/{router_id}/g' {config_file}"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ROUTEREFRESH/disable/g' {config_file}"
+        )
+        controller_testlib.infra.shell(f"sed -i -e 's/ADDPATH/disable/g' {config_file}")
+        rc, stdout = controller_testlib.infra.shell(f"cat {config_file}")
         log.info(stdout)
 
     def setup_config_files(self):
         for config_file in (EXABGP_CFG, EXABGP3_CFG, EXABGP4_CFG):
-            infra.shell(f"cp  {BGP_VAR_FOLDER}/{config_file} tmp/")
+            controller_testlib.infra.shell(f"cp  {BGP_VAR_FOLDER}/{config_file} tmp/")
             self.setup_config_file(
                 f"tmp/{config_file}",
                 exabgp_ip=IPV6_IP,
                 odl_ip=CONTROLLER_IPV6,
                 router_id=EXABGP_ID,
             )
-        infra.shell(f"cp  {BGP_VAR_FOLDER}/{EXABGP2_CFG} tmp/")
+        controller_testlib.infra.shell(f"cp  {BGP_VAR_FOLDER}/{EXABGP2_CFG} tmp/")
         self.setup_config_file(
             f"tmp/{EXABGP2_CFG}", exabgp_ip=IPV4_IP, odl_ip=ODL_IP, router_id=IPV4_IP
         )
@@ -112,7 +120,7 @@ class TestBgpIpv6Basic:
 
     def verify_rib_status_empty(self):
         """Verifies that example-ipv6-topology is empty."""
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             5,
             2,
             templated_requests.get_templated_request,
@@ -123,7 +131,7 @@ class TestBgpIpv6Basic:
 
     def verify_rib_status_filled(self):
         """Verifies that example-ipv6-topology is filled with ipv6 route."""
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             5,
             2,
             templated_requests.get_templated_request,
@@ -264,7 +272,7 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging("step_stop_all_exabgps"):
             # Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c
             # bash signal.
-            infra.shell(f"cp tmp/{EXABGP_LOG} results/")
+            controller_testlib.infra.shell(f"cp tmp/{EXABGP_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging("step_configure_app_peer"):
@@ -308,7 +316,7 @@ class TestBgpIpv6Basic:
             # TODO: fix this test case as verify is not used,
             # but if used it would be failing.
             mapping = {"BGP_RIB_OPENCONFIG": "example-bgp-rib"}
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 5,
                 2,
                 templated_requests.get_templated_request,
@@ -323,7 +331,7 @@ class TestBgpIpv6Basic:
             templated_requests.delete_templated_request(
                 f"{BGP_VAR_FOLDER}/ipv6_route_injection", mapping
             )
-            karaf.fail_if_exception_found_during_test(
+            controller_testlib.karaf.fail_if_exception_found_during_test(
                 "step_delete_injected_ipv6_routes_1"
             )
 
@@ -400,7 +408,7 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging("step_stop_all_exabgps_2"):
             # Save exabgp logs as exaipv6.log, and stop exabgp with ctrl-c bash
             # signal.
-            infra.shell(f"cp tmp/{EXABGP2_LOG} results/")
+            controller_testlib.infra.shell(f"cp tmp/{EXABGP2_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
 
         with allure_step_with_separate_logging(
@@ -428,10 +436,12 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging("step_stop_all_exabgps_3"):
             # Save exabgp logs as exabgp_graceful_restart.log, and stop exabgp
             # with ctrl-c bash signal.
-            infra.shell(f"cp tmp/{EXABGP3_LOG} results/")
+            controller_testlib.infra.shell(f"cp tmp/{EXABGP3_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
             time.sleep(40)
-            karaf.fail_if_exception_found_during_test("step_stop_all_exabgps_3")
+            controller_testlib.karaf.fail_if_exception_found_during_test(
+                "step_stop_all_exabgps_3"
+            )
 
         with allure_step_with_separate_logging("step_start_exabgp_4"):
             # Start exabgp.
@@ -450,7 +460,7 @@ class TestBgpIpv6Basic:
         with allure_step_with_separate_logging("step_stop_all_exabgps_4"):
             # Save exabgp logs as exabgp_graceful_restart.log, and stop exabgp
             # with ctrl-c bash signal.
-            infra.shell(f"cp tmp/{EXABGP3_LOG} results/")
+            controller_testlib.infra.shell(f"cp tmp/{EXABGP3_LOG} results/")
             bgp.stop_exabgp(self.exabgp_process)
 
         if step_tag_checker("exclude"):
@@ -489,5 +499,5 @@ class TestBgpIpv6Basic:
             with allure_step_with_separate_logging("step_stop_all_exabgps_5"):
                 # Save exabgp logs as exabgp_graceful_restart.log, and stop
                 # exabgp with ctrl-c bash signal.
-                infra.shell(f"cp tmp/{EXABGP4_LOG} results/")
+                controller_testlib.infra.shell(f"cp tmp/{EXABGP4_LOG} results/")
                 bgp.stop_exabgp(self.exabgp_process)

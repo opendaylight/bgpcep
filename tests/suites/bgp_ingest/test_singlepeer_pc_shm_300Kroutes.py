@@ -15,9 +15,9 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.utils
 from libraries import bgp
 from libraries import prefix_counting
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -78,7 +78,7 @@ class TestSinglePeer300KRoutes:
         ):
             # Wait for example-ipv4-topology to come up and empty.
             # Give large timeout for case when BGP boots slower than restconf.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 120,
                 1,
                 prefix_counting.check_ipv4_topology_is_empty,

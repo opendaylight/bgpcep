@@ -11,7 +11,7 @@ import logging
 import pytest
 
 import controller_testlib.fixtures
-from libraries import infra
+import controller_testlib.infra
 from libraries.variables import variables
 
 ODL_IP = variables.ODL_IP
@@ -75,12 +75,13 @@ def teardown_kill_all_running_play_script_processes():
         None
     """
     yield
-    infra.shell(
+    controller_testlib.infra.shell(
         (
             r"pkill -f '^(.*/)?python3?\s+.*play.py' || "
             r"echo 'No running instance of play.py script.'"
         )
     )
+
 
 @pytest.fixture(scope="class")
 def teardown_kill_all_running_bgp_app_peer_script_processes():
@@ -93,12 +94,13 @@ def teardown_kill_all_running_bgp_app_peer_script_processes():
         None
     """
     yield
-    infra.shell(
+    controller_testlib.infra.shell(
         (
             r"pkill -f '^(.*/)?python3?\s+.*bgp_app_peer.py' || "
             r"echo 'No running instance of bgp_app_peer.py script.'"
         )
     )
+
 
 @pytest.fixture(scope="class")
 def teardown_kill_all_running_exabgp_processes():
@@ -111,12 +113,13 @@ def teardown_kill_all_running_exabgp_processes():
         None
     """
     yield
-    infra.shell(
+    controller_testlib.infra.shell(
         (
             r"pkill -f '^(.*/)?python3?\s+.*bin/exabgp' || "
             r"echo 'No running instance of play.py script.'"
         )
     )
+
 
 @pytest.fixture(scope="class")
 def teardown_kill_all_running_gobgp_processes():
@@ -129,12 +132,10 @@ def teardown_kill_all_running_gobgp_processes():
         None
     """
     yield
-    infra.shell(
-        (
-            "pkill gobgpd || "
-            "echo 'No running instance of gobgpd script.'"
-        )
+    controller_testlib.infra.shell(
+        ("pkill gobgpd || " "echo 'No running instance of gobgpd script.'")
     )
+
 
 @pytest.fixture(scope="class")
 def teardown_kill_all_running_pcep_pcc_mock_processes():
@@ -147,7 +148,7 @@ def teardown_kill_all_running_pcep_pcc_mock_processes():
         None
     """
     yield
-    infra.shell(
+    controller_testlib.infra.shell(
         (
             r"pkill -f '^(.*/)?java\s+.*pcep-pcc-mock\.jar' || "
             r"echo 'No running instance of pcep-pcc-mock.jar.'"

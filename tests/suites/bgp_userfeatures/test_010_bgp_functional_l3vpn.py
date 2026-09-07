@@ -16,10 +16,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -65,7 +65,7 @@ class TestBgpfunctionalL3Vpn:
         )
         rcv_update_dict = BGP_RPC_CLIENT.exa_get_update_message(msg_only=True)
         rcv_update = json.dumps(rcv_update_dict)
-        utils.verify_jsons_match(exp_update, rcv_update)
+        controller_testlib.utils.verify_jsons_match(exp_update, rcv_update)
 
     def verify_empty_reported_data(self):
         """Verfiy empty data response"""
@@ -84,19 +84,35 @@ class TestBgpfunctionalL3Vpn:
         BGP_RPC_CLIENT.exa_clean_update_message()
         mapping = {"BGP_PEER_IP": TOOLS_IP, "APP_PEER_IP": ODL_IP}
         templated_requests.post_templated_request(f"{BGP_L3VPN_DIR}/route", mapping)
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             5, 2, self.verify_exabgp_received_update, L3VPN_EXP
         )
 
     def prepare_config_files(self):
-        infra.shell(f"cp variables/bgpfunctional/{DEFAULT_EXA_CFG} tmp/")
-        infra.shell(f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{DEFAULT_EXA_CFG}")
-        infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{DEFAULT_EXA_CFG}")
-        infra.shell(f"sed -i -e 's/ROUTEREFRESH/disable/g' tmp/{DEFAULT_EXA_CFG}")
-        infra.shell(f"sed -i -e 's/ADDPATH/disable/g' tmp/{DEFAULT_EXA_CFG}")
-        infra.shell(f"cp variables/bgpfunctional/l3vpn_ipv4/{L3VPN_EXA_CFG} tmp/")
-        infra.shell(f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{L3VPN_EXA_CFG}")
-        infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{L3VPN_EXA_CFG}")
+        controller_testlib.infra.shell(
+            f"cp variables/bgpfunctional/{DEFAULT_EXA_CFG} tmp/"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{DEFAULT_EXA_CFG}"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{DEFAULT_EXA_CFG}"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ROUTEREFRESH/disable/g' tmp/{DEFAULT_EXA_CFG}"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ADDPATH/disable/g' tmp/{DEFAULT_EXA_CFG}"
+        )
+        controller_testlib.infra.shell(
+            f"cp variables/bgpfunctional/l3vpn_ipv4/{L3VPN_EXA_CFG} tmp/"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/{L3VPN_EXA_CFG}"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{L3VPN_EXA_CFG}"
+        )
 
     @allure.description(
         textwrap.dedent(
@@ -138,13 +154,19 @@ class TestBgpfunctionalL3Vpn:
 
         with allure_step_with_separate_logging("step_l3vpn_ipv4_to_odl"):
             # Testing mpls vpn ipv4 routes reported to odl from exabgp.
-            utils.wait_until_function_pass(3, 2, self.verify_empty_reported_data)
+            controller_testlib.utils.wait_until_function_pass(
+                3, 2, self.verify_empty_reported_data
+            )
             exabgp_process = bgp.start_exabgp_and_verify_connected(
                 f"tmp/{L3VPN_EXA_CFG}", TOOLS_IP
             )
-            utils.wait_until_function_pass(15, 1, self.verify_reported_data, L3VPN_RSP)
+            controller_testlib.utils.wait_until_function_pass(
+                15, 1, self.verify_reported_data, L3VPN_RSP
+            )
             bgp.stop_exabgp(exabgp_process)
-            utils.wait_until_function_pass(3, 2, self.verify_empty_reported_data)
+            controller_testlib.utils.wait_until_function_pass(
+                3, 2, self.verify_empty_reported_data
+            )
 
         with allure_step_with_separate_logging("step_start_play"):
             # Start Python speaker to connect to ODL. We need to wait until
@@ -161,7 +183,9 @@ class TestBgpfunctionalL3Vpn:
                 allf=True,
                 wfr=1,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging("step_play_to_odl_rt_constrain_type_0"):
             # Sends route-target route containg route-target argument so odl
@@ -179,7 +203,7 @@ class TestBgpfunctionalL3Vpn:
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
             # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name="play.py.out", target_file_name="010_l3vpn_play.log"
             )
 

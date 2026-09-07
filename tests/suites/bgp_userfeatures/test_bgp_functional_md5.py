@@ -15,8 +15,8 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -64,13 +64,25 @@ class TestBgpFunctionalMd5:
         templated_requests.delete_templated_request(BGP_PEER_FOLDER, mapping)
 
     def prepare_exabgp_config_file(self):
-        infra.shell("cp variables/bgpfunctional/bgp_md5/exa-md5.cfg tmp/")
-        infra.shell(f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/exa-md5.cfg")
-        infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/exa-md5.cfg")
-        infra.shell("sed -i -e 's/ROUTEREFRESH/disable/g' tmp/exa-md5.cfg")
-        infra.shell("sed -i -e 's/ADDPATH/disable/g' tmp/exa-md5.cfg")
-        infra.shell(f"sed -i -e 's/PASSWORD/{MD5_SAME_PASSWD}/g' tmp/exa-md5.cfg")
-        rc, stdout = infra.shell("cat tmp/exa-md5.cfg")
+        controller_testlib.infra.shell(
+            "cp variables/bgpfunctional/bgp_md5/exa-md5.cfg tmp/"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/EXABGPIP/{TOOLS_IP}/g' tmp/exa-md5.cfg"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/exa-md5.cfg"
+        )
+        controller_testlib.infra.shell(
+            "sed -i -e 's/ROUTEREFRESH/disable/g' tmp/exa-md5.cfg"
+        )
+        controller_testlib.infra.shell(
+            "sed -i -e 's/ADDPATH/disable/g' tmp/exa-md5.cfg"
+        )
+        controller_testlib.infra.shell(
+            f"sed -i -e 's/PASSWORD/{MD5_SAME_PASSWD}/g' tmp/exa-md5.cfg"
+        )
+        rc, stdout = controller_testlib.infra.shell("cat tmp/exa-md5.cfg")
         log.info(f"Updated tmp/exa-md5.cfg config:\n{stdout}")
 
     @allure.description(

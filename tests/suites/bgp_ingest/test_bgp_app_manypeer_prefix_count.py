@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.utils
+import controller_testlib.infra
 from libraries import bgp
-from libraries import infra
 from libraries import prefix_counting
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -104,7 +104,7 @@ class TestBgpAppManyPeerPrefixCount:
         ):
             # Wait for example-ipv4-topology to come up and empty. Give large
             # timeout for case when BGP boots slower than restconf.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 120, 1, prefix_counting.check_ipv4_topology_is_empty
             )
 
@@ -139,7 +139,9 @@ class TestBgpAppManyPeerPrefixCount:
                 log_level=BGP_TOOL_LOG_LEVEL,
                 log_file=BGP_PEER_LOG_FILE,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging(
             "step_bgp_application_peer_prefill_routes"
@@ -148,7 +150,7 @@ class TestBgpAppManyPeerPrefixCount:
             bgp.start_bgp_app_peer(
                 count=PREFILL_COUNT, log_level="info", timeout=BGP_FILLING_TIMEOUT
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name=BGP_APP_PEER_LOG_FILE,
                 target_file_name="bgp_app_peer_prefill.log",
             )
@@ -157,7 +159,7 @@ class TestBgpAppManyPeerPrefixCount:
             "step_wait_for_ip_topology_is_prefilled"
         ):
             # Wait until example-ipv4-topology reaches the target prfix count.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
                 prefix_counting.check_ipv4_topology_prefixes_count,
@@ -168,7 +170,7 @@ class TestBgpAppManyPeerPrefixCount:
             "step_check_bgp_peer_updates_for_prefilled_routes"
         ):
             # Count the routes introduced by updates.
-            count = infra.wait_for_string_in_file(
+            count = controller_testlib.infra.wait_for_string_in_file(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
                 f"total_received_nlri_prefix_counter: {PREFILL_COUNT}",
@@ -191,14 +193,14 @@ class TestBgpAppManyPeerPrefixCount:
                 log_level="info",
                 timeout=BGP_FILLING_TIMEOUT,
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name=BGP_APP_PEER_LOG_FILE,
                 target_file_name="bgp_app_peer_singles_many.log",
             )
 
         with allure_step_with_separate_logging("step_wait_for_ip_topology_is_filled"):
             # Wait until example-ipv4-topology reaches the target prfix count.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
                 prefix_counting.check_ipv4_topology_prefixes_count,
@@ -209,7 +211,7 @@ class TestBgpAppManyPeerPrefixCount:
             "step_check_bgp_peer_updates_for_all_routes"
         ):
             # Count the routes introduced by updates.
-            count = infra.wait_for_string_in_file(
+            count = controller_testlib.infra.wait_for_string_in_file(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
                 f"total_received_nlri_prefix_counter: {TOTAL_COUNT}",
@@ -224,7 +226,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging("step_disconnect_bgp_peer"):
             # Stop BGP peer tool
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name={BGP_PEER_LOG_FILE},
                 target_file_name="bgp_peer_disconnect_many.log",
             )
@@ -242,13 +244,15 @@ class TestBgpAppManyPeerPrefixCount:
                 log_level=BGP_TOOL_LOG_LEVEL,
                 log_file=BGP_PEER_LOG_FILE,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging(
             "step_check_bgp_peer_updates_for_reintroduced_routes"
         ):
             # Count the routes introduced by updates.
-            count = infra.wait_for_string_in_file(
+            count = controller_testlib.infra.wait_for_string_in_file(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
                 f"total_received_nlri_prefix_counter: {TOTAL_COUNT}",
@@ -267,7 +271,7 @@ class TestBgpAppManyPeerPrefixCount:
             bgp.start_bgp_app_peer(
                 command="delete-all", log_level="info", timeout=BGP_EMPTYING_TIMEOUT
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name=BGP_APP_PEER_LOG_FILE,
                 target_file_name="bgp_app_peer_delete_all_many.log",
             )
@@ -290,7 +294,7 @@ class TestBgpAppManyPeerPrefixCount:
             "step_check_bgp_peer_updates_for_prefix_withdrawals"
         ):
             # Count the routes withdrawn by updates.
-            count = infra.wait_for_string_in_file(
+            count = controller_testlib.infra.wait_for_string_in_file(
                 CHECK_RETRY_COUNT,
                 CHECK_INTERVAL,
                 f"total_received_withdrawn_prefix_counter: {TOTAL_COUNT}",
@@ -305,7 +309,7 @@ class TestBgpAppManyPeerPrefixCount:
         with allure_step_with_separate_logging("step_stop_bgp_peers"):
             # Stop BGP peer tool
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name=BGP_PEER_LOG_FILE,
                 target_file_name="bgp_peer_reconnect_many.log",
             )

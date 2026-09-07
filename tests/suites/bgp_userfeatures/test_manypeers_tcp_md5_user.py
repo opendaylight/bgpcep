@@ -15,9 +15,9 @@ import textwrap
 import allure
 import pytest
 
-from libraries import infra
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import pcep
-from libraries import utils
 from netconf_testlib import templated_requests
 from variables.tcpmd5user.titanium import variables as tcpmd5_variables
 from libraries.variables import variables
@@ -47,7 +47,7 @@ class TestTcpMd5User:
     pcep_mock_process = None
 
     def tear_down(self):
-        rc, output = infra.shell("cat tmp/pccmock.log")
+        rc, output = controller_testlib.infra.shell("cat tmp/pccmock.log")
         log.info(output)
 
     def check_unathorized(self):
@@ -76,7 +76,7 @@ class TestTcpMd5User:
 
     def start_pcc_mock_tool_with_password(self, password):
         """Starts pcc-mock with password argument."""
-        self.pcep_mock_process = infra.shell(
+        self.pcep_mock_process = controller_testlib.infra.shell(
             f"java -jar build_tools/pcep-pcc-mock.jar --pcc {PCCS} --lsp 1 "
             f"--log-level debug --password {password} --reconnect 1 "
             f"--local-address 127.0.1.0 --remote-address {ODL_IP} "
@@ -85,7 +85,7 @@ class TestTcpMd5User:
         )
 
     def stop_pcc_mock(self):
-        log_content = infra.get_file_content("tmp/pccmock.log")
+        log_content = controller_testlib.infra.get_file_content("tmp/pccmock.log")
         log.debug(f"Pcc mock process output: {log_content}")
         pcep.stop_pcc_mock_process(self.pcep_mock_process)
 
@@ -120,7 +120,7 @@ class TestTcpMd5User:
         with allure_step_with_separate_logging("step_topology_precondition"):
             # Compare current pcep-topology to empty pcep tology. Timeout is long
             # enough to ODL boot, to see that pcep is ready, with no PCC is connected.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 300,
                 1,
                 templated_requests.get_templated_request,
@@ -137,7 +137,9 @@ class TestTcpMd5User:
         with allure_step_with_separate_logging("step_topology_unauthorized_1"):
             # Try to catch a glimpse of pcc-mock in pcep-topology.
             # Pass if no change from Precondition is detected over 10 seconds.
-            utils.wait_until_function_pass(10, 1, self.check_unathorized)
+            controller_testlib.utils.wait_until_function_pass(
+                10, 1, self.check_unathorized
+            )
 
         with allure_step_with_separate_logging("step_set_wrong_password"):
             # The same logic as step_topology_unauthorized_1 as incorrect
@@ -147,7 +149,9 @@ class TestTcpMd5User:
         with allure_step_with_separate_logging("step_topology_unauthorized_2"):
             # The same logic as topology_unauthorized_1 as incorrect
             # password was provided to ODL.
-            utils.wait_until_function_pass(10, 1, self.check_unathorized)
+            controller_testlib.utils.wait_until_function_pass(
+                10, 1, self.check_unathorized
+            )
 
         with allure_step_with_separate_logging("step_set_correct_password"):
             # Configure password in pcep dispatcher for client with Mininet
@@ -167,7 +171,7 @@ class TestTcpMd5User:
                     "IP_ODL": ODL_IP,
                     "ERRORS": ERROR_ARGS,
                 }
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     30,
                     1,
                     templated_requests.get_templated_request,
@@ -182,7 +186,9 @@ class TestTcpMd5User:
 
         with allure_step_with_separate_logging("step_topology_unauthorized_3"):
             # The same logic as Topology_Unauthorized_1, with no pcc-mock running.
-            utils.wait_until_function_pass(10, 1, self.check_unathorized)
+            controller_testlib.utils.wait_until_function_pass(
+                10, 1, self.check_unathorized
+            )
 
         with allure_step_with_separate_logging("step_start_secure_pcc_mock_2"):
             # Execute pcc-mock on Mininet with new password set, fail if
@@ -193,7 +199,9 @@ class TestTcpMd5User:
         with allure_step_with_separate_logging("step_topology_unauthorized_4"):
             # The same logic as Topology_Unauthorized_1, but ODL password
             # became incorrect with new pcc-mock running.
-            utils.wait_until_function_pass(10, 1, self.check_unathorized)
+            controller_testlib.utils.wait_until_function_pass(
+                10, 1, self.check_unathorized
+            )
 
         with allure_step_with_separate_logging("step_correct_password_2"):
             # Configure password in pcep dispatcher.
@@ -213,7 +221,7 @@ class TestTcpMd5User:
                     "IP_ODL": ODL_IP,
                     "ERRORS": ERROR_ARGS,
                 }
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     30,
                     1,
                     templated_requests.get_templated_request,
@@ -246,7 +254,7 @@ class TestTcpMd5User:
                     "IP_ODL": ODL_IP,
                     "ERRORS": ERROR_ARGS,
                 }
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     30,
                     1,
                     templated_requests.get_templated_request,
@@ -264,7 +272,9 @@ class TestTcpMd5User:
 
         with allure_step_with_separate_logging("step_topology_postcondition"):
             # Verify that pcep-topology stays empty.
-            utils.wait_until_function_pass(10, 1, self.check_unathorized)
+            controller_testlib.utils.wait_until_function_pass(
+                10, 1, self.check_unathorized
+            )
 
         with allure_step_with_separate_logging("step_delete_pcep_client_module"):
             # Delete Pcep client module.

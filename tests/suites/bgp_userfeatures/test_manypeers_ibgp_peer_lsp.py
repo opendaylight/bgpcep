@@ -15,10 +15,11 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -92,7 +93,7 @@ class TestIbgpPeerLsp:
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer"):
             # Connect BGP peers with advertising the routes without mandatory
             # params like LOC_PREF.
-            infra.log_message_to_karaf(
+            controller_testlib.karaf.log_message_to_karaf(
                 (
                     "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, "
                     "and should be thrown when missing mandatory attributes."
@@ -105,7 +106,7 @@ class TestIbgpPeerLsp:
                 ls_identifier = i + 1
                 sender_addr = f"1.2.3.{100 + i}"
                 endpoint_addr = f"5.6.7.{100 + i}"
-                bgp_speaker_process = infra.shell(
+                bgp_speaker_process = controller_testlib.infra.shell(
                     (
                         f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={ip} "
                         f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} "
@@ -116,7 +117,7 @@ class TestIbgpPeerLsp:
                     ),
                     run_in_background=True,
                 )
-                utils.verify_process_did_not_stop_immediately(
+                controller_testlib.utils.verify_process_did_not_stop_immediately(
                     bgp_speaker_process.pid,
                     retry_count=4,
                 )
@@ -125,7 +126,7 @@ class TestIbgpPeerLsp:
         with allure_step_with_separate_logging("step_tc1_check_example_bgp_rib"):
             # Check RIB for not containig linkstate-route(s), because update
             # messages were not good.
-            utils.verify_function_does_not_fail_within_timeout(
+            controller_testlib.utils.verify_function_does_not_fail_within_timeout(
                 DEFAULT_RIB_CHECK_COUNTS,
                 DEFAULT_RIB_CHECK_PERIOD,
                 bgp.check_example_bgp_rib_does_not_contain,
@@ -136,7 +137,7 @@ class TestIbgpPeerLsp:
             # Stop BGP peers & store logs.
             for i in range(BGP_PEERS_COUNT):
                 bgp.stop_bgp_speaker(self.bgp_speaker_processes[i])
-                infra.backup_file(
+                controller_testlib.infra.backup_file(
                     src_file_name=f"bgp_peer_{i}.log",
                     target_file_name=f"tc1_bgp_peer{i}.log",
                 )
@@ -182,7 +183,7 @@ class TestIbgpPeerLsp:
                 ls_identifier = i + 1
                 sender_addr = f"1.2.3.{100 + i}"
                 endpoint_addr = f"5.6.7.{100 + i}"
-                bgp_speaker_process = infra.shell(
+                bgp_speaker_process = controller_testlib.infra.shell(
                     (
                         f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={ip} "
                         f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} "
@@ -193,7 +194,7 @@ class TestIbgpPeerLsp:
                     ),
                     run_in_background=True,
                 )
-                utils.verify_process_did_not_stop_immediately(
+                controller_testlib.utils.verify_process_did_not_stop_immediately(
                     bgp_speaker_process.pid,
                     retry_count=4,
                 )
@@ -210,7 +211,7 @@ class TestIbgpPeerLsp:
                     "ENDPOINT_ADDR": f"5.6.7.{100 + i}",
                     "ROUTE_KEY": ROUTE_KEY,
                 }
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     DEFAULT_RIB_CHECK_COUNTS,
                     DEFAULT_RIB_CHECK_PERIOD,
                     templated_requests.get_templated_request,
@@ -223,7 +224,7 @@ class TestIbgpPeerLsp:
             # Stop BGP peers & store logs.
             for i in range(BGP_PEERS_COUNT):
                 bgp.stop_bgp_speaker(self.bgp_speaker_processes[i])
-                infra.backup_file(
+                controller_testlib.infra.backup_file(
                     src_file_name=f"bgp_peer_{i}.log",
                     target_file_name=f"tc2_bgp_peer{i}.log",
                 )

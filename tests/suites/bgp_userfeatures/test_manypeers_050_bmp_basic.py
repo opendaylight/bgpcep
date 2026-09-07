@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bmp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -73,7 +73,7 @@ class TestBmpBasic:
 
         with allure_step_with_separate_logging("step_verify_BMP_feature"):
             # Verifies if feature is up.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 180,
                 5,
                 templated_requests.get_templated_request,
@@ -91,7 +91,9 @@ class TestBmpBasic:
 
         with allure_step_with_separate_logging("step_verify_data_reported"):
             # Verifies if the tool reported expected data.
-            utils.wait_until_function_pass(3, 2, self.verify_reproted_data)
+            controller_testlib.utils.wait_until_function_pass(
+                3, 2, self.verify_reproted_data
+            )
 
         with allure_step_with_separate_logging("step_stop_bmp_mock"):
             # Send ctrl+c to bmp-mock to stop it.
@@ -99,4 +101,6 @@ class TestBmpBasic:
 
         with allure_step_with_separate_logging("step_archive_bgp_bmp_mock_logs"):
             # Archives bgp bmp mock tool log ouput.
-            infra.shell(f"mv tmp/{BMP_LOG_FILE} results/{BMP_LOG_FILE}")
+            controller_testlib.infra.shell(
+                f"mv tmp/{BMP_LOG_FILE} results/{BMP_LOG_FILE}"
+            )

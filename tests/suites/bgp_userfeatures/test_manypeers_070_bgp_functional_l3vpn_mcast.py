@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -103,7 +103,9 @@ class TestBgpfunctionalL3vpnMcast:
                 l3vpn_mcast=True,
                 wfr=1,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging("step_odl_to_play_l3vpn_mcast"):
             bgp.odl_to_play_template(
@@ -128,7 +130,7 @@ class TestBgpfunctionalL3vpnMcast:
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
             # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name="play.py.out", target_file_name="l3vpn_mcast_play.log"
             )
 

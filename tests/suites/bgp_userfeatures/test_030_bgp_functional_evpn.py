@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -124,12 +124,14 @@ class TestBgpfunctionalEvpn:
             )
 
     def odl_to_play_template(self, to_test: str):
-        data_xml = infra.get_file_content(f"{EVPN_DIR}/{to_test}/{to_test}.xml")
-        announce_hex = infra.get_file_content(
+        data_xml = controller_testlib.infra.get_file_content(
+            f"{EVPN_DIR}/{to_test}/{to_test}.xml"
+        )
+        announce_hex = controller_testlib.infra.get_file_content(
             f"{EVPN_DIR}/{to_test}/announce_{to_test}.hex"
         )
         announce_hex = announce_hex.strip()
-        withdraw_hex = infra.get_file_content(
+        withdraw_hex = controller_testlib.infra.get_file_content(
             f"{EVPN_DIR}/{to_test}/withdraw_{to_test}.hex"
         )
         withdraw_hex = withdraw_hex.strip()
@@ -141,13 +143,13 @@ class TestBgpfunctionalEvpn:
             templated_requests.get_from_uri(
                 uri=f"{EVPN_CONF_URL}?content=config", headers=XML_HEADERS
             )
-            update_messag = utils.wait_until_function_pass(
+            update_messag = controller_testlib.utils.wait_until_function_pass(
                 4, 2, self.get_update_content, templated_requests.ALLOWED_STATUS_CODES
             )
             bgp.verify_two_hex_messages_are_equal(update_messag, announce_hex)
             BGP_RPC_CLIENT.play_clean()
             self.remove_configured_routes()
-            update_messag = utils.wait_until_function_pass(
+            update_messag = controller_testlib.utils.wait_until_function_pass(
                 4, 2, self.get_update_content, templated_requests.DELETED_STATUS_CODES
             )
             bgp.verify_two_hex_messages_are_equal(update_messag, withdraw_hex)
@@ -156,7 +158,7 @@ class TestBgpfunctionalEvpn:
 
     def loc_rib_presence(self, expected_content):
         resp = templated_requests.get_from_uri(uri=EVPN_LOC_RIB, headers=JSON_HEADERS)
-        utils.verify_jsons_match(
+        controller_testlib.utils.verify_jsons_match(
             expected_content, resp.content, "expected content", "received response"
         )
 
@@ -169,10 +171,10 @@ class TestBgpfunctionalEvpn:
         resp = templated_requests.get_from_uri(
             uri=EVPN_FAMILY_LOC_RIB, headers=JSON_HEADERS
         )
-        expected_content = infra.get_file_content(
+        expected_content = controller_testlib.infra.get_file_content(
             f"{EVPN_DIR}/empty_routes/empty_routes.json"
         )
-        utils.verify_jsons_match(
+        controller_testlib.utils.verify_jsons_match(
             expected_content, resp.content, "expected content", "received response"
         )
 
@@ -180,23 +182,33 @@ class TestBgpfunctionalEvpn:
         """Sends withdraw update message from play.py and verifies route removal from
         odl's rib"""
         BGP_RPC_CLIENT.play_send(withdraw_hex)
-        utils.wait_until_function_pass(3, 2, self.verify_test_preconditions)
+        controller_testlib.utils.wait_until_function_pass(
+            3, 2, self.verify_test_preconditions
+        )
 
     def play_to_odl_template(self, to_test: str):
-        data_xml = infra.get_file_content(f"{EVPN_DIR}/{to_test}/{to_test}.xml")
-        data_json = infra.get_file_content(f"{EVPN_DIR}/{to_test}/{to_test}.json")
-        announce_hex = infra.get_file_content(
+        data_xml = controller_testlib.infra.get_file_content(
+            f"{EVPN_DIR}/{to_test}/{to_test}.xml"
+        )
+        data_json = controller_testlib.infra.get_file_content(
+            f"{EVPN_DIR}/{to_test}/{to_test}.json"
+        )
+        announce_hex = controller_testlib.infra.get_file_content(
             f"{EVPN_DIR}/{to_test}/announce_{to_test}.hex"
         )
-        withdraw_hex = infra.get_file_content(
+        withdraw_hex = controller_testlib.infra.get_file_content(
             f"{EVPN_DIR}/{to_test}/withdraw_{to_test}.hex"
         )
         try:
             BGP_RPC_CLIENT.play_clean()
             BGP_RPC_CLIENT.play_send(announce_hex)
-            utils.wait_until_function_pass(4, 2, self.loc_rib_presence, data_json)
+            controller_testlib.utils.wait_until_function_pass(
+                4, 2, self.loc_rib_presence, data_json
+            )
             BGP_RPC_CLIENT.play_send(withdraw_hex)
-            utils.wait_until_function_pass(4, 2, self.verify_test_preconditions)
+            controller_testlib.utils.wait_until_function_pass(
+                4, 2, self.verify_test_preconditions
+            )
         finally:
             self.withdraw_route_and_verify(withdraw_hex)
 
@@ -205,7 +217,7 @@ class TestBgpfunctionalEvpn:
         templated_requests.get_templated_request(tempalate_path, None, verify=True)
 
     def wait_until_expected_data(self, template_path, retry_count=20, interval=1):
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             retry_count, interval, self.verify_reported_data, template_path
         )
 
@@ -249,7 +261,9 @@ class TestBgpfunctionalEvpn:
                 evpn=True,
                 wfr=1,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging("step_odl_to_play_route_es_arb"):
             self.odl_to_play_template("route_es_arb")
@@ -494,7 +508,7 @@ class TestBgpfunctionalEvpn:
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
             # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.shell("cp play.py.out results/evpn_play.log")
+            controller_testlib.infra.shell("cp play.py.out results/evpn_play.log")
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
             # Revert the BGP configuration to the original state: without

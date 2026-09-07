@@ -13,10 +13,10 @@ import logging
 
 import allure
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from libraries import prefix_counting
-from libraries import utils
 from libraries.variables import variables
 
 
@@ -83,7 +83,7 @@ class BaseTestManyPeerPeerCount:
         ):
             # Wait for example-ipv4-topology to come up and empty. Give large
             # timeout for case when BGP boots slower than restconf.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 120, 1, prefix_counting.check_ipv4_topology_is_empty
             )
 
@@ -152,10 +152,10 @@ class BaseTestManyPeerPeerCount:
                 # intermediate logged values are always below the final count.
                 # A single occurrence of the expected value is therefore enough
                 # to confirm the peer received all of its prefixes.
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     CHECK_LOGS_RETRY_COUNT,
                     CHECK_LOGS_RETRY_PERIOD,
-                    infra.verify_string_occurence_count_in_file,
+                    controller_testlib.infra.verify_string_occurence_count_in_file,
                     expected_log_line,
                     f"tmp/{BGP_PEERS_LOG_FILE_NAME}",
                     1,

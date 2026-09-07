@@ -15,10 +15,11 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
+import netconf_testlib.utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -74,7 +75,7 @@ class TestBgpfunctionalMultipath:
 
     def setup_config_files(self, add_path="disable"):
         """Copies exabgp config files."""
-        config = utils.render_jinja_template(
+        config = netconf_testlib.utils.render_jinja_template(
             template_path=f"{BGP_VAR_FOLDER}/exa.j2",
             mapping={
                 "ODL_IP": ODL_IP,
@@ -83,8 +84,8 @@ class TestBgpfunctionalMultipath:
                 "ADDPATH": add_path,
             },
         )
-        infra.save_text_to_a_file(f"tmp/{DEFAUTL_RPC_CFG}", config)
-        rc, stdout = infra.shell(f"cat tmp/{DEFAUTL_RPC_CFG}")
+        controller_testlib.infra.save_text_to_a_file(f"tmp/{DEFAUTL_RPC_CFG}", config)
+        rc, stdout = controller_testlib.infra.shell(f"cat tmp/{DEFAUTL_RPC_CFG}")
         log.info(stdout)
 
     def store_rib_configuration(self):
@@ -214,7 +215,7 @@ class TestBgpfunctionalMultipath:
                 self.log_loc_rib_operational()
                 # From neon onwards there is extra BGP End-Of-RIB message
                 update_messages = 4
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     6, 2, self.verify_expected_update_count, update_messages
                 )
             finally:
@@ -229,7 +230,7 @@ class TestBgpfunctionalMultipath:
                 self.log_loc_rib_operational()
                 # From neon onwards there is extra BGP End-Of-RIB message
                 update_messages = 3
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     6, 2, self.verify_expected_update_count, update_messages
                 )
             finally:

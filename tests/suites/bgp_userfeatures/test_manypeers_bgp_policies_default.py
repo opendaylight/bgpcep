@@ -15,10 +15,11 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
+import netconf_testlib.utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -64,7 +65,7 @@ class TestBgpPoliciesDefault:
             peer_data = {"index": i, "ip": f"127.0.1.{i}"}
             peers[i % 6].append(peer_data)
         for i in range(6):
-            config = utils.render_jinja_template(
+            config = netconf_testlib.utils.render_jinja_template(
                 template_path=f"{POLICIES_VAR}/exabgp_manypeers_configs/exabgp{i+1}.j2",
                 mapping={
                     "ODLIP": ODL_IP,
@@ -73,7 +74,7 @@ class TestBgpPoliciesDefault:
                     "ADDPATH": "disable",
                 },
             )
-            infra.save_text_to_a_file(f"tmp/exabgp{i+1}.cfg", config)
+            controller_testlib.infra.save_text_to_a_file(f"tmp/exabgp{i+1}.cfg", config)
 
     def verify_rib_status(self):
         """Verify output from effective-rib-in for each of the 6 exabgp peers
@@ -89,7 +90,7 @@ class TestBgpPoliciesDefault:
         log.info(response.json())
         for index in range(BGP_PEERS_COUNT):
             mapping = {"IP": f"127.0.1.{index}"}
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 5,
                 3,
                 templated_requests.get_templated_request,
@@ -99,7 +100,7 @@ class TestBgpPoliciesDefault:
             )
         # application peer verification
         mapping = {"IP": ODL_IP}
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             5,
             3,
             templated_requests.get_templated_request,
@@ -111,7 +112,7 @@ class TestBgpPoliciesDefault:
     def verify_rib_status_empty(self):
         """Checks that example-ipv4-topology is ready, and therefore full
         rib is ready to be configured."""
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             20,
             3,
             templated_requests.get_templated_request,
@@ -188,7 +189,7 @@ class TestBgpPoliciesDefault:
             # Send command to kill all exabgp processes.
             bgp.kill_all_bgp_speakers()
             for index in range(6):
-                infra.shell(f"cp tmp/exa{index+1}.log results/")
+                controller_testlib.infra.shell(f"cp tmp/exa{index+1}.log results/")
 
         with allure_step_with_separate_logging("step_delete_bgp_peers_configuration"):
             # Revert the BGP configuration to the original state without any

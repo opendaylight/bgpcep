@@ -15,10 +15,11 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -98,22 +99,24 @@ class TestIbgpPeerLsp:
         with allure_step_with_separate_logging("step_tc1_connect_bgp_peer"):
             # Connect BGP peer with advertising the routes without mandatory
             # params like LOC_PREF.
-            infra.log_message_to_karaf(
+            controller_testlib.karaf.log_message_to_karaf(
                 (
                     "Error = WELL_KNOWN_ATTR_MISSING is EXPECTED in this test case, "
                     "and should be thrown when missing mandatory attributes."
                 )
             )
-            self.bgp_speaker_process = infra.shell(
+            self.bgp_speaker_process = controller_testlib.infra.shell(
                 f"{BGP_PEER_COMMAND} {SKIP_PARAMS} {BGP_PEER_OPTIONS}",
                 run_in_background=True,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging("step_tc1_check_example_bgp_rib"):
             # Check RIB for not containig linkstate-route(s), because update
             # messages were not good.
-            utils.verify_function_does_not_fail_within_timeout(
+            controller_testlib.utils.verify_function_does_not_fail_within_timeout(
                 DEFAULT_RIB_CHECK_COUNTS,
                 DEFAULT_RIB_CHECK_PERIOD,
                 bgp.check_example_bgp_rib_does_not_contain,
@@ -123,7 +126,7 @@ class TestIbgpPeerLsp:
         with allure_step_with_separate_logging("step_tc1_disconnect_bgp_peer"):
             # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name=BGP_PEER_LOG_FILE, target_file_name="tc1_bgp_peer.log"
             )
 
@@ -159,15 +162,17 @@ class TestIbgpPeerLsp:
 
         with allure_step_with_separate_logging("step_tc2_connect_bgp_peer"):
             # Connect BGP peer.
-            self.bgp_speaker_process = infra.shell(
+            self.bgp_speaker_process = controller_testlib.infra.shell(
                 f"{BGP_PEER_COMMAND} {BGP_PEER_OPTIONS}", run_in_background=True
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging("step_tc2_check_example_bgp_rib"):
             # Check RIB for linkstate-route(s) and check all of their attributes.
             mapping = {"IP": TOOLS_IP, "ROUTE_KEY": ROUTE_KEY}
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 DEFAULT_RIB_CHECK_COUNTS,
                 DEFAULT_RIB_CHECK_PERIOD,
                 templated_requests.get_templated_request,
@@ -179,7 +184,7 @@ class TestIbgpPeerLsp:
         with allure_step_with_separate_logging("step_tc2_disconnect_bgp_peer"):
             # Stop BGP peer & store logs.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name=BGP_PEER_LOG_FILE, target_file_name="tc2_bgp_peer.log"
             )
 

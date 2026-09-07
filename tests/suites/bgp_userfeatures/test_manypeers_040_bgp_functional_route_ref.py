@@ -15,10 +15,12 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.karaf
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
+import netconf_testlib.utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -57,7 +59,7 @@ class TestBgpfunctionalRouteRef:
 
     def setup_config_files(self):
         """Copies exabgp config files."""
-        config = utils.render_jinja_template(
+        config = netconf_testlib.utils.render_jinja_template(
             template_path=f"{BGP_VAR_FOLDER}/exa.j2",
             mapping={
                 "ODL_IP": ODL_IP,
@@ -66,8 +68,8 @@ class TestBgpfunctionalRouteRef:
                 "ADDPATH": "disable",
             },
         )
-        infra.save_text_to_a_file(f"tmp/{BGP_CFG_NAME}", config)
-        rc, stdout = infra.shell(f"cat tmp/{BGP_CFG_NAME}")
+        controller_testlib.infra.save_text_to_a_file(f"tmp/{BGP_CFG_NAME}", config)
+        rc, stdout = controller_testlib.infra.shell(f"cat tmp/{BGP_CFG_NAME}")
         log.info(stdout)
 
     def verify_exaBgps_received_updates(self, exp_count: int):
@@ -88,7 +90,7 @@ class TestBgpfunctionalRouteRef:
     ):
         """Checks notification and update count from odl-bgpcep-bgp-cli.
         odl-bgpcep-bgp-cli is only avaiable on versions oxygen and above."""
-        stdout, stderror = infra.execute_karaf_command(
+        stdout, stderror = controller_testlib.karaf.execute_karaf_command(
             f"bgp:operational-state -rib example-bgp-rib -neighbor 127.0.1.{peer_id}"
         )
         stdout = stdout.replace("│", "|").replace("─", "-")
@@ -108,7 +110,7 @@ class TestBgpfunctionalRouteRef:
         real_state = "\n".join(
             stdout.splitlines()[MSG_STATE_OFFSET : MSG_STATE_OFFSET + line_count]
         )
-        utils.verify_multiline_text_match(exp_state, real_state)
+        controller_testlib.utils.verify_multiline_text_match(exp_state, real_state)
 
     def verify_odl_operational_state_count(
         self, notification_count: int, update_count: int, receive_count: int
@@ -123,7 +125,7 @@ class TestBgpfunctionalRouteRef:
                 "SEND_COUNT": update_count,
                 "RECV_COUNT": receive_count,
             }
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 3,
                 5,
                 templated_requests.get_templated_request,
@@ -131,7 +133,7 @@ class TestBgpfunctionalRouteRef:
                 mapping,
                 verify=True,
             )
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 3,
                 5,
                 self.verify_cli_output_count,
@@ -151,7 +153,9 @@ class TestBgpfunctionalRouteRef:
         self.exabgp_process = bgp.start_exabgp_and_verify_connected(
             cfg_file, TOOLS_IP, "exabgp.log"
         )
-        utils.wait_until_function_pass(3, 3, self.verify_exaBgps_received_updates, 4)
+        controller_testlib.utils.wait_until_function_pass(
+            3, 3, self.verify_exaBgps_received_updates, 4
+        )
 
     def deconfigure_routes_and_stop_exabgp(self):
         """Teardown function for exa to odl test case."""
@@ -216,13 +220,13 @@ class TestBgpfunctionalRouteRef:
                     )
                 # From neon onwards there are extra BGP End-Of-RIB message
                 update_count = 3 * BGP_PEERS_COUNT
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     20, 2, self.verify_exaBgps_received_updates, update_count
                 )
                 # From neon onwards there are extra BGP End-Of-RIB message
                 # per address family
                 update_count = 4 + 3 * BGP_PEERS_COUNT
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     2,
                     5,
                     self.verify_odl_operational_state_count,
@@ -243,13 +247,13 @@ class TestBgpfunctionalRouteRef:
                 templated_requests.post_templated_request(
                     f"{BGP_VAR_FOLDER}/route_refresh", mapping, json=False
                 )
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     20, 2, self.verify_exaBgp_received_route_refresh, 1
                 )
                 # From neon onwards there are extra BGP End-Of-RIB message
                 # per address family
                 update_count = 9
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     20,
                     5,
                     self.verify_odl_operational_state_count,

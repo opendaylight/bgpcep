@@ -16,10 +16,10 @@ import time
 import allure
 import pytest
 
-from libraries import infra
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import pcep
 from netconf_testlib import templated_requests
-from libraries import utils
 from variables.pcepuser.titanium import variables as pcep_variables
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -59,7 +59,7 @@ class TestPcepUser:
         else:
             topology_uri = f"{TOPOLOGY_URL}=pcep-topology?content=nonconfig"
         resp = templated_requests.get_from_uri(topology_uri, expected_code=200)
-        utils.verify_jsons_match(resp.text, exp)
+        controller_testlib.utils.verify_jsons_match(resp.text, exp)
 
     @allure.description(
         textwrap.dedent(
@@ -76,12 +76,14 @@ class TestPcepUser:
             # Compare current pcep-topology to empty pcep tology. Timeout is
             # long enough to ODL boot, to see that pcep is ready, with no PCC is
             # connected.
-            utils.wait_until_function_pass(300, 1, pcep.check_empty_pcep_topology)
+            controller_testlib.utils.wait_until_function_pass(
+                300, 1, pcep.check_empty_pcep_topology
+            )
 
         with allure_step_with_separate_logging("strep_start_pcc_mock"):
             # Execute pcc-mock, fail is Open is not sent, keep it running for next
             # tests.
-            self.pcep_mock_process = infra.shell(
+            self.pcep_mock_process = controller_testlib.infra.shell(
                 (
                     f"java -jar build_tools/pcep-pcc-mock.jar --reconnect 1 "
                     f"--local-address {TOOLS_IP} --remote-address {ODL_IP} 2>&1 "
@@ -89,7 +91,9 @@ class TestPcepUser:
                 ),
                 run_in_background=True,
             )
-            infra.read_until(self.pcep_mock_process, "started, sent proposal Open")
+            controller_testlib.infra.read_until(
+                self.pcep_mock_process, "started, sent proposal Open"
+            )
             time.sleep(1)
 
         with allure_step_with_separate_logging(
@@ -132,7 +136,9 @@ class TestPcepUser:
                 '{"ignore":false,"processing-rule":false,"type":19,"value":9}}],'
                 '"failure":"failed"}}'
             )
-            utils.verify_jsons_match(resp.text, expected_response_raw)
+            controller_testlib.utils.verify_jsons_match(
+                resp.text, expected_response_raw
+            )
 
         with allure_step_with_separate_logging("step_topology_still_updated"):
             # Compare pcep-topology to default_json, which includes
@@ -177,8 +183,12 @@ class TestPcepUser:
         with allure_step_with_separate_logging("step_stop_pcc_mock"):
             # Send SIGINT to pcc-mock, fails if does not stop within 3
             # seconds.
-            pid = infra.get_children_processes_pids(self.pcep_mock_process, "java")[0]
-            infra.stop_process_by_pid(pid, gracefully=True, timeout=3)
+            pid = controller_testlib.infra.get_children_processes_pids(
+                self.pcep_mock_process, "java"
+            )[0]
+            controller_testlib.infra.stop_process_by_pid(
+                pid, gracefully=True, timeout=3
+            )
 
         with allure_step_with_separate_logging("step_topology_postcondition"):
             # Compare curent pcep-topology to "off_json" again.

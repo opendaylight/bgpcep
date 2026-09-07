@@ -14,11 +14,12 @@ import logging
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
 from libraries import flowspec
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
+import netconf_testlib.utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -60,16 +61,16 @@ log = logging.getLogger(__name__)
 class TestBgpFlowspec:
 
     def prepare_config_files(self):
-        config = utils.render_jinja_template(
+        config = netconf_testlib.utils.render_jinja_template(
             template_path=f"{BGP_VARIABLES_FOLDER}/bgp-flowspec-manypeers.j2",
             mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT},
         )
-        infra.save_text_to_a_file(f"tmp/{CFG1}", config)
-        config = utils.render_jinja_template(
+        controller_testlib.infra.save_text_to_a_file(f"tmp/{CFG1}", config)
+        config = netconf_testlib.utils.render_jinja_template(
             template_path=f"{BGP_VARIABLES_FOLDER}/bgp-flowspec-redirect-manypeers.j2",
             mapping={"ODL_IP": ODL_IP, "PEER_COUNT": BGP_PEERS_COUNT},
         )
-        infra.save_text_to_a_file(f"tmp/{CFG2}", config)
+        controller_testlib.infra.save_text_to_a_file(f"tmp/{CFG2}", config)
 
     def setup_test_case(self, cfg_file: str):
         flowspec.verify_flowspec_data_is_empty()
@@ -80,14 +81,14 @@ class TestBgpFlowspec:
 
     def verify_flowspec_data(self, exprspdir: str):
         """Verify expected response."""
-        expected_response = utils.render_jinja_template(
+        expected_response = netconf_testlib.utils.render_jinja_template(
             template_path=f"{BGP_VARIABLES_FOLDER}/{exprspdir}/data.j2",
             mapping={"PEER_COUNT": BGP_PEERS_COUNT},
         )
         response = templated_requests.get_templated_request(
             f"{BGP_VARIABLES_FOLDER}/{exprspdir}", mapping=None, verify=False
         )
-        utils.verify_jsons_match(
+        controller_testlib.utils.verify_jsons_match(
             response.text,
             expected_response,
             "received response",
@@ -124,7 +125,7 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging("step_flowspec_test_1"):
             # Testing flowspec values for bgp-flowspec.cfg.
             self.setup_test_case(CFG1)
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 BGP_PEERS_COUNT,
                 1,
                 self.verify_flowspec_data,
@@ -135,7 +136,7 @@ class TestBgpFlowspec:
         with allure_step_with_separate_logging("step_flowspec_test_2"):
             # Testing flowspec values for bgp-flowspec-redirect.cfg.
             self.setup_test_case(CFG2)
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 BGP_PEERS_COUNT,
                 1,
                 self.verify_flowspec_data,

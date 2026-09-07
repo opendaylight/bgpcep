@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -60,11 +60,19 @@ class TestBgpPoliciesDefault:
         config files with desired values."""
         for index in range(1, 7):
             config_file_name = f"exabgp{index}.cfg"
-            infra.shell(f"cp {POLICIES_VAR}/exabgp_configs/{config_file_name} tmp/")
-            infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{config_file_name}")
-            infra.shell(f"sed -i -e 's/ROUTEREFRESH/disable/g' tmp/{config_file_name}")
-            infra.shell(f"sed -i -e 's/ADDPATH/disable/g' tmp/{config_file_name}")
-            rc, stdout = infra.shell(f"cat tmp/{config_file_name}")
+            controller_testlib.infra.shell(
+                f"cp {POLICIES_VAR}/exabgp_configs/{config_file_name} tmp/"
+            )
+            controller_testlib.infra.shell(
+                f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{config_file_name}"
+            )
+            controller_testlib.infra.shell(
+                f"sed -i -e 's/ROUTEREFRESH/disable/g' tmp/{config_file_name}"
+            )
+            controller_testlib.infra.shell(
+                f"sed -i -e 's/ADDPATH/disable/g' tmp/{config_file_name}"
+            )
+            rc, stdout = controller_testlib.infra.shell(f"cat tmp/{config_file_name}")
             log.info(stdout)
 
     def verify_rib_status(self):
@@ -81,7 +89,7 @@ class TestBgpPoliciesDefault:
         log.info(response.json())
         for index in range(1, 7):
             mapping = {"IP": f"127.0.0.{index+1}"}
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 5,
                 3,
                 templated_requests.get_templated_request,
@@ -91,7 +99,7 @@ class TestBgpPoliciesDefault:
             )
         # application peer verification
         mapping = {"IP": ODL_IP}
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             5,
             3,
             templated_requests.get_templated_request,
@@ -103,7 +111,7 @@ class TestBgpPoliciesDefault:
     def verify_rib_status_empty(self):
         """Checks that example-ipv4-topology is ready, and therefore full
         rib is ready to be configured."""
-        utils.wait_until_function_pass(
+        controller_testlib.utils.wait_until_function_pass(
             20,
             3,
             templated_requests.get_templated_request,
@@ -179,7 +187,7 @@ class TestBgpPoliciesDefault:
             # Send command to kill all exabgp processes.
             bgp.kill_all_bgp_speakers()
             for index in range(1, 7):
-                infra.shell(f"cp tmp/exa{index}.log results/")
+                controller_testlib.infra.shell(f"cp tmp/exa{index}.log results/")
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
             # Revert the BGP configuration to the original state without any

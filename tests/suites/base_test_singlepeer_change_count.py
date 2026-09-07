@@ -13,11 +13,11 @@ import logging
 
 import allure
 
+import controller_testlib.utils
+import controller_testlib.infra
 from libraries import bgp
 from libraries import change_counter
-from libraries import infra
 from libraries import prefix_counting
-from libraries import utils
 from libraries.variables import variables
 
 
@@ -67,7 +67,7 @@ class BaseTestSinglePeerChangeCount:
         ):
             # Wait for example-ipv4-topology to come up and empty. Give large
             # timeout for case when BGP boots slower than restconf.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 120, 1, prefix_counting.check_ipv4_topology_is_empty
             )
 
@@ -91,7 +91,9 @@ class BaseTestSinglePeerChangeCount:
         with allure_step_with_separate_logging("step_check_data_change_counter_ready"):
             # Data change counter might have been slower to start than ipv4
             # topology, wait for it.
-            utils.wait_until_function_pass(5, 1, change_counter.get_change_count)
+            controller_testlib.utils.wait_until_function_pass(
+                5, 1, change_counter.get_change_count
+            )
 
         with allure_step_with_separate_logging("step_start_talking_bgp_speaker"):
             # Start Python speaker to connect to ODL.
@@ -137,12 +139,12 @@ class BaseTestSinglePeerChangeCount:
             "step_store_result_for_talking_bgp_speaker"
         ):
             # Store results for plotting.
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 f"totals-{RESULTS_FILE_NAME}",
                 target_file_name=f"changecount-talking-totals-{RESULTS_FILE_NAME}",
                 src_dir=".",
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 f"performance-{RESULTS_FILE_NAME}",
                 target_file_name=f"changecount-talking-performance-{RESULTS_FILE_NAME}",
                 src_dir=".",
@@ -222,12 +224,12 @@ class BaseTestSinglePeerChangeCount:
             "step_store_result_for_listening_bgp_speaker"
         ):
             # Store results for plotting.
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 f"totals-{RESULTS_FILE_NAME}",
                 target_file_name=f"changecount-listening-totals-{RESULTS_FILE_NAME}",
                 src_dir=".",
             )
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 f"performance-{RESULTS_FILE_NAME}",
                 target_file_name=(
                     f"changecount-listening-performance-{RESULTS_FILE_NAME}"

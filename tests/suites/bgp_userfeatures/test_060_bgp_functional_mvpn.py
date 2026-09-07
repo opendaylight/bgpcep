@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
+import controller_testlib.utils
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -99,7 +99,9 @@ class TestBgpfunctionalMvpn:
                 mvpn=True,
                 wfr=1,
             )
-            utils.verify_process_did_not_stop_immediately(self.bgp_speaker_process.pid)
+            controller_testlib.utils.verify_process_did_not_stop_immediately(
+                self.bgp_speaker_process.pid
+            )
 
         with allure_step_with_separate_logging("step_odl_to_play_intra_as_ipmsi_ad"):
             bgp.odl_to_play_template("intra_as_ipmsi_ad", MVPN_DIR)
@@ -177,7 +179,7 @@ class TestBgpfunctionalMvpn:
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
             # Abort the Python speaker.
             bgp.stop_bgp_speaker(self.bgp_speaker_process)
-            infra.backup_file(
+            controller_testlib.infra.backup_file(
                 src_file_name="play.py.out", target_file_name="mvpn_play.log"
             )
 

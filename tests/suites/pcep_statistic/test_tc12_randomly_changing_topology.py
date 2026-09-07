@@ -14,8 +14,8 @@ import allure
 import pytest
 import time
 
+import controller_testlib.utils
 from libraries import pcep
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -95,7 +95,7 @@ class TestPcepUser:
             ):
                 # Verifies that get-stat RPC does return correct statistics containing
                 # {pcc_count} PCC devices and {lsp_count} reported LSPs.
-                utils.wait_until_function_pass(
+                controller_testlib.utils.wait_until_function_pass(
                     5,
                     0.1,
                     pcep.verify_global_pcep_statistics,

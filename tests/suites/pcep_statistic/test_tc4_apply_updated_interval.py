@@ -13,8 +13,8 @@ import allure
 import pytest
 import time
 
+import controller_testlib.utils
 from libraries import pcep
-from libraries import utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -80,7 +80,7 @@ class TestPcepUser:
 
         with allure_step_with_separate_logging("step_verfiy_stats_are_present"):
             # Verifies that get-stat RPC does return statistics.
-            utils.wait_until_function_pass(
+            controller_testlib.utils.wait_until_function_pass(
                 5, 0.1, pcep.get_statistics, pcc_ip=TOOLS_IP, verify_response=True
             )
 

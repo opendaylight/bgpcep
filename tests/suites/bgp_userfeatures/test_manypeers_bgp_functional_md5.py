@@ -15,10 +15,10 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
-from libraries import utils
+import netconf_testlib.utils
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
 
@@ -70,7 +70,7 @@ class TestBgpFunctionalMd5:
             templated_requests.delete_templated_request(BGP_PEER_FOLDER, mapping)
 
     def prepare_exabgp_config_file(self):
-        config = utils.render_jinja_template(
+        config = netconf_testlib.utils.render_jinja_template(
             template_path="variables/bgpfunctional/bgp_md5/manypeers-exa-md5.j2",
             mapping={
                 "PEER_COUNT": BGP_PEERS_COUNT,
@@ -80,7 +80,7 @@ class TestBgpFunctionalMd5:
                 "PASSWORD": MD5_SAME_PASSWD,
             },
         )
-        infra.save_text_to_a_file(f"tmp/exa-md5.cfg", config)
+        controller_testlib.infra.save_text_to_a_file(f"tmp/exa-md5.cfg", config)
 
     @allure.description(
         textwrap.dedent(

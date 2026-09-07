@@ -15,8 +15,8 @@ import textwrap
 import allure
 import pytest
 
+import controller_testlib.infra
 from libraries import bgp
-from libraries import infra
 from netconf_testlib import templated_requests
 from libraries.variables import variables
 from suites.suite_order import SuiteOrder
@@ -56,21 +56,31 @@ class TestBgpLlgrBasic:
 
     def prepare_gobgp_config_file(self):
         for i in range(BGP_PEERS_COUNT):
-            infra.shell(
+            controller_testlib.infra.shell(
                 f"cp variables/bgpfunctional/gobgp/gobgp.cfg tmp/{GOBGP_CFG}-{i}.cfg"
             )
-            infra.shell(f"sed -i -e 's/GOBGPIP/127.0.1.{i}/g' tmp/{GOBGP_CFG}-{i}.cfg")
-            infra.shell(f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{GOBGP_CFG}-{i}.cfg")
-            infra.shell(f"sed -i -e 's/ROUTERID/127.0.1.{i}/g' tmp/{GOBGP_CFG}-{i}.cfg")
-            infra.shell(f"sed -i -e 's/ROUTEREFRESH/disable/g' tmp/{GOBGP_CFG}-{i}.cfg")
-            infra.shell(f"sed -i -e 's/ADDPATH/disable/g' tmp/{GOBGP_CFG}-{i}.cfg")
-            rc, stdout = infra.shell(f"cat tmp/{GOBGP_CFG}-{i}.cfg")
+            controller_testlib.infra.shell(
+                f"sed -i -e 's/GOBGPIP/127.0.1.{i}/g' tmp/{GOBGP_CFG}-{i}.cfg"
+            )
+            controller_testlib.infra.shell(
+                f"sed -i -e 's/ODLIP/{ODL_IP}/g' tmp/{GOBGP_CFG}-{i}.cfg"
+            )
+            controller_testlib.infra.shell(
+                f"sed -i -e 's/ROUTERID/127.0.1.{i}/g' tmp/{GOBGP_CFG}-{i}.cfg"
+            )
+            controller_testlib.infra.shell(
+                f"sed -i -e 's/ROUTEREFRESH/disable/g' tmp/{GOBGP_CFG}-{i}.cfg"
+            )
+            controller_testlib.infra.shell(
+                f"sed -i -e 's/ADDPATH/disable/g' tmp/{GOBGP_CFG}-{i}.cfg"
+            )
+            rc, stdout = controller_testlib.infra.shell(f"cat tmp/{GOBGP_CFG}-{i}.cfg")
             log.info(f"Updated tmp/{GOBGP_CFG}-{i}.cfg config:\n{stdout}")
 
     def download_gobgp_binary(self):
         """Downloads gobgp binary and untar the binary zip file."""
-        infra.download_file(GOBGP_BINARY_URL)
-        infra.shell(f"tar -xzf tmp/{FILE_NAME} -C tmp")
+        controller_testlib.infra.download_file(GOBGP_BINARY_URL)
+        controller_testlib.infra.shell(f"tar -xzf tmp/{FILE_NAME} -C tmp")
 
     @allure.description(
         textwrap.dedent(
@@ -132,5 +142,7 @@ class TestBgpLlgrBasic:
             # Save gobgp logs as gobgp.log, and stop gobgp with SIGINT bash
             # signal.
             for i in range(BGP_PEERS_COUNT):
-                infra.backup_file(src_file_name=f"{GOBGP_CFG}-{i}.cfg")
+                controller_testlib.infra.backup_file(
+                    src_file_name=f"{GOBGP_CFG}-{i}.cfg"
+                )
                 bgp.stop_gobgp(self.gobgp_processes[i])
