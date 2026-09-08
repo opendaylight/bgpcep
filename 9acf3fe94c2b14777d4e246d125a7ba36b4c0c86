@@ -16,6 +16,24 @@
       "message": "compile is default - but we use it in test?",
       "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b579f8d9_863bf806",
+        "filename": "testtool-util/pom.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-08T07:25:00Z",
+      "side": 1,
+      "message": "This is managed dependency by odl parent where it is defined as test scoped so default here is test. CheckUtil/CheckTestUtil live in testtool-util/src/main/java\nso it would fail to build without this.",
+      "parentUuid": "3136cc63_7059b8ff",
+      "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
