@@ -52,6 +52,24 @@
       "parentUuid": "b579f8d9_863bf806",
       "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f4f58eac_2ed4d103",
+        "filename": "testtool-util/pom.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-08T07:58:35Z",
+      "side": 1,
+      "message": "can we clarify why CheckUtil/CheckTestUtil live in testtool-util/src/main/java?",
+      "parentUuid": "05cecd13_c4c0c5b5",
+      "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
