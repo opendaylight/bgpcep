@@ -209,6 +209,24 @@
       "parentUuid": "f479915f_e15c5a0e",
       "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "70d95777_c4708e6b",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-09-08T13:39:06Z",
+      "side": 1,
+      "message": "Can we move initialization of peersList and peersFilteredList back to this patch?\nhttps://git.opendaylight.org/gerrit/c/bgpcep/+/123662/18..23/bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java#35\n\nThe NPE is still present in Bgpcep1094Test-output.txt.",
+      "parentUuid": "d0dbb3e0_6128a193",
+      "revId": "e23b96150c247973190ab1d58cb851fdbcdabddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
