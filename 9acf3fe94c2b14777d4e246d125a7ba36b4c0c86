@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3136cc63_7059b8ff",
+        "filename": "testtool-util/pom.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-08T07:14:36Z",
+      "side": 1,
+      "message": "compile is default - but we use it in test?",
+      "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
