@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48d516f4_34dd4741",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckTestUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-09T07:55:52Z",
+      "side": 1,
+      "message": "bad formatting",
+      "revId": "836e453b05dab9122d3713a4d1a7ff9c96016e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
