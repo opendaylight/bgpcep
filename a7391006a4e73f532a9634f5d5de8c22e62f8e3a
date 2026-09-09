@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "17a7295f_630dddde",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-09T11:43:44Z",
+      "side": 1,
+      "message": "That makes invocation of sleep before this method useless - not exactly right, improve commit message.",
+      "revId": "a7391006a4e73f532a9634f5d5de8c22e62f8e3a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
