@@ -36,9 +36,25 @@ final class PollingUtil {
      */
     static void pollUntilAsserted(final Duration timeout, final Duration interval, final String action,
             final Check check) {
+        pollUntilAsserted(timeout, interval, Duration.ZERO, action, check);
+    }
+
+    /**
+     * Like {@link #pollUntilAsserted(Duration, Duration, String, Check)}, but {@code check} must keep passing for
+     * {@code sustainFor} before this returns. A failure within that window restarts the hold rather than failing
+     * outright, so the check only fails once {@code timeout} runs out.
+     *
+     * @param timeout how long to keep polling, including the hold
+     * @param interval pause between attempts
+     * @param sustainFor how long {@code check} must keep passing
+     * @param action what {@code check} does, used in failure messages as "Failed to {@code action}"
+     * @param check the check to run
+     */
+    static void pollUntilAsserted(final Duration timeout, final Duration interval, final Duration sustainFor,
+            final String action, final Check check) {
         // Poll on the caller's thread, as the hand-rolled loops did
         dontCatchUncaughtExceptions().pollInSameThread().atMost(timeout).pollInterval(interval)
-            .pollDelay(Duration.ZERO)
+            .pollDelay(Duration.ZERO).during(sustainFor)
             .untilAsserted(() -> {
                 try {
                     check.run();
