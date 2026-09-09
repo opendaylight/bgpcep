@@ -16,6 +16,24 @@
       "message": "bad formatting",
       "revId": "836e453b05dab9122d3713a4d1a7ff9c96016e30",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9d9f193b_72b93331",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckTestUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-09T08:15:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "48d516f4_34dd4741",
+      "revId": "836e453b05dab9122d3713a4d1a7ff9c96016e30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
