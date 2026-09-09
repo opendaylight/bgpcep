@@ -28,7 +28,6 @@ import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.Uninterruptibles;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -382,18 +381,12 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                     "global-bgp", Executors.newScheduledThreadPool(1))) {
 
             bgpRibStates.add(bgpRibState);
-            /// ... and trigger here
-            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
             checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
 
             bgpPeerStates.add(bgpPeerState);
-            /// ... and trigger here
-            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
             checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
 
             bgpRibStates.clear();
-            /// ... and trigger here
-            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
             checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
         }
     }
