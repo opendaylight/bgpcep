@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bf8ed46f_0b4125d3",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckTestUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-09T08:57:11Z",
+      "side": 1,
+      "message": "this needs to be addressed anew",
+      "revId": "127383c16287761f7c8354ab614b6ca6898811f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42f7c027_ea453f22",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-09T08:57:11Z",
+      "side": 1,
+      "message": "also this",
+      "revId": "127383c16287761f7c8354ab614b6ca6898811f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
