@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "588de8aa_c02f747e",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckTestUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-09T09:26:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf8ed46f_0b4125d3",
+      "revId": "127383c16287761f7c8354ab614b6ca6898811f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42f7c027_ea453f22",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-09-09T08:57:11Z",
       "side": 1,
       "message": "also this",
+      "revId": "127383c16287761f7c8354ab614b6ca6898811f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "5b7d00ec_a37a1994",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-09T09:26:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42f7c027_ea453f22",
       "revId": "127383c16287761f7c8354ab614b6ca6898811f4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
