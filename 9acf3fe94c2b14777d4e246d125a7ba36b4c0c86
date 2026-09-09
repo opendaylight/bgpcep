@@ -106,6 +106,24 @@
       "parentUuid": "e1662a6d_a5c12146",
       "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bd4c7ed2_3586ddf4",
+        "filename": "testtool-util/pom.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-09T07:29:38Z",
+      "side": 1,
+      "message": "seems to be, ok",
+      "parentUuid": "b18343c9_e7b0ff90",
+      "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
