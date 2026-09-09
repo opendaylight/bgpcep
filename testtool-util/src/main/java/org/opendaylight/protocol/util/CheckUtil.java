@@ -30,6 +30,9 @@ import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 public final class CheckUtil {
     private static final Duration POLL_INTERVAL = Duration.ofMillis(200);
+    private static final Duration NOT_PRESENT_TIMEOUT = Duration.ofSeconds(10);
+    // Slack over the sustain window, covering poll granularity and read latency
+    private static final Duration SUSTAIN_SLACK = Duration.ofSeconds(1);
     private static final int TIMEOUT = 30;
     private static final int FUTURE_TIMEOUT_SECONDS = 200;
 
@@ -97,17 +100,35 @@ public final class CheckUtil {
 
     public static <T extends DataObject> void checkNotPresentOperational(final DataBroker dataBroker,
             final DataObjectIdentifier<T> iid) {
-        checkNotPresent(dataBroker, OPERATIONAL, iid);
+        checkNotPresent(dataBroker, OPERATIONAL, iid, Duration.ZERO, NOT_PRESENT_TIMEOUT);
+    }
+
+    /**
+     * Asserts that {@code iid} is absent from the operational datastore and stays absent for {@code sustainFor}.
+     *
+     * <p>The plain overload waits up to ten seconds for the data to disappear and returns as soon as it has.
+     * This one instead starts asserting immediately and requires absence to hold continuously. Should the data
+     * appear within the window, the hold restarts; as the budget is only slightly longer than the window, the
+     * check then runs out of time and fails with ConditionTimeoutException, carrying the assertion that last
+     * failed as its cause.
+     *
+     * <p>Use this when absence must be verified across an asynchronous writer (e.g. a periodic task) rather
+     * than just once.
+     */
+    public static <T extends DataObject> void checkNotPresentOperational(final DataBroker dataBroker,
+            final DataObjectIdentifier<T> iid, final Duration sustainFor) {
+        checkNotPresent(dataBroker, OPERATIONAL, iid, sustainFor, sustainFor.plus(SUSTAIN_SLACK));
     }
 
     public static <T extends DataObject> void checkNotPresentConfiguration(final DataBroker dataBroker,
             final DataObjectIdentifier<T> iid) {
-        checkNotPresent(dataBroker, CONFIGURATION, iid);
+        checkNotPresent(dataBroker, CONFIGURATION, iid, Duration.ZERO, NOT_PRESENT_TIMEOUT);
     }
 
     private static <T extends DataObject> void checkNotPresent(final DataBroker dataBroker,
-            final LogicalDatastoreType ldt, final DataObjectIdentifier<T> iid) {
-        PollingUtil.pollUntilAsserted(Duration.ofSeconds(10), Duration.ofMillis(10), "read " + iid, () -> {
+            final LogicalDatastoreType ldt, final DataObjectIdentifier<T> iid, final Duration sustainFor,
+            final Duration timeout) {
+        PollingUtil.pollUntilAsserted(timeout, Duration.ofMillis(10), sustainFor, "read " + iid, () -> {
             final ListenableFuture<Boolean> future;
             try (var tx = dataBroker.newReadOnlyTransaction()) {
                 future = tx.exists(ldt, iid);
