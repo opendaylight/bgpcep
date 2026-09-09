@@ -88,6 +88,24 @@
       "parentUuid": "f4f58eac_2ed4d103",
       "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b18343c9_e7b0ff90",
+        "filename": "testtool-util/pom.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-09T07:09:24Z",
+      "side": 1,
+      "message": "aha, this is testool-util, so yes, it can be used as dependency of other tests, is this dependency scooped as test then?",
+      "parentUuid": "e1662a6d_a5c12146",
+      "revId": "9acf3fe94c2b14777d4e246d125a7ba36b4c0c86",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
