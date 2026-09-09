@@ -100,24 +100,41 @@ public final class CheckUtil {
 
     public static <T extends DataObject> void checkNotPresentOperational(final DataBroker dataBroker,
             final DataObjectIdentifier<T> iid) {
-        checkNotPresent(dataBroker, OPERATIONAL, iid);
+        checkNotPresent(dataBroker, OPERATIONAL, iid, Duration.ZERO);
+    }
+
+    /**
+     * Asserts that {@code iid} is absent from the operational datastore.
+     *
+     * <p>Unlike the plain overload, absence is re-asserted continuously for {@code sustainFor}, failing as
+     * soon as the data appears.
+     *
+     * <p>Use this when absence must be verified across an asynchronous writer (e.g. a periodic task) rather
+     * than just once.
+     */
+    public static <T extends DataObject> void checkNotPresentOperational(final DataBroker dataBroker,
+            final DataObjectIdentifier<T> iid, final Duration sustainFor) {
+        checkNotPresent(dataBroker, OPERATIONAL, iid, sustainFor);
     }
 
     public static <T extends DataObject> void checkNotPresentConfiguration(final DataBroker dataBroker,
             final DataObjectIdentifier<T> iid) {
-        checkNotPresent(dataBroker, CONFIGURATION, iid);
+        checkNotPresent(dataBroker, CONFIGURATION, iid, Duration.ZERO);
     }
 
     private static <T extends DataObject> void checkNotPresent(final DataBroker dataBroker,
-            final LogicalDatastoreType ldt, final DataObjectIdentifier<T> iid) {
-        await().atMost(Duration.ofSeconds(10)).pollInterval(Duration.ofMillis(10)).pollDelay(Duration.ZERO)
+            final LogicalDatastoreType ldt, final DataObjectIdentifier<T> iid, final Duration sustainFor) {
+        // sustainFor is added on top of the base timeout so the during() hold below always has its own
+        // budget, instead of racing the wait-for-first-success phase for the same 10 seconds.
+        await().atMost(Duration.ofSeconds(10).plus(sustainFor)).pollInterval(Duration.ofMillis(10))
+            .pollDelay(Duration.ZERO).during(sustainFor)
             .untilAsserted(() -> {
                 final ListenableFuture<Boolean> future;
                 try (ReadTransaction tx = dataBroker.newReadOnlyTransaction()) {
                     future = tx.exists(ldt, iid);
                 }
                 if (future.get()) {
-                    throw new AssertionError("Data still exists at " + iid);
+                    throw new AssertionError("Unexpected data exists at " + iid);
                 }
             });
     }

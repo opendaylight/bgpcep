@@ -28,7 +28,7 @@ import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.Uninterruptibles;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -375,6 +375,10 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
     public void testInactiveStateProvider() throws Exception {
         doReturn(false).when(bgpRibState).isActive();
 
+        // Sustain each absence check across several ticks of the update task below, so an inactive rib/peer
+        // state erroneously written by a later tick is still caught.
+        final Duration sustainAcrossUpdates = Duration.ofMillis(300);
+
         try (StateProviderImpl stateProvider =
                 new StateProviderImpl(getDataBroker(), 100, TimeUnit.MILLISECONDS, tableTypeRegistry,
                         this.stateProvider,
@@ -382,19 +386,13 @@ public class StateProviderImplTest extends AbstractDataBrokerTest {
                     "global-bgp", Executors.newScheduledThreadPool(1))) {
 
             bgpRibStates.add(bgpRibState);
-            /// ... and trigger here
-            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
-            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
+            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier, sustainAcrossUpdates);
 
             bgpPeerStates.add(bgpPeerState);
-            /// ... and trigger here
-            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
-            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
+            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier, sustainAcrossUpdates);
 
             bgpRibStates.clear();
-            /// ... and trigger here
-            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
-            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier);
+            checkNotPresentOperational(getDataBroker(), bgpInstanceIdentifier, sustainAcrossUpdates);
         }
     }
 
