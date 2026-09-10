@@ -13,6 +13,6 @@ import org.opendaylight.yangtools.binding.Augmentation;
 /**
  * Action Policy to be applied to Route Attributes.
  */
-public interface ActionsAugPolicy extends ActionsPolicy<Augmentation<Actions>> {
+public interface ActionsAugPolicy extends ActionsPolicy<Augmentation<Actions, ?>> {
     // Nothing else
 }

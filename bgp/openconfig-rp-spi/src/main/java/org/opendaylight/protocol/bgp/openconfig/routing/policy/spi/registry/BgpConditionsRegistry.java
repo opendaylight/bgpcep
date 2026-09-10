@@ -30,14 +30,14 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 final class BgpConditionsRegistry {
     @GuardedBy("this")
-    private final HashMap<Class<? extends Augmentation<BgpConditions>>, BgpConditionsAugmentationPolicy>
+    private final HashMap<Class<? extends Augmentation<BgpConditions, ?>>, BgpConditionsAugmentationPolicy>
             bgpConditionsAugRegistry = new HashMap<>();
     @GuardedBy("this")
     private final HashMap<Class<? extends ChildOf<BgpMatchConditions>>, BgpConditionsPolicy> bgpConditionsRegistry =
             new HashMap<>();
 
     AbstractRegistration registerBgpConditionsAugmentationPolicy(
-            final Class<? extends Augmentation<BgpConditions>> conditionPolicyClass,
+            final Class<? extends Augmentation<BgpConditions, ?>> conditionPolicyClass,
             final BgpConditionsAugmentationPolicy conditionPolicy) {
         synchronized (bgpConditionsAugRegistry) {
             final var prev = bgpConditionsAugRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);

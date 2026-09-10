@@ -15,10 +15,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6AddressNoZone;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.NextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
@@ -26,8 +28,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv6NextHopCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv6.next.hop._case.Ipv6NextHopBuilder;
+import org.opendaylight.yangtools.binding.Augmentation;
+import org.opendaylight.yangtools.binding.CaseObject;
 
 class NextHopUtilTest {
+    private static final class Unhandled implements CaseObject<NextHop, CNextHop, Unhandled>, CNextHop {
+        @Override
+        public Class<Unhandled> implementedInterface() {
+            return Unhandled.class;
+        }
+
+        @Override
+        public Map<Class<? extends Augmentation<Unhandled, ?>>, Augmentation<Unhandled, ?>> augmentations() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int javaHC() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean javaEQ(final Unhandled obj) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String javaTS() {
+            throw new UnsupportedOperationException();
+        }
+
+    }
 
     private static final byte[] IPV4B = {42, 42, 42, 42};
     private static final byte[] IPV6B = {0x20, 1, 0x0d, (byte) 0xb8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1};
@@ -70,7 +101,7 @@ class NextHopUtilTest {
     @Test
     void testSerializeNextHopException() {
         final var ex = assertThrows(IllegalArgumentException.class,
-            () -> NextHopUtil.serializeNextHop(() -> null, null));
+            () -> NextHopUtil.serializeNextHop(new Unhandled(), null));
         assertThat(ex.getMessage()).startsWith("""
             Cannot serialize NEXT_HOP. Class not supported: org.opendaylight.bgp.concepts.NextHopUtilTest""");
     }
