@@ -18,9 +18,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.MvpnRoutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.MvpnChoice;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mvpn.rev200120.mvpn.routes.MvpnRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yangtools.binding.BindingObject;
+import org.opendaylight.yangtools.binding.CaseObject;
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
@@ -40,8 +42,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Claudio D. Gasparini
  */
-abstract class AbstractMvpnRIBSupport<C extends Routes & DataObject, S extends ChildOf<? super C> & MvpnRoutes>
-        extends AbstractRIBSupport<C, S, MvpnRoute> {
+abstract class AbstractMvpnRIBSupport<
+        C extends CaseObject<Tables, ? extends Routes, C>,
+        S extends ChildOf<? super C> & MvpnRoutes> extends AbstractRIBSupport<C, S, MvpnRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractMvpnRIBSupport.class);
 
     private final @NonNull NodeIdentifier nlriRoutesList;
