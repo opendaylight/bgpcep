@@ -19,6 +19,7 @@ import static org.mockito.Mockito.verify;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,7 +29,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelParser;
 import org.opendaylight.protocol.rsvp.parser.spi.LabelSerializer;
 import org.opendaylight.protocol.rsvp.parser.spi.RSVPParsingException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.LabelSubobject;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.label.subobject.LabelType;
+import org.opendaylight.yangtools.binding.Augmentation;
+import org.opendaylight.yangtools.binding.CaseObject;
 
 @ExtendWith(MockitoExtension.class)
 class SimpleLabelRegistryTest {
@@ -100,17 +104,58 @@ class SimpleLabelRegistryTest {
         verify(labelSerializer).serializeLabel(false, false, output, aggregator);
     }
 
-    private static final class MockLabelClass implements LabelType {
+    private static final class MockLabelClass
+            implements CaseObject<LabelSubobject, LabelType, MockLabelClass>, LabelType {
         @Override
-        public Class<? extends LabelType> implementedInterface() {
+        public Class<MockLabelClass> implementedInterface() {
             return MockLabelClass.class;
+        }
+
+        @Override
+        public Map<Class<? extends Augmentation<MockLabelClass, ?>>, Augmentation<MockLabelClass, ?>> augmentations() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int javaHC() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean javaEQ(final MockLabelClass obj) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String javaTS() {
+            throw new UnsupportedOperationException();
         }
     }
 
-    private static final class MockLabel implements LabelType {
+    private static final class MockLabel implements CaseObject<LabelSubobject, LabelType, MockLabel>, LabelType {
         @Override
-        public Class<? extends LabelType> implementedInterface() {
+        public Class<MockLabel> implementedInterface() {
             return MockLabel.class;
+        }
+
+        @Override
+        public Map<Class<? extends Augmentation<MockLabel, ?>>, Augmentation<MockLabel, ?>> augmentations() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public int javaHC() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean javaEQ(final MockLabel obj) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String javaTS() {
+            throw new UnsupportedOperationException();
         }
     }
 }
