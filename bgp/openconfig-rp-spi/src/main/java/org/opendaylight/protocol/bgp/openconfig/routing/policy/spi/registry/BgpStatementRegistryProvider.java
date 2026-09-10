@@ -47,8 +47,8 @@ public interface BgpStatementRegistryProvider {
      * @param conditionPolicy      Condition policy handler
      * @return registration ticket
      */
-    <T extends Augmentation<BgpConditions>, N> @NonNull AbstractRegistration registerBgpConditionsAugmentationPolicy(
-            @NonNull Class<T> conditionPolicyClass, @NonNull BgpConditionsAugmentationPolicy<T, N> conditionPolicy);
+    <T extends Augmentation<BgpConditions, T>, N> @NonNull AbstractRegistration registerBgpConditionsAugmentationPolicy(
+        @NonNull Class<T> conditionPolicyClass, @NonNull BgpConditionsAugmentationPolicy<T, N> conditionPolicy);
 
     /**
      * Register BGP Action Policy Augmentation handler.
@@ -57,6 +57,6 @@ public interface BgpStatementRegistryProvider {
      * @param bgpActionPolicy      BGP Actions policy handler
      * @return registration ticket
      */
-    <T extends Augmentation<BgpActions>> @NonNull AbstractRegistration registerBgpActionAugmentationPolicy(
-            @NonNull Class<T> bgpActionPolicyClass, @NonNull BgpActionAugPolicy<T> bgpActionPolicy);
+    <T extends Augmentation<BgpActions, T>> @NonNull AbstractRegistration registerBgpActionAugmentationPolicy(
+        @NonNull Class<T> bgpActionPolicyClass, @NonNull BgpActionAugPolicy<T> bgpActionPolicy);
 }
