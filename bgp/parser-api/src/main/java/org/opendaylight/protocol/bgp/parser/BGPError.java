@@ -29,7 +29,7 @@ public enum BGPError {
      * Unspecific header error. 1/0, <a href="https://www.rfc-editor.org/errata_search.php?eid=4493">Errata 4493</a>.
      */
     UNSPECIFIC_HEADER_ERROR(1, 0),
-        /**
+    /**
      * Connection Not Synchronized. 1/1
      */
     CONNECTION_NOT_SYNC(1, 1),

@@ -27,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
  * @author Olivier Dugeon
  */
 public interface ConnectedGraphTrigger {
-
     /**
      * This method verifies the next Vertex attributes against the current one to determine if is necessary
      * to launch correction which are left at the discretion of the class which implements this method.
@@ -35,7 +34,7 @@ public interface ConnectedGraphTrigger {
      * <p>If current Vertex is null, this means that the Connected Vertex will be added in the Connected Graph.
      * If next Connected Vertex is null, this means that the Connected Vertex will be deleted from the Connected Graph.
      * Otherwise, this is an update of Vertex attributes.
-
+     *
      * @param next      Next Connected Vertex to be installed in the Connected Graph
      * @param current   Current Vertex installed in the Connected Graph
      */
@@ -49,7 +48,7 @@ public interface ConnectedGraphTrigger {
      * <p>If current Edge is null, this means that the Connected Edge will be added in the Connected Graph.
      * If next Connected Edge is null, this means that the Edge will be deleted from the Connected Graph.
      * Otherwise, this is an update of Edge attributes.
-
+     *
      * @param next      Next Edge to be installed in the Connected Graph
      * @param current   Current Edge installed in the Connected Graph
      */

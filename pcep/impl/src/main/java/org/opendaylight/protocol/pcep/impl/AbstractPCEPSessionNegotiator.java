@@ -60,25 +60,25 @@ public abstract class AbstractPCEPSessionNegotiator extends AbstractSessionNegot
     @VisibleForTesting
     public enum State {
         /**
-        * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal,
-        * at which point we move into OpenWait state.
-        */
+         * Negotiation has not begun. It will be activated once we are asked to provide our initial proposal,
+         * at which point we move into OpenWait state.
+         */
         IDLE,
         /**
-        * Waiting for the peer's StartTLS message.
-        */
+         * Waiting for the peer's StartTLS message.
+         */
         START_TLS_WAIT,
         /**
-        * Waiting for the peer's OPEN message.
-        */
+         * Waiting for the peer's OPEN message.
+         */
         OPEN_WAIT,
         /**
-        * Waiting for the peer's KEEPALIVE message.
-        */
+         * Waiting for the peer's KEEPALIVE message.
+         */
         KEEP_WAIT,
         /**
-        * Negotiation has completed.
-        */
+         * Negotiation has completed.
+         */
         FINISHED,
     }
 

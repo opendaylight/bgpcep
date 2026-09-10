@@ -236,7 +236,7 @@ public class ConnectedVertexImpl implements ConnectedVertex {
      * Return the name of the associated Vertex if set or the router-id otherwise.
      *
      * @return Vertex name or router-id
-    */
+     */
     @Override
     public String toString() {
         if (vertex == null) {
