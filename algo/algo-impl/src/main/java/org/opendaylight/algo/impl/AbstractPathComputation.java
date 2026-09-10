@@ -167,12 +167,11 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         if (constraints.getTeMetric() != null) {
             if (attributes.getTeMetric() == null) {
                 return true;
-            } else {
-                int totalCost = attributes.getTeMetric().getMetric().intValue() + path.getCost();
-                if (totalCost > constraints.getTeMetric().intValue()) {
-                    LOG.debug("TeMetric {} exceed constraint {}", totalCost, constraints.getTeMetric().intValue());
-                    return true;
-                }
+            }
+            int totalCost = attributes.getTeMetric().getMetric().intValue() + path.getCost();
+            if (totalCost > constraints.getTeMetric().intValue()) {
+                LOG.debug("TeMetric {} exceed constraint {}", totalCost, constraints.getTeMetric().intValue());
+                return true;
             }
         }
 
@@ -180,13 +179,12 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         if (constraints.getDelay() != null) {
             if (attributes.getExtendedMetric().getDelay() == null) {
                 return true;
-            } else {
-                int totalDelay = attributes.getExtendedMetric().getDelay().getValue().intValue() + path.getDelay();
-                if (totalDelay > constraints.getDelay().getValue().intValue()) {
-                    LOG.debug("Delay {} exceed constraint {}", totalDelay,
-                            constraints.getDelay().getValue().intValue());
-                    return true;
-                }
+            }
+            int totalDelay = attributes.getExtendedMetric().getDelay().getValue().intValue() + path.getDelay();
+            if (totalDelay > constraints.getDelay().getValue().intValue()) {
+                LOG.debug("Delay {} exceed constraint {}", totalDelay,
+                        constraints.getDelay().getValue().intValue());
+                return true;
             }
         }
 
@@ -229,7 +227,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
                 // than the next items
                 maxBW - edge.getCosResvBandwidth(cos), maxBW - edge.getGlobalResvBandwidth(),
                 teMetric.getMaxResvLinkBandwidth().getValue().longValue()).stream().mapToLong(v -> v).min()
-                .getAsLong()) {
+                .orElseThrow()) {
             LOG.debug("Bandwidth constraint is not met");
             return true;
         }
@@ -605,7 +603,7 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
     /* Merge two constrained paths: paths are merged and additive metrics summed. */
     private static CspfPath mergePath(final CspfPath cp1, final CspfPath cp2) {
 
-        if ((cp1 == null) || (cp2 == null)) {
+        if (cp1 == null || cp2 == null) {
             return cp2;
         }
 
