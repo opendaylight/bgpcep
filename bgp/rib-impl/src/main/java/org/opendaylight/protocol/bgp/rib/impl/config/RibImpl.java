@@ -16,11 +16,11 @@ import static org.opendaylight.protocol.bgp.rib.impl.config.OpenConfigMappingUti
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
@@ -40,11 +40,9 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
@@ -128,11 +126,11 @@ public final class RibImpl implements RIB, BGPRibStateProvider {
     }
 
     synchronized boolean isGlobalEqual(final Global global) {
-        final Collection<AfiSafi> globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
-        final Config globalConfig = global.getConfig();
-        final AsNumber globalAs = globalConfig.getAs();
-        final Ipv4Address globalRouterId = global.getConfig().getRouterId();
-        final ClusterIdentifier globalClusterId = getGlobalClusterIdentifier(globalConfig);
+        final var globalAfiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
+        final var globalConfig = global.getConfig();
+        final var globalAs = globalConfig.getAs();
+        final var globalRouterId = global.getConfig().getRouterId();
+        final var globalClusterId = getGlobalClusterIdentifier(globalConfig);
         return afiSafi.containsAll(globalAfiSafi) && globalAfiSafi.containsAll(afiSafi)
                 && globalAs.equals(asNumber)
                 && globalRouterId.getValue().equals(routerId.getValue())
@@ -230,7 +228,7 @@ public final class RibImpl implements RIB, BGPRibStateProvider {
             final Global global,
             final BGPTableTypeRegistryConsumer tableTypeRegistry) {
         afiSafi = getAfiSafiWithDefault(global.getAfiSafis(), true).values();
-        final Config globalConfig = global.getConfig();
+        final var globalConfig = global.getConfig();
         asNumber = globalConfig.getAs();
         routerId = IetfInetUtil.ipv4AddressNoZoneFor(globalConfig.getRouterId());
         clusterId = getGlobalClusterIdentifier(globalConfig);
@@ -240,7 +238,7 @@ public final class RibImpl implements RIB, BGPRibStateProvider {
                 .collect(Collectors.toMap(entry ->
                         new TablesKey(entry.getKey().getAfi(), entry.getKey().getSafi()), Map.Entry::getValue));
 
-        final BGPRibRoutingPolicy ribPolicy = policyProvider.buildBGPRibPolicy(asNumber.getValue().toJava(),
+        final var ribPolicy = policyProvider.buildBGPRibPolicy(asNumber.getValue().toJava(),
                 routerId, clusterId, RoutingPolicyUtil.getApplyPolicy(global.getApplyPolicy()));
 
         return new RIBImpl(

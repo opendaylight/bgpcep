@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.Channel;
@@ -30,8 +31,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
@@ -62,8 +61,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Open;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.MpCapabilities;
@@ -71,7 +68,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.AddPathCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.GracefulRestartCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.LlGracefulRestartCapability;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.add.path.capability.AddressFamilies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.binding.ChildOf;
@@ -156,12 +152,12 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         final List<AddressFamilies> addPathCapabilitiesList = new ArrayList<>();
         final List<BgpParameters> bgpParameters = remoteOpen.getBgpParameters();
         if (bgpParameters != null) {
-            for (final BgpParameters param : bgpParameters) {
-                for (final OptionalCapabilities optCapa : param.nonnullOptionalCapabilities()) {
-                    final CParameters cParam = optCapa.getCParameters();
-                    final CParameters1 cParam1 = cParam.augmentation(CParameters1.class);
+            for (var param : bgpParameters) {
+                for (var optCapa : param.nonnullOptionalCapabilities()) {
+                    final var cParam = optCapa.getCParameters();
+                    final var cParam1 = cParam.augmentation(CParameters1.class);
                     if (cParam1 != null) {
-                        final MultiprotocolCapability multi = cParam1.getMultiprotocolCapability();
+                        final var multi = cParam1.getMultiprotocolCapability();
                         if (multi != null) {
                             final TablesKey tt = new TablesKey(multi.getAfi(), multi.getSafi());
                             LOG.trace("Added table type to sync {}", tt);
@@ -322,14 +318,14 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         }
     }
 
-    @Holding({"this.listener", "this"})
+    @GuardedBy("this.listener this")
     private void notifyTerminationReasonAndCloseWithoutMessage(final BGPError error) {
         terminationReasonNotified = true;
         closeWithoutMessage();
         listener.onSessionTerminated(this, new BGPTerminationReason(error));
     }
 
-    @Holding({"this.listener", "this"})
+    @GuardedBy("this.listener this")
     private void notifyTerminationReasonAndCloseWithoutMessage(final Uint8 errorCode, final Uint8 errorSubcode) {
         terminationReasonNotified = true;
         closeWithoutMessage();
@@ -348,7 +344,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private ChannelFuture writeEpilogue(final ChannelFuture future, final Notification<?> msg) {
         // We usually do not have tracing enabled nor do we face failures: allow the message to be garbage-collected
         // early unless there is real interest in it.
@@ -412,7 +408,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
      * @param cause BGPDocumentedException
      */
     @VisibleForTesting
-    @Holding({"this.listener", "this"})
+    @GuardedBy("this.listener this")
     void terminate(final BGPDocumentedException cause) {
         final BGPError error = cause.getError();
         final byte[] data = cause.getData();
@@ -588,7 +584,7 @@ public class BGPSessionImpl extends SimpleChannelInboundHandler<Notification<?>>
      * Handle exception occurred in the BGP session. The session in error state should be closed
      * properly so that it can be restored later.
      */
-    @Holding({"this.listener", "this"})
+    @GuardedBy("this.listener this")
     @VisibleForTesting
     void handleException(final Throwable cause) {
         // We have two things to do here:

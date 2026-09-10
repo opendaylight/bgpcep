@@ -8,8 +8,8 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 
 import com.google.common.base.Preconditions;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
@@ -26,8 +26,9 @@ import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 final class ConditionsRegistryImpl {
-    private final @GuardedBy("this")
-        HashMap<Class<? extends Augmentation<Conditions>>, ConditionsAugPolicy> conditionsRegistry = new HashMap<>();
+    @GuardedBy("this")
+    private final HashMap<Class<? extends Augmentation<Conditions>>, ConditionsAugPolicy> conditionsRegistry =
+        new HashMap<>();
     private final BgpConditionsRegistry bgpConditionsRegistry = new BgpConditionsRegistry();
 
     ConditionsRegistryImpl() {
@@ -37,7 +38,7 @@ final class ConditionsRegistryImpl {
     AbstractRegistration registerConditionPolicy(final Class<? extends Augmentation<Conditions>> conditionPolicyClass,
             final ConditionsAugPolicy conditionPolicy) {
         synchronized (conditionsRegistry) {
-            final ConditionsAugPolicy prev = conditionsRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
+            final var prev = conditionsRegistry.putIfAbsent(conditionPolicyClass, conditionPolicy);
             Preconditions.checkState(prev == null, "Condition Policy %s already registered %s",
                     conditionPolicyClass, prev);
             return new AbstractRegistration() {
@@ -59,8 +60,7 @@ final class ConditionsRegistryImpl {
     }
 
     public <T extends ChildOf<BgpMatchConditions>, N> AbstractRegistration registerBgpConditionsPolicy(
-            final Class<T> conditionPolicyClass,
-            final BgpConditionsPolicy<T, N> conditionPolicy) {
+            final Class<T> conditionPolicyClass, final BgpConditionsPolicy<T, N> conditionPolicy) {
         return bgpConditionsRegistry
                 .registerBgpConditionsPolicy(conditionPolicyClass, conditionPolicy);
     }
@@ -78,8 +78,8 @@ final class ConditionsRegistryImpl {
             return false;
         }
 
-        for (final Augmentation<Conditions> entry : conditions.augmentations().values()) {
-            final ConditionsAugPolicy handler = conditionsRegistry.get(entry.implementedInterface());
+        for (var entry : conditions.augmentations().values()) {
+            final var handler = conditionsRegistry.get(entry.implementedInterface());
             if (handler == null) {
                 continue;
             }
@@ -103,8 +103,8 @@ final class ConditionsRegistryImpl {
         }
 
         if (attributes != null) {
-            for (final Augmentation<Conditions> condition : conditions.augmentations().values()) {
-                final ConditionsAugPolicy handler = conditionsRegistry.get(condition.implementedInterface());
+            for (var condition : conditions.augmentations().values()) {
+                final var handler = conditionsRegistry.get(condition.implementedInterface());
                 if (handler != null) {
                     if (!handler.matchImportCondition(afiSafi, entryInfo, routeEntryImportParameters,
                             handler.getConditionParameter(attributes), condition)) {

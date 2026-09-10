@@ -49,16 +49,16 @@
             <artifactId>rsvp-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.kohsuke.metainf-services</groupId>
-            <artifactId>metainf-services</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>testtool-util</artifactId>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -81,13 +81,12 @@
             <artifactId>netty-transport-classes-epoll</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
             <groupId>org.eclipse.jdt</groupId>
             <artifactId>org.eclipse.jdt.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>

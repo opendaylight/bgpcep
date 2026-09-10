@@ -12,11 +12,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.Uninterruptibles;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
@@ -34,7 +34,7 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     private static final Logger LOG = LoggerFactory.getLogger(SimpleSessionListener.class);
 
     @GuardedBy("this")
-    private final List<Notification<?>> listMsg = new ArrayList<>();
+    private final ArrayList<Notification<?>> listMsg = new ArrayList<>();
     private final CountDownLatch sessionLatch = new CountDownLatch(1);
 
     private BGPSession bgpSession;
@@ -92,8 +92,7 @@ public final class SimpleSessionListener implements BGPSessionListener, Listener
     }
 
     BGPSessionImpl getSession() {
-        assertTrue(Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS),
-                "Session up");
+        assertTrue(Uninterruptibles.awaitUninterruptibly(sessionLatch, 10, TimeUnit.SECONDS), "Session up");
         return (BGPSessionImpl) bgpSession;
     }
 

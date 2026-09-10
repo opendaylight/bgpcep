@@ -14,11 +14,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -405,7 +404,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             withAddPath ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void storeRoute(final RIBSupport<?, ?> ribSupport, final RouteKeyIdentifier advRoute,
             final MapEntryNode route, final YangInstanceIdentifier routePath, final ContainerNode effAttr,
             final DOMDataTreeWriteOperations tx) {
@@ -414,7 +413,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void removeRoute(final RIBSupport<?, ?> ribSupport, final boolean addPathSupported,
             final YangInstanceIdentifier tableRibout, final StaleBestPathRoute staleRoute,
             final DOMDataTreeWriteOperations tx) {
@@ -438,7 +437,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     }
 
     // FIXME: why is this different from removeRoute()?
-    @Holding("this")
+    @GuardedBy("this")
     private void deleteRoute(final RIBSupport<?, ?> ribSupport, final boolean addPathSupported,
             final YangInstanceIdentifier tableRibout, final AbstractAdvertizedRoute advRoute,
             final DOMDataTreeWriteOperations tx) {

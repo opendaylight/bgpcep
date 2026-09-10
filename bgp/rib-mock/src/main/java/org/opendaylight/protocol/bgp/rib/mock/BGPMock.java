@@ -8,11 +8,11 @@
 package org.opendaylight.protocol.bgp.rib.mock;
 
 import com.google.common.eventbus.EventBus;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.buffer.Unpooled;
 import java.io.Closeable;
 import java.util.ArrayList;
 import java.util.List;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.parser.BGPParsingException;
@@ -34,8 +34,10 @@ public final class BGPMock implements Closeable {
 
     static final Notify CONNECTION_LOST_MAGIC_MSG = new NotifyBuilder().setErrorCode(BGPError.CEASE.getCode()).build();
 
-    private final @GuardedBy("this") List<EventBusRegistration> openRegistrations = new ArrayList<>();
-    private final @GuardedBy("this") List<byte[]> allPreviousByteMessages;
+    @GuardedBy("this")
+    private final ArrayList<EventBusRegistration> openRegistrations = new ArrayList<>();
+    @GuardedBy("this")
+    private final ArrayList<byte[]> allPreviousByteMessages;
     private final List<Notification<?>> allPreviousBGPMessages;
     private final EventBus eventBus;
 
@@ -46,7 +48,7 @@ public final class BGPMock implements Closeable {
     }
 
     private static List<Notification<?>> parsePrevious(final MessageRegistry registry, final List<byte[]> msgs) {
-        final List<Notification<?>> messages = new ArrayList<>();
+        final var messages = new ArrayList<Notification<?>>();
         try {
             for (final byte[] b : msgs) {
 
@@ -63,7 +65,7 @@ public final class BGPMock implements Closeable {
     @Override
     public synchronized void close() {
         // unregister all EventBusRegistration instances
-        for (final EventBusRegistration registration : openRegistrations) {
+        for (var registration : openRegistrations) {
             registration.close();
         }
         openRegistrations.clear();

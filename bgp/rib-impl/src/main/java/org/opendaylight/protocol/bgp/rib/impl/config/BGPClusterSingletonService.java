@@ -18,6 +18,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -26,8 +27,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataObjectDeleted;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
@@ -176,7 +175,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void onGlobalCreated(final Global global) {
         LOG.debug("Creating RIB instance with configuration: {}", global);
         ribImpl = new RibImpl(ribExtensionContext, bgpDispatcher, routingPolicyFactory, codecsRegistry,
@@ -185,7 +184,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         LOG.debug("RIB instance created: {}", ribImpl);
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void onGlobalUpdated(final Global global) {
         LOG.info("Global config {} updated, new configuration {}", global.getConfig().getRouterId(), global);
         closeRibInstance();
@@ -194,7 +193,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @VisibleForTesting
-    @Holding("this")
+    @GuardedBy("this")
     void closeRibInstance() {
         try {
             ribImpl.stop().get();
@@ -206,7 +205,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @VisibleForTesting
-    @Holding("this")
+    @GuardedBy("this")
     void initiateRibInstance(final Global global) {
         ribImpl.start(global, getRibInstanceName(bgpIid), tableTypeRegistry);
         if (instantiated.get()) {
@@ -214,7 +213,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private List<PeerBean> closeBoundPeers() {
         final var filtered = new ArrayList<PeerBean>(peers.size());
         peers.forEach((key, peer) -> {
@@ -243,7 +242,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @VisibleForTesting
-    @Holding("this")
+    @GuardedBy("this")
     void onNeighborsChanged(final DataObjectModification<Neighbors> dataObjectModification) {
         for (var neighborModification : dataObjectModification.modifiedChildren()) {
             switch (neighborModification) {
@@ -253,7 +252,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void onNeighborModified(final Neighbor neighbor) {
         //restart peer instance with a new configuration
         final var bgpPeer = peers.get(getNeighborInstanceIdentifier(bgpIid, neighbor.key()));
@@ -265,7 +264,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @VisibleForTesting
-    @Holding("this")
+    @GuardedBy("this")
     void onNeighborCreated(final Neighbor neighbor) {
         LOG.info("Creating Peer instance {} with configuration: {}", neighbor.getNeighborAddress(), neighbor);
         final var bgpPeer = OpenConfigMappingUtil.isApplicationPeer(neighbor) ? new AppPeerBean(stateProviderRegistry)
@@ -280,7 +279,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @VisibleForTesting
-    @Holding("this")
+    @GuardedBy("this")
     void onNeighborUpdated(final PeerBean bgpPeer, final Neighbor neighbor) {
         LOG.info("Updating Peer {} with new configuration: {}", neighbor.getNeighborAddress(), neighbor);
         closePeer(bgpPeer);
@@ -325,7 +324,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @VisibleForTesting
-    @Holding("this")
+    @GuardedBy("this")
     public void onNeighborRemoved(final Neighbor neighbor) {
         LOG.info("Removing Peer instance: {}", neighbor.getNeighborAddress());
         final var bgpPeer = peers.remove(getNeighborInstanceIdentifier(bgpIid, neighbor.key()));
@@ -338,7 +337,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
     }
 
     @VisibleForTesting
-    @Holding("this")
+    @GuardedBy("this")
     // FIXME: synchronized because SpotBugs does not understand @Holding with @VisibleForTesting (which we need for
     //        Mockito.verify())
     synchronized void initiatePeerInstance(final Neighbor neighbor, final PeerBean bgpPeer) {
@@ -350,7 +349,7 @@ public final class BGPClusterSingletonService implements ClusterSingletonService
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void restartPeers(final Collection<PeerBean> toRestart) {
         toRestart.stream().filter(BGPClusterSingletonService::closePeer)
             .forEach(peer -> initiatePeerInstance(peer.getCurrentConfiguration(), peer));

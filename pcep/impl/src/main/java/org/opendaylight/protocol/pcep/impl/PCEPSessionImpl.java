@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Ticker;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -27,8 +28,6 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.checkerframework.checker.index.qual.NonNegative;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPCloseTermination;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
@@ -92,7 +91,8 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
     private int maxUnknownMessages;
 
     // True if the listener should not be notified about events
-    private final @GuardedBy("this") AtomicBoolean closed = new AtomicBoolean(false);
+    @GuardedBy("this")
+    private final AtomicBoolean closed = new AtomicBoolean(false);
 
     private final Channel channel;
 
@@ -133,11 +133,11 @@ public class PCEPSessionImpl extends SimpleChannelInboundHandler<Message> implem
         sessionState = new PCEPSessionState(remoteOpen, localOpen, channel);
     }
 
-    public final @NonNegative short getKeepAliveTimerValue() {
+    public final short getKeepAliveTimerValue() {
         return localOpen.getKeepalive().toJava();
     }
 
-    public final @NonNegative short getDeadTimerValue() {
+    public final short getDeadTimerValue() {
         return remoteOpen.getDeadTimer().toJava();
     }
 

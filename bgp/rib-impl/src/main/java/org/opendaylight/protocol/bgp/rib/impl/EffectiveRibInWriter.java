@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -32,8 +33,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.LongAdder;
 import java.util.function.Function;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -268,7 +267,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void changeDataTree(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier rootPath,
             final DataTreeCandidateNode root, final DataTreeCandidateNode table) {
         final var lastArg = table.name();

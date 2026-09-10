@@ -10,8 +10,8 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.ActionsAugPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
@@ -20,16 +20,13 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameter
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.Actions1;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpNextHopType;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpSetMedType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.BgpActions;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetAsPathPrepend;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetCommunity;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetExtCommunity;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.BgpOriginAttrType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.generic.actions.route.disposition.RejectRoute;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.policy.definitions.policy.definition.statements.statement.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPrefBuilder;
@@ -44,46 +41,44 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.binding.Augmentation;
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
-import org.opendaylight.yangtools.yang.common.Uint32;
 
 final class ActionsRegistryImpl {
-    private final @GuardedBy("this") HashMap<Class<? extends Augmentation<Actions>>, ActionsAugPolicy> actionsRegistry =
+    @GuardedBy("this")
+    private final HashMap<Class<? extends Augmentation<Actions>>, ActionsAugPolicy> actionsRegistry = new HashMap<>();
+    @GuardedBy("this")
+    private final HashMap<Class<? extends ChildOf<BgpActions>>, BgpActionPolicy> bgpActions = new HashMap<>();
+    @GuardedBy("this")
+    private final HashMap<Class<? extends Augmentation<BgpActions>>, BgpActionAugPolicy> bgpAugActionsRegistry =
         new HashMap<>();
-    private final @GuardedBy("this") HashMap<Class<? extends ChildOf<BgpActions>>, BgpActionPolicy> bgpActions =
-        new HashMap<>();
-    private final @GuardedBy("this")
-        HashMap<Class<? extends Augmentation<BgpActions>>, BgpActionAugPolicy> bgpAugActionsRegistry = new HashMap<>();
 
-    AbstractRegistration registerActionPolicy(
-            final Class<? extends Augmentation<Actions>> actionPolicyClass,
+    AbstractRegistration registerActionPolicy(final Class<? extends Augmentation<Actions>> actionPolicyClass,
             final ActionsAugPolicy actionPolicy) {
-        synchronized (this.actionsRegistry) {
-            final ActionsAugPolicy prev = this.actionsRegistry.putIfAbsent(actionPolicyClass, actionPolicy);
+        synchronized (actionsRegistry) {
+            final var prev = actionsRegistry.putIfAbsent(actionPolicyClass, actionPolicy);
             Preconditions.checkState(prev == null, "Action Policy %s already registered %s",
                     actionPolicyClass, prev);
             return new AbstractRegistration() {
                 @Override
                 protected void removeRegistration() {
-                    synchronized (ActionsRegistryImpl.this.actionsRegistry) {
-                        ActionsRegistryImpl.this.actionsRegistry.remove(actionPolicyClass);
+                    synchronized (actionsRegistry) {
+                        actionsRegistry.remove(actionPolicyClass);
                     }
                 }
             };
         }
     }
 
-    public AbstractRegistration registerBgpActionPolicy(
-            final Class<? extends ChildOf<BgpActions>> bgpActionPolicyClass,
+    public AbstractRegistration registerBgpActionPolicy(final Class<? extends ChildOf<BgpActions>> bgpActionPolicyClass,
             final BgpActionPolicy bgpActionPolicy) {
-        synchronized (this.bgpActions) {
-            final BgpActionPolicy prev = this.bgpActions.putIfAbsent(bgpActionPolicyClass, bgpActionPolicy);
+        synchronized (bgpActions) {
+            final var prev = bgpActions.putIfAbsent(bgpActionPolicyClass, bgpActionPolicy);
             Preconditions.checkState(prev == null, "Action Policy %s already registered %s",
                     bgpActionPolicyClass, prev);
             return new AbstractRegistration() {
                 @Override
                 protected void removeRegistration() {
-                    synchronized (ActionsRegistryImpl.this.bgpActions) {
-                        ActionsRegistryImpl.this.bgpActions.remove(bgpActionPolicyClass);
+                    synchronized (bgpActions) {
+                        bgpActions.remove(bgpActionPolicyClass);
                     }
                 }
             };
@@ -93,16 +88,15 @@ final class ActionsRegistryImpl {
     public AbstractRegistration registerBgpActionAugmentationPolicy(
             final Class<? extends Augmentation<BgpActions>> bgpActionPolicyClass,
             final BgpActionAugPolicy bgpActionPolicy) {
-        synchronized (this.bgpAugActionsRegistry) {
-            final BgpActionAugPolicy prev = this.bgpAugActionsRegistry
-                    .putIfAbsent(bgpActionPolicyClass, bgpActionPolicy);
+        synchronized (bgpAugActionsRegistry) {
+            final var prev = bgpAugActionsRegistry.putIfAbsent(bgpActionPolicyClass, bgpActionPolicy);
             Preconditions.checkState(prev == null, "Action Policy %s already registered %s",
                     bgpActionPolicyClass, prev);
             return new AbstractRegistration() {
                 @Override
                 protected void removeRegistration() {
-                    synchronized (ActionsRegistryImpl.this.bgpAugActionsRegistry) {
-                        ActionsRegistryImpl.this.bgpAugActionsRegistry.remove(bgpActionPolicyClass);
+                    synchronized (bgpAugActionsRegistry) {
+                        bgpAugActionsRegistry.remove(bgpActionPolicyClass);
                     }
                 }
             };
@@ -120,20 +114,20 @@ final class ActionsRegistryImpl {
             return null;
         }
         Attributes attributesUpdated = attributes;
-        final Actions1 augmentation = actions.augmentation(Actions1.class);
+        final var augmentation = actions.augmentation(Actions1.class);
         if (augmentation != null && augmentation.getBgpActions() != null) {
-            final BgpActions bgpAction = augmentation.getBgpActions();
+            final var bgpAction = augmentation.getBgpActions();
 
-            final SetAsPathPrepend asPrependAction = bgpAction.getSetAsPathPrepend();
-            final Uint32 localPrefPrependAction = bgpAction.getSetLocalPref();
-            final BgpOriginAttrType localOriginAction = bgpAction.getSetRouteOrigin();
-            final BgpSetMedType medAction = bgpAction.getSetMed();
-            final BgpNextHopType nhAction = bgpAction.getSetNextHop();
-            final SetCommunity setCommunityAction = bgpAction.getSetCommunity();
-            final SetExtCommunity setExtCommunityAction = bgpAction.getSetExtCommunity();
+            final var asPrependAction = bgpAction.getSetAsPathPrepend();
+            final var localPrefPrependAction = bgpAction.getSetLocalPref();
+            final var localOriginAction = bgpAction.getSetRouteOrigin();
+            final var medAction = bgpAction.getSetMed();
+            final var nhAction = bgpAction.getSetNextHop();
+            final var setCommunityAction = bgpAction.getSetCommunity();
+            final var setExtCommunityAction = bgpAction.getSetExtCommunity();
 
             if (asPrependAction != null) {
-                attributesUpdated = this.bgpActions.get(SetAsPathPrepend.class)
+                attributesUpdated = bgpActions.get(SetAsPathPrepend.class)
                         .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
                                 asPrependAction);
             }
@@ -143,7 +137,7 @@ final class ActionsRegistryImpl {
             }
 
             if (setCommunityAction != null) {
-                attributesUpdated = this.bgpActions.get(SetCommunity.class)
+                attributesUpdated = bgpActions.get(SetCommunity.class)
                         .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
                                 setCommunityAction);
             }
@@ -153,7 +147,7 @@ final class ActionsRegistryImpl {
             }
 
             if (setExtCommunityAction != null) {
-                attributesUpdated = this.bgpActions.get(SetExtCommunity.class)
+                attributesUpdated = bgpActions.get(SetExtCommunity.class)
                         .applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
                                 setExtCommunityAction);
             }
@@ -165,7 +159,7 @@ final class ActionsRegistryImpl {
             }
 
             if (updated) {
-                final AttributesBuilder attributesUpdatedBuilder = new AttributesBuilder(attributes);
+                final var attributesUpdatedBuilder = new AttributesBuilder(attributes);
                 if (localPrefPrependAction != null) {
                     attributesUpdatedBuilder.setLocalPref(new LocalPrefBuilder()
                             .setPref(localPrefPrependAction).build());
@@ -182,7 +176,7 @@ final class ActionsRegistryImpl {
                 }
 
                 if (nhAction != null) {
-                    final IpAddress address = nhAction.getIpAddress();
+                    final var address = nhAction.getIpAddress();
                     CNextHop nhNew;
                     if (address != null) {
                         if (address.getIpv4Address() != null) {
@@ -210,11 +204,12 @@ final class ActionsRegistryImpl {
                 attributesUpdated = attributesUpdatedBuilder.build();
             }
 
-            for (final Augmentation<BgpActions> action : bgpAction.augmentations().values()) {
-                final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(action.implementedInterface());
+            for (var action : bgpAction.augmentations().values()) {
+                final var handler = bgpAugActionsRegistry.get(action.implementedInterface());
                 if (handler == null) {
                     continue;
-                } else if (attributesUpdated == null) {
+                }
+                if (attributesUpdated == null) {
                     return null;
                 }
                 attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters,
@@ -227,11 +222,12 @@ final class ActionsRegistryImpl {
         }
 
         // Export Actions Aug
-        for (final Augmentation<Actions> entry : actions.augmentations().values()) {
-            final ActionsAugPolicy handler = this.actionsRegistry.get(entry.implementedInterface());
+        for (var entry : actions.augmentations().values()) {
+            final var handler = actionsRegistry.get(entry.implementedInterface());
             if (attributesUpdated == null) {
                 return null;
-            } else if (handler == null) {
+            }
+            if (handler == null) {
                 continue;
             }
             attributesUpdated = handler.applyExportAction(routeEntryInfo, routeEntryExportParameters, attributesUpdated,
@@ -250,17 +246,17 @@ final class ActionsRegistryImpl {
         if (actions.getRouteDisposition() instanceof RejectRoute) {
             return null;
         }
-        Attributes attributesUpdated = attributes;
-        final Actions1 augmentation = actions.augmentation(Actions1.class);
+        var attributesUpdated = attributes;
+        final var augmentation = actions.augmentation(Actions1.class);
 
         if (augmentation != null && augmentation.getBgpActions() != null) {
-            final BgpActions bgpAction = augmentation.getBgpActions();
-            final SetCommunity setCommunityAction = bgpAction.getSetCommunity();
-            final SetExtCommunity setExtCommunityAction = bgpAction.getSetExtCommunity();
-            final SetAsPathPrepend asPrependAction = bgpAction.getSetAsPathPrepend();
+            final var bgpAction = augmentation.getBgpActions();
+            final var setCommunityAction = bgpAction.getSetCommunity();
+            final var setExtCommunityAction = bgpAction.getSetExtCommunity();
+            final var asPrependAction = bgpAction.getSetAsPathPrepend();
 
             if (asPrependAction != null) {
-                attributesUpdated = this.bgpActions.get(asPrependAction.getClass())
+                attributesUpdated = bgpActions.get(asPrependAction.getClass())
                         .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, asPrependAction);
             }
 
@@ -269,7 +265,7 @@ final class ActionsRegistryImpl {
             }
 
             if (setCommunityAction != null) {
-                attributesUpdated = this.bgpActions.get(SetCommunity.class)
+                attributesUpdated = bgpActions.get(SetCommunity.class)
                         .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
                                 setCommunityAction);
             }
@@ -279,7 +275,7 @@ final class ActionsRegistryImpl {
             }
 
             if (setExtCommunityAction != null) {
-                attributesUpdated = this.bgpActions.get(SetExtCommunity.class)
+                attributesUpdated = bgpActions.get(SetExtCommunity.class)
                         .applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, setExtCommunityAction);
             }
 
@@ -287,11 +283,12 @@ final class ActionsRegistryImpl {
                 return null;
             }
 
-            for (final Augmentation<BgpActions> action : bgpAction.augmentations().values()) {
-                final BgpActionAugPolicy handler = this.bgpAugActionsRegistry.get(action.implementedInterface());
+            for (var action : bgpAction.augmentations().values()) {
+                final var handler = bgpAugActionsRegistry.get(action.implementedInterface());
                 if (handler == null) {
                     continue;
-                } else if (attributesUpdated == null) {
+                }
+                if (attributesUpdated == null) {
                     return null;
                 }
                 attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated,
@@ -303,11 +300,12 @@ final class ActionsRegistryImpl {
         }
 
         // Augmented Actions
-        for (final Augmentation<Actions> action : actions.augmentations().values()) {
-            final ActionsAugPolicy handler = this.actionsRegistry.get(action.implementedInterface());
+        for (var action : actions.augmentations().values()) {
+            final var handler = actionsRegistry.get(action.implementedInterface());
             if (handler == null) {
                 continue;
-            } else if (attributesUpdated == null) {
+            }
+            if (attributesUpdated == null) {
                 return null;
             }
             attributesUpdated = handler.applyImportAction(routeEntryInfo, routeParameters, attributesUpdated, action);

@@ -9,10 +9,10 @@ package org.opendaylight.protocol.bgp.rib.impl.state;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
@@ -30,9 +30,9 @@ public class BGPRibStateImpl extends DefaultRibReference implements BGPRibState,
     private final BgpId routeId;
     private final AsNumber localAs;
     @GuardedBy("this")
-    private final Map<TablesKey, TotalPathsCounter> totalPaths = new HashMap<>();
+    private final HashMap<TablesKey, TotalPathsCounter> totalPaths = new HashMap<>();
     @GuardedBy("this")
-    private final Map<TablesKey, TotalPrefixesCounter> totalPrefixes = new HashMap<>();
+    private final HashMap<TablesKey, TotalPrefixesCounter> totalPrefixes = new HashMap<>();
     @GuardedBy("this")
     private boolean active;
 

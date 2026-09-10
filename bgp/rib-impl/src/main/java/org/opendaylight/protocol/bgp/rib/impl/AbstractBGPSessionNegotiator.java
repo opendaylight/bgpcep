@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,8 +18,6 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import io.netty.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.protocol.bgp.parser.BGPDocumentedException;
 import org.opendaylight.protocol.bgp.parser.BGPError;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -254,7 +253,7 @@ abstract class AbstractBGPSessionNegotiator extends ChannelInboundHandlerAdapter
         return state;
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void negotiationSuccessful() {
         LOG.debug("Negotiation on channel {} successful with session {}", channel, session);
         channel.pipeline().replace(this, "session", session);

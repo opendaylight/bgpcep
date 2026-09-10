@@ -16,9 +16,9 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -26,7 +26,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
@@ -82,7 +81,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     private final DataBroker dataBroker;
 
     @GuardedBy("this")
-    private final Map<DataObjectIdentifier<Bgp>, BGPClusterSingletonService> bgpCss = new HashMap<>();
+    private final HashMap<DataObjectIdentifier<Bgp>, BGPClusterSingletonService> bgpCss = new HashMap<>();
     private final LoadingCache<WithKey<PeerGroup, PeerGroupKey>, Optional<PeerGroup>> peerGroups =
         CacheBuilder.newBuilder().build(new CacheLoader<>() {
             @Override
@@ -284,7 +283,7 @@ public class DefaultBgpDeployer implements DataTreeChangeListener<Bgp>, PeerGrou
     @VisibleForTesting
     synchronized BGPClusterSingletonService getBgpClusterSingleton(
             final DataObjectIdentifier<Bgp> bgpInstanceIdentifier) {
-        BGPClusterSingletonService old = bgpCss.get(bgpInstanceIdentifier);
+        var old = bgpCss.get(bgpInstanceIdentifier);
         if (old == null) {
             old = new BGPClusterSingletonService(this, provider, tableTypeRegistry,
                     rpcRegistry, ribExtensionConsumerContext, bgpDispatcher, routingPolicyFactory,

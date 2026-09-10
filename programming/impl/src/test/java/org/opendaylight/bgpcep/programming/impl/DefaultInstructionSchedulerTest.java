@@ -345,7 +345,7 @@ public class DefaultInstructionSchedulerTest extends AbstractProgrammingTest {
             .map(InstructionId::new)
             .collect(Collectors.toUnmodifiableSet());
 
-        doReturn(dependencies).when(mockedSubmitInstruction).getPreconditions();
+        doReturn(dependencies).when(mockedSubmitInstruction).requirePreconditions();
         doReturn(new InstructionId(id)).when(mockedSubmitInstruction).getId();
         doReturn(deadline.orElseGet(() -> new Nanotime(Uint64.valueOf(Long.MAX_VALUE))))
                 .when(mockedSubmitInstruction).getDeadline();

@@ -10,17 +10,16 @@ package org.opendaylight.protocol.bgp.rib.impl.protocol;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
@@ -33,6 +32,7 @@ import org.slf4j.LoggerFactory;
 public final class BGPProtocolSessionPromise<S extends BGPSession> extends DefaultPromise<S> {
     private static final Logger LOG = LoggerFactory.getLogger(BGPProtocolSessionPromise.class);
     private static final int CONNECT_TIMEOUT = 5000;
+
     private final int retryTimer;
     private final Bootstrap bootstrap;
     @GuardedBy("this")
@@ -45,7 +45,6 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
     private boolean peerSessionPresent;
     @GuardedBy("this")
     private boolean connectSkipped;
-
 
     public BGPProtocolSessionPromise(final @NonNull InetSocketAddress remoteAddress, final int retryTimer,
             final @NonNull Bootstrap bootstrap, final @NonNull BGPPeerRegistry peerRegistry) {
@@ -92,20 +91,20 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
             return;
         }
 
-        final EventLoop loop = pending.channel().eventLoop();
+        final var loop = pending.channel().eventLoop();
         loop.schedule(() -> {
             synchronized (BGPProtocolSessionPromise.this) {
-                if (BGPProtocolSessionPromise.this.peerSessionPresent) {
-                    LOG.debug("Connection to {} already exists", BGPProtocolSessionPromise.this.address);
-                    BGPProtocolSessionPromise.this.connectSkipped = true;
+                if (peerSessionPresent) {
+                    LOG.debug("Connection to {} already exists", address);
+                    connectSkipped = true;
                     return;
                 }
 
-                BGPProtocolSessionPromise.this.connectSkipped = false;
-                LOG.debug("Attempting to connect to {}", BGPProtocolSessionPromise.this.address);
-                final ChannelFuture reconnectFuture = BGPProtocolSessionPromise.this.bootstrap.connect();
+                connectSkipped = false;
+                LOG.debug("Attempting to connect to {}", address);
+                final var reconnectFuture = bootstrap.connect();
                 reconnectFuture.addListener(new BootstrapConnectListener());
-                BGPProtocolSessionPromise.this.pending = reconnectFuture;
+                pending = reconnectFuture;
             }
         }, retryTimer, TimeUnit.SECONDS);
         LOG.debug("Next reconnection attempt in {}s", retryTimer);
@@ -143,8 +142,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
         public void operationComplete(final ChannelFuture channelFuture) throws Exception {
             synchronized (BGPProtocolSessionPromise.this) {
                 LOG.debug("Promise {} connection resolved", BGPProtocolSessionPromise.this);
-                checkState(BGPProtocolSessionPromise.this.pending.equals(channelFuture), "Unexpected promise %s",
-                    channelFuture);
+                checkState(pending.equals(channelFuture), "Unexpected promise %s", channelFuture);
                 if (isCancelled()) {
                     if (channelFuture.isSuccess()) {
                         LOG.debug("Closing channel for cancelled promise {}", BGPProtocolSessionPromise.this);
@@ -153,9 +151,8 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
                 } else if (channelFuture.isSuccess()) {
                     LOG.debug("Promise {} connection successful", BGPProtocolSessionPromise.this);
                 } else {
-                    LOG.warn("Attempt to connect to {} failed", BGPProtocolSessionPromise.this.address,
-                        channelFuture.cause());
-                    BGPProtocolSessionPromise.this.reconnect();
+                    LOG.warn("Attempt to connect to {} failed", address, channelFuture.cause());
+                    reconnect();
                 }
             }
         }
@@ -173,7 +170,7 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
             if (ip.equals(peerAddress)) {
                 LOG.debug("Callback for session creation with peer {} received", ip);
                 synchronized (BGPProtocolSessionPromise.this) {
-                    BGPProtocolSessionPromise.this.peerSessionPresent = true;
+                    peerSessionPresent = true;
                 }
             }
         }
@@ -183,9 +180,9 @@ public final class BGPProtocolSessionPromise<S extends BGPSession> extends Defau
             if (ip.equals(peerAddress)) {
                 LOG.debug("Callback for session removal with peer {} received", ip);
                 synchronized (BGPProtocolSessionPromise.this) {
-                    BGPProtocolSessionPromise.this.peerSessionPresent = false;
-                    if (BGPProtocolSessionPromise.this.connectSkipped) {
-                        BGPProtocolSessionPromise.this.connect();
+                    peerSessionPresent = false;
+                    if (connectSkipped) {
+                        connect();
                     }
                 }
             }

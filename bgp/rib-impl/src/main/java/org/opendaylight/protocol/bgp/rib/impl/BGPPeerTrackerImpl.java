@@ -8,10 +8,9 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import com.google.common.collect.ImmutableList;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
@@ -21,22 +20,23 @@ import org.opendaylight.yangtools.concepts.Registration;
 
 public final class BGPPeerTrackerImpl implements BGPPeerTracker {
     @GuardedBy("this")
-    private final Map<PeerId, Peer> peers = new HashMap<>();
+    private final HashMap<PeerId, Peer> peers = new HashMap<>();
+
     private ImmutableList<Peer> peersList;
     private ImmutableList<Peer> peersFilteredList;
 
     @Override
     public synchronized Registration registerPeer(final Peer peer) {
-        this.peers.put(peer.getPeerId(), peer);
-        this.peersList = ImmutableList.copyOf(this.peers.values());
-        this.peersFilteredList = this.peers.values().stream()
+        peers.put(peer.getPeerId(), peer);
+        peersList = ImmutableList.copyOf(peers.values());
+        peersFilteredList = peers.values().stream()
                 .filter(p1 -> p1.getRole() != PeerRole.Internal)
                 .collect(ImmutableList.toImmutableList());
         return new AbstractRegistration() {
             @Override
             protected void removeRegistration() {
                 synchronized (BGPPeerTrackerImpl.this) {
-                    BGPPeerTrackerImpl.this.peers.remove(peer.getPeerId());
+                    peers.remove(peer.getPeerId());
                 }
             }
         };
@@ -44,16 +44,16 @@ public final class BGPPeerTrackerImpl implements BGPPeerTracker {
 
     @Override
     public synchronized Peer getPeer(final PeerId peerId) {
-        return this.peers.get(peerId);
+        return peers.get(peerId);
     }
 
     @Override
     public synchronized List<Peer> getPeers() {
-        return this.peersList;
+        return peersList;
     }
 
     @Override
     public synchronized List<Peer> getNonInternalPeers() {
-        return this.peersFilteredList;
+        return peersFilteredList;
     }
 }
