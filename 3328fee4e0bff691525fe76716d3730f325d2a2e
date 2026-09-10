@@ -16,6 +16,24 @@
       "message": "reformat please",
       "revId": "3328fee4e0bff691525fe76716d3730f325d2a2e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "ec215105_120d9412",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 29
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-09-10T08:08:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f4d8438_626046b5",
+      "revId": "3328fee4e0bff691525fe76716d3730f325d2a2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
