@@ -48,7 +48,7 @@ public abstract class AbstractMessageRegistry implements MessageRegistry {
         final int messageLength = buffer.readUnsignedShort();
         // to be sent with Error message
         final byte typeBytes = buffer.readByte();
-        final int messageType = UnsignedBytes.toInt(typeBytes);
+        final int messageType = Byte.toUnsignedInt(typeBytes);
 
         if (messageLength < MessageUtil.COMMON_HEADER_LENGTH) {
             throw BGPDocumentedException.badMessageLength("Message length field not within valid range.",

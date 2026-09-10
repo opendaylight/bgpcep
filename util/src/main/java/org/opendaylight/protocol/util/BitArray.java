@@ -10,7 +10,6 @@ package org.opendaylight.protocol.util;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 
 /**
@@ -35,15 +34,15 @@ public final class BitArray {
     public BitArray(final int size) {
         Preconditions.checkArgument(size >= 1, "Minimum size is 1 bit.");
         this.size = size;
-        this.backingArray = new byte[calculateBytes(size)];
-        this.offset = (calculateBytes(this.size) * Byte.SIZE) - this.size;
+        backingArray = new byte[calculateBytes(size)];
+        offset = calculateBytes(this.size) * Byte.SIZE - this.size;
     }
 
     private BitArray(final byte[] backingArray, final int size) {
         requireNonNull(backingArray, "Byte Array cannot be null");
         this.size = size;
         this.backingArray = backingArray.clone();
-        this.offset = (calculateBytes(this.size) * Byte.SIZE) - this.size;
+        offset = calculateBytes(this.size) * Byte.SIZE - this.size;
     }
 
     /**
@@ -103,13 +102,13 @@ public final class BitArray {
      * @param value Boolean
      */
     public void set(final int index, final Boolean value) {
-        Preconditions.checkArgument(index < this.size, "Index out of bounds.");
+        Preconditions.checkArgument(index < size, "Index out of bounds.");
         if (value == null || value.equals(Boolean.FALSE)) {
             return;
         }
         final int pos = calculatePosition(index);
-        final byte b = this.backingArray[pos];
-        this.backingArray[pos] = (byte) (UnsignedBytes.toInt(b) | mask(index));
+        final byte b = backingArray[pos];
+        backingArray[pos] = (byte) (Byte.toUnsignedInt(b) | mask(index));
     }
 
     /**
@@ -121,9 +120,9 @@ public final class BitArray {
      * @return boolean value
      */
     public boolean get(final int index) {
-        Preconditions.checkArgument(index < this.size, "Index out of bounds.");
-        final byte b = this.backingArray[calculatePosition(index)];
-        return ((byte) (UnsignedBytes.toInt(b) & mask(index))) != 0;
+        Preconditions.checkArgument(index < size, "Index out of bounds.");
+        final byte b = backingArray[calculatePosition(index)];
+        return (byte) (Byte.toUnsignedInt(b) & mask(index)) != 0;
     }
 
     /**
@@ -132,7 +131,7 @@ public final class BitArray {
      * @return byte[]
      */
     public byte[] array() {
-        return this.backingArray.clone();
+        return backingArray.clone();
     }
 
     /**
@@ -141,8 +140,8 @@ public final class BitArray {
      * @return byte
      */
     public byte toByte() {
-        Preconditions.checkArgument(Byte.SIZE >= this.size, "Cannot put backing array to a single byte.");
-        return this.backingArray[0];
+        Preconditions.checkArgument(Byte.SIZE >= size, "Cannot put backing array to a single byte.");
+        return backingArray[0];
     }
 
     /**
@@ -152,7 +151,7 @@ public final class BitArray {
      * @param buffer ByteBuf
      */
     public void toByteBuf(final ByteBuf buffer) {
-        buffer.writeBytes(this.backingArray);
+        buffer.writeBytes(backingArray);
     }
 
     /**
@@ -162,7 +161,7 @@ public final class BitArray {
      * @return position in byte array
      */
     private int calculatePosition(final int index) {
-        return (index + this.offset) / Byte.SIZE;
+        return (index + offset) / Byte.SIZE;
     }
 
     /**
@@ -172,15 +171,15 @@ public final class BitArray {
      * @return byte with one bit set
      */
     private byte mask(final int index) {
-        return (byte) (1 << ((this.size - 1 - index) % Byte.SIZE));
+        return (byte) (1 << (size - 1 - index) % Byte.SIZE);
     }
 
     @Override
     public String toString() {
         final StringBuilder b = new StringBuilder("BitArray [");
-        for (int i = 0; i < this.backingArray.length; i++) {
-            b.append(Integer.toBinaryString(UnsignedBytes.toInt(this.backingArray[i])));
-            if (i != this.backingArray.length - 1) {
+        for (int i = 0; i < backingArray.length; i++) {
+            b.append(Integer.toBinaryString(Byte.toUnsignedInt(backingArray[i])));
+            if (i != backingArray.length - 1) {
                 b.append(' ');
             }
         }

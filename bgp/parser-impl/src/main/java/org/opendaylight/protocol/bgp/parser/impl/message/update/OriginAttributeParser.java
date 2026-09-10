@@ -43,7 +43,7 @@ public final class OriginAttributeParser extends AbstractAttributeParser impleme
         }
 
         final byte rawOrigin = buffer.readByte();
-        final BgpOrigin borigin = BgpOrigin.forValue(UnsignedBytes.toInt(rawOrigin));
+        final BgpOrigin borigin = BgpOrigin.forValue(Byte.toUnsignedInt(rawOrigin));
         if (borigin == null) {
             throw errorHandling.reportError(BGPError.ORIGIN_ATTR_NOT_VALID, "Unknown ORIGIN type %s", rawOrigin);
         }
