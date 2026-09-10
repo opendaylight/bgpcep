@@ -9,7 +9,6 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.base.MoreObjects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
@@ -118,10 +117,10 @@ public class ManagedTeNode {
 
     @Override
     public String toString() {
-        final MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ManagedTeNode");
-        CodeHelpers.appendValue(helper, "NodeId", id);
-        CodeHelpers.appendValue(helper, "NodeState", state);
-        CodeHelpers.appendValue(helper, "ManagedTePaths", mngPaths);
-        return helper.toString();
+        return CodeHelpers.jcTSB(ManagedTeNode.class)
+            .prop("NodeId", id)
+            .prop("NodeState", state)
+            .prop("ManagedTePaths", mngPaths)
+            .build();
     }
 }
