@@ -97,7 +97,7 @@ public class RibImplTest extends AbstractConfig {
         ribImpl.start(createGlobal(), "rib-test", tableTypeRegistry);
         verify(domDataBroker).extension(DataTreeChangeExtension.class);
         assertEquals("""
-            RIBImpl{bgpId=Ipv4Address{value=127.0.0.1}, localTables=[BgpTableTypeImpl [\
+            RIBImpl{bgpId=BgpId{value=127.0.0.1}, localTables=[BgpTableTypeImpl [\
             getAfi()=Ipv4AddressFamily{qname=\
             (urn:opendaylight:params:xml:ns:yang:bgp-types?revision=2020-01-20)ipv4-address-family}, \
             getSafi()=UnicastSubsequentAddressFamily{qname=\

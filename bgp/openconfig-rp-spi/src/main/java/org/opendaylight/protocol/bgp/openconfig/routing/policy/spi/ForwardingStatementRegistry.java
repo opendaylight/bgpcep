@@ -50,14 +50,14 @@ abstract class ForwardingStatementRegistry extends ForwardingObject
 
     @Override
     public final AbstractRegistration registerConditionPolicy(
-            final Class<? extends Augmentation<Conditions>> conditionPolicyClass,
+            final Class<? extends Augmentation<Conditions, ?>> conditionPolicyClass,
                 final ConditionsAugPolicy conditionPolicy) {
         return delegate().registerConditionPolicy(conditionPolicyClass, conditionPolicy);
     }
 
     @Override
     public final AbstractRegistration registerActionPolicy(
-            final Class<? extends Augmentation<Actions>> actionPolicyClass, final ActionsAugPolicy actionPolicy) {
+            final Class<? extends Augmentation<Actions, ?>> actionPolicyClass, final ActionsAugPolicy actionPolicy) {
         return delegate().registerActionPolicy(actionPolicyClass, actionPolicy);
     }
 
@@ -74,14 +74,14 @@ abstract class ForwardingStatementRegistry extends ForwardingObject
     }
 
     @Override
-    public final <T extends Augmentation<BgpConditions>, N>
+    public final <T extends Augmentation<BgpConditions, T>, N>
             AbstractRegistration registerBgpConditionsAugmentationPolicy(final Class<T> conditionPolicyClass,
                 final BgpConditionsAugmentationPolicy<T, N> conditionPolicy) {
         return delegate().registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
     }
 
     @Override
-    public final <T extends Augmentation<BgpActions>> AbstractRegistration registerBgpActionAugmentationPolicy(
+    public final <T extends Augmentation<BgpActions, T>> AbstractRegistration registerBgpActionAugmentationPolicy(
             final Class<T> bgpActionPolicyClass, final BgpActionAugPolicy<T> bgpActionPolicy) {
         return delegate().registerBgpActionAugmentationPolicy(bgpActionPolicyClass, bgpActionPolicy);
     }

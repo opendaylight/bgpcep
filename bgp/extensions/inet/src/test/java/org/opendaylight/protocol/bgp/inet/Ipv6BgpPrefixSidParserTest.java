@@ -12,37 +12,59 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.inet.codec.Ipv6BgpPrefixSidParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.bgp.prefix.sid.tlv.Ipv6SidTlvBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.bgp.prefix.sid.BgpPrefixSidTlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.bgp.prefix.sid.bgp.prefix.sid.tlvs.BgpPrefixSidTlv;
+import org.opendaylight.yangtools.binding.CaseObject;
+import org.opendaylight.yangtools.binding.lib.AbstractAugmentable;
 
 final class Ipv6BgpPrefixSidParserTest {
+    private static final class UnhandledBgpPrefixSidTlv extends AbstractAugmentable<UnhandledBgpPrefixSidTlv>
+            implements CaseObject<BgpPrefixSidTlvs, BgpPrefixSidTlv, UnhandledBgpPrefixSidTlv>, BgpPrefixSidTlv {
+        @Override
+        public Class<UnhandledBgpPrefixSidTlv> implementedInterface() {
+            return UnhandledBgpPrefixSidTlv.class;
+        }
+
+        @Override
+        public int javaHC() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean javaEQ(final UnhandledBgpPrefixSidTlv obj) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String javaTS() {
+            throw new UnsupportedOperationException();
+        }
+    }
 
     private final Ipv6BgpPrefixSidParser handler = new Ipv6BgpPrefixSidParser();
 
-    private final byte[] expected = new byte[]{0, (byte) 0x80, 0};
-
     @Test
     void testWrongTlvType() {
-        assertThrows(IllegalArgumentException.class,
-            () -> handler.serializeBgpPrefixSidTlv(() -> BgpPrefixSidTlv.class, Unpooled.EMPTY_BUFFER));
+        final var ex = assertThrows(IllegalArgumentException.class,
+            () -> handler.serializeBgpPrefixSidTlv(new UnhandledBgpPrefixSidTlv(), Unpooled.EMPTY_BUFFER));
+        assertEquals("Incoming TLV is not Ipv6SidTlv", ex.getMessage());
     }
 
     @Test
     void testHandling() {
-        final Ipv6SidTlvBuilder tlv = new Ipv6SidTlvBuilder();
-        tlv.setProcessIpv6HeadAbility(Boolean.TRUE);
-        final ByteBuf serialized = Unpooled.buffer(3);
-        this.handler.serializeBgpPrefixSidTlv(tlv.build(), serialized);
-        assertArrayEquals(this.expected, serialized.array());
-        assertTrue(this.handler.parseBgpPrefixSidTlv(serialized).getProcessIpv6HeadAbility());
+        final var serialized = Unpooled.buffer(3);
+        handler.serializeBgpPrefixSidTlv(new Ipv6SidTlvBuilder().setProcessIpv6HeadAbility(Boolean.TRUE).build(),
+            serialized);
+        assertArrayEquals(new byte[] { 0, (byte) 0x80, 0 }, serialized.array());
+        assertTrue(handler.parseBgpPrefixSidTlv(serialized).getProcessIpv6HeadAbility());
     }
 
     @Test
     void testType() {
-        assertEquals(2, this.handler.getType());
+        assertEquals(2, handler.getType());
     }
 }
