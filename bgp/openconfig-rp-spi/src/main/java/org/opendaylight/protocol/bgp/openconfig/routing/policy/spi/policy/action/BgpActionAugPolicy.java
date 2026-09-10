@@ -13,5 +13,6 @@ import org.opendaylight.yangtools.binding.Augmentation;
 /**
  * Bgp Action Policy to be applied to Route Attributes.
  */
-public interface BgpActionAugPolicy<T extends Augmentation<BgpActions>> extends ActionsPolicy<T> {
+public interface BgpActionAugPolicy<T extends Augmentation<BgpActions, T>> extends ActionsPolicy<T> {
+    // Nothing else
 }
