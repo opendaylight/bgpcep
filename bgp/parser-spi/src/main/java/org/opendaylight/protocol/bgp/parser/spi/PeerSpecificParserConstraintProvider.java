@@ -11,16 +11,14 @@ import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Serve as an entry gate for providers of {@link PeerSpecificParserConstraint} services.
- *
  */
 public interface PeerSpecificParserConstraintProvider extends PeerSpecificParserConstraint {
-
     /**
      * Register new {@link PeerConstraint} service.
+     *
      * @param classType Class type of the service to be added.
      * @param peerConstraint Peer constraint service to be added.
      * @return True if service was added, false if not (such service is already registered).
      */
     <T extends PeerConstraint> boolean addPeerConstraint(@NonNull Class<T> classType, @NonNull T peerConstraint);
-
 }

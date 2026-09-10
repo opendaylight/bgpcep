@@ -58,6 +58,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     /**
      * Calls registry to pick up specific object serializer for given object.
      * Checks if the object is not null.
+     *
      * @param object Object to be serialized, may be null
      * @param buffer ByteBuf where the object should be serialized
      */

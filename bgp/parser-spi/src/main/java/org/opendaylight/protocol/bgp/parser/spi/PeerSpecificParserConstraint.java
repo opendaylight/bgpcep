@@ -12,12 +12,11 @@ import org.eclipse.jdt.annotation.NonNull;
 
 /**
  * Holds BGP peer specific constraints of PDU processing.
- *
  */
 public interface PeerSpecificParserConstraint {
-
     /**
      * Looks-up and optionally returns {@link PeerConstraint} service.
+     *
      * @param peerConstraintType Class type of the service.
      * @return Optional of the required service, absent if the service is not available.
      */

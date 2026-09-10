@@ -113,7 +113,8 @@ final class AdjRibInWriter {
      * Create a new writer using a transaction chain.
      *
      * @param role                peer's role
-     * @param chain               transaction chain  @return A fresh writer instance
+     * @param chain               transaction chain
+     * @return A fresh writer instance
      */
     static AdjRibInWriter create(final @NonNull YangInstanceIdentifier ribId, final @NonNull PeerRole role,
             final @NonNull PeerTransactionChain chain) {

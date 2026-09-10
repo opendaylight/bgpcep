@@ -240,6 +240,7 @@ public interface RIBSupport<C extends Routes & DataObject, S extends ChildOf<? s
 
     /**
      * Translates supplied YANG Instance Identifier and NormalizedNode into Binding data Attribute.
+     *
      * @param advertisedAttrs NormalizedNode representing attributes
      * @return Attribute
      */
@@ -247,6 +248,7 @@ public interface RIBSupport<C extends Routes & DataObject, S extends ChildOf<? s
 
     /**
      * Translates supplied Binding Instance Identifier and data into NormalizedNode representation.
+     *
      * @param routePath Binding Instance Identifier pointing to data
      * @param attributes Data object representing Attributes
      * @return NormalizedNode representation

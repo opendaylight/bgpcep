@@ -56,6 +56,7 @@ public final class Ipv6Util {
 
     /**
      * From string ipAddress creates an InetAddress and puts it into ByteBuf.
+     *
      * @param ipAddress Ipv6 address
      * @return ByteBuf with filled in bytes from ipAddress
      */
