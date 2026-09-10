@@ -10,7 +10,6 @@ package org.opendaylight.bgpcep.pcep.server.provider;
 import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -419,33 +418,30 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         Long metric = 0L;
         Long delta = 0L;
         if (constraints.getDelay() != null) {
-            if (edge.getEdgeAttributes().getExtendedMetric().getDelay() != null) {
-                metric = constraints.getDelay().getValue().longValue();
-                delta = edge.getEdgeAttributes().getExtendedMetric().getDelay().getValue().longValue()
-                        - current.getEdgeAttributes().getExtendedMetric().getDelay().getValue().longValue();
-            } else {
+            if (edge.getEdgeAttributes().getExtendedMetric().getDelay() == null) {
                 triggerFlag = true;
                 return true;
             }
+            metric = constraints.getDelay().getValue().longValue();
+            delta = edge.getEdgeAttributes().getExtendedMetric().getDelay().getValue().longValue()
+                    - current.getEdgeAttributes().getExtendedMetric().getDelay().getValue().longValue();
         }
         if (constraints.getTeMetric() != null) {
-            if (edge.getEdgeAttributes().getTeMetric() != null) {
-                metric = constraints.getTeMetric().longValue();
-                delta = edge.getEdgeAttributes().getTeMetric().getMetric().longValue()
-                        - current.getEdgeAttributes().getTeMetric().getMetric().longValue();
-            } else {
+            if (edge.getEdgeAttributes().getTeMetric() == null) {
                 triggerFlag = true;
                 return true;
             }
+            metric = constraints.getTeMetric().longValue();
+            delta = edge.getEdgeAttributes().getTeMetric().getMetric().longValue()
+                    - current.getEdgeAttributes().getTeMetric().getMetric().longValue();
         } else if (constraints.getMetric() != null) {
-            if (edge.getEdgeAttributes().getMetric() != null) {
-                metric = constraints.getMetric().longValue();
-                delta = edge.getEdgeAttributes().getMetric().longValue()
-                        - current.getEdgeAttributes().getMetric().longValue();
-            } else {
+            if (edge.getEdgeAttributes().getMetric() == null) {
                 triggerFlag = true;
                 return true;
             }
+            metric = constraints.getMetric().longValue();
+            delta = edge.getEdgeAttributes().getMetric().longValue()
+                    - current.getEdgeAttributes().getMetric().longValue();
         }
         if (metric != 0L && cfgLsp.getComputedPath().getComputedMetric() != null
                 && cfgLsp.getComputedPath().getComputedMetric().longValue() + delta > metric) {
@@ -531,13 +527,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         /* Create Path Setup Type */
         final PathSetupTypeBuilder pstBuilder = new PathSetupTypeBuilder();
         switch (iPath.getConstraints().getAddressFamily()) {
-            case SrIpv4:
-            case SrIpv6:
-                pstBuilder.setPst(PsType.SrMpls);
-                break;
-            default:
-                pstBuilder.setPst(PsType.RsvpTe);
-                break;
+            case SrIpv4, SrIpv6 -> pstBuilder.setPst(PsType.SrMpls);
+            default -> pstBuilder.setPst(PsType.RsvpTe);
         }
 
         /* Create LSP */
@@ -655,13 +646,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         final IntendedPath iPath = cfgLsp.getIntendedPath();
         final PathSetupTypeBuilder pstBuilder = new PathSetupTypeBuilder();
         switch (iPath.getConstraints().getAddressFamily()) {
-            case SrIpv4:
-            case SrIpv6:
-                pstBuilder.setPst(PsType.SrMpls);
-                break;
-            default:
-                pstBuilder.setPst(PsType.RsvpTe);
-                break;
+            case SrIpv4, SrIpv6 -> pstBuilder.setPst(PsType.SrMpls);
+            default -> pstBuilder.setPst(PsType.RsvpTe);
         }
 
         /* Create LSP */
@@ -898,10 +884,10 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
 
     @Override
     public String toString() {
-        final MoreObjects.ToStringHelper helper = MoreObjects.toStringHelper("ManagedTePath");
-        CodeHelpers.appendValue(helper, "ConfiguredLsp", cfgLsp);
-        CodeHelpers.appendValue(helper, "PathType", type);
-        CodeHelpers.appendValue(helper, "Sent", sent);
-        return helper.toString();
+        return CodeHelpers.jcTSB(ManagedTePath.class)
+            .prop("ConfiguredLsp", cfgLsp)
+            .prop("PathType", type)
+            .prop("Sent", sent)
+            .build();
     }
 }
