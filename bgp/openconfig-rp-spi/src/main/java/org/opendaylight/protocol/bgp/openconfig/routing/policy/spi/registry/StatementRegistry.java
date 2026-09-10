@@ -82,7 +82,7 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
 
     @Override
     public AbstractRegistration registerConditionPolicy(
-            final Class<? extends Augmentation<Conditions>> conditionPolicyClass,
+            final Class<? extends Augmentation<Conditions, ?>> conditionPolicyClass,
             final ConditionsAugPolicy conditionPolicy) {
         return conditionsRegistry.registerConditionPolicy(conditionPolicyClass, conditionPolicy);
     }
@@ -96,20 +96,20 @@ public final class StatementRegistry implements StatementRegistryConsumer, State
 
     @Override
     public AbstractRegistration registerActionPolicy(
-            final Class<? extends Augmentation<Actions>> actionPolicyClass,
+            final Class<? extends Augmentation<Actions, ?>> actionPolicyClass,
             final ActionsAugPolicy actionPolicy) {
         return actionsRegistry.registerActionPolicy(actionPolicyClass, actionPolicy);
     }
 
     @Override
-    public <T extends Augmentation<BgpConditions>, N> AbstractRegistration registerBgpConditionsAugmentationPolicy(
+    public <T extends Augmentation<BgpConditions, T>, N> AbstractRegistration registerBgpConditionsAugmentationPolicy(
             final Class<T> conditionPolicyClass,
             final BgpConditionsAugmentationPolicy<T, N> conditionPolicy) {
         return conditionsRegistry.registerBgpConditionsAugmentationPolicy(conditionPolicyClass, conditionPolicy);
     }
 
     @Override
-    public <T extends Augmentation<BgpActions>> AbstractRegistration registerBgpActionAugmentationPolicy(
+    public <T extends Augmentation<BgpActions, T>> AbstractRegistration registerBgpActionAugmentationPolicy(
             final Class<T> bgpActionPolicyClass,
             final BgpActionAugPolicy<T> bgpActionPolicy) {
         return actionsRegistry.registerBgpActionAugmentationPolicy(bgpActionPolicyClass, bgpActionPolicy);
