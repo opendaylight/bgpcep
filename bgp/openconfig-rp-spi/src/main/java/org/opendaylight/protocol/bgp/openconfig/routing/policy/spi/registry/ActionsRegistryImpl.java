@@ -44,14 +44,15 @@ import org.opendaylight.yangtools.concepts.AbstractRegistration;
 
 final class ActionsRegistryImpl {
     @GuardedBy("this")
-    private final HashMap<Class<? extends Augmentation<Actions>>, ActionsAugPolicy> actionsRegistry = new HashMap<>();
+    private final HashMap<Class<? extends Augmentation<Actions, ?>>, ActionsAugPolicy> actionsRegistry =
+        new HashMap<>();
     @GuardedBy("this")
     private final HashMap<Class<? extends ChildOf<BgpActions>>, BgpActionPolicy> bgpActions = new HashMap<>();
     @GuardedBy("this")
-    private final HashMap<Class<? extends Augmentation<BgpActions>>, BgpActionAugPolicy> bgpAugActionsRegistry =
+    private final HashMap<Class<? extends Augmentation<BgpActions, ?>>, BgpActionAugPolicy> bgpAugActionsRegistry =
         new HashMap<>();
 
-    AbstractRegistration registerActionPolicy(final Class<? extends Augmentation<Actions>> actionPolicyClass,
+    AbstractRegistration registerActionPolicy(final Class<? extends Augmentation<Actions, ?>> actionPolicyClass,
             final ActionsAugPolicy actionPolicy) {
         synchronized (actionsRegistry) {
             final var prev = actionsRegistry.putIfAbsent(actionPolicyClass, actionPolicy);
@@ -86,7 +87,7 @@ final class ActionsRegistryImpl {
     }
 
     public AbstractRegistration registerBgpActionAugmentationPolicy(
-            final Class<? extends Augmentation<BgpActions>> bgpActionPolicyClass,
+            final Class<? extends Augmentation<BgpActions, ?>> bgpActionPolicyClass,
             final BgpActionAugPolicy bgpActionPolicy) {
         synchronized (bgpAugActionsRegistry) {
             final var prev = bgpAugActionsRegistry.putIfAbsent(bgpActionPolicyClass, bgpActionPolicy);
