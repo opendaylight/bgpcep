@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.evpn.impl.nlri;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.opendaylight.protocol.bgp.evpn.impl.EvpnTestUtil.VALUE_SIZE;
@@ -17,21 +18,39 @@ import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ETHE
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.ROUDE_DISTIN;
 import static org.opendaylight.protocol.bgp.evpn.impl.nlri.EthADRParserTest.createEthADRModel;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.util.ByteArray;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.Evpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.NlriType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.evpn.rev200120.evpn.EvpnChoice;
+import org.opendaylight.yangtools.binding.CaseObject;
+import org.opendaylight.yangtools.binding.lib.AbstractAugmentable;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 
-final class SimpleEvpnNlriRegistryTest {
-    private static final class NotRegistered implements EvpnChoice {
+class SimpleEvpnNlriRegistryTest {
+    private static final class NotRegistered extends AbstractAugmentable<NotRegistered>
+            implements CaseObject<Evpn, EvpnChoice, NotRegistered>, EvpnChoice {
         @Override
         public Class<NotRegistered> implementedInterface() {
             return NotRegistered.class;
+        }
+
+        @Override
+        public int javaHC() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean javaEQ(final NotRegistered obj) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String javaTS() {
+            throw new UnsupportedOperationException();
         }
     }
 
@@ -39,12 +58,13 @@ final class SimpleEvpnNlriRegistryTest {
 
     @Test
     void registryTest() {
-        final ByteBuf buff = SimpleEvpnNlriRegistry.getInstance().serializeEvpn(ETHERNET_AD_ROUTE_CASE,
+        final var buff = SimpleEvpnNlriRegistry.getInstance().serializeEvpn(ETHERNET_AD_ROUTE_CASE,
                 Unpooled.wrappedBuffer(ROUDE_DISTIN));
         assertArrayEquals(EthADRParserTest.RESULT, ByteArray.getAllBytes(buff));
-        final EvpnChoice resultModel = SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(createEthADRModel());
+        final var resultModel = SimpleEvpnNlriRegistry.getInstance().serializeEvpnModel(createEthADRModel());
         assertEquals(ETHERNET_AD_ROUTE_CASE, resultModel);
-        final NlriType type = NlriType.forValue(buff.readUnsignedByte());
+        final var type = NlriType.forValue(buff.readUnsignedByte());
+        assertNotNull(type);
         buff.skipBytes(VALUE_SIZE); // length + RD
         assertEquals(ETHERNET_AD_ROUTE_CASE, SimpleEvpnNlriRegistry.getInstance().parseEvpn(type, buff));
     }
@@ -57,7 +77,7 @@ final class SimpleEvpnNlriRegistryTest {
 
     @Test
     void registryNullTest() {
-        final ByteBuf body = Unpooled.buffer();
+        final var body = Unpooled.buffer();
         SimpleEvpnNlriRegistry.getInstance().serializeEvpn(new NotRegistered(), body);
         assertEquals(0, body.readableBytes());
     }
