@@ -219,7 +219,7 @@ public final class BGPOpenMessageParser implements MessageParser, MessageSeriali
         final int realLength;
         final OptionalInt extendedLength = extractExtendedLength(buffer, length);
         if (extendedLength.isPresent()) {
-            realLength = extendedLength.getAsInt();
+            realLength = extendedLength.orElseThrow();
             if (realLength < Values.UNSIGNED_BYTE_MAX_VALUE) {
                 LOG.debug("Peer used Extended Optional Parameters Length to encode length {}", realLength);
             }
