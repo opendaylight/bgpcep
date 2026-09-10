@@ -5,22 +5,24 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.pcep.impl;
 
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.pcep.parser.tlv.AbstractVendorInformationTlvParser;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.iana.rev130816.EnterpriseNumber;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.VendorInformation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930.vendor.information.EnterpriseSpecificInformation;
+import org.opendaylight.yangtools.binding.CaseObject;
+import org.opendaylight.yangtools.binding.lib.AbstractAugmentable;
+import org.opendaylight.yangtools.binding.lib.CodeHelpers;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 public class TestVendorInformationTlvParser extends AbstractVendorInformationTlvParser {
-
     private static final EnterpriseNumber TEST_ENTERPRISE_NUMBER = new EnterpriseNumber(Uint32.ZERO);
 
     @Override
     public void serializeEnterpriseSpecificInformation(
-        final EnterpriseSpecificInformation enterpriseSpecificInformation, final ByteBuf buffer) {
+            final EnterpriseSpecificInformation enterpriseSpecificInformation, final ByteBuf buffer) {
         if (enterpriseSpecificInformation instanceof TestEnterpriseSpecificInformation) {
             buffer.writeInt(((TestEnterpriseSpecificInformation) enterpriseSpecificInformation).getValue());
         }
@@ -36,8 +38,10 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
         return TEST_ENTERPRISE_NUMBER;
     }
 
-    protected static final class TestEnterpriseSpecificInformation implements EnterpriseSpecificInformation {
-
+    protected static final class TestEnterpriseSpecificInformation
+            extends AbstractAugmentable<TestEnterpriseSpecificInformation>
+            implements CaseObject<VendorInformation, EnterpriseSpecificInformation, TestEnterpriseSpecificInformation>,
+                       EnterpriseSpecificInformation {
         private final int value;
 
         public TestEnterpriseSpecificInformation(final int value) {
@@ -45,7 +49,7 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
         }
 
         public int getValue() {
-            return this.value;
+            return value;
         }
 
         @Override
@@ -54,30 +58,18 @@ public class TestVendorInformationTlvParser extends AbstractVendorInformationTlv
         }
 
         @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + this.value;
-            return result;
+        public int javaHC() {
+            return Integer.hashCode(value);
         }
 
         @Override
-        public boolean equals(final Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            TestEnterpriseSpecificInformation other = (TestEnterpriseSpecificInformation) obj;
-            if (this.value != other.value) {
-                return false;
-            }
-            return true;
+        public boolean javaEQ(final TestEnterpriseSpecificInformation obj) {
+            return value == obj.value;
+        }
+
+        @Override
+        public String javaTS() {
+            return CodeHelpers.jcTS1(this, "value", value);
         }
     }
-
 }

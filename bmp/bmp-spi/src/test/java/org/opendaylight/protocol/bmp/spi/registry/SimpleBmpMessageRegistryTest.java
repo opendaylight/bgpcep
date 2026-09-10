@@ -17,8 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bmp.spi.parser.AbstractBmpMessageParser;
 import org.opendaylight.protocol.bmp.spi.parser.BmpDeserializationException;
 import org.opendaylight.protocol.util.ByteArray;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.Notification;
+import org.opendaylight.yangtools.binding.lib.AbstractAugmentable;
 
 class SimpleBmpMessageRegistryTest {
 
@@ -92,7 +92,8 @@ class SimpleBmpMessageRegistryTest {
         }
     }
 
-    private static final class BmpTestMessage implements Notification<BmpTestMessage>, DataObject {
+    private static final class BmpTestMessage extends AbstractAugmentable<BmpTestMessage>
+            implements Notification<BmpTestMessage> {
         private final long value;
 
         BmpTestMessage(final long value) {
@@ -109,7 +110,17 @@ class SimpleBmpMessageRegistryTest {
         }
 
         @Override
-        public String toString() {
+        public int javaHC() {
+            return Long.hashCode(value);
+        }
+
+        @Override
+        public boolean javaEQ(final BmpTestMessage obj) {
+            return value == obj.value;
+        }
+
+        @Override
+        public String javaTS() {
             return "BmpTestMessage [value=" + value + "]";
         }
     }

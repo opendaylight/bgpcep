@@ -54,7 +54,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.r
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.StateBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
@@ -249,7 +248,6 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         return new GlobalBuilder()
             .setAfiSafis(new AfiSafisBuilder().setAfiSafi(AFISAFIS_IPV4).build())
             .setConfig(new ConfigBuilder().setAs(AbstractConfig.AS).setRouterId(BGP_ID).build())
-            .setState(new StateBuilder().setAs(AbstractConfig.AS).build())
             .build();
     }
 
@@ -257,7 +255,6 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         return new GlobalBuilder()
             .setAfiSafis(new AfiSafisBuilder().setAfiSafi(AFISAFIS_IPV6).build())
             .setConfig(new ConfigBuilder().setAs(AbstractConfig.AS).setRouterId(BGP_ID).build())
-            .setState(new StateBuilder().setAs(AbstractConfig.AS).build())
             .build();
     }
 
