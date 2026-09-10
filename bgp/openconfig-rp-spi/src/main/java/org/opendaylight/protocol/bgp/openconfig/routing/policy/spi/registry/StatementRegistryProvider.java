@@ -28,7 +28,7 @@ public interface StatementRegistryProvider extends BgpStatementRegistryProvider 
      * @return registration ticket
      */
     @NonNull AbstractRegistration registerConditionPolicy(
-            @NonNull Class<? extends Augmentation<Conditions>> conditionPolicyClass,
+            @NonNull Class<? extends Augmentation<Conditions, ?>> conditionPolicyClass,
             @NonNull ConditionsAugPolicy conditionPolicy);
 
     /**
@@ -39,6 +39,6 @@ public interface StatementRegistryProvider extends BgpStatementRegistryProvider 
      * @return registration ticket
      */
     @NonNull AbstractRegistration registerActionPolicy(
-            @NonNull Class<? extends Augmentation<Actions>> actionPolicyClass,
+            @NonNull Class<? extends Augmentation<Actions, ?>> actionPolicyClass,
             @NonNull ActionsAugPolicy actionPolicy);
 }
