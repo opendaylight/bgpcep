@@ -63,7 +63,7 @@ import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
 
 public class BgpTestActivator implements BGPExtensionProviderActivator {
-    interface MockNotification extends DataObject, Notification<MockNotification> {
+    interface MockNotification extends Notification<MockNotification> {
         @Override
         default Class<MockNotification> implementedInterface() {
             return MockNotification.class;
