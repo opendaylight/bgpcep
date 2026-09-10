@@ -7,27 +7,27 @@
  */
 package org.opendaylight.protocol.pcep.pcc.mock;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.net.InetAddress;
 import java.util.ArrayList;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.opendaylight.protocol.pcep.PCEPSession;
 import org.opendaylight.protocol.pcep.PCEPSessionListener;
 import org.opendaylight.protocol.pcep.PCEPSessionListenerFactory;
 
 class TestingSessionListenerFactory implements PCEPSessionListenerFactory {
-    private final @GuardedBy("this") ArrayList<TestingSessionListener> sessionListeners = new ArrayList<>();
+    @GuardedBy("this")
+    private final ArrayList<TestingSessionListener> sessionListeners = new ArrayList<>();
 
     @Override
     public PCEPSessionListener getSessionListener() {
-        final TestingSessionListener sessionListener = new TestingSessionListener();
-        this.sessionListeners.add(sessionListener);
+        final var sessionListener = new TestingSessionListener();
+        sessionListeners.add(sessionListener);
         return sessionListener;
     }
 
     TestingSessionListener getSessionListenerByRemoteAddress(final InetAddress ipAddress) {
-        for (final TestingSessionListener sessionListener : this.sessionListeners) {
+        for (var sessionListener : sessionListeners) {
             if (sessionListener.isUp()) {
-                final PCEPSession session = sessionListener.getSession();
+                final var session = sessionListener.getSession();
                 if (session.getRemoteAddress().equals(ipAddress)) {
                     return sessionListener;
                 }

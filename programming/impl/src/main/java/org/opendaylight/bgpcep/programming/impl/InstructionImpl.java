@@ -12,13 +12,13 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.util.Timeout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720.CancelFailure;
@@ -32,11 +32,13 @@ import org.slf4j.LoggerFactory;
 
 final class InstructionImpl implements Instruction {
     private static final Logger LOG = LoggerFactory.getLogger(InstructionImpl.class);
-    private final List<InstructionImpl> dependants = new ArrayList<>();
+
+    private final ArrayList<InstructionImpl> dependants = new ArrayList<>();
     private final SettableFuture<Instruction> schedulingFuture;
     private final List<InstructionImpl> dependencies;
     private final QueueInstruction queue;
     private final InstructionId id;
+
     private SettableFuture<ExecutionResult<Details>> executionFuture;
     private InstructionStatus status = InstructionStatus.Queued;
     private Details heldUpDetails;
@@ -68,22 +70,15 @@ final class InstructionImpl implements Instruction {
         queue.instructionUpdated(newStatus, details);
 
         switch (newStatus) {
-            case Cancelled:
-            case Failed:
-            case Unknown:
-                cancelDependants();
-                break;
-            case Executing:
-            case Queued:
-            case Scheduled:
-            case Successful:
-                break;
-            default:
-                break;
+            case null -> throw new NullPointerException();
+            case Cancelled, Failed, Unknown -> cancelDependants();
+            case Executing, Queued, Scheduled, Successful -> {
+                // no-op
+            }
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void cancelTimeout() {
         if (timeout != null) {
             timeout.cancel();
@@ -97,35 +92,30 @@ final class InstructionImpl implements Instruction {
         }
         timeout = null;
         switch (status) {
-            case Cancelled:
-            case Failed:
-            case Successful:
+            case null -> throw new NullPointerException();
+            case Cancelled, Failed, Successful ->
                 LOG.debug("Instruction {} has status {}, timeout is a no-op", id, status);
-                break;
-            case Unknown:
+            case Unknown ->
                 LOG.warn("Instruction {} has status {} before timeout completed", id, status);
-                break;
-            case Executing:
+            case Executing -> {
                 LOG.info("Instruction {} timed out while executing, transitioning into Unknown", id);
                 setStatus(InstructionStatus.Unknown, null);
                 cancelDependants();
-                break;
-            case Queued:
+            }
+            case Queued -> {
                 LOG.debug("Instruction {} timed out while Queued, cancelling it", id);
                 cancelInstrunction();
-                break;
-            case Scheduled:
+            }
+            case Scheduled -> {
                 LOG.debug("Instruction {} timed out while Scheduled, cancelling it", id);
                 cancel(heldUpDetails);
-                break;
-            default:
-                break;
+            }
         }
     }
 
     private synchronized void cancelInstrunction() {
-        final Set<InstructionId> ids = new HashSet<>();
-        for (final InstructionImpl instruction : dependencies) {
+        final var ids = new HashSet<InstructionId>();
+        for (var instruction : dependencies) {
             if (instruction.getStatus() != InstructionStatus.Successful) {
                 ids.add(instruction.getId());
             }
@@ -133,15 +123,15 @@ final class InstructionImpl implements Instruction {
         cancel(new DetailsBuilder().setUnmetDependencies(ids).build());
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void cancelDependants() {
-        final Details details = new DetailsBuilder().setUnmetDependencies(Set.of(id)).build();
-        for (final InstructionImpl instruction : dependants) {
+        final var details = new DetailsBuilder().setUnmetDependencies(Set.of(id)).build();
+        for (var instruction : dependants) {
             instruction.tryCancel(details);
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void cancel(final Details details) {
         cancelTimeout();
         schedulingFuture.cancel(false);
@@ -149,21 +139,16 @@ final class InstructionImpl implements Instruction {
     }
 
     synchronized CancelFailure tryCancel(final Details details) {
-        switch (status) {
-            case Cancelled:
-            case Executing:
-            case Failed:
-            case Successful:
-            case Unknown:
+        return switch (status) {
+            case Cancelled, Executing, Failed, Successful, Unknown -> {
                 LOG.debug("Instruction {} can no longer be cancelled due to status {}", id, status);
-                return UncancellableInstruction.VALUE;
-            case Queued:
-            case Scheduled:
+                yield UncancellableInstruction.VALUE;
+            }
+            case Queued, Scheduled -> {
                 cancel(details);
-                return null;
-            default:
-                throw new IllegalStateException("Unhandled instruction state " + status);
-        }
+                yield null;
+            }
+        };
     }
 
     @Override
@@ -219,12 +204,12 @@ final class InstructionImpl implements Instruction {
     }
 
     synchronized void clean() {
-        for (final InstructionImpl dependency : dependencies) {
+        for (var dependency : dependencies) {
             dependency.removeDependant(this);
         }
         dependencies.clear();
 
-        for (final InstructionImpl dependant : dependants) {
+        for (var dependant : dependants) {
             dependant.removeDependency(this);
         }
         dependants.clear();
@@ -234,29 +219,20 @@ final class InstructionImpl implements Instruction {
 
     private Boolean checkDependencies() {
         boolean ready = true;
-        final Set<InstructionId> unmet = new HashSet<>();
-        for (final InstructionImpl instruction : dependencies) {
+        final var unmet = new HashSet<InstructionId>();
+        for (var instruction : dependencies) {
             switch (instruction.getStatus()) {
-                case Cancelled:
-                case Failed:
-                case Unknown:
-                    unmet.add(instruction.getId());
-                    break;
-                case Executing:
-                case Queued:
-                case Scheduled:
-                    ready = false;
-                    break;
-                case Successful:
+                case null -> throw new NullPointerException();
+                case Cancelled, Failed, Unknown -> unmet.add(instruction.getId());
+                case Executing, Queued, Scheduled -> ready = false;
+                case Successful -> {
                     // No-op
-                    break;
-                default:
-                    break;
+                }
             }
         }
         if (!unmet.isEmpty()) {
-            LOG.warn("Instruction {} was Queued, while some dependencies were resolved unsuccessfully, cancelling it",
-                    id);
+            LOG.warn(
+                "Instruction {} was Queued, while some dependencies were resolved unsuccessfully, cancelling it", id);
             cancel(new DetailsBuilder().setUnmetDependencies(unmet).build());
             return false;
         }

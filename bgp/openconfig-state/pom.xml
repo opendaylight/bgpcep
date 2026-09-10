@@ -46,38 +46,8 @@
             <artifactId>bgp-concepts</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.checkerframework</groupId>
-            <artifactId>checker-qual</artifactId>
-            <optional>true</optional>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-binding-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.mdsal</groupId>
-            <artifactId>mdsal-common-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.ietf.model</groupId>
-            <artifactId>rfc6991-ietf-yang-types</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.ietf.model</groupId>
-            <artifactId>rfc6991-ietf-inet-types</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>binding-spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-common</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>yang-data-api</artifactId>
+            <groupId>com.google.errorprone</groupId>
+            <artifactId>error_prone_annotations</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -93,6 +63,38 @@
             <artifactId>jakarta.annotation-api</artifactId>
             <scope>provided</scope>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jdt</groupId>
+            <artifactId>org.eclipse.jdt.annotation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.ietf.model</groupId>
+            <artifactId>rfc6991-ietf-yang-types</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.ietf.model</groupId>
+            <artifactId>rfc6991-ietf-inet-types</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-common-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>binding-spec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>yang-data-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

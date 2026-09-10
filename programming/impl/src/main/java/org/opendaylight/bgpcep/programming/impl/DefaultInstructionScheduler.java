@@ -16,19 +16,18 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
-import io.netty.util.Timeout;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.util.Timer;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.programming.NanotimeUtil;
 import org.opendaylight.bgpcep.programming.spi.ExecutionResult;
 import org.opendaylight.bgpcep.programming.spi.Instruction;
@@ -38,7 +37,6 @@ import org.opendaylight.bgpcep.programming.spi.SuccessfulRpcResult;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.NotificationPublishService;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
@@ -92,7 +90,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
             if (!status.equals(builder.getStatus())) {
                 builder.setStatus(status);
 
-                final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
+                final var wt = dataProvider.newWriteOnlyTransaction();
                 wt.put(LogicalDatastoreType.OPERATIONAL, qid.toBuilder()
                     .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720
                         .instruction.queue.Instruction.class, new InstructionKey(builder.getId()))
@@ -120,7 +118,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
 
         @Override
         public void instructionRemoved() {
-            final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
+            final var wt = dataProvider.newWriteOnlyTransaction();
             wt.delete(LogicalDatastoreType.OPERATIONAL, qid.toBuilder()
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.programming.rev150720
                     .instruction.queue.Instruction.class, new InstructionKey(builder.getId()))
@@ -141,18 +139,19 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
 
     private static final Logger LOG = LoggerFactory.getLogger(DefaultInstructionScheduler.class);
 
-    private final Map<InstructionId, InstructionImpl> insns = new HashMap<>();
-    private final WithKey<InstructionsQueue, InstructionsQueueKey> qid;
+    private final HashMap<InstructionId, InstructionImpl> insns = new HashMap<>();
+    private final @NonNull WithKey<InstructionsQueue, InstructionsQueueKey> qid;
     private final NotificationPublishService notifs;
     private final Executor executor;
     private final DataBroker dataProvider;
     private final Timer timer;
     private final String instructionId;
-    private final ServiceGroupIdentifier sgi;
+    private final @NonNull ServiceGroupIdentifier sgi;
     private final Registration csspReg;
     private final RpcProviderService rpcProviderRegistry;
 
-    private @GuardedBy("this") Registration reg;
+    @GuardedBy("this")
+    private Registration reg;
 
     DefaultInstructionScheduler(final DataBroker dataProvider, final NotificationPublishService notifs,
             final Executor executor, final RpcProviderService rpcProviderRegistry,
@@ -176,7 +175,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
             (CancelInstruction) this::cancelInstruction,
             (CleanInstructions) this::cleanInstructions);
 
-        final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
+        final var wt = dataProvider.newWriteOnlyTransaction();
         wt.put(LogicalDatastoreType.OPERATIONAL, qid, new InstructionsQueueBuilder()
                 .withKey(new InstructionsQueueKey(instructionId)).setInstruction(Map.of()).build());
         wt.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -208,23 +207,23 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     }
 
     private synchronized RpcResult<CancelInstructionOutput> realCancelInstruction(final CancelInstructionInput input) {
-        final InstructionImpl instruction = insns.get(input.getId());
+        final var instruction = insns.get(input.getId());
         if (instruction == null) {
             LOG.debug("Instruction {} not present in the graph", input.getId());
-
-            final CancelInstructionOutput out = new CancelInstructionOutputBuilder()
-                    .setFailure(UnknownInstruction.VALUE).build();
-            return SuccessfulRpcResult.create(out);
+            return SuccessfulRpcResult.create(new CancelInstructionOutputBuilder()
+                .setFailure(UnknownInstruction.VALUE)
+                .build());
         }
 
         return SuccessfulRpcResult.create(new CancelInstructionOutputBuilder()
-                .setFailure(instruction.tryCancel(null)).build());
+                .setFailure(instruction.tryCancel(null))
+                .build());
     }
 
     private synchronized RpcResult<CleanInstructionsOutput> realCleanInstructions(final CleanInstructionsInput input) {
         final var failed = new HashSet<InstructionId>();
 
-        for (var id : input.getId()) {
+        for (var id : input.requireId()) {
             // Find the instruction
             final var instruction = insns.get(id);
             if (instruction == null) {
@@ -255,16 +254,13 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
             LOG.debug("Instruction {} cleaned successfully", id);
         }
 
-        final CleanInstructionsOutputBuilder ob = new CleanInstructionsOutputBuilder();
-        ob.setUnflushed(failed);
-
-        return SuccessfulRpcResult.create(ob.build());
+        return SuccessfulRpcResult.create(new CleanInstructionsOutputBuilder().setUnflushed(failed).build());
     }
 
     private List<InstructionImpl> checkDependencies(final SubmitInstructionInput input) throws SchedulerException {
-        final List<InstructionImpl> dependencies = collectDependencies(input);
+        final var dependencies = collectDependencies(input);
         // Check if all dependencies are non-failed
-        final Set<InstructionId> unmet = checkIfUnfailed(dependencies);
+        final var unmet = checkIfUnfailed(dependencies);
         /*
          *  Some dependencies have failed, declare the request dead-on-arrival
          *  and fail the operation.
@@ -277,9 +273,9 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     }
 
     private List<InstructionImpl> collectDependencies(final SubmitInstructionInput input) throws SchedulerException {
-        final List<InstructionImpl> dependencies = new ArrayList<>();
-        for (final InstructionId pid : input.getPreconditions()) {
-            final InstructionImpl instruction = insns.get(pid);
+        final var dependencies = new ArrayList<InstructionImpl>();
+        for (var pid : input.requirePreconditions()) {
+            final var instruction = insns.get(pid);
             if (instruction == null) {
                 LOG.info("Instruction {} depends on {}, which is not a known instruction", input.getId(), pid);
                 throw new SchedulerException("Unknown dependency ID specified",
@@ -291,21 +287,14 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     }
 
     private static Set<InstructionId> checkIfUnfailed(final List<InstructionImpl> dependencies) {
-        final Set<InstructionId> unmet = new HashSet<>();
-        for (final InstructionImpl d : dependencies) {
-            switch (d.getStatus()) {
-                case Cancelled:
-                case Failed:
-                case Unknown:
-                    unmet.add(d.getId());
-                    break;
-                case Executing:
-                case Queued:
-                case Scheduled:
-                case Successful:
-                    break;
-                default:
-                    break;
+        final var unmet = new HashSet<InstructionId>();
+        for (var dependency : dependencies) {
+            switch (dependency.getStatus()) {
+                case null -> throw new NullPointerException();
+                case Cancelled, Failed, Unknown -> unmet.add(dependency.getId());
+                case Executing, Queued, Scheduled, Successful -> {
+                    // no-op
+                }
             }
         }
         return unmet;
@@ -314,7 +303,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     @Override
     public synchronized ListenableFuture<Instruction> scheduleInstruction(final SubmitInstructionInput input) throws
             SchedulerException {
-        final InstructionId id = input.getId();
+        final var id = input.getId();
         if (insns.get(id) != null) {
             LOG.info("Instruction ID {} already present", id);
             throw new SchedulerException("Instruction ID currently in use",
@@ -322,8 +311,8 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
         }
 
         // First things first: check the deadline
-        final Nanotime now = NanotimeUtil.currentTime();
-        final BigInteger left = input.getDeadline().getValue().toJava().subtract(now.getValue().toJava());
+        final var now = NanotimeUtil.currentTime();
+        final var left = input.getDeadline().getValue().toJava().subtract(now.getValue().toJava());
 
         if (left.compareTo(BigInteger.ZERO) <= 0) {
             LOG.debug("Instruction {} deadline has already passed by {}ns", id, left);
@@ -332,7 +321,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
         }
 
         // Resolve dependencies
-        final List<InstructionImpl> dependencies = checkDependencies(input);
+        final var dependencies = checkDependencies(input);
 
         /*
          * All pre-flight checks done are at this point, the following
@@ -341,18 +330,18 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
          */
 
         // Schedule a timeout for the instruction
-        final Timeout t = timer.newTimeout(timeout -> timeoutInstruction(input.getId()), left.longValue(),
+        final var timeout = timer.newTimeout(unused -> timeoutInstruction(input.getId()), left.longValue(),
                 TimeUnit.NANOSECONDS);
 
         // Put it into the instruction list
-        final SettableFuture<Instruction> ret = SettableFuture.create();
-        final InstructionImpl instruction = new InstructionImpl(new InstructionPusher(id, input.getDeadline()), ret, id,
-                dependencies, t);
+        final var ret = SettableFuture.<Instruction>create();
+        final var instruction = new InstructionImpl(new InstructionPusher(id, input.getDeadline()), ret, id,
+                dependencies, timeout);
         insns.put(id, instruction);
 
         // Attach it into its dependencies
-        for (final InstructionImpl d : dependencies) {
-            d.addDependant(instruction);
+        for (var dependency : dependencies) {
+            dependency.addDependant(instruction);
         }
 
         /*
@@ -372,7 +361,7 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
     }
 
     private synchronized void timeoutInstruction(final InstructionId id) {
-        final InstructionImpl instruction = insns.get(id);
+        final var instruction = insns.get(id);
         if (instruction == null) {
             LOG.warn("Instruction {} timed out, but not found in the queue", id);
             return;
@@ -383,16 +372,16 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
 
     private synchronized void tryScheduleDependants(final InstructionImpl instruction) {
         // Walk all dependants and try to schedule them
-        final Iterator<InstructionImpl> it = instruction.getDependants();
+        final var it = instruction.getDependants();
         while (it.hasNext()) {
             tryScheduleInstruction(it.next());
         }
     }
 
     private synchronized void tryScheduleInstruction(final InstructionImpl instruction) {
-        final ListenableFuture<ExecutionResult<Details>> f = instruction.ready();
-        if (f != null) {
-            Futures.addCallback(f, new FutureCallback<>() {
+        final var future = instruction.ready();
+        if (future != null) {
+            Futures.addCallback(future, new FutureCallback<>() {
                 @Override
                 public void onSuccess(final ExecutionResult<Details> result) {
                     tryScheduleDependants(instruction);
@@ -414,14 +403,14 @@ final class DefaultInstructionScheduler implements ClusterSingletonService, Inst
             reg.close();
             reg = null;
         }
-        for (final InstructionImpl instruction : insns.values()) {
+        for (var instruction : insns.values()) {
             instruction.tryCancel(null);
         }
         // Workaround for BUG-2283
-        final WriteTransaction wt = dataProvider.newWriteOnlyTransaction();
+        final var wt = dataProvider.newWriteOnlyTransaction();
         wt.delete(LogicalDatastoreType.OPERATIONAL, qid);
 
-        final FluentFuture<? extends CommitInfo> future = wt.commit();
+        final var future = wt.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {

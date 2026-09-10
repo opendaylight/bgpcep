@@ -8,6 +8,7 @@
 package org.opendaylight.bgpcep.config.loader.impl;
 
 import com.google.common.base.Stopwatch;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileLock;
@@ -18,8 +19,6 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 import javax.xml.stream.XMLStreamException;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigFileProcessor;
 import org.opendaylight.bgpcep.config.loader.spi.ConfigLoader;
@@ -76,9 +75,11 @@ abstract class AbstractConfigLoader implements ConfigLoader {
     private static final String READ = "rw";
     private static final long TIMEOUT_NANOS = TimeUnit.SECONDS.toNanos(5);
 
-    private final @GuardedBy("this") HashMap<ProcessorRegistration, ProcessorContext> configServices = new HashMap<>();
+    @GuardedBy("this")
+    private final HashMap<ProcessorRegistration, ProcessorContext> configServices = new HashMap<>();
 
-    private @GuardedBy("this") EffectiveModelContext currentContext;
+    @GuardedBy("this")
+    private EffectiveModelContext currentContext;
 
     @Override
     public final synchronized AbstractRegistration registerConfigFile(final ConfigFileProcessor config) {
@@ -120,7 +121,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         configServices.remove(reg);
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private static void handleConfigFile(final ProcessorContext context, final Path newFile) {
         final var schema = context.schema;
         if (schema == null) {
@@ -139,7 +140,7 @@ abstract class AbstractConfigLoader implements ConfigLoader {
         context.processor.loadConfiguration(dto);
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private static NormalizedNode parseDefaultConfigFile(final EffectiveStatementInference schema, final Path newFile)
             throws IOException, XMLStreamException {
         final var resultHolder = new NormalizationResultHolder();

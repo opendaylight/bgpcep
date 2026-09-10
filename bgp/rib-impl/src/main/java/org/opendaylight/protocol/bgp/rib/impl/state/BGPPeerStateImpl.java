@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.rib.impl.state;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,7 +19,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
@@ -47,12 +47,12 @@ import org.opendaylight.yangtools.binding.Notification;
 public abstract class BGPPeerStateImpl extends DefaultRibReference implements BGPPeerState, BGPAfiSafiState,
         BGPGracelfulRestartState, BGPLlGracelfulRestartState,BGPErrorHandlingState, BGPPeerMessagesState,
         BGPPeerStateProvider, BGPMessagesListener {
-    private final IpAddressNoZone neighborAddress;
+    private final @NonNull IpAddressNoZone neighborAddress;
     private final Set<TablesKey> afiSafisAdvertized;
     private final Set<TablesKey> afiSafisGracefulAdvertized;
-    private final Set<TablesKey> afiSafisGracefulReceived = new HashSet<>();
+    private final HashSet<TablesKey> afiSafisGracefulReceived = new HashSet<>();
     private final Map<TablesKey, Uint24> afiSafisLlGracefulAdvertised;
-    private final Map<TablesKey, Uint24> afiSafisLlGracefulReceived = new HashMap<>();
+    private final HashMap<TablesKey, Uint24> afiSafisLlGracefulReceived = new HashMap<>();
     private final LongAdder updateSentCounter = new LongAdder();
     private final LongAdder notificationSentCounter = new LongAdder();
     private final LongAdder updateReceivedCounter = new LongAdder();
@@ -62,7 +62,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     private final AtomicBoolean active = new AtomicBoolean(false);
 
     @GuardedBy("this")
-    private final Map<TablesKey, PrefixesSentCounters> prefixesSent = new HashMap<>();
+    private final HashMap<TablesKey, PrefixesSentCounters> prefixesSent = new HashMap<>();
     @GuardedBy("this")
     private PrefixesReceivedCounters prefixesReceived;
     @GuardedBy("this")

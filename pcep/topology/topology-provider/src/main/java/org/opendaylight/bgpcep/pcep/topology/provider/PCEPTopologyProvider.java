@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.epoll.EpollChannelOption;
@@ -22,8 +23,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
@@ -95,7 +94,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         applyConfiguration(newConfiguration);
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void applyConfiguration(final @Nullable PCEPTopologyConfiguration newConfiguration) {
         if (asyncOperation != null) {
             LOG.debug("Topology Provider {} is undergoing reconfiguration, delaying reconfiguration", topologyId());
@@ -105,7 +104,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void doApplyConfiguration(final @Nullable PCEPTopologyConfiguration newConfiguration) {
         LOG.debug("Topology Provider {} applying configuration {}", topologyId(), newConfiguration);
 
@@ -201,7 +200,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         LOG.info("Topology Provider {} configuration updated", topologyId());
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void enable(final PCEPTopologyConfiguration newConfiguration) {
         // Assert we are performing an asynchronous operation
         final var future = startOperation();
@@ -252,7 +251,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         finishOperation(future);
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void disable() {
         // Unregister RPCs
         if (networkReg != null) {
@@ -273,7 +272,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         channelFuture.addListener(ignored -> disableManager(future));
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void disableManager(final SettableFuture<Empty> future) {
         negotiatorFactory.close();
         negotiatorFactory = null;
@@ -288,7 +287,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         finishOperation(future);
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private SettableFuture<Empty> startOperation() {
         verify(asyncOperation == null, "Operation %s has not finished yet", asyncOperation);
         final var future = SettableFuture.<Empty>create();
@@ -296,7 +295,7 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
         return future;
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void finishOperation(final SettableFuture<Empty> future) {
         asyncOperation = null;
         future.set(Empty.value());

@@ -10,6 +10,7 @@ package org.opendaylight.protocol.pcep.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -21,7 +22,6 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.pcep.PCEPSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +34,8 @@ public final class PCEPProtocolSessionPromise<S extends PCEPSession> extends Def
     private final int connectTimeout;
     private final Bootstrap bootstrap;
 
-    private @GuardedBy("this") Future<?> pending;
+    @GuardedBy("this")
+    private Future<?> pending;
     private InetSocketAddress address;
 
     PCEPProtocolSessionPromise(final EventExecutor executor, final InetSocketAddress address,

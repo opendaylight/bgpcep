@@ -10,20 +10,20 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.List;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.yangtools.concepts.Registration;
 
 public abstract class AbstractBGPStatementProviderActivator implements StatementProviderActivator, AutoCloseable {
-    private @GuardedBy("this") List<? extends Registration> registrations;
+    @GuardedBy("this")
+    private List<? extends Registration> registrations;
 
-    @Holding("this")
+    @GuardedBy("this")
     protected abstract List<? extends Registration> startImpl(StatementRegistryProvider context);
 
     @Override
     public final synchronized void start(final StatementRegistryProvider context) {
-        checkState(this.registrations == null);
+        checkState(registrations == null);
 
         registrations = requireNonNull(startImpl(context));
     }

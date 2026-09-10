@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.util.concurrent.Future;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -24,8 +25,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -84,9 +83,9 @@ public abstract class AbstractTopologySessionListener implements TopologySession
 
     // FIXME: clarify lifecycle rules of this map, most notably the interaction of multiple SrpIdNumbers
     @GuardedBy("this")
-    private final Map<SrpIdNumber, PCEPRequest> requests = new HashMap<>();
+    private final HashMap<SrpIdNumber, PCEPRequest> requests = new HashMap<>();
     @GuardedBy("this")
-    private final Map<String, ReportedLsp> lspData = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ReportedLsp> lspData = new ConcurrentHashMap<>();
     private final ServerSessionManager serverSessionManager;
     private final SessionStateRegistry stateRegistry;
 
@@ -116,13 +115,12 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                  * is not there (marking that fact for later deletion), and mark it as
                  * synchronizing. Also create it in the topology model, with empty LSP list.
                  */
-                final InetAddress peerAddress = psession.getRemoteAddress();
+                final var peerAddress = psession.getRemoteAddress();
 
                 syncOptimization = SyncOptimization.of(psession.getLocalTlvs(), psession.getRemoteTlvs());
                 final boolean haveLspDbVersion = syncOptimization.dbVersionPresent();
 
-                final TopologyNodeState state =
-                        serverSessionManager.takeNodeState(peerAddress, this, haveLspDbVersion);
+                final var state = serverSessionManager.takeNodeState(peerAddress, this, haveLspDbVersion);
 
                 // takeNodeState(..) may fail when the server session manager is being restarted
                 // due to configuration change
@@ -146,7 +144,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
                 LOG.trace("Peer {} resolved to topology node {}", peerAddress, nodeId);
 
                 // Our augmentation in the topology node
-                final PathComputationClientBuilder pccBuilder = new PathComputationClientBuilder()
+                final var pccBuilder = new PathComputationClientBuilder()
                     .setIpAddress(IetfInetUtil.ipAddressNoZoneFor(peerAddress));
 
                 // Let subclass fill the details
@@ -188,7 +186,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void updateCapabilities(final PathComputationClientBuilder pccBuilder,
             final InetAddress peerAddress, final @Nullable Tlvs remoteTlvs) {
         if (remoteTlvs != null) {
@@ -375,7 +373,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         }
     }
 
-    @Holding({"this.serverSessionManager", "this"})
+    @GuardedBy("this.serverSessionManager this")
     private void clearNodeState() {
         if (nodeState != null) {
             LOG.debug("Clear Node state: {}", nodeState.getNodeId());
@@ -387,7 +385,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         }
     }
 
-    @Holding({"this.serverSessionManager", "this"})
+    @GuardedBy("this.serverSessionManager this")
     private void clearRequests() {
         // Clear all requests we know about
         for (final Entry<SrpIdNumber, PCEPRequest> e : requests.entrySet()) {
@@ -595,7 +593,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         LOG.debug("Session {} achieved synchronized state", session);
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     protected final @NonNull WithKey<ReportedLsp, ReportedLspKey> lspIdentifier(final String name) {
         return pccIdentifier.toBuilder().child(ReportedLsp.class, new ReportedLspKey(name)).build();
     }
@@ -613,7 +611,7 @@ public abstract class AbstractTopologySessionListener implements TopologySession
         ctx.updates.add(new DeleteLsp(name));
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     final String lookupLspName(final PlspId id) {
         return lsps.get(requireNonNull(id, "ID parameter null."));
     }

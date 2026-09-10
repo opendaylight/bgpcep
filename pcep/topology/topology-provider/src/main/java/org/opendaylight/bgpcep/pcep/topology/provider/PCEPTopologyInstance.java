@@ -11,7 +11,7 @@ import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import org.checkerframework.checker.lock.qual.GuardedBy;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.mdsal.binding.api.DataListener;

@@ -10,6 +10,7 @@ package org.opendaylight.bgpcep.pcep.topology.provider;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.bgpcep.pcep.topology.provider.TopologyUtils.friendlyId;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.util.HashedWheelTimer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
@@ -23,7 +24,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;

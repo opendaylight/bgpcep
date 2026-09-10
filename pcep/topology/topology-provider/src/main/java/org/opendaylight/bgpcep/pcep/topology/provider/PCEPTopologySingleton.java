@@ -14,9 +14,8 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.concurrent.ExecutionException;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
@@ -214,13 +213,13 @@ final class PCEPTopologySingleton {
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void becomeTerminating(final ListenableFuture<?> future) {
         state = new Terminating(future);
         future.addListener(() -> tracker.finishDestroy(topology, this), MoreExecutors.directExecutor());
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private Terminating verifyTerminating() {
         verify(state instanceof Terminating, "Unexpected topology %s instance %s state %s", topologyId(), this, state);
         return (Terminating) state;

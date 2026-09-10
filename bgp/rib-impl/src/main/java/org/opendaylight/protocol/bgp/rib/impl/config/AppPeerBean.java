@@ -14,8 +14,8 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Objects;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
@@ -25,7 +25,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.Config;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IetfInetUtil;
@@ -58,7 +57,7 @@ final class AppPeerBean extends PeerBean {
     }
 
     private static ApplicationRibId createAppRibId(final Neighbor neighbor) {
-        final Config config = neighbor.getConfig();
+        final var config = neighbor.getConfig();
         if (config != null && !Strings.isNullOrEmpty(config.getDescription())) {
             return new ApplicationRibId(config.getDescription());
         }

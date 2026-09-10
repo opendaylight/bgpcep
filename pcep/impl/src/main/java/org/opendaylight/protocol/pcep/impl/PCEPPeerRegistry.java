@@ -10,27 +10,49 @@ package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 // This class is thread-safe
 final class PCEPPeerRegistry {
+
+    protected interface SessionReference extends AutoCloseable {
+
+        Uint8 getSessionId();
+    }
+
+    private static final class ByteArrayWrapper {
+        private final byte[] byteArray;
+
+        ByteArrayWrapper(final byte[] byteArray) {
+            this.byteArray = byteArray == null ? null : byteArray.clone();
+        }
+
+        @Override
+        public int hashCode() {
+            return Arrays.hashCode(byteArray);
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            return this == obj || obj instanceof ByteArrayWrapper other && Arrays.equals(byteArray, other.byteArray);
+        }
+    }
+
     /**
      * The maximum lifetime for which we should hold on to a session ID before assuming it is okay to reuse it.
      */
     private static final long ID_CACHE_SECONDS = 3 * 3600;
-
     /**
      * The total amount of time we should remember a peer having been present, unless some other pressure forces us to
      * forget about it due to {@link PEER_CACHE_SIZE}.
      */
     private static final long PEER_CACHE_SECONDS = 24 * 3600;
-
     /**
      * Maximum total number of peers we keep track of. Combined with {@link PEER_CACHE_SECONDS}, this defines how many
      * peers we can see turn around.
@@ -38,18 +60,16 @@ final class PCEPPeerRegistry {
     private static final long PEER_CACHE_SIZE = 1024;
 
     // FIXME: why do we hold a lock?!
-    private final @GuardedBy("this") Cache<ByteArrayWrapper, PeerRecord> formerClients = CacheBuilder.newBuilder()
-            .expireAfterAccess(PEER_CACHE_SECONDS, TimeUnit.SECONDS).maximumSize(PEER_CACHE_SIZE).build();
-
-    private final @GuardedBy("this") HashMap<ByteArrayWrapper, SessionReference> sessions = new HashMap<>();
-
-    protected interface SessionReference extends AutoCloseable {
-        Uint8 getSessionId();
-    }
-
+    @GuardedBy("this")
+    private final Cache<ByteArrayWrapper, PeerRecord> formerClients = CacheBuilder.newBuilder()
+        .expireAfterAccess(Duration.ofSeconds(PEER_CACHE_SECONDS))
+        .maximumSize(PEER_CACHE_SIZE)
+        .build();
+    @GuardedBy("this")
+    private final HashMap<ByteArrayWrapper, SessionReference> sessions = new HashMap<>();
 
     protected synchronized Optional<SessionReference> getSessionReference(final byte[] clientAddress) {
-        final SessionReference sessionReference = sessions.get(new ByteArrayWrapper(clientAddress));
+        final var sessionReference = sessions.get(new ByteArrayWrapper(clientAddress));
         if (sessionReference != null) {
             return Optional.of(sessionReference);
         }
@@ -75,23 +95,5 @@ final class PCEPPeerRegistry {
     protected synchronized void releaseSession(final byte[] clientAddress, final Uint8 sessionId)
             throws ExecutionException {
         formerClients.get(new ByteArrayWrapper(clientAddress), () -> new PeerRecord(ID_CACHE_SECONDS, sessionId));
-    }
-
-    private static final class ByteArrayWrapper {
-        private final byte[] byteArray;
-
-        ByteArrayWrapper(final byte[] byteArray) {
-            this.byteArray = byteArray == null ? null : byteArray.clone();
-        }
-
-        @Override
-        public int hashCode() {
-            return Arrays.hashCode(byteArray);
-        }
-
-        @Override
-        public boolean equals(final Object obj) {
-            return this == obj || obj instanceof ByteArrayWrapper other && Arrays.equals(byteArray, other.byteArray);
-        }
     }
 }

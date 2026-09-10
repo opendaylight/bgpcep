@@ -13,6 +13,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.primitives.UnsignedInts;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.buffer.Unpooled;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
@@ -25,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.Nullable;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.protocol.bgp.parser.AsNumberUtil;
@@ -155,29 +155,30 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
                 throw new BGPDocumentedException(
                     "BGP session with %s %s has to be dropped. Same session already present %s".formatted(
                         ip, currentConnection, previousConnection), BGPError.CEASE);
-                // Session reestablished with lower source bgp id, dropping current
-            } else if (previousConnection.isHigherDirection(currentConnection)
+            }
+            // Session reestablished with lower source bgp id, dropping current
+            if (previousConnection.isHigherDirection(currentConnection)
                     || previousConnection.hasHigherAsNumber(currentConnection)) {
                 LOG.warn("BGP session with {} {} has to be dropped. Opposite session already present",
                     ip, currentConnection);
                 throw new BGPDocumentedException(
                     "BGP session with %s initiated %s has to be dropped. Opposite session already present".formatted(
                         ip, currentConnection), BGPError.CEASE);
-
-                // Session reestablished with higher source bgp id, dropping previous
-            } else if (currentConnection.isHigherDirection(previousConnection)
+            }
+            // Session reestablished with higher source bgp id, dropping previous
+            if (currentConnection.isHigherDirection(previousConnection)
                     || currentConnection.hasHigherAsNumber(previousConnection)) {
                 LOG.warn("BGP session with {} {} released. Replaced by opposite session", ip, previousConnection);
                 peers.get(ip).releaseConnection();
                 return peers.get(ip);
-                // Session reestablished with same source bgp id, dropping current as duplicate
-            } else {
-                LOG.warn("BGP session with {} initiated from {} to {} has to be dropped. Same session already present",
-                        ip, sourceId, remoteId);
-                throw new BGPDocumentedException(
-                    "BGP session with %s initiated %s has to be dropped. Same session already present".formatted(
-                        ip, currentConnection), BGPError.CEASE);
+
             }
+            // Session reestablished with same source bgp id, dropping current as duplicate
+            LOG.warn("BGP session with {} initiated from {} to {} has to be dropped. Same session already present",
+                ip, sourceId, remoteId);
+            throw new BGPDocumentedException(
+                "BGP session with %s initiated %s has to be dropped. Same session already present".formatted(
+                    ip, currentConnection), BGPError.CEASE);
         }
         validateAs(remoteAsNumber, openObj, prefs);
 

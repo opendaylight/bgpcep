@@ -8,12 +8,12 @@
 package org.opendaylight.protocol.bgp.rib.impl.state;
 
 import com.google.common.base.Stopwatch;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bgp.rib.impl.StrictBGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPMessagesListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionStateListener;
@@ -24,18 +24,16 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.OptionalCapabilities;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.bgp.parameters.optional.capabilities.CParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.CParameters1;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.mp.capabilities.MultiprotocolCapability;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.yang.common.Uint16;
 
 // This class is thread-safe
-public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersState, BGPTransportState,
-    BGPSessionStateListener {
+public final class BGPSessionStateImpl
+        implements BGPSessionState, BGPTimersState, BGPTransportState, BGPSessionStateListener {
     private static final PortNumber NON_DEFINED_PORT = new PortNumber(Uint16.ZERO);
+
     private final Stopwatch sessionStopwatch;
     private int holdTimerValue;
     private IpAddressNoZone remoteAddress;
@@ -79,12 +77,12 @@ public final class BGPSessionStateImpl implements BGPSessionState, BGPTimersStat
     public synchronized void advertizeCapabilities(final int newHoldTimerValue, final SocketAddress newRemoteAddress,
         final SocketAddress localAddress, final Set<BgpTableType> tableTypes, final List<BgpParameters> bgpParameters) {
         if (bgpParameters != null) {
-            for (final BgpParameters parameters : bgpParameters) {
-                for (final OptionalCapabilities optionalCapabilities : parameters.nonnullOptionalCapabilities()) {
-                    final CParameters cParam = optionalCapabilities.getCParameters();
-                    final CParameters1 capabilities = cParam.augmentation(CParameters1.class);
+            for (var parameters : bgpParameters) {
+                for (var optionalCapabilities : parameters.nonnullOptionalCapabilities()) {
+                    final var cParam = optionalCapabilities.getCParameters();
+                    final var capabilities = cParam.augmentation(CParameters1.class);
                     if (capabilities != null) {
-                        final MultiprotocolCapability mc = capabilities.getMultiprotocolCapability();
+                        final var mc = capabilities.getMultiprotocolCapability();
                         if (mc != null) {
                             multiProtocolCapability = true;
                         }

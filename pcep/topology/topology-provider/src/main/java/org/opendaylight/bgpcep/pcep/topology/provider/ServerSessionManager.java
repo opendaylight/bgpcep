@@ -14,15 +14,14 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.util.Timeout;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.VarHandle;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
@@ -78,9 +77,9 @@ class ServerSessionManager implements PCEPSessionListenerFactory, TopologySessio
     private final @Nullable GraphKey graphKey;
 
     @GuardedBy("this")
-    private final Map<NodeId, TopologySessionListener> nodes = new HashMap<>();
+    private final HashMap<NodeId, TopologySessionListener> nodes = new HashMap<>();
     @GuardedBy("this")
-    private final Map<NodeId, TopologyNodeState> state = new HashMap<>();
+    private final HashMap<NodeId, TopologyNodeState> state = new HashMap<>();
 
     private volatile long updateInterval;
     private volatile short rpcTimeout;

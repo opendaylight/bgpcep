@@ -13,6 +13,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.CheckReturnValue;
 import java.util.Collection;
 import java.util.HashMap;
@@ -20,8 +21,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.binding.api.DataBroker;
@@ -171,10 +170,10 @@ final class TopologyNodeState implements FutureCallback<Empty> {
         chain.close();
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void putTopologyNode() {
-        final Node node = new NodeBuilder().withKey(nodeId.key()).build();
-        final WriteTransaction tx = chain.newWriteOnlyTransaction();
+        final var node = new NodeBuilder().withKey(nodeId.key()).build();
+        final var tx = chain.newWriteOnlyTransaction();
         LOG.trace("Put topology Node {}, value {}", nodeId, node);
         // FIXME: why is this a 'merge' and not a 'put'? This seems to be related to BGPCEP-739, but there is little
         //        evidence as to what exactly was being overwritten

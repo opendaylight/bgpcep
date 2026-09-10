@@ -19,6 +19,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,7 +28,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;

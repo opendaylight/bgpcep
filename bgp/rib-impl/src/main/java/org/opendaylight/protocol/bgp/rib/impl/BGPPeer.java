@@ -25,6 +25,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,8 +37,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -354,7 +353,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void handleGracefulEndOfRib() {
         if (isLocalRestarting()) {
             if (missingEOT.isEmpty()) {
@@ -499,7 +498,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void initializeAdjRibOutTables() {
         // Explicitly initialize the adj-rib-out and tables containers for new session.
         // This prevents a crash if the peer sends an immediate WITHDRAW before any routes are advertised.
@@ -545,7 +544,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
-    @Holding("this")
+    @GuardedBy("this")
     private void addBgp4Support() {
         if (!tables.contains(IPV4_UCAST_TABLE_KEY)) {
             final var newSet = new HashSet<>(tables);
@@ -554,7 +553,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void createAdjRibOutListener(final TablesKey key, final boolean mpSupport) {
         final var ribSupport = rib.getRibSupportContext().getRIBSupport(key);
 
@@ -598,7 +597,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
      *
      * @param isWaitForSubmitted if true, wait for submitted future before closing binding chain. if false, don't wait.
      */
-    @Holding("this")
+    @GuardedBy("this")
     private @NonNull FluentFuture<? extends CommitInfo> releaseConnection(final boolean isWaitForSubmitted) {
         LOG.info("Closing session with peer {}", getName());
         sessionUp = false;
@@ -625,7 +624,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         return future;
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     @SuppressWarnings("checkstyle:illegalCatch")
     private void closeSession() {
         if (currentSession != null) {
@@ -703,7 +702,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             TimeUnit.NANOSECONDS);
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void releaseConnectionGracefully() {
         if (getPeerRestartTime() > 0) {
             setRestartingState();
@@ -711,6 +710,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         releaseConnection(true);
     }
 
+    // FIXME: justification?
     @SuppressFBWarnings("IS2_INCONSISTENT_SYNC")
     @Override
     public SendReceive getSupportedAddPathTables(final TablesKey tableKey) {

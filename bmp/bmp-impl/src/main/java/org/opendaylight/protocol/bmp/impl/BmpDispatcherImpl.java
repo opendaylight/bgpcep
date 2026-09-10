@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bmp.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -19,7 +20,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.protocol.bmp.api.BmpDispatcher;
 import org.opendaylight.protocol.bmp.api.BmpSessionFactory;
 import org.opendaylight.protocol.bmp.api.BmpSessionListenerFactory;
@@ -45,7 +45,6 @@ public class BmpDispatcherImpl implements BmpDispatcher, AutoCloseable {
     private final BmpSessionFactory sessionFactory;
     @GuardedBy("this")
     private boolean close;
-
 
     @Activate
     public BmpDispatcherImpl(@Reference final BmpNettyGroups nettyGroups,

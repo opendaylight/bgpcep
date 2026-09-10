@@ -7,12 +7,11 @@
  */
 package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.concurrent.ExecutionException;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.mdsal.binding.api.DataBroker;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.tunnel.pcep.rev181109.topology.tunnel.pcep.type.TopologyTunnelPcepBuilder;
@@ -55,7 +54,7 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
     }
 
     synchronized void init() {
-        final WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
+        final var tx = dataBroker.newWriteOnlyTransaction();
         tx.mergeParentStructurePut(LogicalDatastoreType.OPERATIONAL, getTopologyReference().getInstanceIdentifier(),
                 new TopologyBuilder().setTopologyId(tunneltopologyId)
                         .setTopologyTypes(new TopologyTypesBuilder()
@@ -63,8 +62,9 @@ public final class PCEPTunnelTopologyProvider extends DefaultTopologyReference i
                                         .setTopologyTunnelPcep(
                                                 new TopologyTunnelPcepBuilder().build()).build()).build())
                         .build());
+        final var future = tx.commit();
         try {
-            tx.commit().get();
+            future.get();
         } catch (final InterruptedException | ExecutionException e) {
             LOG.error("Failed to create Tunnel Topology root", e);
         }

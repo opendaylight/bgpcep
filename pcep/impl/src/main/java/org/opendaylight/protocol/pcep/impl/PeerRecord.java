@@ -9,22 +9,23 @@ package org.opendaylight.protocol.pcep.impl;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+import java.time.Duration;
 import org.opendaylight.protocol.util.Values;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 // This class is thread-safe
 final class PeerRecord {
     // FIXME: why do we need to lock this?
-    private final @GuardedBy("this") Cache<Short, Short> pastIds;
-
-    private @GuardedBy("this") Uint8 lastId;
+    @GuardedBy("this")
+    private final Cache<Short, Short> pastIds;
+    @GuardedBy("this")
+    private Uint8 lastId;
 
     PeerRecord(final long idLifetimeSeconds, final Uint8 lastId) {
         // Note that the cache is limited to 255 entries -- which means we will always have
         // a single entry available. That number will be the Last Recently Used ID.
-        pastIds = CacheBuilder.newBuilder().expireAfterWrite(idLifetimeSeconds, TimeUnit.SECONDS)
+        pastIds = CacheBuilder.newBuilder().expireAfterWrite(Duration.ofSeconds(idLifetimeSeconds))
                 .maximumSize(Values.UNSIGNED_BYTE_MAX_VALUE).build();
         this.lastId = lastId;
     }

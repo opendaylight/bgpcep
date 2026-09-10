@@ -11,9 +11,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 import org.opendaylight.yangtools.concepts.Registration;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
@@ -56,8 +55,8 @@ public final class PCEPTunnelClusterSingletonService implements ClusterSingleton
             final TopologyId tunnelTopologyId
     ) {
         this.tunnelTopologyId = requireNonNull(tunnelTopologyId);
-        final TopologyId pcepTopologyId = pcepTopology.key().getTopologyId();
-        final BundleContext bundleContext = dependencies.getBundleContext();
+        final var pcepTopologyId = pcepTopology.key().getTopologyId();
+        final var bundleContext = dependencies.getBundleContext();
 
         final InstructionScheduler scheduler;
         ServiceTracker<InstructionScheduler, ?> tracker = null;

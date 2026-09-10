@@ -13,6 +13,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.util.concurrent.AsyncFunction;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -20,8 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PathComputation;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
@@ -112,7 +111,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
     private final AtomicLong requestId = new AtomicLong(1L);
 
     @GuardedBy("this")
-    private final List<PlspId> staleLsps = new ArrayList<>();
+    private final ArrayList<PlspId> staleLsps = new ArrayList<>();
 
     private final PceServerProvider pceServerProvider;
 
@@ -160,17 +159,17 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         LOG.trace("Trigger Resynchronization {}", input);
         markAllLspAsStale();
         updatePccState();
-        final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
-        final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
-        final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
+        final var pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
+        final var srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
+        final var msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
         return sendMessage(msg, srpIdNumber, null);
     }
 
     private ListenableFuture<OperationResult> triggerSynchronization(final TriggerSyncArgs input) {
         LOG.trace("Trigger Initial Synchronization {}", input);
-        final PcupdMessageBuilder pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
-        final SrpIdNumber srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
-        final Message msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
+        final var pcupdMessageBuilder = new PcupdMessageBuilder(MESSAGE_HEADER);
+        final var srpIdNumber = createUpdateMessageSync(pcupdMessageBuilder);
+        final var msg = new PcupdBuilder().setPcupdMessage(pcupdMessageBuilder.build()).build();
         return sendMessage(msg, srpIdNumber, null);
     }
 
@@ -191,7 +190,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         return operationId;
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private void markAllLspAsStale() {
         staleLsps.addAll(lsps.keySet());
     }
@@ -221,7 +220,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         if (srp == null) {
             return false;
         }
-        final SrpIdNumber id = srp.getOperationId();
+        final var id = srp.getOperationId();
         if (SRPID_ZERO.equals(id)) {
             return false;
         }
@@ -255,11 +254,11 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
         return true;
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     private boolean manageNextReport(final Reports report, final MessageContext ctx) {
-        final Lsp lsp = report.getLsp();
-        final PlspId plspid = lsp.getPlspId();
-        final Srp srp = report.getSrp();
+        final var lsp = report.getLsp();
+        final var plspid = lsp.getPlspId();
+        final var srp = report.getSrp();
 
         if (lsp.getLspFlags() != null && !lsp.getLspFlags().getSync()
             && (plspid == null || PLSPID_ZERO.equals(plspid))) {
@@ -430,22 +429,22 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
 
     private Requests buildRequest(final Optional<ReportedLsp> rep, final Lsp reportedLsp) {
         // Build the request and send it
-        final RequestsBuilder rb = new RequestsBuilder();
-        final SrpBuilder srpBuilder = new SrpBuilder()
+        final var srpBuilder = new SrpBuilder()
             .setRemove(Boolean.TRUE)
             .setOperationId(nextRequest())
             .setProcessingRule(Boolean.TRUE);
         getPST(rep).ifPresent(pst -> srpBuilder.setTlvs(
             new org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930
                 .srp.object.srp.TlvsBuilder().setPathSetupType(pst).build()));
-        rb.setSrp(srpBuilder.build());
-        rb.setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId())
-            .setLspFlags(new LspFlagsBuilder()
-                .setRemove(Boolean.FALSE)
-                .setDelegate(Boolean.TRUE.equals(reportedLsp.getLspFlags().getDelegate()))
+        return new RequestsBuilder()
+            .setSrp(srpBuilder.build())
+            .setLsp(new LspBuilder().setPlspId(reportedLsp.getPlspId())
+                .setLspFlags(new LspFlagsBuilder()
+                    .setRemove(Boolean.FALSE)
+                    .setDelegate(Boolean.TRUE.equals(reportedLsp.getLspFlags().getDelegate()))
+                    .build())
                 .build())
-            .build());
-        return rb.build();
+            .build();
     }
 
     private ListenableFuture<OperationResult> redelegate(final Lsp reportedLsp, final Srp srp, final Lsp lsp,
@@ -477,7 +476,7 @@ class PCEPTopologySessionListener extends AbstractTopologySessionListener {
             // is sent because of specification by Siva
             // this message is also sent, when input delegate bit is set to 0
             // generating an error in PCC
-            final List<Requests> reqs = new ArrayList<>();
+            final var reqs = new ArrayList<Requests>();
             reqs.add(new RequestsBuilder().setSrp(srp).setLsp(lsp).build());
             final PcinitiateMessageBuilder ib = new PcinitiateMessageBuilder();
             ib.setRequests(reqs);

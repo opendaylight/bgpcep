@@ -9,12 +9,11 @@ package org.opendaylight.bgpcep.pcep.tunnel.provider;
 
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.CONFIGURATION;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
 import org.opendaylight.mdsal.binding.api.DataTreeModification;
@@ -46,7 +45,7 @@ public final class TunnelProviderDeployer implements DataTreeChangeListener<Topo
 
     private final TunnelProviderDependencies dependencies;
     @GuardedBy("this")
-    private final Map<TopologyId, PCEPTunnelClusterSingletonService> pcepTunnelServices = new HashMap<>();
+    private final HashMap<TopologyId, PCEPTunnelClusterSingletonService> pcepTunnelServices = new HashMap<>();
     private final Registration reg;
 
     @Activate
@@ -135,8 +134,8 @@ public final class TunnelProviderDeployer implements DataTreeChangeListener<Topo
         if (!filterPcepTopologies(topology.getTopologyTypes())) {
             return;
         }
-        final TopologyId topologyId = topology.getTopologyId();
-        final PCEPTunnelClusterSingletonService previous = pcepTunnelServices.remove(topology.getTopologyId());
+        final var topologyId = topology.getTopologyId();
+        final var previous = pcepTunnelServices.remove(topology.getTopologyId());
         closeTopology(previous, topologyId);
         createTunnelTopologyProvider(topology);
     }
@@ -145,8 +144,8 @@ public final class TunnelProviderDeployer implements DataTreeChangeListener<Topo
         if (!filterPcepTopologies(topo.getTopologyTypes())) {
             return;
         }
-        final TopologyId topologyId = topo.getTopologyId();
-        final PCEPTunnelClusterSingletonService topology = pcepTunnelServices.remove(topologyId);
+        final var topologyId = topo.getTopologyId();
+        final var topology = pcepTunnelServices.remove(topologyId);
         closeTopology(topology, topologyId);
     }
 }

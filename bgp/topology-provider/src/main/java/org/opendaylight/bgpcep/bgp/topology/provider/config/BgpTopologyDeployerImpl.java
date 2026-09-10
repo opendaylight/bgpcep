@@ -9,14 +9,13 @@ package org.opendaylight.bgpcep.bgp.topology.provider.config;
 
 import static java.util.Objects.requireNonNull;
 
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyDeployer;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.BgpTopologyProvider;
 import org.opendaylight.bgpcep.bgp.topology.provider.spi.TopologyReferenceSingletonService;
@@ -47,9 +46,9 @@ public final class BgpTopologyDeployerImpl implements BgpTopologyDeployer, AutoC
     private static final Logger LOG = LoggerFactory.getLogger(BgpTopologyDeployerImpl.class);
 
     @GuardedBy("this")
-    private final Set<BgpTopologyProvider> topologyProviders = new HashSet<>();
+    private final HashSet<BgpTopologyProvider> topologyProviders = new HashSet<>();
     @GuardedBy("this")
-    private final Set<Topology> topologies = new HashSet<>();
+    private final HashSet<Topology> topologies = new HashSet<>();
     private final DataBroker dataBroker;
     private final ClusterSingletonServiceProvider singletonProvider;
     private Registration registration;

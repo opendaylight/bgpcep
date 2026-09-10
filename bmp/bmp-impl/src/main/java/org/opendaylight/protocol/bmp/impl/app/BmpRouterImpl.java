@@ -13,14 +13,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
@@ -65,7 +62,7 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
 
     private final RouterSessionManager sessionManager;
     @GuardedBy("this")
-    private final Map<PeerId, BmpRouterPeer> peers = new HashMap<>();
+    private final HashMap<PeerId, BmpRouterPeer> peers = new HashMap<>();
     private final DOMTransactionChain domTxChain;
     private final DOMDataBroker domDataBroker;
     private final RIBExtensionConsumerContext extensions;
@@ -115,10 +112,10 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
 
     @Override
     public void onMessage(final Notification<?> message) {
-        if (message instanceof InitiationMessage) {
-            onInitiate((InitiationMessage) message);
-        } else if (message instanceof PeerUpNotification) {
-            onPeerUp((PeerUpNotification) message);
+        if (message instanceof InitiationMessage msg) {
+            onInitiate(msg);
+        } else if (message instanceof PeerUpNotification msg) {
+            onPeerUp(msg);
         } else if (message instanceof PeerHeader) {
             delegateToPeer(message);
         }
@@ -141,7 +138,7 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
         }
     }
 
-    @Holding("this")
+    @GuardedBy("this")
     @SuppressWarnings("checkstyle:IllegalCatch")
     private synchronized void tearDown() {
         // the session has been teared down before
@@ -153,7 +150,7 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
         // log information
         LOG.info("BMP Session with remote router {} ({}) went down.", routerIp, session);
         session = null;
-        final Iterator<BmpRouterPeer> it = peers.values().iterator();
+        final var it = peers.values().iterator();
         try {
             while (it.hasNext()) {
                 it.next().close();
@@ -196,7 +193,7 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
 
     private synchronized void createRouterEntry() {
         Preconditions.checkState(isDatastoreWritable());
-        final DOMDataTreeWriteTransaction wTx = domTxChain.newWriteOnlyTransaction();
+        final var wTx = domTxChain.newWriteOnlyTransaction();
         wTx.put(LogicalDatastoreType.OPERATIONAL, routerYangIId, ImmutableNodes.newMapEntryBuilder()
             .withNodeIdentifier(NodeIdentifierWithPredicates.of(Router.QNAME, ROUTER_ID_QNAME, routerIp))
             .withChild(ImmutableNodes.leafNode(ROUTER_ID_QNAME, routerIp))
@@ -218,7 +215,7 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
 
     private synchronized void onInitiate(final InitiationMessage initiation) {
         Preconditions.checkState(isDatastoreWritable());
-        final DOMDataTreeWriteTransaction wTx = domTxChain.newWriteOnlyTransaction();
+        final var wTx = domTxChain.newWriteOnlyTransaction();
         wTx.merge(LogicalDatastoreType.OPERATIONAL, routerYangIId, ImmutableNodes.newMapEntryBuilder()
             .withNodeIdentifier(NodeIdentifierWithPredicates.of(Router.QNAME, ROUTER_ID_QNAME, routerIp))
             .withChild(ImmutableNodes.leafNode(ROUTER_NAME_QNAME, initiation.getTlvs().getNameTlv().getName()))
@@ -242,7 +239,7 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
     }
 
     private synchronized void onPeerUp(final PeerUpNotification peerUp) {
-        final PeerId peerId = getPeerIdFromOpen(peerUp.getReceivedOpen());
+        final var peerId = getPeerIdFromOpen(peerUp.getReceivedOpen());
         if (!getPeer(peerId).isPresent()) {
             final BmpRouterPeer peer = BmpRouterPeerImpl.createRouterPeer(domTxChain, peersYangIId, peerUp,
                 extensions, tree, peerId);
@@ -254,8 +251,8 @@ public final class BmpRouterImpl implements BmpRouter, FutureCallback<Empty> {
     }
 
     private synchronized void delegateToPeer(final Notification<?> perPeerMessage) {
-        final PeerId peerId = getPeerId((PeerHeader) perPeerMessage);
-        final Optional<BmpRouterPeer> maybePeer = getPeer(peerId);
+        final var peerId = getPeerId((PeerHeader) perPeerMessage);
+        final var maybePeer = getPeer(peerId);
         if (maybePeer.isPresent()) {
             maybePeer.orElseThrow().onPeerMessage(perPeerMessage);
             if (perPeerMessage instanceof PeerDownNotification) {

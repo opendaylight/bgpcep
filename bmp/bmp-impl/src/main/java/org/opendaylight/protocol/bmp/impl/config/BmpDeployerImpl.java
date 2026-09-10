@@ -12,15 +12,14 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.collect.Iterables;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataObjectModification;
 import org.opendaylight.mdsal.binding.api.DataTreeChangeListener;
@@ -75,7 +74,7 @@ public final class BmpDeployerImpl implements DataTreeChangeListener<OdlBmpMonit
     private final ClusterSingletonServiceProvider singletonProvider;
 
     @GuardedBy("this")
-    private final Map<MonitorId, BmpMonitoringStationImpl> bmpMonitorServices = new HashMap<>();
+    private final HashMap<MonitorId, BmpMonitoringStationImpl> bmpMonitorServices = new HashMap<>();
     @GuardedBy("this")
     private Registration registration;
 

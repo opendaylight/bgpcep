@@ -12,10 +12,10 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TimerTask;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.TransactionChain;
@@ -84,13 +83,15 @@ public final class StateProviderImpl implements FutureCallback<Empty>, AutoClose
     private final BGPTableTypeRegistryConsumer bgpTableTypeRegistry;
     private final WithKey<NetworkInstance, NetworkInstanceKey> networkInstanceIId;
     private final DataBroker dataBroker;
-    private final @GuardedBy("this") HashMap<String, DataObjectIdentifier<Bgp>> instanceIdentifiersCache =
-        new HashMap<>();
-    private final @GuardedBy("this") ScheduledFuture<?> scheduleTask;
+    @GuardedBy("this")
+    private final HashMap<String, DataObjectIdentifier<Bgp>> instanceIdentifiersCache = new HashMap<>();
+    @GuardedBy("this")
+    private final ScheduledFuture<?> scheduleTask;
     private final ScheduledExecutorService scheduler;
     private final AtomicBoolean closed = new AtomicBoolean(false);
 
-    private @GuardedBy("this") TransactionChain transactionChain;
+    @GuardedBy("this")
+    private TransactionChain transactionChain;
 
     @Activate
     public StateProviderImpl(@Reference final @NonNull DataBroker dataBroker,
@@ -158,7 +159,7 @@ public final class StateProviderImpl implements FutureCallback<Empty>, AutoClose
     }
 
     private synchronized void updateBGPStats(final WriteOperations wtx) {
-        final Set<String> oldStats = new HashSet<>(instanceIdentifiersCache.keySet());
+        final var oldStats = new HashSet<>(instanceIdentifiersCache.keySet());
         stateProvider.getRibStats().stream().filter(BGPRibState::isActive).forEach(bgpStateConsumer -> {
             final var ribId = bgpStateConsumer.getInstanceIdentifier();
             final var peerStats = stateProvider.getPeerStats().stream()
