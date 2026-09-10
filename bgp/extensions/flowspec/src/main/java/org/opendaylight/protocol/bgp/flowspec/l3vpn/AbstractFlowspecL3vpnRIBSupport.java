@@ -12,10 +12,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.flow
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.destination.DestinationType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
+import org.opendaylight.yangtools.binding.CaseObject;
 import org.opendaylight.yangtools.binding.ChildOf;
-import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.EntryObject;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -23,9 +24,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 public abstract class AbstractFlowspecL3vpnRIBSupport<
         T extends AbstractFlowspecL3vpnNlriParser,
-        C extends Routes & DataObject,
+        C extends CaseObject<Tables, ? extends Routes, C>,
         S extends ChildOf<? super C>,
-        R extends Route & ChildOf<? super S> & EntryObject<?, ?>> extends AbstractFlowspecRIBSupport<T, C, S, R> {
+        R extends Route & EntryObject<? super S, ?, ?>> extends AbstractFlowspecRIBSupport<T, C, S, R> {
     protected AbstractFlowspecL3vpnRIBSupport(
             final BindingNormalizedNodeSerializer mappingService,
             final Class<C> cazeClass, final QName cazeQName,
