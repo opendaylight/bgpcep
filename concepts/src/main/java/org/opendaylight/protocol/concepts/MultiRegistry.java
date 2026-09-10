@@ -8,12 +8,9 @@
 package org.opendaylight.protocol.concepts;
 
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ListMultimap;
+import com.google.errorprone.annotations.concurrent.GuardedBy;
+import java.util.Collections;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import org.checkerframework.checker.lock.qual.GuardedBy;
-import org.checkerframework.checker.lock.qual.Holding;
 import org.opendaylight.yangtools.concepts.AbstractRegistration;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.slf4j.Logger;
@@ -33,10 +30,11 @@ import org.slf4j.LoggerFactory;
 public final class MultiRegistry<K, V> {
     private static final Logger LOG = LoggerFactory.getLogger(MultiRegistry.class);
 
-    private final ConcurrentMap<K, V> current = new ConcurrentHashMap<>();
-    private final @GuardedBy("this") ListMultimap<K, V> candidates = ArrayListMultimap.create();
+    private final ConcurrentHashMap<K, V> current = new ConcurrentHashMap<>();
+    @GuardedBy("this")
+    private final ArrayListMultimap<K, V> candidates = ArrayListMultimap.create();
 
-    @Holding("this")
+    @GuardedBy("this")
     private void updateCurrent(final K key) {
         final var values = candidates.get(key);
 
@@ -72,7 +70,7 @@ public final class MultiRegistry<K, V> {
             @Override
             protected void removeRegistration() {
                 synchronized (MultiRegistry.this) {
-                    MultiRegistry.this.candidates.remove(key, value);
+                    candidates.remove(key, value);
                     updateCurrent(key);
                 }
             }
@@ -84,6 +82,6 @@ public final class MultiRegistry<K, V> {
     }
 
     public Iterable<V> getAllValues() {
-        return Iterables.unmodifiableIterable(current.values());
+        return Collections.unmodifiableCollection(current.values());
     }
 }
