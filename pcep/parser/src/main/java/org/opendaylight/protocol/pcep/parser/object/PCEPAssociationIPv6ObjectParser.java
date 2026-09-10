@@ -18,6 +18,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  *     org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.types.rev250930
  *     .association.object.AssociationGroup
  * } with IPv6 address.
+ *
  * @see <a href="https://tools.ietf.org/html/rfc8697#section-6.1">Association Object Definition</a>
  */
 public class PCEPAssociationIPv6ObjectParser extends AbstractAssociationGroupParser {

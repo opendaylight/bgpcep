@@ -12,6 +12,7 @@ import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 /**
  * Decoder for BGP message headers.
+ *
  * @see <a href="http://tools.ietf.org/html/rfc4271#section-4.1">BGP Message Header</a>
  */
 final class BGPMessageHeaderDecoder extends LengthFieldBasedFrameDecoder {

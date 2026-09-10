@@ -31,8 +31,8 @@ import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 /**
  * Parser for {@link Monitoring}.
- * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.1">Monitoring Object</a>
  *
+ * @see <a href="https://tools.ietf.org/html/rfc5886#section-4.1">Monitoring Object</a>
  */
 public class PCEPMonitoringObjectParser extends AbstractObjectWithTlvsParser<TlvsBuilder> {
     private static final int CLASS = 19;

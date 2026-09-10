@@ -21,6 +21,7 @@ import org.opendaylight.yangtools.binding.Notification;
 public interface MessageRegistry {
     /**
      * Decode input buffer to BGP Message.
+     *
      * @param bytes Input buffer with encoded message.
      * @param constraint Peer specific constraint.
      * @return Parsed BGP message.
@@ -30,6 +31,7 @@ public interface MessageRegistry {
 
     /**
      * Encode input BGP Message to output buffer.
+     *
      * @param message Input BGP Message to be serialized.
      * @param buffer Output buffer where message is to be written.
      */

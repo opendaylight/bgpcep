@@ -16,15 +16,16 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 @NonNullByDefault
 public interface PeerRegistrySessionListener {
-
     /**
      * Invoked when new peer session is created.
+     *
      * @param ip The peer's IP address.
      */
     void onSessionCreated(IpAddressNoZone ip);
 
     /**
      * Invoked when peer session is removed.
+     *
      * @param ip The peer's IP address.
      */
     void onSessionRemoved(IpAddressNoZone ip);

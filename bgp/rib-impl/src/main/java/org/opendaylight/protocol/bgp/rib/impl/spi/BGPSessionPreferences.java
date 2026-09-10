@@ -102,6 +102,7 @@ public final class BGPSessionPreferences {
 
     /**
      * Optionally returns peer's MD5 password.
+     *
      * @return Encoded MD5 password.
      */
     public Optional<byte[]> getMd5Password() {

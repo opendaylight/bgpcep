@@ -15,9 +15,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
  */
 @NonNullByDefault
 public interface PeerRegistryListener {
-
     /**
      * Invoked when new peer is added into the registry.
+     *
      * @param ip The new peer's IP address.
      * @param prefs The new peer's preferences.
      */
@@ -25,8 +25,8 @@ public interface PeerRegistryListener {
 
     /**
      * Invoked when peer is removed from registry.
+     *
      * @param ip The removed peer's IP address.
      */
     void onPeerRemoved(IpAddressNoZone ip);
-
 }

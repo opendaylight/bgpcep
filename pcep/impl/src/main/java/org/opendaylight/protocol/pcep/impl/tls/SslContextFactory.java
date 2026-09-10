@@ -34,8 +34,8 @@ public class SslContextFactory {
 
     /**
      * SslContextFactory provides information about the TLS context and configuration.
-     * @param tlsConfig
-     *            TLS configuration object, contains keystore locations and keystore types
+     *
+     * @param tlsConfig TLS configuration object, contains keystore locations and keystore types
      */
     public SslContextFactory(final PcepSessionTls tlsConfig) {
         this.tlsConfig = requireNonNull(tlsConfig);

@@ -15,9 +15,9 @@ import org.eclipse.jdt.annotation.NonNull;
  *
  */
 public interface PeerSpecificParserConstraint {
-
     /**
      * Looks-up and optionally returns {@link PeerConstraint} service.
+     *
      * @param peerConstraintType Class type of the service.
      * @return Optional of the required service, absent if the service is not available.
      */
