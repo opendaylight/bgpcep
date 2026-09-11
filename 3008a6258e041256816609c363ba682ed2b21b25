@@ -16,6 +16,24 @@
       "message": "follow up patch needs attention",
       "revId": "3008a6258e041256816609c363ba682ed2b21b25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "27f3b9b7_d7e14435",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 17
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-11T06:34:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a1ddf0e2_c4ebadb2",
+      "revId": "3008a6258e041256816609c363ba682ed2b21b25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
