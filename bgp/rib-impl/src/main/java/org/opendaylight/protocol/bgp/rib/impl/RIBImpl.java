@@ -28,11 +28,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
@@ -45,7 +45,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPRibStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
-import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
@@ -55,16 +54,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,24 +69,25 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
 
-    private final BGPDispatcher dispatcher;
-    private final AsNumber localAs;
+    private final @NonNull BGPDispatcher dispatcher;
+    private final @NonNull AsNumber localAs;
     private final BgpId bgpIdentifier;
     private final Set<BgpTableType> localTables;
     private final Set<TablesKey> localTablesKeys;
-    private final DOMDataBroker domDataBroker;
-    private final RIBExtensionConsumerContext extensions;
-    private final YangInstanceIdentifier yangRibId;
-    private final RIBSupportContextRegistryImpl ribContextRegistry;
+    private final @NonNull DOMDataBroker domDataBroker;
+    private final @NonNull RIBExtensionConsumerContext extensions;
+    private final @NonNull YangInstanceIdentifier yangRibId;
+    private final @NonNull RIBSupportContextRegistryImpl ribContextRegistry;
     private final CodecsRegistry codecsRegistry;
-    private final BGPTableTypeRegistryConsumer tableTypeRegistry;
+    private final @NonNull BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final DataTreeChangeExtension domService;
     private final HashMap<DOMTransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
     private final HashMap<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final RibId ribId;
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
-    private final BGPRibRoutingPolicy ribPolicies;
+    private final @NonNull BGPRibRoutingPolicy ribPolicies;
+
     @GuardedBy("this")
     private DOMTransactionChain domChain;
     @GuardedBy("this")
@@ -137,23 +133,27 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
     // FIXME: make this asynchronous?
     private synchronized void startLocRib(final TablesKey key) {
         LOG.debug("Creating LocRib table for {}", key);
-        // create locRibWriter for each table
-        final DOMDataTreeWriteTransaction tx = domChain.newWriteOnlyTransaction();
-
-        final RIBSupport<? extends Routes, ?> ribSupport = ribContextRegistry.getRIBSupport(key);
-        if (ribSupport != null) {
-            final MapEntryNode emptyTable = ribSupport.emptyTable();
-            final InstanceIdentifierBuilder tableId = YangInstanceIdentifier
-                    .builder(yangRibId.node(LOCRIB_NID).node(TABLES_NID)).node(emptyTable.name());
-
-            tx.put(LogicalDatastoreType.OPERATIONAL, tableId.build(), emptyTable);
-            try {
-                tx.commit().get();
-            } catch (final InterruptedException | ExecutionException e) {
-                LOG.error("Failed to initiate LocRIB for key {}", key, e);
-            }
-        } else {
+        final var ribSupport = ribContextRegistry.getRIBSupport(key);
+        if (ribSupport == null) {
             LOG.warn("There's no registered RIB Context for {}", key.getAfi());
+            return;
+        }
+
+        final var emptyTable = ribSupport.emptyTable();
+        final var tableId = YangInstanceIdentifier.builder(yangRibId)
+            .node(LOCRIB_NID)
+            .node(TABLES_NID)
+            .node(emptyTable.name())
+            .build();
+
+        // create locRibWriter for each table
+        final var tx = domChain.newWriteOnlyTransaction();
+        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, emptyTable);
+        final var future = tx.commit();
+        try {
+            future.get();
+        } catch (final InterruptedException | ExecutionException e) {
+            LOG.error("Failed to initiate LocRIB for key {}", key, e);
         }
     }
 
@@ -229,7 +229,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
         LOG.error("Broken chain in RIB {}", getInstanceIdentifier(), cause);
         final var locRibWriter = txChainToLocRibWriter.remove(chain);
         if (locRibWriter != null) {
-            final DOMTransactionChain newChain = createPeerDOMChain();
+            final var newChain = createPeerDOMChain();
             addCallback(newChain);
             startLocRib(locRibWriter.getTableKey());
             locRibWriter.restart(newChain);
@@ -259,7 +259,7 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
 
     @Override
     public void refreshTable(final TablesKey tk, final PeerId peerId) {
-        final RibOutRefresh table = vpnTableRefresher.get(tk);
+        final var table = vpnTableRefresher.get(tk);
         if (table != null) {
             table.refreshTable(tk, peerId);
         }
@@ -303,32 +303,33 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
         domChain = domDataBroker.createMergingTransactionChain();
         addCallback(domChain);
 
-        final ContainerNode bgpRib = ImmutableNodes.newContainerBuilder().withNodeIdentifier(BGPRIB_NID)
-                .addChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(RIB_NID).build()).build();
+        final var bgpRib = ImmutableNodes.newContainerBuilder()
+            .withNodeIdentifier(BGPRIB_NID)
+            .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(RIB_NID).build())
+            .build();
 
-        final MapEntryNode ribInstance = ImmutableNodes.newMapEntryBuilder()
+        final var ribInstance = ImmutableNodes.newMapEntryBuilder()
             .withNodeIdentifier(NodeIdentifierWithPredicates.of(Rib.QNAME, RIB_ID_QNAME, ribId.getValue()))
-            .addChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
-            .addChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(PEER_NID).build())
-            .addChild(ImmutableNodes.newContainerBuilder().withNodeIdentifier(LOCRIB_NID)
-                .addChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(TABLES_NID).build())
+            .withChild(ImmutableNodes.leafNode(RIB_ID_QNAME, ribId.getValue()))
+            .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(PEER_NID).build())
+            .withChild(ImmutableNodes.newContainerBuilder()
+                .withNodeIdentifier(LOCRIB_NID)
+                .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(TABLES_NID).build())
                 .build())
             .build();
 
-        final DOMDataTreeWriteTransaction trans = domChain.newWriteOnlyTransaction();
-
+        final var tx = domChain.newWriteOnlyTransaction();
         // merge empty BgpRib + Rib, to make sure the top-level parent structure is present
-        trans.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.of(BGPRIB_NID), bgpRib);
-        trans.put(LogicalDatastoreType.OPERATIONAL, yangRibId, ribInstance);
-
+        tx.merge(LogicalDatastoreType.OPERATIONAL, YangInstanceIdentifier.of(BGPRIB_NID), bgpRib);
+        tx.put(LogicalDatastoreType.OPERATIONAL, yangRibId, ribInstance);
+        final var future = tx.commit();
         try {
-            trans.commit().get();
+            future.get();
         } catch (final InterruptedException | ExecutionException e) {
             LOG.error("Failed to initiate RIB {}", yangRibId, e);
         }
 
         LOG.debug("Effective RIB created.");
-
         localTablesKeys.forEach(this::startLocRib);
         localTablesKeys.forEach(this::createLocRibWriter);
     }
@@ -345,9 +346,10 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
         txChainToLocRibWriter.values().forEach(LocRibWriter::close);
         txChainToLocRibWriter.clear();
 
-        final DOMDataTreeWriteTransaction t = domChain.newWriteOnlyTransaction();
-        t.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
-        final FluentFuture<? extends CommitInfo> cleanFuture = t.commit();
+        final var tx = domChain.newWriteOnlyTransaction();
+        tx.delete(LogicalDatastoreType.OPERATIONAL, getYangRibId());
+        final var cleanFuture = tx.commit();
+        domChain.close();
         cleanFuture.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -356,11 +358,9 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to clean RIB {}",
-                        ribId.getValue(), throwable);
+                LOG.error("Failed to clean RIB {}", ribId.getValue(), throwable);
             }
         }, MoreExecutors.directExecutor());
-        domChain.close();
         return cleanFuture;
     }
 }
