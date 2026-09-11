@@ -11,9 +11,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>binding-parent</artifactId>
+        <artifactId>bundle-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../../binding-parent/pom.xml</relativePath>
+        <relativePath>../../bundle-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>programming-spi</artifactId>
@@ -22,11 +22,6 @@
     <name>${project.artifactId}</name>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>programming-api</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.github.spotbugs</groupId>
             <artifactId>spotbugs-annotations</artifactId>
@@ -41,12 +36,16 @@
             <artifactId>org.eclipse.jdt.annotation</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.yangtools</groupId>
-            <artifactId>concepts</artifactId>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>programming-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.mdsal</groupId>
             <artifactId>mdsal-singleton-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>concepts</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
@@ -59,11 +58,4 @@
             <artifactId>mockito-configuration</artifactId>
         </dependency>
     </dependencies>
-
-    <scm>
-        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
-        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
-        <url>https://wiki.opendaylight.org/display/ODL/BGPCEP</url>
-        <tag>HEAD</tag>
-    </scm>
 </project>
