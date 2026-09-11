@@ -17,7 +17,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.nio.ByteBuffer;
 import java.util.Collections;
-import java.util.List;
+import java.util.stream.LongStream;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.graph.ConnectedEdge;
 import org.opendaylight.graph.ConnectedEdgeTrigger;
@@ -264,7 +264,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         }
 
         /* Loop the path description to add reserved bandwidth and triggers for this LSP */
-        final Long bw = cts.getBandwidth() == null ? 0L : cts.getBandwidth().getValue().longValue();
+        final long bw = cts.getBandwidth() == null ? 0L : cts.getBandwidth().getValue().longValue();
         int cos = cts.getClassType() == null ? 0 : cts.getClassType().intValue();
         final AddressFamily af = cts.getAddressFamily();
         final String lspId = teNode.getId().getValue() + "/" + cfgLsp.getName();
@@ -416,8 +416,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
         }
 
         /* Check if Metric is always met */
-        Long metric = 0L;
-        Long delta = 0L;
+        long metric = 0L;
+        long delta = 0L;
         if (constraints.getDelay() != null) {
             if (edge.getEdgeAttributes().getExtendedMetric().getDelay() != null) {
                 metric = constraints.getDelay().getValue().longValue();
@@ -465,8 +465,8 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                 triggerFlag = true;
                 return true;
             }
-            Long bandwidth = constraints.getBandwidth().getValue().longValue();
-            Long unrsv = 0L;
+            long bandwidth = constraints.getBandwidth().getValue().longValue();
+            long unrsv = 0L;
             int cos = 0;
             for (UnreservedBandwidth unResBw : edge.getEdgeAttributes().getTeMetric().getUnreservedBandwidth()) {
                 if (unResBw.getClassType().intValue() == cos) {
@@ -474,16 +474,14 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                     break;
                 }
             }
-            Long maxBW = edge.getEdgeAttributes().getTeMetric().getMaxLinkBandwidth().getValue().longValue();
-            if (bandwidth > List.of(
+            long maxBW = edge.getEdgeAttributes().getTeMetric().getMaxLinkBandwidth().getValue().longValue();
+            if (bandwidth > LongStream.of(
                     unrsv,
                     /* maxBW might be on the list but will always be greater than the next items */
                     maxBW - next.getCosResvBandwidth(cos),
                     maxBW - next.getGlobalResvBandwidth(),
                     edge.getEdgeAttributes().getTeMetric().getMaxResvLinkBandwidth().getValue().longValue())
-                    .stream().mapToLong(v -> v)
-                    .min().orElseThrow()
-            ) {
+                    .min().orElseThrow()) {
                 LOG.debug("Following an update on Edge {}, Reserved bandwidth is no longer guaranteed", edge.getName());
                 triggerFlag = true;
                 return true;
