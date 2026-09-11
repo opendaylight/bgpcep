@@ -482,7 +482,7 @@ public class ManagedTePath implements ConnectedEdgeTrigger, ConnectedVertexTrigg
                     maxBW - next.getGlobalResvBandwidth(),
                     edge.getEdgeAttributes().getTeMetric().getMaxResvLinkBandwidth().getValue().longValue())
                     .stream().mapToLong(v -> v)
-                    .min().getAsLong()
+                    .min().orElseThrow()
             ) {
                 LOG.debug("Following an update on Edge {}, Reserved bandwidth is no longer guaranteed", edge.getName());
                 triggerFlag = true;
