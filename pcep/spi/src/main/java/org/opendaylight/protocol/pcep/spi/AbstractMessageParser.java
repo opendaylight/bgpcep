@@ -9,7 +9,6 @@ package org.opendaylight.protocol.pcep.spi;
 
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.primitives.UnsignedBytes;
 import io.netty.buffer.ByteBuf;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -29,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.mes
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.RequestBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.message.rev250930.pcerr.message.pcerr.message.error.type.request._case.request.RpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.Object;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.ObjectHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.pcep.error.object.ErrorObjectBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.rp.object.Rp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.object.rev250930.vendor.information.objects.VendorInformationObject;
@@ -69,7 +67,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     }
 
     private Queue<Object> parseObjects(final ByteBuf bytes) throws PCEPDeserializerException {
-        final Queue<Object> objs = new ArrayDeque<>();
+        final var objs = new ArrayDeque<Object>();
         while (bytes.isReadable()) {
             if (bytes.readableBytes() < COMMON_OBJECT_HEADER_LENGTH) {
                 throw new PCEPDeserializerException("Too few bytes in passed array. Passed: " + bytes.readableBytes()
@@ -78,8 +76,8 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
             final int objClass = bytes.readUnsignedByte();
 
             final byte flagsByte = bytes.readByte();
-            final BitArray flags = BitArray.valueOf(flagsByte);
-            final int objType = UnsignedBytes.toInt(ByteArray.copyBitsRange(flagsByte, OT_SF_OFFSET, OT_SF_LENGTH));
+            final var flags = BitArray.valueOf(flagsByte);
+            final int objType = Byte.toUnsignedInt(ByteArray.copyBitsRange(flagsByte, OT_SF_OFFSET, OT_SF_LENGTH));
             final int objLength = bytes.readUnsignedShort();
 
             if (bytes.readableBytes() < objLength - COMMON_OBJECT_HEADER_LENGTH) {
@@ -87,16 +85,16 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
                     + " Expected: >= " + objLength + ".");
             }
             // copy bytes for deeper parsing
-            final ByteBuf bytesToPass = bytes.readSlice(objLength - COMMON_OBJECT_HEADER_LENGTH);
+            final var bytesToPass = bytes.readSlice(objLength - COMMON_OBJECT_HEADER_LENGTH);
 
-            final ObjectHeader header = new ObjectHeaderImpl(flags.get(PROCESSED), flags.get(IGNORED));
+            final var header = new ObjectHeaderImpl(flags.get(PROCESSED), flags.get(IGNORED));
 
             if (VendorInformationUtil.isVendorInformationObject(objClass, objType)) {
                 final var enterpriseNumber = new EnterpriseNumber(ByteBufUtils.readUint32(bytesToPass));
                 registry.parseVendorInformationObject(enterpriseNumber, header, bytesToPass).ifPresent(objs::add);
             } else {
                 // parseObject is required to return null for P=0 errored objects
-                final Object o = registry.parseObject(objClass, objType, header, bytesToPass);
+                final var o = registry.parseObject(objClass, objType, header, bytesToPass);
                 if (o != null) {
                     objs.add(o);
                 }
@@ -107,7 +105,7 @@ public abstract class AbstractMessageParser implements MessageParser, MessageSer
     }
 
     public static Message createErrorMsg(final PCEPErrors err, final Optional<Rp> optRp) {
-        final PcerrMessageBuilder msgBuilder = new PcerrMessageBuilder();
+        final var msgBuilder = new PcerrMessageBuilder();
         optRp.ifPresent(rp -> {
             msgBuilder.setErrorType(new RequestCaseBuilder()
                 .setRequest(new RequestBuilder().setRps(List.of(new RpsBuilder().setRp(rp).build())).build())
