@@ -11,9 +11,9 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>binding-parent</artifactId>
+        <artifactId>bundle-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../../binding-parent/pom.xml</relativePath>
+        <relativePath>../../bundle-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>bgp-rib-mock</artifactId>
@@ -22,26 +22,6 @@
     <name>${project.artifactId}</name>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>util</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-concepts</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-parser-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-parser-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-rib-spi</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.google.errorprone</groupId>
             <artifactId>error_prone_annotations</artifactId>
@@ -61,6 +41,26 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-concepts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-parser-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-parser-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-rib-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.ietf.model</groupId>
@@ -85,11 +85,4 @@
             <artifactId>mockito-configuration</artifactId>
         </dependency>
     </dependencies>
-
-    <scm>
-        <connection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</connection>
-        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/bgpcep.git</developerConnection>
-        <url>https://wiki.opendaylight.org/display/ODL/BGPCEP</url>
-        <tag>HEAD</tag>
-    </scm>
 </project>
