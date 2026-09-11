@@ -11,48 +11,53 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.opendaylight.bgpcep</groupId>
-        <artifactId>binding-parent</artifactId>
+        <artifactId>bundle-parent</artifactId>
         <version>3.0.0-SNAPSHOT</version>
-        <relativePath>../../binding-parent/pom.xml</relativePath>
+        <relativePath>../../bundle-parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>bgp-parser-impl</artifactId>
     <packaging>bundle</packaging>
-    <description>BGP Parser Implementation Updated to draft-02</description>
     <name>${project.artifactId}</name>
+    <description>BGP Parser Implementation Updated to draft-02</description>
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>concepts</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-concepts</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-parser-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-parser-spi</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>util</artifactId>
+            <groupId>com.guicedee.services</groupId>
+            <artifactId>javax.inject</artifactId>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>org.kohsuke.metainf-services</groupId>
+            <artifactId>metainf-services</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-concepts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-parser-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-parser-spi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>concepts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.ietf.model</groupId>
@@ -82,22 +87,13 @@
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.service.component.annotations</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.guicedee.services</groupId>
-            <artifactId>javax.inject</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.kohsuke.metainf-services</groupId>
-            <artifactId>metainf-services</artifactId>
-        </dependency>
 
         <dependency>
             <groupId>org.opendaylight.yangtools</groupId>
             <artifactId>mockito-configuration</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-util</artifactId>
             <scope>test</scope>
         </dependency>
