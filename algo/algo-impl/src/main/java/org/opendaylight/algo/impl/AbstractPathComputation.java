@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.stream.LongStream;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.algo.PathComputationAlgorithm;
 import org.opendaylight.algo.impl.CspfPath.CspfPathStatus;
@@ -213,21 +214,19 @@ public abstract class AbstractPathComputation implements PathComputationAlgorith
         }
 
         /* Get Unreserved Bandwidth for the given Class of Service / Priority */
-        Long bandwidth = constraints.getBandwidth().getValue().longValue();
-        Long unrsv = 0L;
+        long bandwidth = constraints.getBandwidth().getValue().longValue();
+        long unrsv = 0L;
         for (UnreservedBandwidth unResBw : teMetric.getUnreservedBandwidth()) {
             if (unResBw.getClassType().intValue() == cos) {
                 unrsv = unResBw.getBandwidth().getValue().longValue();
                 break;
             }
         }
-        Long maxBW = teMetric.getMaxLinkBandwidth().getValue().longValue();
-        if (bandwidth > List.of(unrsv,
-                // maxBW might be on the list but will always be greater
-                // than the next items
+        long maxBW = teMetric.getMaxLinkBandwidth().getValue().longValue();
+        if (bandwidth > LongStream.of(unrsv,
+                // maxBW might be on the list but will always be greater than the next items
                 maxBW - edge.getCosResvBandwidth(cos), maxBW - edge.getGlobalResvBandwidth(),
-                teMetric.getMaxResvLinkBandwidth().getValue().longValue()).stream().mapToLong(v -> v).min()
-                .orElseThrow()) {
+                teMetric.getMaxResvLinkBandwidth().getValue().longValue()).min().orElseThrow()) {
             LOG.debug("Bandwidth constraint is not met");
             return true;
         }
