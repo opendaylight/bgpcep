@@ -27,13 +27,13 @@
         <!-- Well-known -->
         <module>artifacts</module>
         <module>features</module>
-        <module>parent</module>
 
         <!-- Utility parents -->
         <module>binding-parent</module>
-        <module>testtool-parent</module>
-        <module>single-feature-parent</module>
+        <module>bundle-parent</module>
         <module>feature-repo-parent</module>
+        <module>single-feature-parent</module>
+        <module>testtool-parent</module>
 
         <!-- Common infra -->
         <module>concepts</module>
