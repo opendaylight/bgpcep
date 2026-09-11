@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.net.InetAddresses;
-import com.google.common.primitives.UnsignedInts;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import io.netty.buffer.Unpooled;
 import java.net.Inet4Address;
@@ -338,8 +337,7 @@ public final class StrictBGPPeerRegistry implements BGPPeerRegistry, AutoCloseab
         }
 
         private static long toLong(final Ipv4Address from) {
-            final int i = InetAddresses.coerceToInteger(InetAddresses.forString(from.getValue()));
-            return UnsignedInts.toLong(i);
+            return Integer.toUnsignedLong(InetAddresses.coerceToInteger(InetAddresses.forString(from.getValue())));
         }
 
         @Override
