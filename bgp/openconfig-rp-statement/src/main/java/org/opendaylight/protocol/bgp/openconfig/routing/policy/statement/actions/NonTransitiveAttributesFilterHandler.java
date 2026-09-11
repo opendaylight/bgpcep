@@ -8,10 +8,6 @@
 
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
-import com.google.common.collect.ImmutableMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
@@ -19,11 +15,10 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameter
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.UnrecognizedAttributesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ExtendedCommunity;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.NonTransitiveAttributesFilter;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 
 /**
  * Removes non transitive attributes.
@@ -32,7 +27,7 @@ public final class NonTransitiveAttributesFilterHandler implements BgpActionAugP
     private static final NonTransitiveAttributesFilterHandler INSTANCE = new NonTransitiveAttributesFilterHandler();
 
     private NonTransitiveAttributesFilterHandler() {
-
+        // hidden on purpose
     }
 
     public static NonTransitiveAttributesFilterHandler getInstance() {
@@ -49,27 +44,22 @@ public final class NonTransitiveAttributesFilterHandler implements BgpActionAugP
     }
 
     private static Attributes filterAttributes(final Attributes attributes) {
-        final AttributesBuilder builder = new AttributesBuilder()
-                .setCNextHop(attributes.getCNextHop())
-                .setOrigin(attributes.getOrigin())
-                .setAsPath(attributes.getAsPath())
-                .setCommunities(attributes.getCommunities());
+        // note: we are not using nonnullFoo() on purpose: we save allocation of collectors
+        final var oldAtt = attributes.getUnrecognizedAttributes();
+        final var oldExt = attributes.getExtendedCommunities();
 
-        final Map<UnrecognizedAttributesKey, UnrecognizedAttributes> oldAtt = attributes.getUnrecognizedAttributes();
-        if (oldAtt != null) {
-            // TODO: consider using Maps.filterValues(attributes.getUnrecognizedAttributes(),
-            //                                        UnrecognizedAttributes::isTransitive)) ?
-            builder.setUnrecognizedAttributes(attributes.getUnrecognizedAttributes().values().stream()
-                    .filter(UnrecognizedAttributes::getTransitive)
-                    .collect(ImmutableMap.toImmutableMap(UnrecognizedAttributes::key, Function.identity())));
-        }
-        final List<ExtendedCommunities> oldExt = attributes.getExtendedCommunities();
-        if (oldExt != null) {
-            builder.setExtendedCommunities(oldExt.stream()
-                    .filter(ExtendedCommunity::getTransitive)
-                    .collect(Collectors.toList()));
-        }
-        return builder.build();
+        return new AttributesBuilder()
+            .setCNextHop(attributes.getCNextHop())
+            .setOrigin(attributes.getOrigin())
+            .setAsPath(attributes.getAsPath())
+            .setCommunities(attributes.getCommunities())
+            .setUnrecognizedAttributes(oldAtt == null ? null : oldAtt.values().stream()
+                .filter(UnrecognizedAttributes::getTransitive)
+                .collect(BindingMap.toOrderedMap()))
+            .setExtendedCommunities(oldExt == null ? null : oldExt.stream()
+                .filter(ExtendedCommunity::getTransitive)
+                .collect(Collectors.toList()))
+            .build();
     }
 
     @Override
