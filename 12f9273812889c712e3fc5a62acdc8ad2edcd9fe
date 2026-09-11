@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "591114a7_b4d6b2c9",
+        "filename": "bgp/openconfig-state/src/test/java/org/opendaylight/protocol/bgp/state/StateProviderImplTest.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-11T14:10:03Z",
+      "side": 1,
+      "message": "why not 500?",
+      "revId": "12f9273812889c712e3fc5a62acdc8ad2edcd9fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1faa85c6_1a3367bc",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-11T14:10:03Z",
+      "side": 1,
+      "message": "First sentence.\n\n\u003cp\u003eparagraphs..",
+      "revId": "12f9273812889c712e3fc5a62acdc8ad2edcd9fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "87408b1b_51eb76dc",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-11T14:10:03Z",
+      "side": 1,
+      "message": "why plus(sustainFor)?",
+      "revId": "12f9273812889c712e3fc5a62acdc8ad2edcd9fe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
