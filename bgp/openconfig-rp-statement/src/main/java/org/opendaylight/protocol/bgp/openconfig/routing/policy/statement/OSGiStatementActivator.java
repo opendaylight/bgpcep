@@ -7,9 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement;
 
-import static com.google.common.base.Verify.verifyNotNull;
-
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.AbstractBGPStatementProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementProviderActivator;
@@ -17,29 +16,22 @@ import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.Stat
 import org.opendaylight.yangtools.concepts.Registration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-@Component(immediate = true, service = StatementProviderActivator.class,
-           property = "type=org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.StatementActivator")
+@Component(
+    immediate = true,
+    service = StatementProviderActivator.class,
+    property = "type=org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.StatementActivator")
 public final class OSGiStatementActivator extends AbstractBGPStatementProviderActivator {
-    @Reference
-    DataBroker dataBroker;
-
-    private StatementActivator delegate;
-
-    @Override
-    protected List<? extends Registration> startImpl(final StatementRegistryProvider context) {
-        return verifyNotNull(delegate).startImpl(context);
-    }
+    private final @NonNull StatementActivator delegate;
 
     @Activate
-    void activate() {
+    public OSGiStatementActivator(@Reference final DataBroker dataBroker) {
         delegate = new StatementActivator(dataBroker);
     }
 
-    @Deactivate
-    void deactivate() {
-        delegate = null;
+    @Override
+    protected List<? extends Registration> startImpl(final StatementRegistryProvider context) {
+        return delegate.startImpl(context);
     }
 }
