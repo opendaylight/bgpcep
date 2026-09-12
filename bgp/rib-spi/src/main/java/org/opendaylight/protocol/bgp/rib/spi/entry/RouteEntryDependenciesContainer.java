@@ -23,7 +23,7 @@ public interface RouteEntryDependenciesContainer {
     /**
      * {@return RIBSupport}
      */
-    RIBSupport<?, ?> getRIBSupport();
+    RIBSupport getRIBSupport();
 
     /**
      * {@return the table key(AFI/SAFI) corresponding to the Route Entry}

@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.annotations.Beta;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -29,25 +28,29 @@ import org.slf4j.LoggerFactory;
 public final class OSGiCodecsRegistry implements CodecsRegistry {
     private static final Logger LOG = LoggerFactory.getLogger(OSGiCodecsRegistry.class);
 
-    private final ConcurrentMap<RIBSupport<?, ?>, Codecs> contexts = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<RIBSupport, Codecs> contexts = new ConcurrentHashMap<>();
     private volatile BindingCodecTree codecTree;
 
     @Override
-    public Codecs getCodecs(final RIBSupport<?, ?> ribSupport) {
-        return contexts.computeIfAbsent(ribSupport, this::createCodecs);
+    public Codecs getCodecs(final RIBSupport ribSupport) {
+        return contexts.computeIfAbsent(ribSupport, key -> {
+            final var codecs = new CodecsImpl(key);
+            codecs.onCodecTreeUpdated(codecTree);
+            return codecs;
+        });
     }
 
     @Reference(policy = ReferencePolicy.DYNAMIC)
     void bindCodecTree(final BindingCodecTree newCodecTree) {
-        this.codecTree = requireNonNull(newCodecTree);
+        codecTree = requireNonNull(newCodecTree);
     }
 
     void unbindCodecTree(final BindingCodecTree unused) {
-        this.codecTree = null;
+        codecTree = null;
     }
 
     void updatedCodecTree(final BindingCodecTree newCodecTree) {
-        this.codecTree = requireNonNull(newCodecTree);
+        codecTree = requireNonNull(newCodecTree);
         contexts.values().forEach(codecs -> codecs.onCodecTreeUpdated(newCodecTree));
     }
 
@@ -61,11 +64,5 @@ public final class OSGiCodecsRegistry implements CodecsRegistry {
     void deactivate() {
         contexts.clear();
         LOG.info("BGP codec registry stopped");
-    }
-
-    private Codecs createCodecs(final RIBSupport<?, ?> key) {
-        final Codecs codecs = new CodecsImpl(key);
-        codecs.onCodecTreeUpdated(codecTree);
-        return codecs;
     }
 }

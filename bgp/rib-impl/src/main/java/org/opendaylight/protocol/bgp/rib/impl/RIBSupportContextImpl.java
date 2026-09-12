@@ -24,19 +24,22 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 class RIBSupportContextImpl extends RIBSupportContext {
-    private final RIBSupport<?, ?> ribSupport;
+    private final RIBSupport ribSupport;
     private final Codecs codecs;
 
-    RIBSupportContextImpl(final RIBSupport<?, ?> ribSupport, final CodecsRegistry codecs) {
+    RIBSupportContextImpl(final RIBSupport ribSupport, final CodecsRegistry codecs) {
         this.ribSupport = requireNonNull(ribSupport);
-        this.codecs = codecs.getCodecs(this.ribSupport);
+        this.codecs = codecs.getCodecs(ribSupport);
+    }
+    @SuppressFBWarnings("NM_CONFUSING")
+    @Override
+    public RIBSupport getRibSupport() {
+        return ribSupport;
     }
 
     @Override
     public Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteTransaction tx,
-                                                                final YangInstanceIdentifier tableId,
-                                                                final MpReachNlri nlri,
-                                                                final Attributes attributes) {
+            final YangInstanceIdentifier tableId, final MpReachNlri nlri, final Attributes attributes) {
         final var domNlri = codecs.serializeReachNlri(nlri);
         final var routeAttributes = codecs.serializeAttributes(attributes);
         return ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
@@ -51,11 +54,5 @@ class RIBSupportContextImpl extends RIBSupportContext {
     public void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tableId,
             final MpUnreachNlri nlri) {
         ribSupport.deleteRoutes(tx, tableId, codecs.serializeUnreachNlri(nlri));
-    }
-
-    @SuppressFBWarnings("NM_CONFUSING")
-    @Override
-    public RIBSupport<?, ?> getRibSupport() {
-        return ribSupport;
     }
 }
