@@ -5,9 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -21,30 +21,22 @@ import org.opendaylight.yangtools.yang.common.Uint32;
  * Prepend local AS, one time(n times not supported yet).
  */
 public final class AsPathPrepend extends AbstractPrependAsPath implements BgpActionPolicy<SetAsPathPrepend> {
-    private static final AsPathPrepend INSTANCE = new AsPathPrepend();
+    public static final @NonNull AsPathPrepend INSTANCE = new AsPathPrepend();
 
     private AsPathPrepend() {
-
-    }
-
-    public static AsPathPrepend getInstance() {
-        return INSTANCE;
+        // hidden on purpose
     }
 
     @Override
-    public Attributes applyImportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+    public Attributes applyImportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final Attributes attributes,
             final SetAsPathPrepend bgpActions) {
         return null;
     }
 
     @Override
-    public Attributes applyExportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters exportParameters,
-            final Attributes attributes,
+    public Attributes applyExportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters exportParameters, final Attributes attributes,
             final SetAsPathPrepend actions) {
         return prependAS(attributes, new AsNumber(Uint32.valueOf(routeEntryInfo.getLocalAs())));
     }

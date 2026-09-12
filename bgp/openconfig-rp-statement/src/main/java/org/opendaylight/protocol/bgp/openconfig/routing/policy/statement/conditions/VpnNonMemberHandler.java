@@ -7,10 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions;
 
+import com.google.common.base.VerifyException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -34,65 +35,56 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  */
 public final class VpnNonMemberHandler
         implements BgpConditionsAugmentationPolicy<VpnNonMemberCondition, List<ExtendedCommunities>> {
-    private static final VpnNonMemberHandler INSTANCE = new VpnNonMemberHandler();
-    private static final RouteTargetConstrainDefaultRoute DEFAULT = new RouteTargetConstrainDefaultRouteBuilder()
-            .build();
+    public static final @NonNull VpnNonMemberHandler INSTANCE = new VpnNonMemberHandler();
+
+    private static final @NonNull RouteTargetConstrainDefaultRoute DEFAULT =
+        new RouteTargetConstrainDefaultRouteBuilder().build();
 
     private VpnNonMemberHandler() {
-
-    }
-
-    public static VpnNonMemberHandler getInstance() {
-        return INSTANCE;
+        // hidden on purpose
     }
 
     @Override
-    public boolean matchImportCondition(
-            final AfiSafiType afiSafiType,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final List<ExtendedCommunities> attributes,
+    public boolean matchImportCondition(final AfiSafiType afiSafiType, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final List<ExtendedCommunities> attributes,
             final VpnNonMemberCondition conditions) {
         return false;
     }
 
     @Override
-    public boolean matchExportCondition(
-            final AfiSafiType afiSafiType,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final List<ExtendedCommunities> attributes,
+    public boolean matchExportCondition( final AfiSafiType afiSafiType, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters, final List<ExtendedCommunities> attributes,
             final VpnNonMemberCondition conditions) {
-        final List<RouteTarget> allowedRouteTarget = routeEntryExportParameters.getMemberships();
-        if (allowedRouteTarget.contains(DEFAULT)) {
-            return false;
-        }
-        final List<RouteTarget> toRT = attributes.stream()
-                .map(ExtendedCommunities::getExtendedCommunity)
-                .filter(Objects::nonNull)
-                .filter(this::filterRTExtComm)
-                .map(this::extendedCommunityToRouteTarget)
-                .collect(Collectors.toList());
-        return Collections.disjoint(allowedRouteTarget, toRT);
+        final var allowedRouteTarget = routeEntryExportParameters.getMemberships();
+        return !allowedRouteTarget.contains(DEFAULT) && Collections.disjoint(allowedRouteTarget, attributes.stream()
+            .map(ExtendedCommunities::getExtendedCommunity)
+            .filter(Objects::nonNull)
+            .filter(this::filterRTExtComm)
+            .map(this::extendedCommunityToRouteTarget)
+            .toList());
     }
 
-    private RouteTarget extendedCommunityToRouteTarget(final ExtendedCommunity rt) {
-        if (rt instanceof RouteTargetExtendedCommunityCase) {
-            return ((RouteTargetExtendedCommunityCase) rt).getRouteTargetExtendedCommunity();
-        } else if (rt instanceof As4RouteTargetExtendedCommunityCase) {
-            return ((As4RouteTargetExtendedCommunityCase) rt).getAs4RouteTargetExtendedCommunity();
-        }
-        return ((RouteTargetIpv4Case) rt).getRouteTargetIpv4();
+    private RouteTarget extendedCommunityToRouteTarget(final ExtendedCommunity ec) {
+        return switch (ec) {
+            case As4RouteTargetExtendedCommunityCase rt -> rt.getAs4RouteTargetExtendedCommunity();
+            case RouteTargetExtendedCommunityCase rt -> rt.getRouteTargetExtendedCommunity();
+            case RouteTargetIpv4Case rt -> rt.getRouteTargetIpv4();
+            default -> throw new VerifyException("Unhandled comminity " + ec);
+        };
     }
 
-    private boolean filterRTExtComm(final ExtendedCommunity rt) {
-        return rt instanceof RouteTargetExtendedCommunityCase || rt instanceof As4RouteTargetExtendedCommunityCase
-                || rt instanceof RouteTargetIpv4Case;
+    private boolean filterRTExtComm(final ExtendedCommunity ec) {
+        return switch (ec) {
+            case As4RouteTargetExtendedCommunityCase unused -> true;
+            case RouteTargetExtendedCommunityCase unused -> true;
+            case RouteTargetIpv4Case unused -> true;
+            case null, default -> false;
+        };
     }
 
     @Override
     public List<ExtendedCommunities> getConditionParameter(final Attributes attributes) {
-        final List<ExtendedCommunities> ext = attributes.getExtendedCommunities();
+        final var ext = attributes.getExtendedCommunities();
         return ext == null ? List.of() : ext;
     }
 }

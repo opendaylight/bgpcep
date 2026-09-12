@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.action
 
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -23,46 +24,40 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  * Prepend Cluster Id.
  */
 public final class SetClusterIdPrependHandler implements BgpActionAugPolicy<SetClusterIdPrepend> {
-    private static final SetClusterIdPrependHandler INSTANCE = new SetClusterIdPrependHandler();
+    public static final @NonNull SetClusterIdPrependHandler INSTANCE = new SetClusterIdPrependHandler();
 
     private SetClusterIdPrependHandler() {
-
-    }
-
-    public static SetClusterIdPrependHandler getInstance() {
-        return INSTANCE;
+        // hidden on purpose
     }
 
     @Override
-    public Attributes applyImportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters importParameters,
-            final Attributes attributes,
+    public Attributes applyImportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters importParameters, final Attributes attributes,
             final SetClusterIdPrepend bgpActions) {
-        final ClusterIdentifier clusterIdLocal = importParameters.getFromClusterId() == null
-                ? routeEntryInfo.getClusterId() : importParameters.getFromClusterId();
-        return prependClusterId(attributes, clusterIdLocal);
+        return prependClusterId(attributes, importParameters.getFromClusterId() == null ? routeEntryInfo.getClusterId()
+            : importParameters.getFromClusterId());
     }
 
     private static Attributes prependClusterId(final Attributes attributes, final ClusterIdentifier clusterId) {
-        final AttributesBuilder newAtt = new AttributesBuilder(attributes);
-        final List<ClusterIdentifier> newClusterList = new ArrayList<>();
-        newClusterList.add(clusterId);
-        if (attributes.getClusterId() != null && !attributes.getClusterId().getCluster().isEmpty()) {
-            final List<ClusterIdentifier> oldList = attributes.getClusterId().getCluster();
-            newClusterList.addAll(oldList);
+        final var tmp = new ArrayList<ClusterIdentifier>();
+        tmp.add(clusterId);
+        final var origClusterId = attributes.getClusterId();
+        if (origClusterId != null) {
+            final var origCluster = origClusterId.getCluster();
+            if (origCluster != null && !origCluster.isEmpty()) {
+                tmp.addAll(origCluster);
+            }
         }
-        return newAtt.setClusterId(new ClusterIdBuilder().setCluster(newClusterList).build()).build();
+        return new AttributesBuilder(attributes)
+            .setClusterId(new ClusterIdBuilder().setCluster(List.copyOf(tmp)).build())
+            .build();
     }
 
     @Override
-    public Attributes applyExportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters exportParameters,
-            final Attributes attributes,
+    public Attributes applyExportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters exportParameters, final Attributes attributes,
             final SetClusterIdPrepend bgpActions) {
-        final ClusterIdentifier clusterIdLocal = exportParameters.getFromClusterId() == null
-                ? routeEntryInfo.getClusterId() : exportParameters.getFromClusterId();
-        return prependClusterId(attributes, clusterIdLocal);
+        final var fromClusterId = exportParameters.getFromClusterId();
+        return prependClusterId(attributes, fromClusterId != null ? fromClusterId : routeEntryInfo.getClusterId());
     }
 }

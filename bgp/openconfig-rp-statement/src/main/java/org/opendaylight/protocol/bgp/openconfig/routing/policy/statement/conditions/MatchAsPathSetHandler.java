@@ -13,16 +13,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
@@ -43,8 +40,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AsPathSegment;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
 /**
@@ -58,41 +53,39 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
             .child(BgpDefinedSets.class)
             .child(AsPathSets.class)
             .build();
-    private final DataBroker dataBroker;
-    private final LoadingCache<String, AsPathSet> sets = CacheBuilder.newBuilder()
-            .build(new CacheLoader<String, AsPathSet>() {
-                @Override
-                public AsPathSet load(final String key) throws ExecutionException, InterruptedException {
-                    final FluentFuture<Optional<AsPathSet>> future;
-                    try (var tr = dataBroker.newReadOnlyTransaction()) {
-                        future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                            AS_PATHS_SETS_IID.toBuilder().child(AsPathSet.class, new AsPathSetKey(key)).build());
-                    }
-                    return future.get().orElse(null);
-                }
-            });
 
+    private final LoadingCache<String, AsPathSet> sets = CacheBuilder.newBuilder().build(new CacheLoader<>() {
+        @Override
+        public AsPathSet load(final String key) throws ExecutionException, InterruptedException {
+            return loadSet(key);
+        }
+    });
+    private final DataBroker dataBroker;
+
+    @NonNullByDefault
     public MatchAsPathSetHandler(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
     }
 
+    private @Nullable AsPathSet loadSet(final String key) throws ExecutionException, InterruptedException {
+        final FluentFuture<Optional<AsPathSet>> future;
+        try (var tr = dataBroker.newReadOnlyTransaction()) {
+            future = tr.read(LogicalDatastoreType.CONFIGURATION,
+                AS_PATHS_SETS_IID.toBuilder().child(AsPathSet.class, new AsPathSetKey(key)).build());
+        }
+        return future.get().orElse(null);
+    }
+
     @Override
-    public boolean matchImportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final AsPath asPath,
+    public boolean matchImportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final AsPath asPath,
             final MatchAsPathSet conditions) {
         return matchAsPathSetCondition(asPath, conditions.getAsPathSet(), conditions.getMatchSetOptions());
     }
 
-
     @Override
-    public boolean matchExportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final AsPath asPath,
+    public boolean matchExportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters, final AsPath asPath,
             final MatchAsPathSet conditions) {
         return matchAsPathSetCondition(asPath, conditions.getAsPathSet(), conditions.getMatchSetOptions());
     }
@@ -107,40 +100,32 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
         if (asPath == null) {
             return false;
         }
-        final AsPathSet asPathSetFilter = sets.getUnchecked(StringUtils
-                .substringBetween(asPathSetName, "=\"", "\""));
-
-        final List<Segments> segments = asPath.getSegments();
+        // TODO: can we ditch commons-lang3 here?
+        final var asPathSetFilter = sets.getUnchecked(StringUtils.substringBetween(asPathSetName, "=\"", "\""));
+        final var segments = asPath.getSegments();
         if (asPathSetFilter == null || segments == null) {
             return false;
         }
 
-        final List<AsNumber> l1 = segments.stream()
-                .map(AsPathSegment::getAsSequence)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        final List<AsNumber> l2 = segments.stream()
-                .map(AsPathSegment::getAsSet)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-
-        List<AsNumber> allAs = Stream.of(l1, l2).flatMap(Collection::stream).collect(Collectors.toList());
-
-        final Set<AsNumber> asPathSetFilterList = asPathSetFilter.getAsPathSetMember();
-        if (matchSetOptions.equals(MatchSetOptionsType.ALL)) {
-            return allAs.containsAll(asPathSetFilterList)
-                    && asPathSetFilterList.containsAll(allAs);
+        // TODO: can we do something smarter than collecting upfront?
+        final var allAs = new ArrayList<AsNumber>();
+        for (var segment : segments) {
+            final var asSequence = segment.getAsSequence();
+            if (asSequence != null) {
+                allAs.addAll(asSequence);
+            }
+            final var asSet = segment.getAsSet();
+            if (asSet != null) {
+                allAs.addAll(asSet);
+            }
         }
-        final boolean noneInCommon = Collections.disjoint(allAs, asPathSetFilterList);
-        if (matchSetOptions.equals(MatchSetOptionsType.ANY)) {
-            return !noneInCommon;
-        }
-        //(matchSetOptions.equals(MatchSetOptionsType.INVERT))
-        return noneInCommon;
+
+        // FIXME: handle null
+        final var asPathSetFilterList = asPathSetFilter.getAsPathSetMember();
+        return switch (matchSetOptions) {
+            case ALL -> allAs.containsAll(asPathSetFilterList) && asPathSetFilterList.containsAll(allAs);
+            case ANY -> !Collections.disjoint(allAs, asPathSetFilterList);
+            case INVERT -> Collections.disjoint(allAs, asPathSetFilterList);
+        };
     }
 }

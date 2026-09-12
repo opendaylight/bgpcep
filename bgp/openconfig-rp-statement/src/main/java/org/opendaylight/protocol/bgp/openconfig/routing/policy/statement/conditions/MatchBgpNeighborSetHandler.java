@@ -35,7 +35,6 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.BgpNeighbor;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.MatchBgpNeighborCondition;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.match.bgp.neighbor.grouping.MatchBgpNeighborSet;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
@@ -50,14 +49,14 @@ public final class MatchBgpNeighborSetHandler
             .child(DefinedSets.class)
             .child(NeighborSets.class)
             .build();
+
+    private final LoadingCache<String, List<PeerId>> peerSets = CacheBuilder.newBuilder().build(new CacheLoader<>() {
+        @Override
+        public List<PeerId> load(final String key) throws ExecutionException, InterruptedException {
+            return loadRoleSets(key);
+        }
+    });
     private final DataBroker dataBroker;
-    private final LoadingCache<String, List<PeerId>> peerSets = CacheBuilder.newBuilder()
-            .build(new CacheLoader<>() {
-                @Override
-                public List<PeerId> load(final String key) throws ExecutionException, InterruptedException {
-                    return loadRoleSets(key);
-                }
-            });
 
     public MatchBgpNeighborSetHandler(final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
@@ -71,70 +70,46 @@ public final class MatchBgpNeighborSetHandler
 
         }
         return future.get()
-            .map(neighboursSet -> neighboursSet.getNeighbor().values().stream()
+            .map(neighboursSet -> neighboursSet.nonnullNeighbor().values().stream()
                 .map(nei -> RouterIds.createPeerId(nei.getAddress()))
                 .collect(Collectors.toUnmodifiableList()))
             .orElse(List.of());
     }
 
     @Override
-    public boolean matchImportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters importParameters,
-            final Void nonAttributres,
+    public boolean matchImportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters importParameters, final Void nonAttributres,
             final MatchBgpNeighborCondition conditions) {
         return matchBgpNeighborSetCondition(importParameters.getFromPeerId(), null,
                 conditions.getMatchBgpNeighborSet());
     }
 
     @Override
-    public boolean matchExportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters exportParameters,
-            final Void nonAttributres,
+    public boolean matchExportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters exportParameters, final Void nonAttributres,
             final MatchBgpNeighborCondition conditions) {
         return matchBgpNeighborSetCondition(exportParameters.getFromPeerId(), exportParameters.getToPeerId(),
                 conditions.getMatchBgpNeighborSet());
     }
 
-    private boolean matchBgpNeighborSetCondition(
-            final PeerId fromPeerId,
-            final PeerId toPeerId,
+    private boolean matchBgpNeighborSetCondition(final PeerId fromPeerId, final PeerId toPeerId,
             final MatchBgpNeighborSet matchBgpNeighborSet) {
-
-        final BgpNeighbor from = matchBgpNeighborSet.getFromNeighbor();
-        Boolean match = null;
-        if (from != null) {
-            match = checkMatch(from.getNeighborSet(), fromPeerId, from.getMatchSetOptions());
-        }
-
-        if (match != null && !match) {
+        final var from = matchBgpNeighborSet.getFromNeighbor();
+        if (from != null && !checkMatch(from.getNeighborSet(), fromPeerId, from.getMatchSetOptions())) {
             return false;
         }
-
-        final BgpNeighbor to = matchBgpNeighborSet.getToNeighbor();
-        if (to != null) {
-            match = checkMatch(to.getNeighborSet(), toPeerId, to.getMatchSetOptions());
-        }
-
-        return match;
+        final var to = matchBgpNeighborSet.getToNeighbor();
+        return to != null && checkMatch(to.getNeighborSet(), toPeerId, to.getMatchSetOptions());
     }
 
-    private boolean checkMatch(
-            final String neighborSetName,
-            final PeerId peerId,
+    private boolean checkMatch(final String neighborSetName, final PeerId peerId,
             final MatchSetOptionsRestrictedType matchSetOptions) {
-        final List<PeerId> roles = peerSets.getUnchecked(StringUtils
-                .substringBetween(neighborSetName, "=\"", "\""));
-
+        final var roles = peerSets.getUnchecked(StringUtils.substringBetween(neighborSetName, "=\"", "\""));
         final boolean found = roles.contains(peerId);
-        if (MatchSetOptionsRestrictedType.ANY.equals(matchSetOptions)) {
-            return found;
-        }
-        //INVERT
-        return !found;
+        return switch (matchSetOptions) {
+            case ANY -> found;
+            case INVERT -> !found;
+        };
     }
 
     @Override

@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions;
 
 import java.util.Set;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -21,15 +22,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  */
 public final class MatchAfiSafiNotInHandler implements
         BgpConditionsAugmentationPolicy<MatchAfiSafiNotInCondition, Void> {
-
-    private static final MatchAfiSafiNotInHandler INSTANCE = new MatchAfiSafiNotInHandler();
+    public static final @NonNull MatchAfiSafiNotInHandler INSTANCE = new MatchAfiSafiNotInHandler();
 
     private MatchAfiSafiNotInHandler() {
         // Hidden on purpose
-    }
-
-    public static MatchAfiSafiNotInHandler getInstance() {
-        return INSTANCE;
     }
 
     private static boolean matchAfiSafi(final AfiSafiType afiSafi, final Set<AfiSafiType> afiSafiNotIn) {
@@ -37,21 +33,15 @@ public final class MatchAfiSafiNotInHandler implements
     }
 
     @Override
-    public boolean matchImportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Void attributes,
+    public boolean matchImportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final Void attributes,
             final MatchAfiSafiNotInCondition conditions) {
         return matchAfiSafi(afiSafi, conditions.getAfiSafiNotIn());
     }
 
     @Override
-    public boolean matchExportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Void attributes,
+    public boolean matchExportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters, final Void attributes,
             final MatchAfiSafiNotInCondition conditions) {
         return matchAfiSafi(afiSafi, conditions.getAfiSafiNotIn());
     }

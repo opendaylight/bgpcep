@@ -9,6 +9,7 @@
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -24,21 +25,16 @@ import org.opendaylight.yangtools.binding.util.BindingMap;
  * Removes non transitive attributes.
  */
 public final class NonTransitiveAttributesFilterHandler implements BgpActionAugPolicy<NonTransitiveAttributesFilter> {
-    private static final NonTransitiveAttributesFilterHandler INSTANCE = new NonTransitiveAttributesFilterHandler();
+    public static final @NonNull NonTransitiveAttributesFilterHandler INSTANCE =
+        new NonTransitiveAttributesFilterHandler();
 
     private NonTransitiveAttributesFilterHandler() {
         // hidden on purpose
     }
 
-    public static NonTransitiveAttributesFilterHandler getInstance() {
-        return INSTANCE;
-    }
-
     @Override
-    public Attributes applyImportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+    public Attributes applyImportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final Attributes attributes,
             final NonTransitiveAttributesFilter bgpActions) {
         return filterAttributes(attributes);
     }
@@ -64,8 +60,7 @@ public final class NonTransitiveAttributesFilterHandler implements BgpActionAugP
 
     @Override
     public Attributes applyExportAction(final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+            final BGPRouteEntryExportParameters routeEntryExportParameters, final Attributes attributes,
             final NonTransitiveAttributesFilter bgpActions) {
         return filterAttributes(attributes);
     }
