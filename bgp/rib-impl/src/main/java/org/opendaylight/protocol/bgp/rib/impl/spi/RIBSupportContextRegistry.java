@@ -19,7 +19,7 @@ public interface RIBSupportContextRegistry {
      * @param key AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable RIBSupport<?, ?> getRIBSupport(TablesKey key);
+    @Nullable RIBSupport getRIBSupport(TablesKey key);
 
     /**
      * Acquire a RIB Support Context for a AFI/SAFI combination.
@@ -27,7 +27,7 @@ public interface RIBSupportContextRegistry {
      * @param key Tables key with AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    default @Nullable RIBSupport<?, ?> getRIBSupport(final NodeIdentifierWithPredicates key) {
+    default @Nullable RIBSupport getRIBSupport(final NodeIdentifierWithPredicates key) {
         final var support = getRIBSupportContext(key);
         return support == null ? null : support.getRibSupport();
     }

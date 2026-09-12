@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yangtools.binding.BindingObject;
 import org.opendaylight.yangtools.binding.CaseObject;
-import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ContainerObject;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -49,7 +49,7 @@ import org.slf4j.LoggerFactory;
  */
 abstract class AbstractL3vpnMcastIpRIBSupport<
         C extends CaseObject<Tables, ? extends Routes, C>,
-        S extends ChildOf<? super C> & L3vpnMcastRoutes> extends AbstractRIBSupport<C, S, L3vpnMcastRoute> {
+        S extends ContainerObject<? super C, S> & L3vpnMcastRoutes> extends AbstractRIBSupport<C, S, L3vpnMcastRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractL3vpnMcastIpRIBSupport.class);
 
     private final @NonNull NodeIdentifier nlriRoutesList;

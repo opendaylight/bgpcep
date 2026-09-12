@@ -12,7 +12,6 @@ import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ATTRIBUTES_QNAME;
 import static org.opendaylight.protocol.bmp.impl.app.TablesUtil.BMP_ROUTES_QNAME;
 
-import java.util.Map;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -25,10 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
-import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTreeNode;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingDataObjectCodecTreeNode;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeCachingCodec;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -44,35 +41,37 @@ final class TableContext {
     private static final NodeIdentifier BGP_ROUTES_NODE_ID = new NodeIdentifier(BMP_ROUTES_QNAME);
 
     private final YangInstanceIdentifier tableId;
-    private final RIBSupport<?, ?> tableSupport;
+    private final RIBSupport tableSupport;
     private final BindingNormalizedNodeCachingCodec<Attributes> attributesCodec;
     private final BindingNormalizedNodeCachingCodec<MpReachNlri> reachNlriCodec;
     private final BindingNormalizedNodeCachingCodec<MpUnreachNlri> unreachNlriCodec;
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({ "unchecked" })
     TableContext(final RIBSupport tableSupport, final YangInstanceIdentifier tableId, final BindingCodecTree tree) {
         this.tableSupport = requireNonNull(tableSupport);
         this.tableId = requireNonNull(tableId);
-        final BindingCodecTreeNode tableCodecContext = tree.getSubtreeCodec(tableId);
+        final var tableCodecContext = tree.getSubtreeCodec(tableId);
+        if (!(tableCodecContext instanceof BindingDataObjectCodecTreeNode tableCodec)) {
+            throw new IllegalStateException("Unexpected " + tableCodecContext);
+        }
 
-        checkState(tableCodecContext instanceof BindingDataObjectCodecTreeNode);
-        final BindingDataObjectCodecTreeNode<?> routeListCodec = ((BindingDataObjectCodecTreeNode)tableCodecContext)
+        final var routeListCodec = tableCodec
             .getStreamChild(Routes.class)
-            .getStreamChild(this.tableSupport.routesCaseClass())
-            .getStreamChild(this.tableSupport.routesContainerClass())
-            .getStreamDataObject(this.tableSupport.routesListClass());
+            .getStreamChild(tableSupport.routesCaseClass())
+            .getStreamChild(tableSupport.routesContainerClass())
+            .getStreamDataObject(tableSupport.routesListClass());
 
         attributesCodec = routeListCodec.getStreamDataObject(Attributes.class)
-                .createCachingCodec(this.tableSupport.cacheableAttributeObjects());
+                .createCachingCodec(tableSupport.cacheableAttributeObjects());
 
         final var updateAttributesCodec = tree.getStreamChild(Update.class)
                 .getStreamDataObject(Attributes.class);
         reachNlriCodec = updateAttributesCodec.getStreamChild(AttributesReach.class)
             .getStreamDataObject(MpReachNlri.class)
-            .createCachingCodec(this.tableSupport.cacheableNlriObjects());
+            .createCachingCodec(tableSupport.cacheableNlriObjects());
         unreachNlriCodec = updateAttributesCodec.getStreamChild(AttributesUnreach.class)
             .getStreamDataObject(MpUnreachNlri.class)
-            .createCachingCodec(this.tableSupport.cacheableNlriObjects());
+            .createCachingCodec(tableSupport.cacheableNlriObjects());
     }
 
     YangInstanceIdentifier getTableId() {
@@ -86,8 +85,8 @@ final class TableContext {
 
         // tableId is keyed, but that fact is not directly visible from YangInstanceIdentifier, see BUG-2796
         final var tableKey = (NodeIdentifierWithPredicates) tableId.getLastPathArgument();
-        for (final Map.Entry<QName, Object> e : tableKey.entrySet()) {
-            tb.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
+        for (var entry : tableKey.entrySet()) {
+            tb.withChild(ImmutableNodes.leafNode(entry.getKey(), entry.getValue()));
         }
 
         tx.put(LogicalDatastoreType.OPERATIONAL, tableId,
@@ -98,8 +97,8 @@ final class TableContext {
     }
 
     void writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri, final Attributes attributes) {
-        final ContainerNode domNlri = serializeReachNlri(nlri);
-        final ContainerNode routeAttributes = serializeAttributes(attributes);
+        final var domNlri = serializeReachNlri(nlri);
+        final var routeAttributes = serializeAttributes(attributes);
         tableSupport.putRoutes(tx, tableId, domNlri, routeAttributes, BGP_ROUTES_NODE_ID);
     }
 

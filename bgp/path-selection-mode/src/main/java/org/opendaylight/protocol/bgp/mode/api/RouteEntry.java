@@ -40,7 +40,7 @@ public interface RouteEntry {
      * @param localAs The local autonomous system number
      * @return return true if it has changed
      */
-    boolean selectBest(RIBSupport<?, ?> ribSupport, long localAs);
+    boolean selectBest(RIBSupport ribSupport, long localAs);
 
     /**
      * Add Route.
@@ -58,7 +58,7 @@ public interface RouteEntry {
      * @param ribSupport RIB Support
      * @param entryInfo  Route Entry Info wrapper
      */
-    @NonNull List<ActualBestPathRoutes> actualBestPaths(@NonNull RIBSupport<?, ?> ribSupport,
+    @NonNull List<ActualBestPathRoutes> actualBestPaths(@NonNull RIBSupport ribSupport,
             @NonNull RouteEntryInfo entryInfo);
 
     /**
@@ -69,8 +69,7 @@ public interface RouteEntry {
      * @return list containing list of stale best path
      */
     // FIXME: @NonNullByDefault on interface and @Nullable return here
-    @NonNull Optional<StaleBestPathRoute> removeStalePaths(@NonNull RIBSupport<?, ?> ribSupport,
-            @NonNull String routeKey);
+    @NonNull Optional<StaleBestPathRoute> removeStalePaths(@NonNull RIBSupport ribSupport, @NonNull String routeKey);
 
     /**
      * Returns collection of best path routes after processing update of stale and new advertisement of routes.
@@ -78,5 +77,5 @@ public interface RouteEntry {
      * @param ribSupport RIB Support
      * @param routeKey   route key
      */
-    @NonNull List<AdvertizedRoute> newBestPaths(@NonNull RIBSupport<?, ?> ribSupport, @NonNull String routeKey);
+    @NonNull List<AdvertizedRoute> newBestPaths(@NonNull RIBSupport ribSupport, @NonNull String routeKey);
 }

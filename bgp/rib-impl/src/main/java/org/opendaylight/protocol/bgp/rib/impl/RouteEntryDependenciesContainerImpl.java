@@ -21,7 +21,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 
 @NonNullByDefault
 record RouteEntryDependenciesContainerImpl(
-        RIBSupport<?, ?> ribSupport,
+        RIBSupport ribSupport,
         BGPPeerTracker peerTracker,
         BGPRibRoutingPolicy routingPolicies,
         AfiSafiType afiSafiType,
@@ -35,7 +35,7 @@ record RouteEntryDependenciesContainerImpl(
     }
 
     @Override
-    public RIBSupport<?, ?> getRIBSupport() {
+    public RIBSupport getRIBSupport() {
         return ribSupport;
     }
 

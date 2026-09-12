@@ -69,7 +69,7 @@ class AdjRibsInWriterTest {
     @Mock
     private RIBSupportContext context;
     @Mock
-    private RIBSupport<?, ?> support;
+    private RIBSupport support;
     @Mock
     private PeerTransactionChain ptc;
 

@@ -62,7 +62,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
 
     private final ChannelOutputLimiter session;
     private final Codecs codecs;
-    private final RIBSupport<?, ?> support;
+    private final RIBSupport support;
     // FIXME: this field needs to be eliminated: either subclass this class or create a filtering ribsupport
     private final boolean mpSupport;
     private final Registration registerDataTreeChangeListener;
@@ -70,7 +70,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
     private boolean initalState;
 
     private AdjRibOutListener(final PeerId peerId, final YangInstanceIdentifier ribId, final CodecsRegistry registry,
-            final RIBSupport<?, ?> support, final DataTreeChangeExtension service, final ChannelOutputLimiter session,
+            final RIBSupport support, final DataTreeChangeExtension service, final ChannelOutputLimiter session,
             final boolean mpSupport) {
         this.session = requireNonNull(session);
         this.support = requireNonNull(support);
@@ -95,7 +95,7 @@ final class AdjRibOutListener implements DOMDataTreeChangeListener, PrefixesSent
             final @NonNull PeerId peerId,
             final @NonNull YangInstanceIdentifier ribId,
             final @NonNull CodecsRegistry registry,
-            final @NonNull RIBSupport<?, ?> support,
+            final @NonNull RIBSupport support,
             final @NonNull DataTreeChangeExtension service,
             final @NonNull ChannelOutputLimiter session,
             final boolean mpSupport) {

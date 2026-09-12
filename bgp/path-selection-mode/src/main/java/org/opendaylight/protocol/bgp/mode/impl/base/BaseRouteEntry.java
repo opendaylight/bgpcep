@@ -61,13 +61,13 @@ final class BaseRouteEntry implements RouteEntry {
         return offsets.isEmpty();
     }
 
-    private MapEntryNode createRoute(final RIBSupport<?, ?> ribSup, final String routeKey) {
+    private MapEntryNode createRoute(final RIBSupport ribSupport, final String routeKey) {
         final var route = offsets.getValue(values, offsets.offsetOf(bestPath.getRouterId()));
-        return ribSup.createRoute(route, ribSup.createRouteListArgument(routeKey), bestPath.getAttributes());
+        return ribSupport.createRoute(route, ribSupport.createRouteListArgument(routeKey), bestPath.getAttributes());
     }
 
     @Override
-    public boolean selectBest(final RIBSupport<?, ?> ribSupport, final long localAs) {
+    public boolean selectBest(final RIBSupport ribSupport, final long localAs) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -111,7 +111,7 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport<?, ?> ribSupport, final String routeKey) {
+    public Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
         if (removedBestPath == null) {
             return Optional.empty();
         }
@@ -120,7 +120,7 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public List<AdvertizedRoute> newBestPaths(final RIBSupport<?, ?> ribSupport, final String routeKey) {
+    public List<AdvertizedRoute> newBestPaths(final RIBSupport ribSupport, final String routeKey) {
         if (bestPath == null) {
             return Collections.emptyList();
         }
@@ -132,8 +132,7 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public List<ActualBestPathRoutes> actualBestPaths(final RIBSupport<?, ?> ribSupport,
-            final RouteEntryInfo entryInfo) {
+    public List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport, final RouteEntryInfo entryInfo) {
         if (bestPath == null) {
             return Collections.emptyList();
         }

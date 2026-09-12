@@ -27,7 +27,7 @@ public interface RIBExtensionConsumerContext {
      * @param key AFI/SAFI key
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable RIBSupport<?, ?> getRIBSupport(TablesKey key);
+    @Nullable RIBSupport getRIBSupport(TablesKey key);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
@@ -36,7 +36,7 @@ public interface RIBExtensionConsumerContext {
      * @param safi Subsequent Address Family identifier
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable RIBSupport<?, ?> getRIBSupport(AddressFamily afi, SubsequentAddressFamily safi);
+    @Nullable RIBSupport getRIBSupport(AddressFamily afi, SubsequentAddressFamily safi);
 
     /**
      * Acquire a RIB implementation factory for a AFI/SAFI combination.
@@ -44,5 +44,5 @@ public interface RIBExtensionConsumerContext {
      * @param key Tables key with AFI/SAFI
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
-    @Nullable RIBSupport<?, ?> getRIBSupport(NodeIdentifierWithPredicates key);
+    @Nullable RIBSupport getRIBSupport(NodeIdentifierWithPredicates key);
 }

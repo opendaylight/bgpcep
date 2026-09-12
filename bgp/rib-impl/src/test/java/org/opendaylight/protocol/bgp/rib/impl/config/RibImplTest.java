@@ -68,7 +68,7 @@ public class RibImplTest extends AbstractConfig {
     @Mock
     private DOMDataBroker domDataBroker;
     @Mock
-    private RIBSupport<?, ?> ribSupport;
+    private RIBSupport ribSupport;
 
     @Override
     @Before

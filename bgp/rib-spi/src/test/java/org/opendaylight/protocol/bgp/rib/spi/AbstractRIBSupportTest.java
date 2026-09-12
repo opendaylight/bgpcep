@@ -50,7 +50,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.binding.CaseObject;
-import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ContainerObject;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
@@ -68,9 +68,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 // FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
-public abstract class AbstractRIBSupportTest<C extends CaseObject<Tables, ? extends Routes, C>,
-        S extends ChildOf<? super C>, R extends Route & EntryObject<? super S, ?, ?>>
-        extends AbstractConcurrentDataBrokerTest {
+public abstract class AbstractRIBSupportTest<
+        C extends CaseObject<Tables, ? extends Routes, C>,
+        S extends ContainerObject<? super C, S>,
+        R extends Route & EntryObject<? super S, ?, ?>> extends AbstractConcurrentDataBrokerTest {
     protected static final @NonNull PathId PATH_ID = new PathId(Uint32.ONE);
     protected static final @NonNull Attributes ATTRIBUTES = new AttributesBuilder().build();
     private static final DataObjectIdentifier<LocRib> RIB = DataObjectIdentifier.builder(BgpRib.class)

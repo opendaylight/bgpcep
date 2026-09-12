@@ -19,7 +19,7 @@ final class AllPathsRouteEntry extends AddPathAbstractRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(AllPathsRouteEntry.class);
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<?, ?> ribSupport, final long localAs,
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs,
             final int size) {
         // Select the best path for the case when AddPath is not supported
         final var selector = new AddPathSelector(localAs);
