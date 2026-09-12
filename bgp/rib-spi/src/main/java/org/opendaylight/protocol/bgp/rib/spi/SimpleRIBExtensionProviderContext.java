@@ -18,12 +18,11 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderContext {
-    private final ConcurrentHashMap<NodeIdentifierWithPredicates, RIBSupport<?, ?>> domSupports =
-        new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<TablesKey, RIBSupport<?, ?>> supports = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<NodeIdentifierWithPredicates, RIBSupport> domSupports = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<TablesKey, RIBSupport> supports = new ConcurrentHashMap<>();
 
     @Override
-    public Registration registerRIBSupport(final RIBSupport<?, ?> support) {
+    public Registration registerRIBSupport(final RIBSupport support) {
         final var bindingKey = support.getTablesKey();
         final var prevBinding = supports.putIfAbsent(bindingKey, support);
         if (prevBinding != null) {
@@ -47,17 +46,17 @@ public class SimpleRIBExtensionProviderContext implements RIBExtensionProviderCo
     }
 
     @Override
-    public RIBSupport<?, ?> getRIBSupport(final AddressFamily afi, final SubsequentAddressFamily safi) {
+    public RIBSupport getRIBSupport(final AddressFamily afi, final SubsequentAddressFamily safi) {
         return getRIBSupport(new TablesKey(afi, safi));
     }
 
     @Override
-    public RIBSupport<?, ?> getRIBSupport(final TablesKey key) {
+    public RIBSupport getRIBSupport(final TablesKey key) {
         return supports.get(requireNonNull(key));
     }
 
     @Override
-    public RIBSupport<?, ?> getRIBSupport(final NodeIdentifierWithPredicates key) {
+    public RIBSupport getRIBSupport(final NodeIdentifierWithPredicates key) {
         return domSupports.get(key);
     }
 }
