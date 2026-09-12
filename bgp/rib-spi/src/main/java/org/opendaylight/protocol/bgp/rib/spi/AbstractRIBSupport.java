@@ -59,7 +59,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.SubsequentAddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.CNextHop;
 import org.opendaylight.yangtools.binding.CaseObject;
-import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ContainerObject;
 import org.opendaylight.yangtools.binding.DataObject;
 import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.EntryObject;
@@ -86,8 +86,8 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractRIBSupport<
         C extends CaseObject<Tables, ? extends Routes, C>,
-        S extends ChildOf<? super C>,
-        R extends Route & EntryObject<? super S, ?, ?>> implements RIBSupport<C, S> {
+        S extends ContainerObject<? super C, S>,
+        R extends Route & EntryObject<? super S, ?, ?>> implements RIBSupport {
     // FIXME: document this constant
     public static final @NonNull String ROUTE_KEY = "route-key";
 

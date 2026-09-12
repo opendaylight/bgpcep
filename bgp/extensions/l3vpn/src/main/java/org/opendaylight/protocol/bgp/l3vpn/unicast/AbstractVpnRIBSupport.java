@@ -34,7 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.destination.type.VpnDestinationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.vpn.rev180329.l3vpn.ip.route.VpnRoute;
 import org.opendaylight.yangtools.binding.CaseObject;
-import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ContainerObject;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractVpnRIBSupport<
         C extends CaseObject<Tables, ? extends Routes, C>,
-        S extends ChildOf<? super C> & L3vpnIpRoute> extends AbstractRIBSupport<C, S, VpnRoute> {
+        S extends ContainerObject<? super C, S> & L3vpnIpRoute> extends AbstractRIBSupport<C, S, VpnRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractVpnRIBSupport.class);
 
     private final @NonNull NodeIdentifier nlriRoutesListNid;

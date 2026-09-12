@@ -72,7 +72,7 @@ final class LocRibWriter
 
     private final HashMap<String, RouteEntry> routeEntries = new HashMap<>();
     private final long ourAs;
-    private final @NonNull RIBSupport<?, ?> ribSupport;
+    private final @NonNull RIBSupport ribSupport;
     private final @NonNull DataTreeChangeExtension dataBroker;
     private final PathSelectionMode pathSelectionMode;
     private final LongAdder totalPathsCounter = new LongAdder();
@@ -86,7 +86,7 @@ final class LocRibWriter
     @GuardedBy("this")
     private Registration reg;
 
-    private LocRibWriter(final RIBSupport<?, ?> ribSupport,
+    private LocRibWriter(final RIBSupport ribSupport,
             final DOMTransactionChain chain,
             final YangInstanceIdentifier ribIId,
             final Uint32 ourAs,
@@ -106,12 +106,12 @@ final class LocRibWriter
         this.peerTracker = peerTracker;
         this.pathSelectionMode = pathSelectionMode;
 
-        entryDep = new RouteEntryDependenciesContainerImpl(this.ribSupport, this.peerTracker, ribPolicies,
-                afiSafiType, locRibTableIID);
+        entryDep = new RouteEntryDependenciesContainerImpl(ribSupport, peerTracker, ribPolicies, afiSafiType,
+            locRibTableIID);
     }
 
     public static LocRibWriter create(
-            final @NonNull RIBSupport<?, ?> ribSupport,
+            final @NonNull RIBSupport ribSupport,
             final @NonNull AfiSafiType afiSafiType,
             final @NonNull DOMTransactionChain chain,
             final @NonNull YangInstanceIdentifier ribIId,
