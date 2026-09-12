@@ -75,17 +75,15 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
     protected synchronized List<Registration> startImpl(final StatementRegistryProvider context) {
         return List.of(
             // Register actions
-            context.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.getInstance()),
-            context.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,
-                LocalAsPathPrependHandler.getInstance()),
+            context.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.INSTANCE),
+            context.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class, LocalAsPathPrependHandler.INSTANCE),
             context.registerBgpActionPolicy(SetCommunity.class, new SetCommunityHandler(resolver)),
             context.registerBgpActionPolicy(SetExtCommunity.class, new SetExtCommunityHandler(dataBroker)),
             context.registerBgpActionAugmentationPolicy(SetOriginatorIdPrepend.class,
-                SetOriginatorIdPrependHandler.getInstance()),
+                SetOriginatorIdPrependHandler.INSTANCE),
             context.registerBgpActionAugmentationPolicy(NonTransitiveAttributesFilter.class,
-                NonTransitiveAttributesFilterHandler.getInstance()),
-            context.registerBgpActionAugmentationPolicy(SetClusterIdPrepend.class,
-                SetClusterIdPrependHandler.getInstance()),
+                NonTransitiveAttributesFilterHandler.INSTANCE),
+            context.registerBgpActionAugmentationPolicy(SetClusterIdPrepend.class, SetClusterIdPrependHandler.INSTANCE),
 
             // Register conditions
             context.registerBgpConditionsAugmentationPolicy(MatchRoleSetCondition.class,
@@ -101,9 +99,8 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
             context.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
                 new MatchBgpNeighborSetHandler(dataBroker)),
             context.registerBgpConditionsAugmentationPolicy(MatchAfiSafiNotInCondition.class,
-                MatchAfiSafiNotInHandler.getInstance()),
-            context.registerBgpConditionsAugmentationPolicy(VpnNonMemberCondition.class,
-                VpnNonMemberHandler.getInstance()));
+                MatchAfiSafiNotInHandler.INSTANCE),
+            context.registerBgpConditionsAugmentationPolicy(VpnNonMemberCondition.class, VpnNonMemberHandler.INSTANCE));
     }
 
     @Override
