@@ -20,10 +20,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.tables.Routes;
 import org.opendaylight.yangtools.binding.BindingObject;
 import org.opendaylight.yangtools.binding.CaseObject;
-import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ContainerObject;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -40,7 +39,7 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
  * to register an implementation of this class and the RIB core then calls into it
  * to inquire about details specific to that particular model.
  */
-public interface RIBSupport<C extends CaseObject<?, ? extends Routes, C>, S extends ChildOf<? super C>> {
+public interface RIBSupport {
     /**
      * Return the table-type-specific empty table with routes empty container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all
@@ -63,14 +62,14 @@ public interface RIBSupport<C extends CaseObject<?, ? extends Routes, C>, S exte
      *
      * @return Class
      */
-    @NonNull Class<C> routesCaseClass();
+    @NonNull Class<? extends CaseObject<?, ?, ?>> routesCaseClass();
 
     /**
      * Return class object of the Routes Container statement.
      *
      * @return Class
      */
-    @NonNull Class<S> routesContainerClass();
+    @NonNull Class<? extends ContainerObject<?, ?>> routesContainerClass();
 
     /**
      * Return class object of the Routes List statement.

@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
@@ -20,7 +19,7 @@ import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 
 @Singleton
 public final class ConstantCodecsRegistry implements CodecsRegistry {
-    private final ConcurrentMap<RIBSupport<?, ?>, Codecs> contexts = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<RIBSupport, Codecs> contexts = new ConcurrentHashMap<>();
     private final BindingCodecTree codecTree;
 
     @Inject
@@ -29,13 +28,11 @@ public final class ConstantCodecsRegistry implements CodecsRegistry {
     }
 
     @Override
-    public Codecs getCodecs(final RIBSupport<?, ?> ribSupport) {
-        return contexts.computeIfAbsent(ribSupport, this::createCodecs);
-    }
-
-    private Codecs createCodecs(final RIBSupport<?, ?> key) {
-        final Codecs codecs = new CodecsImpl(key);
-        codecs.onCodecTreeUpdated(codecTree);
-        return codecs;
+    public Codecs getCodecs(final RIBSupport ribSupport) {
+        return contexts.computeIfAbsent(ribSupport, key -> {
+            final var codecs = new CodecsImpl(key);
+            codecs.onCodecTreeUpdated(codecTree);
+            return codecs;
+        });
     }
 }

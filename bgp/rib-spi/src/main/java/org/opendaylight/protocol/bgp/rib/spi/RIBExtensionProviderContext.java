@@ -23,5 +23,5 @@ public interface RIBExtensionProviderContext extends RIBExtensionConsumerContext
      * @return Registration handle. Call {@link Registration#close()} method to remove it.
      * @throws NullPointerException if {@code support} is {@code null}
      */
-    @NonNull Registration registerRIBSupport(RIBSupport<?, ?> support);
+    @NonNull Registration registerRIBSupport(RIBSupport support);
 }

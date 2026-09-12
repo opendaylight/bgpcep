@@ -32,7 +32,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yangtools.binding.CaseObject;
-import org.opendaylight.yangtools.binding.ChildOf;
+import org.opendaylight.yangtools.binding.ContainerObject;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -50,7 +50,8 @@ import org.slf4j.LoggerFactory;
 
 abstract class AbstractLabeledUnicastRIBSupport<
         C extends CaseObject<Tables, ? extends Routes, C>,
-        S extends ChildOf<? super C> & LabeledUnicastRoutesList> extends AbstractRIBSupport<C, S, LabeledUnicastRoute> {
+        S extends ContainerObject<? super C, S> & LabeledUnicastRoutesList>
+        extends AbstractRIBSupport<C, S, LabeledUnicastRoute> {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractLabeledUnicastRIBSupport.class);
     private static final @NonNull NodeIdentifier LABEL_STACK_NID =
         NodeIdentifier.create(QName.create(CLabeledUnicastDestination.QNAME, "label-stack").intern());
