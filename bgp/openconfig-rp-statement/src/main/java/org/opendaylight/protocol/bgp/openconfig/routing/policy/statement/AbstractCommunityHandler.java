@@ -16,7 +16,8 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.DefinedSets1;
@@ -39,28 +40,35 @@ public class AbstractCommunityHandler {
             .child(BgpDefinedSets.class)
             .child(CommunitySets.class)
             .build();
-    protected final LoadingCache<String, List<Communities>> communitySets;
 
+    protected final LoadingCache<String, List<Communities>> communitySets = CacheBuilder.newBuilder()
+        .build(new CacheLoader<String, List<Communities>>() {
+            @Override
+            public List<Communities> load(final String key) throws ExecutionException, InterruptedException {
+                return List.copyOf(loadCommunitySet(key));
+            }
+        });
+    private final @NonNull DataBroker dataBroker;
+
+    @NonNullByDefault
     public AbstractCommunityHandler(final DataBroker dataBroker) {
-        requireNonNull(dataBroker);
-        communitySets = CacheBuilder.newBuilder()
-            .build(new CacheLoader<String, List<Communities>>() {
-                @Override
-                public List<Communities> load(final String key) throws ExecutionException, InterruptedException {
-                    final FluentFuture<Optional<CommunitySet>> future;
-                    try (var tr = dataBroker.newReadOnlyTransaction()) {
-                        future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                            COMMUNITY_SETS_IID.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build());
-                    }
+        this.dataBroker = requireNonNull(dataBroker);
+    }
 
-                    return future.get().map(set -> set.nonnullCommunities().stream()
-                        .map(ge -> new CommunitiesBuilder()
-                            .setAsNumber(ge.getAsNumber())
-                            .setSemantics(ge.getSemantics())
-                            .build())
-                        .collect(Collectors.toUnmodifiableList()))
-                        .orElse(List.of());
-                }
-            });
+    private List<Communities> loadCommunitySet(final String key) throws ExecutionException, InterruptedException {
+        final FluentFuture<Optional<CommunitySet>> future;
+        try (var tx = dataBroker.newReadOnlyTransaction()) {
+            future = tx.read(LogicalDatastoreType.CONFIGURATION,
+                COMMUNITY_SETS_IID.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build());
+        }
+
+        return future.get()
+            .map(set -> set.nonnullCommunities().stream()
+                .map(ge -> new CommunitiesBuilder()
+                    .setAsNumber(ge.getAsNumber())
+                    .setSemantics(ge.getSemantics())
+                    .build())
+                .toList())
+            .orElse(List.of());
     }
 }
