@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
@@ -18,14 +19,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 
 public final class LocalAsPathPrependHandler extends AbstractPrependAsPath
         implements BgpActionAugPolicy<LocalAsPathPrepend> {
-    private static final LocalAsPathPrependHandler INSTANCE = new LocalAsPathPrependHandler();
+    public static final @NonNull LocalAsPathPrependHandler INSTANCE = new LocalAsPathPrependHandler();
 
     private LocalAsPathPrependHandler() {
         // hidden on purpose
-    }
-
-    public static LocalAsPathPrependHandler getInstance() {
-        return INSTANCE;
     }
 
     @Override
