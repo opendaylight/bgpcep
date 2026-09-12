@@ -382,7 +382,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     }
 
     // Performs house-keeping when the contents of a table is deleted
-    private void onDeleteTable(final RIBSupport<?, ?> ribSupport, final YangInstanceIdentifier effectiveTablePath,
+    private void onDeleteTable(final RIBSupport ribSupport, final YangInstanceIdentifier effectiveTablePath,
             final @Nullable NormalizedNode tableBefore) {
         // Routes are special in that we need to process the to keep our counters accurate
         final var maybeRoutesBefore = findRoutesMap(ribSupport, NormalizedNodes.findNode(tableBefore, ROUTES_NID));
@@ -391,7 +391,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void deleteRoutesBefore(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
+    private void deleteRoutesBefore(final DOMDataTreeWriteTransaction tx, final RIBSupport ribSupport,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode modifiedRoutes) {
         final var maybeRoutesBefore = NormalizedNodes.findNode(modifiedRoutes.dataBefore(),
             ribSupport.relativeRoutesPath());
@@ -400,7 +400,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void writeRoutesAfter(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
+    private void writeRoutesAfter(final DOMDataTreeWriteTransaction tx, final RIBSupport ribSupport,
             final YangInstanceIdentifier effectiveTablePath, final Optional<NormalizedNode> routesAfter,
             final boolean longLivedStale) {
         final var maybeRoutesAfter = NormalizedNodes.findNode(routesAfter, ribSupport.relativeRoutesPath());
@@ -412,7 +412,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void onRoutesDeleted(final RIBSupport<?, ?> ribSupport, final YangInstanceIdentifier effectiveTablePath,
+    private void onRoutesDeleted(final RIBSupport ribSupport, final YangInstanceIdentifier effectiveTablePath,
             final Collection<MapEntryNode> deletedRoutes) {
         if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getTablesKey().getSafi())) {
             final var routesPath = routeMapPath(ribSupport, effectiveTablePath);
@@ -426,7 +426,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         CountersUtil.add(prefixesInstalled.get(tablesKey), tablesKey, -deletedRoutes.size());
     }
 
-    private void processRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
+    private void processRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport ribSupport,
             final YangInstanceIdentifier routesPath, final DataTreeCandidateNode route, final boolean longLivedStale) {
         LOG.debug("Process route {}", route.name());
         final var routePath = ribSupport.routePath(routesPath, route.name());
@@ -441,7 +441,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         }
     }
 
-    private void deleteRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
+    private void deleteRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport ribSupport,
             final YangInstanceIdentifier routeIdPath, final NormalizedNode route) {
         handleRouteTarget(ModificationType.DELETE, ribSupport, routeIdPath, route);
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIdPath);
@@ -450,7 +450,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         CountersUtil.decrement(prefixesInstalled.get(tablesKey), tablesKey);
     }
 
-    private void writeRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport<?, ?> ribSupport,
+    private void writeRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport ribSupport,
             final YangInstanceIdentifier routePath, final @Nullable NormalizedNode routeBefore,
             final @NonNull NormalizedNode routeAfter, final boolean longLivedStale) {
         final var tablesKey = ribSupport.getTablesKey();
@@ -499,7 +499,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         rtMemberships.add(rtMembership);
     }
 
-    private void deleteRouteTarget(final RIBSupport<?, ?> ribSupport, final YangInstanceIdentifier routeIdPath,
+    private void deleteRouteTarget(final RIBSupport ribSupport, final YangInstanceIdentifier routeIdPath,
             final NormalizedNode route) {
         deleteRouteTarget((RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route));
     }
@@ -512,7 +512,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         rtMemberships.remove(rtMembership);
     }
 
-    private void handleRouteTarget(final ModificationType modificationType, final RIBSupport<?, ?> ribSupport,
+    private void handleRouteTarget(final ModificationType modificationType, final RIBSupport ribSupport,
             final YangInstanceIdentifier routeIdPath, final NormalizedNode route) {
         if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getTablesKey().getSafi())) {
             final var rtc = (RouteTargetConstrainRoute) ribSupport.fromNormalizedNode(routeIdPath, route);
@@ -558,12 +558,12 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         return effRibTables.node(TABLES_NID).node(tableKey);
     }
 
-    private static YangInstanceIdentifier routeMapPath(final RIBSupport<?, ?> ribSupport,
+    private static YangInstanceIdentifier routeMapPath(final RIBSupport ribSupport,
             final YangInstanceIdentifier tablePath) {
         return concat(tablePath.node(ROUTES_NID), ribSupport.relativeRoutesPath());
     }
 
-    private static Optional<NormalizedNode> findRoutesMap(final RIBSupport<?, ?> ribSupport,
+    private static Optional<NormalizedNode> findRoutesMap(final RIBSupport ribSupport,
             final Optional<NormalizedNode> optRoutes) {
         return NormalizedNodes.findNode(optRoutes, ribSupport.relativeRoutesPath());
     }

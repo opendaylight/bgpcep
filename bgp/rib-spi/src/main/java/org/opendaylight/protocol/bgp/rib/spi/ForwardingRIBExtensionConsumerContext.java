@@ -15,17 +15,17 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 
 abstract class ForwardingRIBExtensionConsumerContext implements RIBExtensionConsumerContext {
     @Override
-    public final RIBSupport<?, ?> getRIBSupport(final TablesKey key) {
+    public final RIBSupport getRIBSupport(final TablesKey key) {
         return delegate().getRIBSupport(key);
     }
 
     @Override
-    public final RIBSupport<?, ?> getRIBSupport(final AddressFamily afi, final SubsequentAddressFamily safi) {
+    public final RIBSupport getRIBSupport(final AddressFamily afi, final SubsequentAddressFamily safi) {
         return delegate().getRIBSupport(afi, safi);
     }
 
     @Override
-    public final RIBSupport<?, ?> getRIBSupport(final NodeIdentifierWithPredicates key) {
+    public final RIBSupport getRIBSupport(final NodeIdentifierWithPredicates key) {
         return delegate().getRIBSupport(key);
     }
 
