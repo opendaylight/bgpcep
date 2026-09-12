@@ -59,5 +59,5 @@ public abstract class RIBSupportContext {
      *
      * @return RIBSupport
      */
-    public abstract RIBSupport<?, ?> getRibSupport();
+    public abstract RIBSupport getRibSupport();
 }

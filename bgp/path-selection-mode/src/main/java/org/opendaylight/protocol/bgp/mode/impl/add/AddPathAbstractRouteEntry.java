@@ -41,7 +41,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
         private final List<NodeIdentifierWithPredicates> staleRouteKeyIdentifier;
         private final boolean isNonAddPathBestPathNew;
 
-        Stale(final RIBSupport<?, ?> ribSupport, final String routeKey, final List<Uint32> staleRoutesPathIds,
+        Stale(final RIBSupport ribSupport, final String routeKey, final List<Uint32> staleRoutesPathIds,
                 final List<Uint32> withdrawalRoutePathIds, final boolean isNonAddPathBestPathNew) {
             super(ribSupport.createRouteListArgument(routeKey));
             this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
@@ -89,10 +89,10 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     private long pathIdCounter = 0L;
     private boolean isNonAddPathBestPathNew;
 
-    private MapEntryNode createRoute(final RIBSupport<?, ?> ribSup, final String routeKey, final AddPathBestPath path) {
+    private MapEntryNode createRoute(final RIBSupport ribSupport, final String routeKey, final AddPathBestPath path) {
         final var map = offsets;
         final var route = map.getValue(values, map.offsetOf(path.getRouteKey()));
-        return ribSup.createRoute(route, ribSup.createRouteListArgument(path.getPathIdLong(), routeKey),
+        return ribSupport.createRoute(route, ribSupport.createRouteListArgument(path.getPathIdLong(), routeKey),
             path.getAttributes());
     }
 
@@ -131,8 +131,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport<?, ?> ribSupport,
-            final String routeKey) {
+    public final Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
         final List<Uint32> stalePaths;
         if (bestPathRemoved != null && !bestPathRemoved.isEmpty()) {
             stalePaths = bestPathRemoved.stream().map(AddPathBestPath::getPathIdLong)
@@ -155,7 +154,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final List<AdvertizedRoute> newBestPaths(final RIBSupport<?, ?> ribSupport, final String routeKey) {
+    public final List<AdvertizedRoute> newBestPaths(final RIBSupport ribSupport, final String routeKey) {
         if (newBestPathToBeAdvertised == null || newBestPathToBeAdvertised.isEmpty()) {
             return List.of();
         }
@@ -174,7 +173,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final List<ActualBestPathRoutes> actualBestPaths(final RIBSupport<?, ?> ribSupport,
+    public final List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport,
             final RouteEntryInfo entryInfo) {
         if (bestPath == null || bestPath.isEmpty()) {
             return List.of();
@@ -190,12 +189,12 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final boolean selectBest(final RIBSupport<?, ?> ribSupport, final long localAs) {
+    public final boolean selectBest(final RIBSupport ribSupport, final long localAs) {
         final int size;
         return isBestPathNew((size = offsets.size()) == 0 ? ImmutableList.of() : selectBest(ribSupport, localAs, size));
     }
 
-    protected abstract ImmutableList<AddPathBestPath> selectBest(RIBSupport<?, ?> ribSupport, long localAs, int size);
+    protected abstract ImmutableList<AddPathBestPath> selectBest(RIBSupport ribSupport, long localAs, int size);
 
     /**
      * Process a specific route offset into specified selector.
@@ -203,7 +202,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
      * @param selector selector to update
      * @param offset offset to process
      */
-    protected final void processOffset(final RIBSupport<?, ?> ribSupport, final AddPathSelector selector,
+    protected final void processOffset(final RIBSupport ribSupport, final AddPathSelector selector,
             final int offset) {
         final var key = offsets.getKey(offset);
         final var route = offsets.getValue(values, offset);
@@ -212,7 +211,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
         selector.processPath(ribSupport.extractAttributes(route), key, offset, pathId);
     }
 
-    protected final AddPathBestPath bestPathAt(final RIBSupport<?, ?> ribSupport, final int offset) {
+    protected final AddPathBestPath bestPathAt(final RIBSupport ribSupport, final int offset) {
         final var route = verifyNotNull(offsets.getValue(values, offset));
         return new AddPathBestPath(new BestPathStateImpl(ribSupport.extractAttributes(route)), offsets.getKey(offset),
             offsets.getValue(pathsId, offset), offset);

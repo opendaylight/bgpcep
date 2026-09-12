@@ -398,23 +398,22 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             : ribSupport.attributeToContainerNode(routePath.node(ribSupport.routeAttributesIdentifier()), exportAttrs);
     }
 
-    private static YangInstanceIdentifier createRoutePath(final RIBSupport<?, ?> ribSupport,
+    private static YangInstanceIdentifier createRoutePath(final RIBSupport ribSupport,
             final YangInstanceIdentifier tableRibout, final RouteKeyIdentifier advRoute, final boolean withAddPath) {
         return ribSupport.createRouteIdentifier(tableRibout,
             withAddPath ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
     }
 
     @GuardedBy("this")
-    private void storeRoute(final RIBSupport<?, ?> ribSupport, final RouteKeyIdentifier advRoute,
-            final MapEntryNode route, final YangInstanceIdentifier routePath, final ContainerNode effAttr,
-            final DOMDataTreeWriteOperations tx) {
+    private void storeRoute(final RIBSupport ribSupport, final RouteKeyIdentifier advRoute, final MapEntryNode route,
+            final YangInstanceIdentifier routePath, final ContainerNode effAttr, final DOMDataTreeWriteOperations tx) {
         LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, getPeerId());
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, ribSupport.createRoute(route,
             (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
     }
 
     @GuardedBy("this")
-    private void removeRoute(final RIBSupport<?, ?> ribSupport, final boolean addPathSupported,
+    private void removeRoute(final RIBSupport ribSupport, final boolean addPathSupported,
             final YangInstanceIdentifier tableRibout, final StaleBestPathRoute staleRoute,
             final DOMDataTreeWriteOperations tx) {
         if (addPathSupported) {
@@ -438,7 +437,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     // FIXME: why is this different from removeRoute()?
     @GuardedBy("this")
-    private void deleteRoute(final RIBSupport<?, ?> ribSupport, final boolean addPathSupported,
+    private void deleteRoute(final RIBSupport ribSupport, final boolean addPathSupported,
             final YangInstanceIdentifier tableRibout, final AbstractAdvertizedRoute advRoute,
             final DOMDataTreeWriteOperations tx) {
         final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,

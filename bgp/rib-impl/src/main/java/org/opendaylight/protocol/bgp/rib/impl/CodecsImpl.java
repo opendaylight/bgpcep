@@ -12,6 +12,7 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.ClusterId;
@@ -32,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.LocRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -45,7 +45,6 @@ import org.opendaylight.yangtools.binding.DataObjectReference;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingCodecTree;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingDataObjectCodecTreeNode;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeCachingCodec;
-import org.opendaylight.yangtools.binding.data.codec.api.CommonDataObjectCodecTreeNode;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
@@ -74,30 +73,30 @@ public final class CodecsImpl implements Codecs {
             .build();
 
     private final ImmutableSet<Class<? extends BindingObject>> cacheableAttributes;
+    private final @NonNull RIBSupport ribSupport;
+
     private BindingNormalizedNodeCachingCodec<Attributes> attributesCodec;
     private BindingNormalizedNodeCachingCodec<MpReachNlri> reachNlriCodec;
     private BindingNormalizedNodeCachingCodec<MpUnreachNlri> unreachNlriCodec;
 
-    private final RIBSupport<?, ?> ribSupport;
 
-    public CodecsImpl(final RIBSupport<?, ?> ribSupport) {
+    public CodecsImpl(final RIBSupport ribSupport) {
         this.ribSupport = requireNonNull(ribSupport);
         cacheableAttributes = ImmutableSet.<Class<? extends BindingObject>>builder()
             .addAll(ATTRIBUTE_CACHEABLES)
-            .addAll(this.ribSupport.cacheableAttributeObjects())
+            .addAll(ribSupport.cacheableAttributeObjects())
             .build();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public void onCodecTreeUpdated(final BindingCodecTree tree) {
-
-        final CommonDataObjectCodecTreeNode<Tables> codecContext = tree.getSubtreeCodec(TABLE_BASE_II);
+        final var codecContext = tree.getSubtreeCodec(TABLE_BASE_II);
         if (!(codecContext instanceof BindingDataObjectCodecTreeNode tableCodecContext)) {
             throw new IllegalStateException("Unexpected table codec " + codecContext);
         }
 
-        final BindingDataObjectCodecTreeNode<? extends Route> routeListCodec = tableCodecContext
+        final var routeListCodec = tableCodecContext
             .getStreamChild(Routes.class)
             .getStreamChild(ribSupport.routesCaseClass())
             .getStreamChild(ribSupport.routesContainerClass())
