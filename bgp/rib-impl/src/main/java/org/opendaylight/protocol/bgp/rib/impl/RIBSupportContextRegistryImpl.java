@@ -21,16 +21,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
-
     private final RIBExtensionConsumerContext extensionContext;
     private final CodecsRegistry codecs;
-    private final LoadingCache<RIBSupport<?, ?>, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
-            .build(new CacheLoader<>() {
-                @Override
-                public RIBSupportContextImpl load(final RIBSupport<?, ?> key) {
-                    return createRIBSupportContext(key);
-                }
-            });
+    private final LoadingCache<RIBSupport, RIBSupportContextImpl> contexts = CacheBuilder.newBuilder()
+        .build(new CacheLoader<>() {
+            @Override
+            public RIBSupportContextImpl load(final RIBSupport key) {
+                return createRIBSupportContext(key);
+            }
+        });
 
     private RIBSupportContextRegistryImpl(final RIBExtensionConsumerContext extensions, final CodecsRegistry codecs) {
         extensionContext = requireNonNull(extensions);
@@ -42,12 +41,12 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
         return new RIBSupportContextRegistryImpl(extensions, codecs);
     }
 
-    private RIBSupportContextImpl createRIBSupportContext(final RIBSupport<?, ?> support) {
+    private RIBSupportContextImpl createRIBSupportContext(final RIBSupport support) {
         return new RIBSupportContextImpl(support, codecs);
     }
 
     @Override
-    public RIBSupport<?, ?> getRIBSupport(final TablesKey key) {
+    public RIBSupport getRIBSupport(final TablesKey key) {
         final var ribSupport = getRIBSupportContext(key);
         return ribSupport == null ? null : ribSupport.getRibSupport();
     }

@@ -27,7 +27,7 @@ public abstract class AbstractAdvertizedRoute implements RouteKeyIdentifier {
     private final @NonNull NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier;
     private final boolean depreferenced;
 
-    AbstractAdvertizedRoute(final RIBSupport<?, ?> ribSupport, final MapEntryNode route, final PeerId fromPeerId,
+    AbstractAdvertizedRoute(final RIBSupport ribSupport, final MapEntryNode route, final PeerId fromPeerId,
             final ContainerNode attributes, final boolean depreferenced) {
         this.fromPeerId = fromPeerId;
         this.route = route;

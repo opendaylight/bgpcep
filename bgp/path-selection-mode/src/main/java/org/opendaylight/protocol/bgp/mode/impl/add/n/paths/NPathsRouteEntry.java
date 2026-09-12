@@ -25,7 +25,7 @@ final class NPathsRouteEntry extends AddPathAbstractRouteEntry {
     }
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport<?, ?> ribSupport, final long localAs,
+    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs,
             final int size) {
         final int limit = Math.min(npaths, size);
         return switch (limit) {
@@ -35,8 +35,8 @@ final class NPathsRouteEntry extends AddPathAbstractRouteEntry {
         };
     }
 
-    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport<?, ?> ribSupport, final long localAs,
-            final int size, final int limit) {
+    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size,
+            final int limit) {
         // Scratch pool of offsets, we set them to true as we use them up.
         final var offsets = new boolean[size];
         final var builder = ImmutableList.<AddPathBestPath>builderWithExpectedSize(limit);
