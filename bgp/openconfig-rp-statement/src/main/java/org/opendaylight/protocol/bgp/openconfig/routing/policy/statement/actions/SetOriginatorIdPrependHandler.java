@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionAugPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
@@ -21,44 +22,31 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  * Prepend Originator Id.
  */
 public final class SetOriginatorIdPrependHandler implements BgpActionAugPolicy<SetOriginatorIdPrepend> {
-    private static final SetOriginatorIdPrependHandler INSTANCE = new SetOriginatorIdPrependHandler();
+    public static final @NonNull SetOriginatorIdPrependHandler INSTANCE = new SetOriginatorIdPrependHandler();
 
     private SetOriginatorIdPrependHandler() {
-
-    }
-
-    public static SetOriginatorIdPrependHandler getInstance() {
-        return INSTANCE;
+        // hidden on purpose
     }
 
     @Override
-    public Attributes applyImportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+    public Attributes applyImportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final Attributes attributes,
             final SetOriginatorIdPrepend bgpActions) {
-
-        final Ipv4AddressNoZone defOri = bgpActions.getSetOriginatorIdPrepend().getOriginatorId();
-        return prependOriginatorId(attributes, defOri == null
-                ? routeEntryInfo.getOriginatorId() : defOri);
+        final var defOri = bgpActions.getSetOriginatorIdPrepend().getOriginatorId();
+        return prependOriginatorId(attributes, defOri == null ? routeEntryInfo.getOriginatorId() : defOri);
     }
 
     private static Attributes prependOriginatorId(final Attributes attributes, final Ipv4AddressNoZone originatorId) {
-        if (attributes.getOriginatorId() != null) {
-            return attributes;
-        }
-        final AttributesBuilder newAtt = new AttributesBuilder(attributes);
-        return newAtt.setOriginatorId(new OriginatorIdBuilder().setOriginator(originatorId).build()).build();
+        return attributes.getOriginatorId() != null ? attributes : new AttributesBuilder(attributes)
+            .setOriginatorId(new OriginatorIdBuilder().setOriginator(originatorId).build())
+            .build();
     }
 
     @Override
-    public Attributes applyExportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+    public Attributes applyExportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters, final Attributes attributes,
             final SetOriginatorIdPrepend bgpActions) {
-        final Ipv4AddressNoZone defOri = bgpActions.getSetOriginatorIdPrepend().getOriginatorId();
-        return prependOriginatorId(attributes, defOri == null
-                ? routeEntryInfo.getOriginatorId() : defOri);
+        final var defOri = bgpActions.getSetOriginatorIdPrepend().getOriginatorId();
+        return prependOriginatorId(attributes, defOri == null ? routeEntryInfo.getOriginatorId() : defOri);
     }
 }
