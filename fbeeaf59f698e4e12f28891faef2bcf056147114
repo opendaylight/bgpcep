@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4dd386c7_3748f983",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/AbstractPeer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-15T11:44:07Z",
+      "side": 1,
+      "message": "extra indent",
+      "range": {
+        "startLine": 270,
+        "startChar": 12,
+        "endLine": 270,
+        "endChar": 16
+      },
+      "revId": "fbeeaf59f698e4e12f28891faef2bcf056147114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "530f3363_1ac9571a",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/Peer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-15T11:44:07Z",
+      "side": 1,
+      "message": "method is already @NonNullByDefault",
+      "range": {
+        "startLine": 49,
+        "startChar": 41,
+        "endLine": 49,
+        "endChar": 49
+      },
+      "revId": "fbeeaf59f698e4e12f28891faef2bcf056147114",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
