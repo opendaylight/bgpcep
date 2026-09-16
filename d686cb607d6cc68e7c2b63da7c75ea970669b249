@@ -33,6 +33,23 @@
       "message": "var?",
       "revId": "d686cb607d6cc68e7c2b63da7c75ea970669b249",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "42ea0c52_6b6d585e",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPPeerTracker.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-09-16T08:11:56Z",
+      "side": 1,
+      "message": "Even if we do not lost information - we could switch to one line return statement",
+      "revId": "d686cb607d6cc68e7c2b63da7c75ea970669b249",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
