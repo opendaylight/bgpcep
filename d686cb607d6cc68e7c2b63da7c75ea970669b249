@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b24d9b58_91d4652c",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImplTest.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-09-16T08:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1de0c22d_ee81af22",
+      "revId": "d686cb607d6cc68e7c2b63da7c75ea970669b249",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0990c452_2de62e6f",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a3a8ce12_b0b60bf3",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImplTest.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-09-16T08:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0990c452_2de62e6f",
+      "revId": "d686cb607d6cc68e7c2b63da7c75ea970669b249",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "42ea0c52_6b6d585e",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-09-16T08:11:56Z",
       "side": 1,
       "message": "Even if we do not lost information - we could switch to one line return statement",
+      "revId": "d686cb607d6cc68e7c2b63da7c75ea970669b249",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e706559c_21dd4983",
+        "filename": "bgp/rib-spi/src/main/java/org/opendaylight/protocol/bgp/rib/spi/BGPPeerTracker.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-09-16T08:22:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42ea0c52_6b6d585e",
       "revId": "d686cb607d6cc68e7c2b63da7c75ea970669b249",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
