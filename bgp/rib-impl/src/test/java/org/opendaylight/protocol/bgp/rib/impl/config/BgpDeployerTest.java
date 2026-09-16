@@ -239,12 +239,6 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
         wr.commit().get();
     }
 
-    private void createNeighbor(final Neighbors neighbors) throws ExecutionException, InterruptedException {
-        final var wr = getDataBroker().newWriteOnlyTransaction();
-        wr.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II, neighbors);
-        wr.commit().get();
-    }
-
     private void deleteNeighbors() throws ExecutionException, InterruptedException {
         final var wr = getDataBroker().newWriteOnlyTransaction();
         wr.delete(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II);
@@ -273,6 +267,12 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
 
     private static Neighbor createNeighbor() {
         return createNeighborExpected(NEIGHBOR_ADDRESS);
+    }
+
+    private void createNeighbor(final Neighbors neighbors) throws ExecutionException, InterruptedException {
+        final var wr = getDataBroker().newWriteOnlyTransaction();
+        wr.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II, neighbors);
+        wr.commit().get();
     }
 
     private static Neighbors createNeighborsNoRR() {
