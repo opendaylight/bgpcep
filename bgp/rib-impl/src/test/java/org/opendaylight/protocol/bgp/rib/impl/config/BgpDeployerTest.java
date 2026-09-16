@@ -18,13 +18,17 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.protocol.bgp.rib.impl.config.AbstractConfig.TABLES_KEY;
-import static org.opendaylight.protocol.bgp.rib.impl.config.RIBTestsUtil.createGlobalIpv4;
-import static org.opendaylight.protocol.bgp.rib.impl.config.RIBTestsUtil.createGlobalIpv6;
-import static org.opendaylight.protocol.bgp.rib.impl.config.RIBTestsUtil.createNeighbors;
-import static org.opendaylight.protocol.bgp.rib.impl.config.RIBTestsUtil.createNeighborsNoRR;
+import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.NEIGHBOR_ADDRESS;
+import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createAddPath;
+import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createAfiSafi;
+import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createConfig;
+import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createNeighborExpected;
+import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTimers;
+import static org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerTest.createTransport;
 import static org.opendaylight.protocol.util.CheckUtil.checkPresentConfiguration;
 
 import io.netty.util.concurrent.Future;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +36,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
-import org.opendaylight.mdsal.binding.api.WriteTransaction;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.impl.DefaultBGPRibRoutingPolicyFactory;
@@ -46,9 +49,21 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPStateProviderRegistry;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafi;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.multiprotocol.rev151009.bgp.common.afi.safi.list.AfiSafiKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.AfiSafisBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.ConfigBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.global.base.StateBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.Bgp;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Global;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.GlobalBuilder;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.top.bgp.NeighborsBuilder;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV4UNICAST;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.IPV6UNICAST;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.OpenconfigNetworkInstanceData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.NetworkInstances;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.NetworkInstance;
@@ -57,12 +72,17 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.re
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.Protocol;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.network.instance.rev151018.network.instance.top.network.instances.network.instance.protocols.ProtocolKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.BGP;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4AddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.NetworkInstanceProtocol;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.openconfig.extensions.rev180329.network.instance.protocol.GlobalAddPathsConfigBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 // FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
@@ -84,6 +104,15 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
     private static final DataObjectIdentifier<Neighbors> NEIGHBORS_II =
         BGP_II.toBuilder().child(Neighbors.class).build();
     private static final int VERIFY_TIMEOUT_MILIS = 5000;
+    private static final BgpId BGP_ID = new BgpId(new Ipv4AddressNoZone("127.0.0.1"));
+    private static final Map<AfiSafiKey, AfiSafi> AFISAFIS_IPV4 = BindingMap.of(new AfiSafiBuilder()
+        .setAfiSafiName(IPV4UNICAST.VALUE)
+        .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
+        .build());
+    private static final Map<AfiSafiKey, AfiSafi> AFISAFIS_IPV6 = BindingMap.of(new AfiSafiBuilder()
+        .setAfiSafiName(IPV6UNICAST.VALUE)
+        .addAugmentation(new GlobalAddPathsConfigBuilder().setReceive(true).setSendMax(Uint8.ZERO).build())
+        .build());
 
     @Mock
     private BGPTableTypeRegistryConsumer tableTypeRegistry;
@@ -199,26 +228,65 @@ public class BgpDeployerTest extends DefaultRibPoliciesMockTest {
     }
 
     private void createRib(final Global global) throws ExecutionException, InterruptedException {
-        final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
+        final var wr = getDataBroker().newWriteOnlyTransaction();
         wr.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, GLOBAL_II, global);
         wr.commit().get();
     }
 
     private void deleteRib() throws ExecutionException, InterruptedException {
-        final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
+        final var wr = getDataBroker().newWriteOnlyTransaction();
         wr.delete(LogicalDatastoreType.CONFIGURATION, BGP_II);
         wr.commit().get();
     }
 
     private void createNeighbor(final Neighbors neighbors) throws ExecutionException, InterruptedException {
-        final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
+        final var wr = getDataBroker().newWriteOnlyTransaction();
         wr.mergeParentStructurePut(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II, neighbors);
         wr.commit().get();
     }
 
     private void deleteNeighbors() throws ExecutionException, InterruptedException {
-        final WriteTransaction wr = getDataBroker().newWriteOnlyTransaction();
+        final var wr = getDataBroker().newWriteOnlyTransaction();
         wr.delete(LogicalDatastoreType.CONFIGURATION, NEIGHBORS_II);
         wr.commit().get();
+    }
+
+    private static Global createGlobalIpv4() {
+        return new GlobalBuilder()
+            .setAfiSafis(new AfiSafisBuilder().setAfiSafi(AFISAFIS_IPV4).build())
+            .setConfig(new ConfigBuilder().setAs(AbstractConfig.AS).setRouterId(BGP_ID).build())
+            .setState(new StateBuilder().setAs(AbstractConfig.AS).build())
+            .build();
+    }
+
+    private static Global createGlobalIpv6() {
+        return new GlobalBuilder()
+            .setAfiSafis(new AfiSafisBuilder().setAfiSafi(AFISAFIS_IPV6).build())
+            .setConfig(new ConfigBuilder().setAs(AbstractConfig.AS).setRouterId(BGP_ID).build())
+            .setState(new StateBuilder().setAs(AbstractConfig.AS).build())
+            .build();
+    }
+
+    private static Neighbors createNeighbors() {
+        return new NeighborsBuilder().setNeighbor(BindingMap.of(createNeighbor())).build();
+    }
+
+    private static Neighbor createNeighbor() {
+        return createNeighborExpected(NEIGHBOR_ADDRESS);
+    }
+
+    private static Neighbors createNeighborsNoRR() {
+        return new NeighborsBuilder().setNeighbor(BindingMap.of(createNeighborNoRR())).build();
+    }
+
+    private static Neighbor createNeighborNoRR() {
+        return new NeighborBuilder()
+            .setAfiSafis(createAfiSafi())
+            .setConfig(createConfig())
+            .setNeighborAddress(NEIGHBOR_ADDRESS)
+            .setTimers(createTimers())
+            .setTransport(createTransport())
+            .setAddPaths(createAddPath())
+            .build();
     }
 }
