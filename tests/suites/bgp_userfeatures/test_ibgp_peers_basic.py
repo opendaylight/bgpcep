@@ -51,9 +51,8 @@ log = logging.getLogger(__name__)
 @pytest.mark.route_reflection
 @pytest.mark.functional
 @pytest.mark.single_device
-@pytest.mark.usefixtures("preconditions")
-@pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
-@pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
+@pytest.mark.standalone
+@pytest.mark.usefixtures("odl_standalone")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
 @pytest.mark.run(order=SuiteOrder.BGP_USER_IBGP_PEERS)
 class TestIbgpPeersBasic:

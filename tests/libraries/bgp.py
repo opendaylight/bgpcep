@@ -34,6 +34,7 @@ def set_bgp_neighbour(
     peer_port: int = 17900,
     rib_instance: str = "example-bgp-rib",
     passive_mode: bool = True,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Sets BGP neighbour in ODL using RESTCONF.
 
@@ -45,6 +46,10 @@ def set_bgp_neighbour(
         passive_mode (bool): If set to true BGP session
             should be initiated by BGP neighbour,
             otherwise it should be initiated by ODL.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Requests library response as returned for PUT call.
@@ -58,7 +63,7 @@ def set_bgp_neighbour(
         "BGP_RIB_OPENCONFIG": rib_instance,
     }
     response = templated_requests.put_templated_request(
-        "variables/bgpuser/bgp_peer", mapping, json=False
+        "variables/bgpuser/bgp_peer", mapping, json=False, host=host
     )
 
     return response
@@ -72,6 +77,7 @@ def set_bgp_neighbours(
     rib_instance: str = "example-bgp-rib",
     passive_mode: bool = True,
     rr_client: bool = False,
+    host: str = ODL_IP,
 ):
     """Sets multiple BGP neighbours in ODL using RESTCONF.
 
@@ -109,7 +115,7 @@ def set_bgp_neighbours(
             "BGP_RIB_OPENCONFIG": rib_instance,
         }
         templated_requests.put_templated_request(
-            "variables/bgpuser/ibgp_peers", mapping, json=False
+            "variables/bgpuser/ibgp_peers", mapping, json=False, host=host
         )
 
 
@@ -227,13 +233,17 @@ def delete_bgp_application_peer(ip: str) -> requests.Response:
 
 
 def delete_bgp_neighbour(
-    ip: str, rib_instance: str = "example-bgp-rib"
+    ip: str, rib_instance: str = "example-bgp-rib", host: str = ODL_IP
 ) -> requests.Response:
     """Removes BGP neighbour from ODL using RESTCONF.
 
     Args:
         ip (str): Neighbour ip address.
         rib_instance (str): BGP RIB isntance name.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Requests library response
@@ -241,14 +251,17 @@ def delete_bgp_neighbour(
     """
     mapping = {"IP": ip, "BGP_RIB_OPENCONFIG": rib_instance}
     response = templated_requests.delete_templated_request(
-        "variables/bgpuser/bgp_peer", mapping
+        "variables/bgpuser/bgp_peer", mapping, host=host
     )
 
     return response
 
 
 def delete_bgp_neighbours(
-    first_neighbour_ip: str, count: int, rib_instance: str = "example-bgp-rib"
+    first_neighbour_ip: str,
+    count: int,
+    rib_instance: str = "example-bgp-rib",
+    host: str = ODL_IP,
 ):
     """Delete multiple BGP neighbours from ODL using RESTCONF.
 
@@ -260,13 +273,17 @@ def delete_bgp_neighbours(
             belonging to the first BGP neighbour.
         count (int): Number of BGP neighours to be removed from ODL.
         rib_instance (str): BGP RIB isntance name.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         None
     """
     for i in range(count):
         ip_address = str(ipaddr.IPAddress(first_neighbour_ip) + i)
-        delete_bgp_neighbour(ip_address, rib_instance)
+        delete_bgp_neighbour(ip_address, rib_instance, host=host)
 
 
 def delete_bgp_peer_group(peer_group_name: str, rib_instance: str = "example-bgp-rib"):
@@ -512,7 +529,9 @@ def kill_all_bgp_speakers():
 
 
 def verify_bgp_speaker_connected(
-    speaker_ips: str = "127.0.0.2", connected: bool = True
+    speaker_ips: str = "127.0.0.2",
+    connected: bool = True,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Check if BGP session has been successfylly established.
 
@@ -520,6 +539,10 @@ def verify_bgp_speaker_connected(
         speaker_ip (str): BP speaker ip address.
         connected (bool): It True, expect to be connected,
             if False expect to not be connected.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Requests library response as returned for GET call.
@@ -532,6 +555,7 @@ def verify_bgp_speaker_connected(
             f"rests/data/bgp-rib:bgp-rib/rib=example-bgp-rib/"
             f"peer=bgp:%2F%2F{speaker_ip}?content=nonconfig",
             expected_code=expected_response_code,
+            host=host,
         )
 
 

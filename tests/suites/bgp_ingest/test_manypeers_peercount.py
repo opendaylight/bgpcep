@@ -30,9 +30,8 @@ PREFILL = None
 @pytest.mark.ibgp
 @pytest.mark.performance
 @pytest.mark.multi_device
-@pytest.mark.usefixtures("preconditions")
-@pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
-@pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
+@pytest.mark.standalone
+@pytest.mark.usefixtures("odl_standalone")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
 @pytest.mark.parametrize(
     "bgp_peers_count, count_peer_count_many, insert, withdraw, prefill",
