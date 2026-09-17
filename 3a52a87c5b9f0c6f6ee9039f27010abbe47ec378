@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "35c99d26_495dbe0f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 318,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-09-17T17:11:28Z",
+      "side": 1,
+      "message": "Are you sure `SUBTREE_MODIFIED` is ever actually delivered here? `AbstractRIBSupport.java:310-320` returns `route.childNodes()`, i.e. the individual route map-entries, and `EffectiveRibInWriter.writeRoute()` rewrites a route with a whole-entry tx.put(...) `EffectiveRibInWriter.java:484`, which resolves the entry to WRITE `SchemaAwareApplyOperation.java:216`.\n\nThe `SUBTREE_MODIFIED` you see belongs to the parent containers changedRoutes walks through. So for the target use case it looks like only the `WRITE` case fires.\n\nGiven that, would it be cleaner to keep the two as a single case SUBTREE_MODIFIED, WRITE -\u003e as before, and split on dataBefore inside it:\n```\n  if (route.dataBefore() \u003d\u003d null) {\n      entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);\n      totalPathsCounter.increment();\n  } else {\n      entry.updateRoute(routerId, pathId, (MapEntryNode) routeAfter);\n  }\n```  \nDoes that match the intent, or is there a delivery path where the entry really does arrive as SUBTREE_MODIFIED that I\u0027m missing?",
+      "revId": "3a52a87c5b9f0c6f6ee9039f27010abbe47ec378",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
