@@ -24,6 +24,30 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ce600469_f41095c9",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-09-17T08:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0acc2c61_1c8cf7f4",
+      "range": {
+        "startLine": 327,
+        "startChar": 24,
+        "endLine": 327,
+        "endChar": 48
+      },
+      "revId": "7c1b297ceee018597ec2023172ae81569ab3ae3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "928b97ee_70b97227",
@@ -37,6 +61,30 @@
       "writtenOn": "2026-09-17T07:52:16Z",
       "side": 1,
       "message": "this should not be updated in the replace case, I think",
+      "range": {
+        "startLine": 332,
+        "startChar": 20,
+        "endLine": 332,
+        "endChar": 37
+      },
+      "revId": "7c1b297ceee018597ec2023172ae81569ab3ae3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aab94586_35ac383f",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 33
+      },
+      "lineNbr": 332,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-09-17T08:20:32Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "928b97ee_70b97227",
       "range": {
         "startLine": 332,
         "startChar": 20,
