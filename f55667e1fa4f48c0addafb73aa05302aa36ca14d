@@ -68,6 +68,24 @@
       "message": "We wont need this file to be part of the repository. It is good to check the change works locally. It could be done in separate commit which would not be merged just for local testing, but would not need in the official repo, where other robot clustering tests would be present.",
       "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "311c01a8_5666dce2",
+        "filename": "tests/suites/clustering/test_cluster_setup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-09-17T12:16:47Z",
+      "side": 1,
+      "message": "Still something like this might be usable in the future once we would be migrating from infrautils to custom solution for checking readiness, but not for now.",
+      "parentUuid": "c6687da0_f7e3810c",
+      "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
