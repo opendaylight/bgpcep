@@ -16,6 +16,24 @@
       "message": "Updates an existing route.\n \n \u003cp\u003eUnlike",
       "revId": "1a8d5f94e36e01e29bd2170c8b01d1fad0f7fd83",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6953107e_d248a237",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/api/RouteEntry.java",
+        "patchSetId": 32
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-09-17T07:16:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d02f1c8e_ef60b2b5",
+      "revId": "1a8d5f94e36e01e29bd2170c8b01d1fad0f7fd83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
