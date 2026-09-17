@@ -16,6 +16,24 @@
       "message": "What exactly is the purported benefit here?",
       "revId": "c8d24c89d15b8f78f33f91cc69dc90a03d9f2a62",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "983ce736_80859498",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-09-17T08:18:40Z",
+      "side": 1,
+      "message": "I have described it in more detail in the task description. Essentially, one peer can exceed the 256 KiB WATER_MARK, reaching up to 843 KiB. With more peers (a maximum of 15), this can go up to ~1.08 MiB per peer.",
+      "parentUuid": "5e7f241b_ec35d004",
+      "revId": "c8d24c89d15b8f78f33f91cc69dc90a03d9f2a62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
