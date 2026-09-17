@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a83b2ac0_e10760e0",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-09-17T12:12:56Z",
+      "side": 1,
+      "message": "It might also make it more readable if it could be split to more commits for example:\n\nhttps://git.opendaylight.org/gerrit/c/netconf/+/123932/10\nhttps://git.opendaylight.org/gerrit/c/netconf/+/123933/10\nhttps://git.opendaylight.org/gerrit/c/netconf/+/123934/12",
+      "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "320338b9_37e57ebd",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-09-17T12:12:56Z",
+      "side": 1,
+      "message": "I would rather keep the whole configure_cluster.sh script here to avoid custom solutions, it could be copy \u0026 pasted from controller project here under `test/tools` until there would be some other solution like for example one which would inherit this script from upstream controller project.",
+      "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c6687da0_f7e3810c",
+        "filename": "tests/suites/clustering/test_cluster_setup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-09-17T12:12:56Z",
+      "side": 1,
+      "message": "We wont need this file to be part of the repository. It is good to check the change works locally. It could be done in separate commit which would not be merged just for local testing, but would not need in the official repo, where other robot clustering tests would be present.",
+      "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
