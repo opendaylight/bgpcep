@@ -20,6 +20,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "011c8db9_5443bb84",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-09-17T12:13:40Z",
+      "side": 1,
+      "message": "Marked it as resolved by mistake.",
+      "parentUuid": "a83b2ac0_e10760e0",
+      "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "320338b9_37e57ebd",
         "filename": "tests/libraries/cluster.py",
         "patchSetId": 1
