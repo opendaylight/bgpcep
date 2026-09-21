@@ -2,6 +2,10 @@
 
 Running BGP
 ===========
+
+See :ref:`bgpcep-restconf-endpoint` for the default RESTCONF endpoint
+and legacy JAX-RS compatibility.
+
 This section explains how to install BGP plugin.
 
 1. Install BGP feature - ``odl-bgpcep-bgp``.
@@ -10,12 +14,12 @@ This section explains how to install BGP plugin.
 
    .. code-block:: console
 
-      feature:install odl-restconf odl-bgpcep-bgp
+      feature:install odl-restconf-nb odl-bgpcep-bgp
 
 2. The BGP plugin contains a default configuration, which is applied after the feature starts up.
    One instance of BGP plugin is created (named *example-bgp-rib*), and its presence can be verified via REST:
 
-   **URL:** ``/rests/data/bgp-rib:bgp-rib?content=nonconfig``
+   **URL:** ``/restconf/data/bgp-rib:bgp-rib?content=nonconfig``
 
    **Method:** ``GET``
 

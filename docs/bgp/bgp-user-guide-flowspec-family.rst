@@ -17,7 +17,7 @@ BGP Speaker
 '''''''''''
 To enable BGP-FS support in BGP plugin, first configure BGP speaker instance:
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -103,7 +103,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled BGP-FS family.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -357,7 +357,7 @@ IPv4 Flow Specification
 '''''''''''''''''''''''
 The IPv4 Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -526,7 +526,7 @@ IPv6 Flows Specification
 ''''''''''''''''''''''''
 The IPv6 Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv6-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv6-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -646,7 +646,7 @@ IPv4 L3VPN Flows Specification
 ''''''''''''''''''''''''''''''
 The IPv4 L3VPN Flowspec table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -732,7 +732,7 @@ IPv4 Flow Specification
 This examples show how to originate and remove IPv4 fowspec route via programmable RIB.
 Make sure the *Application Peer* is configured first.
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes``
 
 **Method:** ``POST``
 
@@ -1180,7 +1180,7 @@ Make sure the *Application Peer* is configured first.
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes/bgp-flowspec:flowspec-route/flow1/0``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-routes/bgp-flowspec:flowspec-route/flow1/0``
 
 **Method:** ``DELETE``
 
@@ -1188,7 +1188,7 @@ IPv4 L3VPN Flow Specification
 '''''''''''''''''''''''''''''
 This examples show how to originate and remove IPv4 L3VPN fowspec route via programmable RIB.
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes``
 
 **Method:** ``POST``
 
@@ -1271,7 +1271,7 @@ This examples show how to originate and remove IPv4 L3VPN fowspec route via prog
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes/flowspec-l3vpn-route/flow-l3vpn/0``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-flowspec:flowspec-l3vpn-subsequent-address-family/bgp-flowspec:flowspec-l3vpn-ipv4-routes/flowspec-l3vpn-route/flow-l3vpn/0``
 
 **Method:** ``DELETE``
 
@@ -1279,7 +1279,7 @@ IPv6 Flow Specification
 '''''''''''''''''''''''
 This examples show how to originate and remove IPv6 fowspec route via programmable RIB.
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv6-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv6-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes``
 
 **Method:** ``POST``
 
@@ -1380,7 +1380,7 @@ This examples show how to originate and remove IPv6 fowspec route via programmab
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv6-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes/bgp-flowspec:flowspec-route/flow-v6/0``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv6-address-family,bgp-flowspec:flowspec-subsequent-address-family/bgp-flowspec:flowspec-ipv6-routes/bgp-flowspec:flowspec-route/flow-v6/0``
 
 **Method:** ``DELETE``
 

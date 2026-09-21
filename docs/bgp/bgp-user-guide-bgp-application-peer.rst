@@ -10,7 +10,7 @@ Application Peer configuration
 ''''''''''''''''''''''''''''''
 Following configuration sample show a way to configure the *Application Peer*:
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -66,7 +66,7 @@ Following configuration sample show a way to configure the *Application Peer*:
 
 The *Application Peer* presence can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F10.25.1.9?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F10.25.1.9?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -153,7 +153,7 @@ Programmable RIB
 ''''''''''''''''
 Next example shows how to inject a route into the programmable RIB.
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
 
 **Method:** ``POST``
 
@@ -215,7 +215,7 @@ Next example shows how to inject a route into the programmable RIB.
 
 Now the injected route appears in *Application Peer's* RIBs and in local speaker's Loc-RIB:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F10.25.1.9?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/peer=bgp%3A%2F%2F10.25.1.9?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -364,7 +364,7 @@ Now the injected route appears in *Application Peer's* RIBs and in local speaker
 
 -----
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -464,7 +464,7 @@ Now the injected route appears in *Application Peer's* RIBs and in local speaker
 
 This route is also advertised to the remote peer (*192.0.2.1*), hence route appears in its Adj-RIB-Out:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/peer/bgp:%2F%2F192.0.2.1/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/peer/bgp:%2F%2F192.0.2.1/adj-rib-out/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -522,7 +522,7 @@ This route is also advertised to the remote peer (*192.0.2.1*), hence route appe
 
 The injected route can be modified (i.e. different path attribute):
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0``
 
 **Method:** ``PUT``
 
@@ -584,7 +584,7 @@ The injected route can be modified (i.e. different path attribute):
 
 The route can be removed from programmable RIB in a following way:
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes/ipv4-route/10.0.0.11%2F32/0``
 
 **Method:** ``DELETE``
 
@@ -592,7 +592,7 @@ The route can be removed from programmable RIB in a following way:
 
 Also it is possible to remove all routes from a particular table at once:
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables/bgp-types:ipv4-address-family/bgp-types:unicast-subsequent-address-family/bgp-inet:ipv4-routes``
 
 **Method:** ``DELETE``
 

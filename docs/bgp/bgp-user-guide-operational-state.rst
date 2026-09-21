@@ -13,7 +13,7 @@ The following APIs describe what is available starting with how to change the de
 Operational State Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**URL:** ``/rests/data/bgp-state-config:bgp-state-config``
+**URL:** ``/restconf/data/bgp-state-config:bgp-state-config``
 
 **Method:** ``PUT``
 
@@ -60,7 +60,7 @@ Operational State Configuration
 BGP RIB Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/global/state?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/global/state?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -121,7 +121,7 @@ BGP RIB Operational State
 BGP RIB Families Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/global/afi-safis?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/global/afi-safis?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -199,7 +199,7 @@ BGP RIB Families Operational State
 BGP Neighbors Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -258,7 +258,7 @@ BGP Neighbor Operational State
 
 .. note:: Supported Capabilities only provided when session has been established.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=127.0.0.2/state?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=127.0.0.2/state?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -347,7 +347,7 @@ BGP Neighbor Operational State
 BGP Neighbor Families Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/afi-safis?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/afi-safis?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -480,7 +480,7 @@ BGP Neighbor Family Operational State
 
 .. note:: Prefixes state is only provided once session is established.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/afi-safis/afi-safi=openconfig-bgp-types:IPV4%2DUNICAST?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/afi-safis/afi-safi=openconfig-bgp-types:IPV4%2DUNICAST?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -577,7 +577,7 @@ BGP Neighbor Timers Operational State
 
 .. note:: State is only provided once session is established.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/timers?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/timers?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -632,7 +632,7 @@ BGP Neighbor Transport Operational State
 
 .. note:: State is only provided once session is established.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/transport?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/transport?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -694,7 +694,7 @@ BGP Neighbor Error Handling Operational State
 .. note:: State is only provided once session is established.
 .. note:: Error handling not supported yet. Planned for Carbon.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/error-handling?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/error-handling?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -745,7 +745,7 @@ BGP Neighbor Graceful Restart Operational State
 
 .. note:: Graceful Restart not supported yet. Planned for Carbon.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/graceful-restart?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/graceful-restart?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -814,7 +814,7 @@ BGP Neighbor Graceful Restart Operational State
 BGP Peer Groups Operational State
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/peer-groups?content=nonconfig``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/peer-groups?content=nonconfig``
 
 **Method:** ``GET``
 

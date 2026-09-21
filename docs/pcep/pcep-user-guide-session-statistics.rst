@@ -7,7 +7,7 @@ The PCEP statistics provides information about PCE <-> PCC session and its state
 Session state
 '''''''''''''
 
-**URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43/pcep-session-state?content=nonconfig``
+**URL:** ``/restconf/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43/pcep-session-state?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -229,7 +229,7 @@ statistics for all PCEP sessions under the context are returned.
 Get stats
 '''''''''
 
-**URL:** ``/rests/operations/pcep-topology-stats-rpc:get-stats``
+**URL:** ``/restconf/operations/pcep-topology-stats-rpc:get-stats``
 
 **Method:** ``POST``
 
@@ -406,7 +406,7 @@ Configure stats update interval
 PCEP stats data are periodically synced with the current state of PCEP topology, for example default ``topology-pcep``.
 Interval of such update can be configured using the following edit (plain PATCH) call:
 
-**URL:** ``rests/data/network-topology:network-topology/topology=pcep-topology/topology-types/network-topology-pcep:topology-pcep``
+**URL:** ``/restconf/data/network-topology:network-topology/topology=pcep-topology/topology-types/network-topology-pcep:topology-pcep``
 
 **Method:** ``PATCH``
 

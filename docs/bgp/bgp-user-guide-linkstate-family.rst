@@ -20,7 +20,7 @@ BGP Speaker
 '''''''''''
 To enable BGP-LS support in BGP plugin, first configure BGP speaker instance:
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -106,7 +106,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled BGP-LS family.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -583,7 +583,7 @@ Usage
 ^^^^^
 The Link-State table in a instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-linkstate:linkstate-address-family,bgp-linkstate:linkstate-subsequent-address-family/bgp-linkstate:linkstate-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-linkstate:linkstate-address-family,bgp-linkstate:linkstate-subsequent-address-family/bgp-linkstate:linkstate-routes?content=nonconfig``
 
 **Method:** ``GET``
 

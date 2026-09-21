@@ -259,7 +259,7 @@ PCEP Topology
 PCEP data is displayed only through one URL that is accessible from the
 base network-topology URL:
 
-*http://localhost:8181/rests/data/network-topology:network-topology/topology/pcep-topology?content=nonconfig*
+*http://localhost:8182/restconf/data/network-topology:network-topology/topology/pcep-topology?content=nonconfig*
 
 Each PCC will be displayed as a node:
 

@@ -17,7 +17,7 @@ Usage
 ^^^^^
 To send a Route Refresh request from OpenDaylight BGP speaker instance to its neighbor, invoke RPC:
 
-**URL:** ``/rests/data/bgp-peer-rpc:route-refresh-request``
+**URL:** ``/restconf/data/bgp-peer-rpc:route-refresh-request``
 
 **Method:** ``POST``
 
@@ -74,7 +74,7 @@ Usage
 ^^^^^
 To release neighbor session, invoke RPC:
 
-**URL:** ``/rests/data/bgp-peer-rpc:reset-session``
+**URL:** ``/restconf/data/bgp-peer-rpc:reset-session``
 
 **Method:** ``POST``
 

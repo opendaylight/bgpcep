@@ -91,7 +91,7 @@ Installing data change counter tool
 
 .. code-block:: console
 
-   feature:install odl-restconf odl-bgpcep-data-change-counter
+   feature:install odl-restconf-nb odl-bgpcep-data-change-counter
 
 Configuration
 '''''''''''''
@@ -99,7 +99,7 @@ Once we set the configuration, a new data change counter will be created and reg
 
 .. important:: **Clustering** - Each Counter Identifier should be unique.
 
-**URL:** ``/rests/data/odl-data-change-counter-config:data-change-counter-config=data-change-counter``
+**URL:** ``/restconf/data/odl-data-change-counter-config:data-change-counter-config=data-change-counter``
 
 **Method:** ``PUT``
 
@@ -152,7 +152,7 @@ Usage
 
 Counter state for topology
 
-**URL:** ``/rests/data/data-change-counter:data-change-counter/counter=data-change-counter?content=nonconfig``
+**URL:** ``/restconf/data/data-change-counter:data-change-counter/counter=data-change-counter?content=nonconfig``
 
 **Method:** ``GET``
 

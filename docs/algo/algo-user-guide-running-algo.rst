@@ -3,6 +3,9 @@
 Running Path Computation
 ========================
 
+See :ref:`bgpcep-restconf-endpoint` for the default RESTCONF endpoint
+and legacy JAX-RS compatibility.
+
 This section details how to install and use the Path Computation Algorithm
 feature.
 
@@ -20,7 +23,7 @@ In the Karaf console, type command:
 
 .. code-block:: console
 
-    feature:install features-restconf features-algo
+    feature:install odl-restconf-nb features-algo
 
 
 Yang Model
@@ -109,7 +112,7 @@ Path Computation algorithms are accessible through the RPC described below:
 
 -----
 
-**URL:** ``rests/operations/path-computation:get-constrained-path``
+**URL:** ``/restconf/operations/path-computation:get-constrained-path``
 
 **Method:** ``POST``
 

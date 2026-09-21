@@ -17,7 +17,7 @@ BGP Speaker
 '''''''''''
 To enable IPv4 and IPv6 L3VPN support in BGP plugin, first configure BGP speaker instance:
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -103,7 +103,7 @@ BGP Peer
 ''''''''
 Here is an example for BGP peer configuration with enabled IPv4 and IPv6 L3VPN family.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/openconfig-network-instance:protocols/protocol=openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors``
 
 **Method:** ``POST``
 
@@ -220,7 +220,7 @@ IPv4 L3VPN Unicast
 ''''''''''''''''''
 The IPv4 L3VPN Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -305,7 +305,7 @@ IPv6 L3VPN Unicast
 ''''''''''''''''''
 The IPv6 L3VPN Unicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv6-address-family,bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv6:vpn-ipv6-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv6-address-family,bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv6:vpn-ipv6-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -390,7 +390,7 @@ IPv4 L3VPN Multicast
 ''''''''''''''''''''
 The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv4-address-family,bgp-types:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -473,7 +473,7 @@ IPv6 L3VPN Multicast
 ''''''''''''''''''''
 The IPv4 L3VPN Multicast table in an instance of the speaker's Loc-RIB can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv6-address-family,bgp-types:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example/loc-rib/tables=bgp-types:ipv6-address-family,bgp-types:mcast-mpls-labeled-vpn-subsequent-address-family/bgp-l3vpn-mcast:l3vpn-mcast-routes?content=nonconfig``
 
 **Method:** ``GET``
 
@@ -557,7 +557,7 @@ Programming
 This examples show how to originate and remove IPv4 L3VPN Unicast route via programmable RIB.
 Make sure the *Application Peer* is configured first.
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes``
 
 **Method:** ``POST``
 
@@ -642,7 +642,7 @@ Make sure the *Application Peer* is configured first.
 
 To remove the route added above, following request can be used:
 
-**URL:** ``/rests/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes/vpn-route/vpn1/0``
+**URL:** ``/restconf/data/bgp-rib:application-rib/10.25.1.9/tables=bgp-types:ipv4-address-family,bgp-types:mpls-labeled-vpn-subsequent-address-family/bgp-vpn-ipv4:vpn-ipv4-routes/vpn-route/vpn1/0``
 
 **Method:** ``DELETE``
 

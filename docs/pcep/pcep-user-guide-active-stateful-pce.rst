@@ -21,7 +21,7 @@ TLV that may be included in the OPEN Object when a PCEP speaker
 wishes to determine if state synchronization can be skipped when a
 PCEP session is restarted.
 
-**URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
+**URL:** ``/restconf/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
 
 **Method:** ``PUT``
 
@@ -76,7 +76,7 @@ MD5 authentication configuration
 The OpenDaylight PCEP implementation supports TCP MD5 for authentication.
 The sample configuration below shows how to set authentication password for a particular PCC.
 
-**URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
+**URL:** ``/restconf/data/network-topology:network-topology/topology=pcep-topology/node=43.43.43.43``
 
 **Method:** ``PUT``
 
@@ -472,7 +472,7 @@ The LSP-DB is accessible via RESTCONF.
 The PCC's LSPs are stored in the ``pcep-topology`` while the session is active.
 In a next example, there is one PCEP session with PCC identified by its IP address (*43.43.43.43*) and one reported LSP (*foo*).
 
-**URL:** ``/rests/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43``
+**URL:** ``/restconf/data/network-topology:network-topology/topology=pcep-topology/node=pcc%3A%2F%2F43.43.43.43``
 
 **Method:** ``GET``
 
@@ -718,7 +718,7 @@ The LSP control is delegated to at most one PCE at the same time.
 
 Following RPC example illustrates a request for the LSP delegation give up:
 
-**URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -820,7 +820,7 @@ The LSP update is done in *make-before-break* fashion - first, new LSP is initia
 
 Following RPC example shows a request for the LSP update:
 
-**URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -963,7 +963,7 @@ PCE-initiated LSPs are identified by *Create* flag.
 
 Following RPC example shows a request for the LSP initiation:
 
-**URL:** ``/rests/operations/network-topology-pcep:add-lsp``
+**URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
 
 **Method:** ``POST``
 
@@ -1104,7 +1104,7 @@ The PCE must be delegation holder for this particular LSP.
 
 Following RPC example shows a request for the LSP deletion:
 
-**URL:** ``/rests/operations/network-topology-pcep:remove-lsp``
+**URL:** ``/restconf/operations/network-topology-pcep:remove-lsp``
 
 **Method:** ``POST``
 
@@ -1169,7 +1169,7 @@ The PCE may ask for a delegation of the orphan LSP.
 
 Following RPC example illustrates a request for the LSP delegation:
 
-**URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -1291,7 +1291,7 @@ The PCEP SR extension defines new ERO subobject - *SR-ERO subobject* capable of 
 
 Following RPC example illustrates a request for the SR-TE LSP creation:
 
-**URL:** ``/rests/operations/network-topology-pcep:add-lsp``
+**URL:** ``/restconf/operations/network-topology-pcep:add-lsp``
 
 **Method:** ``POST``
 
@@ -1403,7 +1403,7 @@ Following RPC example illustrates a request for the SR-TE LSP creation:
 
 Following RPC example illustrates a request for the SR-TE LSP update including modified path:
 
-**URL:** ``/rests/operations/network-topology-pcep:update-lsp``
+**URL:** ``/restconf/operations/network-topology-pcep:update-lsp``
 
 **Method:** ``POST``
 
@@ -1544,7 +1544,7 @@ The PCE-triggered Initial Synchronization procedure is intended to do let PCE co
 
 Following RPC example illustrates a request for the initial synchronization:
 
-**URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
+**URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
 
 **Method:** ``POST``
 
@@ -1594,7 +1594,7 @@ The PCE-triggered Re-synchronization: To let PCE re-synchronize the state for sa
 
 Following RPC example illustrates a request for the LSP re-synchronization:
 
-**URL:** ``/rests/operations/network-topology-pcep:trigger-sync``
+**URL:** ``/restconf/operations/network-topology-pcep:trigger-sync``
 
 **Method:** ``POST``
 

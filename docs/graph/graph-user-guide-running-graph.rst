@@ -2,6 +2,10 @@
 
 Running Graph
 =============
+
+See :ref:`bgpcep-restconf-endpoint` for the default RESTCONF endpoint
+and legacy JAX-RS compatibility.
+
 This section explains how to install Graph plugin.
 
 1. Install Graph feature - ``features-graph``.
@@ -10,13 +14,13 @@ This section explains how to install Graph plugin.
 
    .. code-block:: console
 
-      feature:install features-restconf features-graph
+      feature:install odl-restconf-nb features-graph
 
 2. The Graph plugin contains a default empty configuration, which is applied
    after the feature starts up. One instance of Graph plugin is created
    (named *graph-topology*), and its presence can be verified via REST:
 
-   **URL:** ``rests/data/graph:graph-topology?content=config``
+   **URL:** ``/restconf/data/graph:graph-topology?content=config``
 
    **Method:** ``GET``
 
@@ -29,7 +33,7 @@ This section explains how to install Graph plugin.
    It is also posible to access to the operational graph topology which is
    also empty by default via REST:
 
-   **URL:** ``rests/data/graph:graph-topology?content=nonconfig``
+   **URL:** ``/restconf/data/graph:graph-topology?content=nonconfig``
 
    **Method:** ``GET``
 

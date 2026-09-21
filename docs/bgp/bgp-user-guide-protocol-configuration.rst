@@ -7,7 +7,7 @@ It is a very basic configuration conforming with RFC4271.
 
 .. note:: RIB policy must already be configured and present before configuring the protocol.
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance=global-bgp/protocols``
 
 **Method:** ``POST``
 
@@ -109,7 +109,7 @@ It is a very basic configuration conforming with RFC4271.
 
 The new instance presence can be verified via REST:
 
-**URL:** ``/rests/data/bgp-rib:bgp-rib/rib=bgp-example?content=nonconfig``
+**URL:** ``/restconf/data/bgp-rib:bgp-rib/rib=bgp-example?content=nonconfig``
 
 **Method:** ``GET``
 

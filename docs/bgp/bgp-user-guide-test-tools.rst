@@ -68,7 +68,7 @@ Configuration
 As a first step install BGP and RESTCONF, then configure *Application Peer*.
 Install ``odl-bgpcep-bgp-benchmark`` feature and reconfigure BGP Application Peer Benchmark application as per following:
 
-**URL:** ``/rests/data/odl-bgp-app-peer-benchmark-config:config``
+**URL:** ``/restconf/data/odl-bgp-app-peer-benchmark-config:config``
 
 **Method:** ``PUT``
 
@@ -112,7 +112,7 @@ Inject routes
 '''''''''''''
 Routes injection can be invoked via RPC:
 
-**URL:** ``/rests/operations/odl-bgp-app-peer-benchmark:add-prefix``
+**URL:** ``/restconf/operations/odl-bgp-app-peer-benchmark:add-prefix``
 
 **Method:** ``POST``
 
@@ -216,7 +216,7 @@ Remove routes
 '''''''''''''
 Routes deletion can be invoked via RPC:
 
-**URL:** ``/rests/operations/odl-bgp-app-peer-benchmark:delete-prefix``
+**URL:** ``/restconf/operations/odl-bgp-app-peer-benchmark:delete-prefix``
 
 **Method:** ``POST``
 
