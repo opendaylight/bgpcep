@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "7a03b379_c680f4c1",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "CheckUtil.java and CheckTestUtil.java are near-verbatim copies. Can we perhaps collapse CheckTestUtil into CheckUtil, or have one delegate to the other?",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0148f255_731a15ab",
+        "filename": "testtool-util/pom.xml",
+        "patchSetId": 19
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "No need - compile is the default",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26b8cdf0_b5d98ba8",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckTestUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "requireNonNull is not necessary",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "005e8975_3e16213a",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckTestUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c374762b_9ea222dc",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "This is no longer a sleep - awaitility uses this as a polling interval. Could be renamed to reflect that.",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9fa629bf_8c6e764e",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "Awaitility\u0027s untilAsserted only retries on AssertionError - any other throwable, including the checked ExecutionException and InterruptedException from future.get(), is rethrown as-is through a sneaky-throw, so these signatures now understate what callers can receive and a caller can no longer write catch (ExecutionException e) around them. Could the poll body convert a read failure into an AssertionError so it is retried, and the throws clauses be kept where an exception really can escape?",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f55e5920_420e0818",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "This needs careful consideration. Awaitility defaults catchUncaughtExceptions to true - so for as long as any of these helpers is polling it installs a JVM-global default uncaught-exception handler and rethrows anything that lands there — a dying background thread now fails whichever check happens to be waiting, with that thread\u0027s exception. The old Stopwatch loops did not do this. Please consult the documentation of Awaitility.defaultCatchUncaughtExceptions behaviour and its impact here.",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "bd7b3a40_5e125570",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "fix indentation",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8aa70a50_6df964a7",
+        "filename": "testtool-util/src/test/java/org/opendaylight/protocol/util/CheckUtilTest.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:48:02Z",
+      "side": 1,
+      "message": "ConditionTimeoutException is what Awaitility throws for any condition that never holds, so this test would still pass if readData stopped applying the caller\u0027s function altogether — the very thing it is meant to pin down. Awaitility keeps the original AssertionError as getCause(). Could we capture the exception and assert on its cause here and in testReadDataConfigurationFail and testCheckEquals below?",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
