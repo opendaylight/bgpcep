@@ -88,7 +88,7 @@ RIB data structure.
 BMP data is displayed only through one URL that is accessible from the
 base BMP URL:
 
-``http://<controllerIP>:8181/rests/data/bmp-monitor:bmp-monitor?content=nonconfig``
+``http://<controllerIP>:8182/restconf/data/bmp-monitor:bmp-monitor?content=nonconfig``
 
 Each Monitor station will be displayed and it may contains multiple
 monitored routers and peers within:

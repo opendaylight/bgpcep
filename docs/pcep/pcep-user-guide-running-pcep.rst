@@ -2,6 +2,10 @@
 
 Running PCEP
 ============
+
+See :ref:`bgpcep-restconf-endpoint` for the default RESTCONF endpoint
+and legacy JAX-RS compatibility.
+
 This section explains how to install PCEP plugin.
 
 1. Install PCEP feature - ``odl-bgpcep-pcep``.
@@ -10,12 +14,12 @@ This section explains how to install PCEP plugin.
 
    .. code-block:: console
 
-      feature:install odl-restconf odl-bgpcep-pcep
+      feature:install odl-restconf-nb odl-bgpcep-pcep
 
 2. The PCEP plugin contains a default configuration, which is applied after the feature starts up.
    One instance of PCEP plugin is created (named *pcep-topology*), and its presence can be verified via REST:
 
-   **URL:** ``rests/data/network-topology:network-topology/topology=pcep-topology?content=nonconfig``
+   **URL:** ``/restconf/data/network-topology:network-topology/topology=pcep-topology?content=nonconfig``
 
    **Method:** ``GET``
 

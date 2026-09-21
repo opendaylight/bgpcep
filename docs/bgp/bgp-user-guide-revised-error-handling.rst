@@ -14,11 +14,11 @@ Configuration
 
 For *neighbor* configuration:
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/error-handling``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/neighbors/neighbor=192.0.2.1/error-handling``
 
 For *peer-group* configuration:
 
-**URL:** ``/rests/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/peer-groups/peer-group/external-neighbor/error-handling``
+**URL:** ``/restconf/data/openconfig-network-instance:network-instances/network-instance/global-bgp/openconfig-network-instance:protocols/protocol/openconfig-policy-types:BGP,bgp-example/bgp-openconfig-extensions:bgp/peer-groups/peer-group/external-neighbor/error-handling``
 
 **Method:** ``PUT``
 

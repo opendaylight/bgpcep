@@ -2,6 +2,10 @@
 
 Running BMP
 ===========
+
+See :ref:`bgpcep-restconf-endpoint` for the default RESTCONF endpoint
+and legacy JAX-RS compatibility.
+
 This section explains how to install BMP plugin.
 
 1. Install BMP feature - ``odl-bgpcep-bmp``.
@@ -10,12 +14,12 @@ This section explains how to install BMP plugin.
 
    .. code-block:: console
 
-      feature:install odl-restconf odl-bgpcep-bmp
+      feature:install odl-restconf-nb odl-bgpcep-bmp
 
 2. The BMP plugin contains a default configuration, which is applied after the feature starts up.
    One instance of BMP monitoring station is created (named *example-bmp-monitor*), and its presence can be verified via REST:
 
-   **URL:** ``/rests/data/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor?content=config``
+   **URL:** ``/restconf/data/odl-bmp-monitor-config:odl-bmp-monitors/bmp-monitor-config/example-bmp-monitor?content=config``
 
    **Method:** ``GET``
 
