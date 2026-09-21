@@ -16,6 +16,40 @@
       "message": "recheck",
       "revId": "29ebb4726e5e0749e90af49829ebfc0ddbb4f616",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b4e3dc59_0d124dc5",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:55:57Z",
+      "side": 1,
+      "message": "Awaitility\u0027s during() does not fail when the condition breaks — it resets the hold timer and keeps polling — so the javadoc above \"failing as soon as the data appears\" is not what happens: a regression makes each check burn the full 10.5s and report ConditionTimeoutException instead of \"Unexpected data exists at\". The floating window also means the check passes if the data is present for 10s and absent for the last 500ms. Could the sustain variant get a tight budget of its own and the javadoc be corrected to match that?",
+      "revId": "29ebb4726e5e0749e90af49829ebfc0ddbb4f616",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f1d5ac82_e290d403",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-09-21T12:55:57Z",
+      "side": 1,
+      "message": "Any reason why this changed? And if there is one, then how about changing the equivalent one in CheckTestUtil as well...",
+      "revId": "29ebb4726e5e0749e90af49829ebfc0ddbb4f616",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
