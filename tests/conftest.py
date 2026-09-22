@@ -54,6 +54,43 @@ def pytest_addoption(parser):
     )
 
 
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(config, items):
+    """Makes longevity suites opt-in.
+
+    A longevity suite soaks for hours, so it must not be picked up by a plain
+    `tox -e pytest` or by a broad selection such as `-m performance`. Items
+    marked longevity are deselected unless the -m expression names the marker,
+    or the suite file itself is named on the command line.
+
+    trylast=True ensures this runs after -m/-k filtering.
+
+    Args:
+        config (pytest.Config): Active pytest configuration.
+        items (list[pytest.Item]): Tests collected for this session.
+
+    Returns:
+        None
+    """
+    if "longevity" in (config.getoption("markexpr", "") or ""):
+        return
+
+    # Running the suite file directly is an explicit enough request too,
+    # otherwise developing that suite would always report "no tests ran".
+    named_on_cli = {os.path.abspath(arg.split("::")[0]) for arg in config.args}
+
+    selected, deselected = [], []
+    for item in items:
+        if item.get_closest_marker("longevity") and str(item.path) not in named_on_cli:
+            deselected.append(item)
+        else:
+            selected.append(item)
+
+    if deselected:
+        config.hook.pytest_deselected(items=deselected)
+        items[:] = selected
+
+
 @pytest.fixture
 def allure_step_with_separate_logging(
     request: pytest.FixtureRequest,

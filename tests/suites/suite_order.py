@@ -81,3 +81,6 @@ class SuiteOrder(IntEnum):
     PCEP_STAT_TC10 = auto()
     PCEP_STAT_TC11 = auto()
     PCEP_STAT_TC12 = auto()
+    # Last on purpose: the soak runs for hours, so everything else gets
+    # to finish first even when the whole set is selected.
+    BGP_INGEST_PC_SHM_300K_LONGEVITY = auto()
