@@ -54,28 +54,62 @@ def pytest_addoption(parser):
         default=None,
         help="Comma-separated list of step tags to skip",
     )
+    parser.addoption(
+        "--longevity",
+        action="store_true",
+        default=False,
+        help="Run longevity soak suites, which are deselected otherwise",
+    )
 
 
 @pytest.hookimpl(trylast=True)
-def pytest_collection_modifyitems(items):
-    """Prevents standalone and cluster tests from running in the same session.
+def pytest_collection_modifyitems(config, items):
+    """Keeps suites out of a session they do not belong in.
 
-    Both fixtures stage their ODL from the same build output and use the same
-    ports, so running them together conflicts. When both are collected,
-    standalone takes priority and cluster tests are skipped.
+    Longevity suites soak for hours, so --longevity selects them and nothing
+    else: without the flag they are deselected, with it everything else is.
+    They own their CI job, and running them alongside the ordinary suites
+    would mean the standalone rule below silently skipping a longevity suite
+    that needs the cluster. A dedicated flag rather than an -m check, because
+    -m is matched as text: "not longevity" and "performance or not
+    longevity" both contain the marker name while meaning the opposite.
 
-    Keyed on the fixtures rather than the markers, so a suite that requests
-    the cluster fixture without marking itself is still caught.
+    Standalone and cluster tests stage their ODL from the same build output
+    and use the same ports, so running them together conflicts. When both are
+    collected, standalone takes priority and cluster tests are skipped. Keyed
+    on the fixtures rather than the markers, so a suite that requests the
+    cluster fixture without marking itself is still caught.
 
     trylast=True ensures this runs after -m/-k filtering, so explicit
     selections (like `-m cluster`) are not overridden.
 
     Args:
+        config (pytest.Config): Active pytest configuration.
         items (list[pytest.Item]): Tests collected for this session.
 
     Returns:
         None
     """
+    soak_only = config.getoption("--longevity")
+    kept, deselected = [], []
+    for item in items:
+        is_longevity = item.get_closest_marker("longevity") is not None
+        target = kept if is_longevity == soak_only else deselected
+        target.append(item)
+    if deselected:
+        config.hook.pytest_deselected(items=deselected)
+        items[:] = kept
+        # Say so, otherwise `-m longevity` without the flag looks like a
+        # collection bug rather than the protection doing its job.
+        reporter = config.pluginmanager.get_plugin("terminalreporter")
+        if reporter is not None:
+            reporter.write_line(
+                f"deselected {len(deselected)} non-longevity test(s); "
+                f"--longevity runs the soak suites alone"
+                if soak_only
+                else f"deselected {len(deselected)} longevity test(s); "
+                f"pass --longevity to run them"
+            )
 
     def uses(item: pytest.Item, fixture: str) -> bool:
         return fixture in getattr(item, "fixturenames", ())
