@@ -366,6 +366,57 @@ def verify_function_does_not_fail_within_timeout(
     )
 
 
+def verify_function_does_not_fail_for_duration(
+    duration: int, interval: int, function: Callable, *args, **kwargs
+) -> Any:
+    """Repeatedly calls a function for a wall clock duration, failing fast.
+
+    The function is called at least once, and keeps being called until the
+    duration has elapsed. If any call raises, that is reported immediately
+    together with how far into the run it happened.
+
+    This bounds the elapsed time, unlike
+    verify_function_does_not_fail_within_timeout, which bounds the number of
+    calls. Soak tests need the former, since the time one iteration takes is
+    not known up front.
+
+    Args:
+        duration (int): How many seconds to keep calling the function for.
+        interval (int): Number of seconds to wait between calls.
+        function (Callable): Function to be called repeatedly.
+        *args: Function positional arguments.
+        **kwargs: Function keyword arguments.
+
+    Returns:
+        Any: Return value returned by the last call.
+    """
+    # Monotonic, so a clock adjustment during a long soak cannot end the run
+    # early or extend it.
+    start_time = time.monotonic()
+    iteration = 0
+    while True:
+        iteration += 1
+        elapsed = time.monotonic() - start_time
+        log.info(
+            f"Running {function.__name__} iteration {iteration}, "
+            f"{elapsed:.0f}s of {duration}s elapsed"
+        )
+        try:
+            result = function(*args, **kwargs)
+        except Exception as e:
+            raise AssertionError(
+                f"Function {function.__name__} failed on iteration {iteration}, "
+                f"after {time.monotonic() - start_time:.0f} seconds: {e}"
+            ) from e
+        if time.monotonic() - start_time >= duration:
+            log.info(
+                f"Completed {iteration} iterations of {function.__name__} "
+                f"over {duration}s"
+            )
+            return result
+        time.sleep(interval)
+
+
 def verify_function_returns_concrete_value_for_some_time(
     retry_count: int,
     interval: int,
