@@ -40,6 +40,85 @@ EXAMPLE_IPV4_TOPOLOGY = "example-ipv4-topology"
 log = logging.getLogger(__name__)
 
 
+def run_ingest_cycle(
+    allure_step_with_separate_logging,
+    prefixes_count: int,
+    bgp_filling_timeout: float,
+):
+    """Runs one advertise-and-withdraw cycle against an already configured peer.
+
+    Starts the speaker, waits for the topology to fill and verifies the count,
+    then kills the speaker and waits for the topology to drain back to empty.
+    The BGP peer configuration is deliberately left alone, so the cycle can be
+    repeated against a peer that is configured once by the caller.
+
+    Args:
+        allure_step_with_separate_logging: Allure step context manager.
+        prefixes_count (int): Number of prefixes the speaker advertises.
+        bgp_filling_timeout (float): Seconds to allow the topology to settle,
+            both while filling and while emptying.
+
+    Returns:
+        None
+    """
+    with allure_step_with_separate_logging("step_start_talking_bgp_speaker"):
+        # Start Python speaker to connect to ODL.
+        bgp_speaker_process = bgp.start_bgp_speaker_with_verify_and_retry(
+            speaker_ips=TOOLS_IP,
+            my_ip=TOOLS_IP,
+            my_port=BGP_TOOL_PORT,
+            peer_ip=ODL_IP,
+            peer_port=ODL_BGP_PORT,
+            ammount=prefixes_count,
+            insert=INSERT,
+            withdraw=WITHDRAW,
+            prefill=PREFILL,
+            update=UPDATE,
+            listen=False,
+            log_level=BGP_TOOL_LOG_LEVEL,
+        )
+
+    with allure_step_with_separate_logging("step_wait_for_stable_talking_ip_topology"):
+        # Wait until example-ipv4-topology becomes stable. This is done by
+        # checking stability of prefix count.
+        prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
+            excluded_value=0,
+            timeout=bgp_filling_timeout,
+            wait_period=CHECK_PERIOD,
+            consecutive_times_stable_value=REPETITIONS,
+            topology=EXAMPLE_IPV4_TOPOLOGY,
+        )
+
+    with allure_step_with_separate_logging("step_check_talking_ip_topology_count"):
+        # Count the routes in example-ipv4-topology and fail if the count is
+        # not correct.
+        prefix_counting.check_ipv4_topology_prefixes_count(
+            prefixes_count, topology=EXAMPLE_IPV4_TOPOLOGY
+        )
+
+    with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
+        # Abort the Python speaker.
+        bgp.stop_bgp_speaker(bgp_speaker_process)
+
+    with allure_step_with_separate_logging(
+        "step_wait_for_stable_ip_topology_after_listening"
+    ):
+        # Wait until example-ipv4-topology becomes stable again.
+        prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
+            excluded_value=prefixes_count,
+            timeout=bgp_filling_timeout,
+            wait_period=CHECK_PERIOD,
+            consecutive_times_stable_value=REPETITIONS,
+            topology=EXAMPLE_IPV4_TOPOLOGY,
+        )
+
+    with allure_step_with_separate_logging(
+        "step_check_for_empty_ip_topology_after_listening"
+    ):
+        # Example-ipv4-topology should be empty.
+        prefix_counting.check_ipv4_topology_is_empty(EXAMPLE_IPV4_TOPOLOGY)
+
+
 class BaseTestSinglePeerPrefixCountClustering:
     """Shared flow of the bgpclustering single peer prefix counting suites.
 
@@ -47,8 +126,6 @@ class BaseTestSinglePeerPrefixCountClustering:
     iBGP peer advertises, so the whole flow is kept here and the concrete
     suites supply the prefix count via parametrization.
     """
-
-    bgp_speaker_process = None
 
     def test_single_peer_prefix_count_clustering(
         self,
@@ -87,64 +164,9 @@ class BaseTestSinglePeerPrefixCountClustering:
                 passive_mode=True,
             )
 
-        with allure_step_with_separate_logging("step_start_talking_bgp_speaker"):
-            # Start Python speaker to connect to ODL.
-            self.bgp_speaker_process = bgp.start_bgp_speaker_with_verify_and_retry(
-                speaker_ips=TOOLS_IP,
-                my_ip=TOOLS_IP,
-                my_port=BGP_TOOL_PORT,
-                peer_ip=ODL_IP,
-                peer_port=ODL_BGP_PORT,
-                ammount=prefixes_count,
-                insert=INSERT,
-                withdraw=WITHDRAW,
-                prefill=PREFILL,
-                update=UPDATE,
-                listen=False,
-                log_level=BGP_TOOL_LOG_LEVEL,
-            )
-
-        with allure_step_with_separate_logging(
-            "step_wait_for_stable_talking_ip_topology"
-        ):
-            # Wait until example-ipv4-topology becomes stable. This is done by
-            # checking stability of prefix count.
-            prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
-                excluded_value=0,
-                timeout=bgp_filling_timeout,
-                wait_period=CHECK_PERIOD,
-                consecutive_times_stable_value=REPETITIONS,
-                topology=EXAMPLE_IPV4_TOPOLOGY,
-            )
-
-        with allure_step_with_separate_logging("step_check_talking_ip_topology_count"):
-            # Count the routes in example-ipv4-topology and fail if the count is
-            # not correct.
-            prefix_counting.check_ipv4_topology_prefixes_count(
-                prefixes_count, topology=EXAMPLE_IPV4_TOPOLOGY
-            )
-
-        with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
-            # Abort the Python speaker.
-            bgp.stop_bgp_speaker(self.bgp_speaker_process)
-
-        with allure_step_with_separate_logging(
-            "step_wait_for_stable_ip_topology_after_listening"
-        ):
-            # Wait until example-ipv4-topology becomes stable again.
-            prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
-                excluded_value=prefixes_count,
-                timeout=bgp_filling_timeout,
-                wait_period=CHECK_PERIOD,
-                consecutive_times_stable_value=REPETITIONS,
-                topology=EXAMPLE_IPV4_TOPOLOGY,
-            )
-
-        with allure_step_with_separate_logging(
-            "step_check_for_empty_ip_topology_after_listening"
-        ):
-            # Example-ipv4-topology should be empty.
-            prefix_counting.check_ipv4_topology_is_empty(EXAMPLE_IPV4_TOPOLOGY)
+        run_ingest_cycle(
+            allure_step_with_separate_logging, prefixes_count, bgp_filling_timeout
+        )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
             # Revert the BGP configuration to the original state: without any
