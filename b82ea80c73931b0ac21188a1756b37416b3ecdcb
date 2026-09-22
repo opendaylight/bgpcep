@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "33f7e34e_51228fb8",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-09-22T12:15:30Z",
+      "side": 1,
+      "message": "Thanks, done.",
+      "parentUuid": "95691598_4af06896",
+      "revId": "b82ea80c73931b0ac21188a1756b37416b3ecdcb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0cbe1e12_cf0dd01d",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-09-21T10:56:03Z",
       "side": 1,
       "message": "This test uses a mock channel with no pipeline, so it cannot cover the property the change actually rests on: that a ByteBuf passes BGPMessageToByteEncoder untouched. Is it possoble to add a small test that writes a ByteBuf through the real encoder and asserts the same bytes come out?",
+      "revId": "b82ea80c73931b0ac21188a1756b37416b3ecdcb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c60f10e_e90ba424",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImplTest.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 265,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-09-22T12:15:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0cbe1e12_cf0dd01d",
       "revId": "b82ea80c73931b0ac21188a1756b37416b3ecdcb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
