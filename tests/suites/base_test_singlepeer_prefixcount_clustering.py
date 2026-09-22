@@ -10,6 +10,7 @@
 # https://github.com/opendaylight/integration-test/blob/901c7e139945b436d95a44b3b592904c3d7a4f9f/csit/suites/bgpcep/bgpclustering/singlepeer_pc_shm_300kroutes.robot
 #
 
+from contextlib import contextmanager
 import logging
 
 import allure
@@ -47,7 +48,7 @@ class BaseTestSinglePeerPrefixCountClustering:
 
     bgp_speaker_process = None
 
-    def test_single_peer_prefix_count_clustering(
+    def run_ingest_cycle(
         self,
         allure_step_with_separate_logging,
         prefixes_count,
@@ -55,38 +56,27 @@ class BaseTestSinglePeerPrefixCountClustering:
         withdraw,
         prefill,
     ):
-        test_description = getattr(self, "test_description", None)
-        if test_description:
-            allure.dynamic.description(test_description)
+        """Runs one advertise-and-withdraw cycle against an already configured peer.
 
+        Starts the speaker, waits for the topology to fill and verifies the
+        count, then kills the speaker and waits for the topology to drain back
+        to empty. The peer configuration is deliberately left alone, so the
+        cycle can be repeated against a peer configured once by the caller.
+
+        Args:
+            allure_step_with_separate_logging: Allure step context manager.
+            prefixes_count (int): Number of prefixes the speaker advertises.
+            insert (int): Prefixes added per update message.
+            withdraw (int): Prefixes withdrawn per update message.
+            prefill (int): Prefixes advertised before the measured part starts.
+
+        Returns:
+            None
+        """
         bgp_filling_timeout = TEST_DURATION_MULTIPLIER * (
             prefixes_count * 6.0 / 10_000 + 35
         )
         bgp_emptying_timeout = bgp_filling_timeout * 3 / 4
-
-        with allure_step_with_separate_logging(
-            "step_check_for_empty_topology_before_talking"
-        ):
-            # Wait for example-ipv4-topology to come up and empty.
-            # Give large timeout for case when BGP boots slower than restconf.
-            utils.wait_until_function_pass(
-                INITIAL_RESTCONF_RETRIES,
-                INITIAL_RESTCONF_INTERVAL,
-                prefix_counting.check_ipv4_topology_is_empty,
-                EXAMPLE_IPV4_TOPOLOGY,
-            )
-
-        with allure_step_with_separate_logging(
-            "step_reconfigure_odl_to_accept_connection"
-        ):
-            # Configure BGP peer module with initiate-connection set to false.
-            bgp.set_bgp_neighbour(
-                ip=TOOLS_IP,
-                holdtime=HOLDTIME,
-                peer_port=BGP_TOOL_PORT,
-                rib_instance=RIB_INSTANCE,
-                passive_mode=True,
-            )
 
         with allure_step_with_separate_logging("step_start_talking_bgp_speaker"):
             # Start Python speaker to connect to ODL.
@@ -147,7 +137,116 @@ class BaseTestSinglePeerPrefixCountClustering:
             # Example-ipv4-topology should be empty.
             prefix_counting.check_ipv4_topology_is_empty(EXAMPLE_IPV4_TOPOLOGY)
 
-        with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
-            # Revert the BGP configuration to the original state: without any
-            # configured peers.
-            bgp.delete_bgp_neighbour(ip=TOOLS_IP, rib_instance=RIB_INSTANCE)
+    def run_scenario(
+        self,
+        allure_step_with_separate_logging,
+        prefixes_count,
+        insert,
+        withdraw,
+        prefill,
+    ):
+        """Runs the advertise-and-withdraw part against the configured peer.
+
+        Runs the cycle once. Subclasses override this to change how often it
+        runs; the longevity suite repeats it for a wall clock duration.
+
+        Args:
+            allure_step_with_separate_logging: Allure step context manager.
+            prefixes_count (int): Number of prefixes the speaker advertises.
+            insert (int): Prefixes added per update message.
+            withdraw (int): Prefixes withdrawn per update message.
+            prefill (int): Prefixes advertised before the measured part starts.
+
+        Returns:
+            None
+        """
+        self.run_ingest_cycle(
+            allure_step_with_separate_logging,
+            prefixes_count,
+            insert,
+            withdraw,
+            prefill,
+        )
+
+    @contextmanager
+    def _configured_bgp_peer(self, allure_step_with_separate_logging):
+        """Configures the BGP peer for the scenario, and removes it after.
+
+        The removal runs even when the body fails, so a failed run does not
+        leave the peer behind for later suites in the same session. A removal
+        that fails after the body already failed is logged rather than
+        raised, since it would otherwise be reported as the failure and leave
+        the real one only in its __context__.
+
+        Args:
+            allure_step_with_separate_logging: Allure step context manager.
+
+        Yields:
+            None
+        """
+        body_failed = False
+        try:
+            with allure_step_with_separate_logging(
+                "step_reconfigure_odl_to_accept_connection"
+            ):
+                # Configure BGP peer module with initiate-connection set to
+                # false. The peer stays configured for every cycle the
+                # scenario runs.
+                bgp.set_bgp_neighbour(
+                    ip=TOOLS_IP,
+                    holdtime=HOLDTIME,
+                    peer_port=BGP_TOOL_PORT,
+                    rib_instance=RIB_INSTANCE,
+                    passive_mode=True,
+                )
+            yield
+        except BaseException:
+            body_failed = True
+            raise
+        finally:
+            with allure_step_with_separate_logging(
+                "step_delete_bgp_peer_configuration"
+            ):
+                try:
+                    bgp.delete_bgp_neighbour(ip=TOOLS_IP, rib_instance=RIB_INSTANCE)
+                except Exception:
+                    if not body_failed:
+                        raise
+                    log.exception(
+                        "Removing the BGP peer configuration failed after the "
+                        "scenario had already failed; reporting the scenario "
+                        "failure instead."
+                    )
+
+    def test_single_peer_prefix_count_clustering(
+        self,
+        allure_step_with_separate_logging,
+        prefixes_count,
+        insert,
+        withdraw,
+        prefill,
+    ):
+        test_description = getattr(self, "test_description", None)
+        if test_description:
+            allure.dynamic.description(test_description)
+
+        with allure_step_with_separate_logging(
+            "step_check_for_empty_topology_before_talking"
+        ):
+            # Wait for example-ipv4-topology to come up and empty.
+            # Give large timeout for case when BGP boots slower than restconf.
+            utils.wait_until_function_pass(
+                INITIAL_RESTCONF_RETRIES,
+                INITIAL_RESTCONF_INTERVAL,
+                prefix_counting.check_ipv4_topology_is_empty,
+                EXAMPLE_IPV4_TOPOLOGY,
+            )
+
+        with self._configured_bgp_peer(allure_step_with_separate_logging):
+            self.run_scenario(
+                allure_step_with_separate_logging,
+                prefixes_count,
+                insert,
+                withdraw,
+                prefill,
+            )
