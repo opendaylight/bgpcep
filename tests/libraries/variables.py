@@ -37,6 +37,11 @@ class Variables(BaseSettings):
     TOOLS_PASSWORD: str = "admin"
     KARAF_LOG_LEVEL: str = "INFO"
     TEST_DURATION_MULTIPLIER: int = 1
+    # How long the longevity soak keeps repeating its scenario. Matches the
+    # Robot original, which uses 23h rather than 24h so the CI job is torn
+    # down on the same day it starts. Override via the environment to run
+    # the suite briefly, e.g. LONGEVITY_TEST_DURATION_IN_SECS=300.
+    LONGEVITY_TEST_DURATION_IN_SECS: int = 82800
     TOPOLOGY_URL: str = "rests/data/network-topology:network-topology/topology"
     DEFAULT_PCEP_STATS_UPDATE_INTERVAL: int = 5
     MAX_HTTP_RESPONSE_BODY_LOG_SIZE: int = 500
