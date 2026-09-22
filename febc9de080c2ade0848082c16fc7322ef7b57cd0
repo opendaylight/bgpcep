@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a77f7974_52b5e52c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 19
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "Agreed that the duplication shouldn\u0027t be permanent. But collapsing them touches ~37 files across ~17 modules: They are not exactly same, the two ListenerCheck interfaces have different method sets with separate implementors. I\u0027d rather not fold that into a patch whose point is \"replace hand-rolled polling with Awaitility\"",
+      "parentUuid": "7a03b379_c680f4c1",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "0148f255_731a15ab",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-09-21T12:48:02Z",
       "side": 1,
       "message": "No need - compile is the default",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fed15985_c182feb5",
+        "filename": "testtool-util/pom.xml",
+        "patchSetId": 19
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/c/bgpcep/+/125712/comment/3136cc63_7059b8ff/\nThis is managed dependency by odl parent where it is defined as test scoped so default here is test.",
+      "parentUuid": "0148f255_731a15ab",
       "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -52,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "46bf63b3_3eefdc45",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckTestUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26b8cdf0_b5d98ba8",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "005e8975_3e16213a",
@@ -65,6 +119,24 @@
       "writtenOn": "2026-09-21T12:48:02Z",
       "side": 1,
       "message": "same here",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a7c86b21_171a38a7",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckTestUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "005e8975_3e16213a",
       "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -86,6 +158,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "c61dbdc1_7db98d96",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c374762b_9ea222dc",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9fa629bf_8c6e764e",
@@ -99,6 +189,24 @@
       "writtenOn": "2026-09-21T12:48:02Z",
       "side": 1,
       "message": "Awaitility\u0027s untilAsserted only retries on AssertionError - any other throwable, including the checked ExecutionException and InterruptedException from future.get(), is rethrown as-is through a sneaky-throw, so these signatures now understate what callers can receive and a caller can no longer write catch (ExecutionException e) around them. Could the poll body convert a read failure into an AssertionError so it is retried, and the throws clauses be kept where an exception really can escape?",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "995d6aa2_7d9e63e0",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "Handled in the poll body: a failed read now becomes an AssertionError so it gets retried with the cause preserved, and an interrupt restores the interrupt flag and aborts the poll with an unchecked exception.",
+      "parentUuid": "9fa629bf_8c6e764e",
       "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -120,6 +228,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "009ca28c_5208cd8c",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "ConditionAwaiter installs a JVM-global default uncaught-exception handler for the duration of every poll and rethrows whatever lands there, so an unrelated dying thread would fail whichever check happens to be waiting — the old Stopwatch loops never touched global state. Switched the chains to Awaitility.dontCatchUncaughtExceptions(), which restores the previous behaviour.",
+      "parentUuid": "f55e5920_420e0818",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bd7b3a40_5e125570",
@@ -137,6 +263,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "dbbe5fa9_0dc9579d",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd7b3a40_5e125570",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8aa70a50_6df964a7",
@@ -150,6 +294,24 @@
       "writtenOn": "2026-09-21T12:48:02Z",
       "side": 1,
       "message": "ConditionTimeoutException is what Awaitility throws for any condition that never holds, so this test would still pass if readData stopped applying the caller\u0027s function altogether — the very thing it is meant to pin down. Awaitility keeps the original AssertionError as getCause(). Could we capture the exception and assert on its cause here and in testReadDataConfigurationFail and testCheckEquals below?",
+      "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2b3247d3_a826616f",
+        "filename": "testtool-util/src/test/java/org/opendaylight/protocol/util/CheckUtilTest.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-22T11:26:56Z",
+      "side": 1,
+      "message": "All three now capture the exception and assert on getCause().",
+      "parentUuid": "8aa70a50_6df964a7",
       "revId": "febc9de080c2ade0848082c16fc7322ef7b57cd0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
