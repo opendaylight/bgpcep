@@ -15,9 +15,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import com.google.common.base.VerifyException;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -26,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
@@ -81,13 +79,8 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
     private static final Logger LOG = LoggerFactory.getLogger(ApplicationPeer.class);
     private static final String APP_PEER_GROUP = "application-peers";
 
-    private final LoadingCache<NodeIdentifierWithPredicates, YangInstanceIdentifier> tablesIId =
-        CacheBuilder.newBuilder().build(new CacheLoader<>() {
-            @Override
-            public YangInstanceIdentifier load(final NodeIdentifierWithPredicates key) {
-                return peerRibOutIId.node(RIBNodeIdentifiers.TABLES_NID).node(key);
-            }
-        });
+    private final ConcurrentHashMap<NodeIdentifierWithPredicates, YangInstanceIdentifier> tablesIId =
+        new ConcurrentHashMap<>();
 
     private final HashSet<NodeIdentifierWithPredicates> supportedTables = new HashSet<>();
     private final BGPSessionStateImpl bgpSessionState = new BGPSessionStateImpl();
@@ -316,7 +309,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
 
     @Override
     public YangInstanceIdentifier getRibOutIId(final NodeIdentifierWithPredicates tablekey) {
-        return tablesIId.getUnchecked(tablekey);
+        return tablesIId.computeIfAbsent(tablekey, key -> peerRibOutIId.node(RIBNodeIdentifiers.TABLES_NID).node(key));
     }
 
     @Override
