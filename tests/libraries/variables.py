@@ -8,6 +8,8 @@
 # These variables are considered global and immutable, so their names are in ALL_CAPS.
 #
 
+from typing import List
+
 from pydantic_settings import BaseSettings
 from pydantic import computed_field
 
@@ -21,6 +23,9 @@ class Variables(BaseSettings):
     BGP_TOOL_PORT: int = 17900
     ODL_BGP_PORT: int = 1790
     ODL_IP: str = "127.0.0.1"
+    # Address of every cluster member, in member order. Member 1 shares
+    # ODL_IP so single-node and cluster runs address node 1 identically.
+    CLUSTER_MEMBER_IPS: List[str] = ["127.0.0.1", "127.0.0.2", "127.0.0.3"]
     ODL_USER: str = "admin"
     ODL_PASSWORD: str = "admin"
     RESTCONF_PORT: int = 8181
@@ -39,6 +44,9 @@ class Variables(BaseSettings):
     # Java heap for an ODL instance started on its own. The ingest
     # performance suites are sized against this value.
     CONTROLLER_MAX_MEM: str = "8G"
+    # Java heap per cluster member. Three members share one host, so this
+    # is deliberately smaller than the single instance value above.
+    CLUSTER_MEMBER_MAX_MEM: str = "4G"
     TEST_DURATION_MULTIPLIER: int = 1
     TOPOLOGY_URL: str = "rests/data/network-topology:network-topology/topology"
     DEFAULT_PCEP_STATS_UPDATE_INTERVAL: int = 5
