@@ -50,8 +50,6 @@ log = logging.getLogger(__name__)
 @pytest.mark.multi_device
 @pytest.mark.standalone
 @pytest.mark.usefixtures("odl_standalone")
-@pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
-@pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_exabgp_processes")
 @pytest.mark.run(order=SuiteOrder.BGP_USER_MANY_POLICIES)
 class TestBgpPoliciesDefault:
