@@ -30,8 +30,6 @@ PREFILL = 10
 @pytest.mark.multi_device
 @pytest.mark.standalone
 @pytest.mark.usefixtures("odl_standalone")
-@pytest.mark.usefixtures("log_test_suite_start_end_to_karaf")
-@pytest.mark.usefixtures("log_test_case_start_end_to_karaf")
 @pytest.mark.usefixtures("teardown_kill_all_running_play_script_processes")
 @pytest.mark.parametrize(
     "bgp_peers_count, count_change_count_many, insert, withdraw, prefill",

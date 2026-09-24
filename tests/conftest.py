@@ -177,6 +177,23 @@ def step_tag_checker(
     return _should_run_step
 
 
+@pytest.fixture(scope="session", autouse=True)
+def initialize_workspace():
+    """Session-wide setup to ensure clean workspace directories exist.
+
+    Shared by the standalone and cluster setups, so the directories exist
+    regardless of which topology the session runs.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    infra.shell("rm -rf tmp && mkdir tmp")
+    infra.shell("ls results || mkdir results")
+
+
 @pytest.fixture(scope="session")
 def odl_standalone():
     """Fixture for single instance standalone test session setup.
@@ -189,8 +206,6 @@ def odl_standalone():
     Returns:
         None
     """
-    infra.shell("rm -rf tmp && mkdir tmp")
-    infra.shell("ls results || mkdir results")
     try:
         infra.start_odl_with_features(ODL_FEATRUES)
         infra.wait_for_odl_ready(timeout=580)
@@ -214,8 +229,6 @@ def odl_three_node_cluster():
     Returns:
         None
     """
-    infra.shell("rm -rf tmp && mkdir tmp")
-    infra.shell("ls results || mkdir results")
     try:
         cluster.setup_cluster()
         cluster.start_cluster(ODL_FEATRUES)
@@ -228,7 +241,22 @@ def odl_three_node_cluster():
         infra.stop_all_karaf_instances()
 
 
-@pytest.fixture(scope="class")
+def _test_context_name(request: pytest.FixtureRequest) -> str:
+    """Names the suite a test belongs to, for the karaf markers.
+
+    Tests defined directly in a module have no class, so fall back to the
+    module name rather than failing on a missing one.
+
+    Args:
+        request (FixtureRequest): Request fixture for accessing test context.
+
+    Returns:
+        str: Class name of the test, or its module name if it has no class.
+    """
+    return request.cls.__name__ if request.cls else request.module.__name__
+
+
+@pytest.fixture(scope="class", autouse=True)
 def log_test_suite_start_end_to_karaf(request: pytest.FixtureRequest):
     """Fixture to log in karaf test suite start and end markers
 
@@ -238,12 +266,13 @@ def log_test_suite_start_end_to_karaf(request: pytest.FixtureRequest):
     Returns:
         None
     """
-    infra.log_message_to_karaf(f"Starting suite {request.cls.__name__}")
+    suite_name = _test_context_name(request)
+    infra.log_message_to_karaf(f"Starting suite {suite_name}")
     yield
-    infra.log_message_to_karaf(f"End of suite {request.cls.__name__}")
+    infra.log_message_to_karaf(f"End of suite {suite_name}")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="function", autouse=True)
 def log_test_case_start_end_to_karaf(request: pytest.FixtureRequest):
     """Fixture to log in karaf test case start and end markers
 
@@ -253,13 +282,10 @@ def log_test_case_start_end_to_karaf(request: pytest.FixtureRequest):
     Returns:
         None
     """
-    infra.log_message_to_karaf(
-        f"Starting test {request.cls.__name__}.{request.node.name}"
-    )
+    test_name = f"{_test_context_name(request)}.{request.node.name}"
+    infra.log_message_to_karaf(f"Starting test {test_name}")
     yield
-    infra.log_message_to_karaf(
-        f"End of test {request.cls.__name__}.{request.node.name}"
-    )
+    infra.log_message_to_karaf(f"End of test {test_name}")
 
 
 @pytest.fixture(scope="class")
