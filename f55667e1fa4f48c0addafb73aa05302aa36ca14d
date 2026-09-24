@@ -36,6 +36,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "7acfbff7_710c7174",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-09-24T08:45:51Z",
+      "side": 1,
+      "message": "Done, split into three commits mirroring `123932`/`123933`/`123934`. The karaf `host\u003d` parameter sits in the first commit rather than the third, since `odl_three_node_cluster` needs it to set the log level per member, which is how you sequenced it in `123932` and I copied the same approach.",
+      "parentUuid": "011c8db9_5443bb84",
+      "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "320338b9_37e57ebd",
@@ -49,6 +67,24 @@
       "writtenOn": "2026-09-17T12:12:56Z",
       "side": 1,
       "message": "I would rather keep the whole configure_cluster.sh script here to avoid custom solutions, it could be copy \u0026 pasted from controller project here under `test/tools` until there would be some other solution like for example one which would inherit this script from upstream controller project.",
+      "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "71feaf16_4d6f7aeb",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 313,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-09-24T08:45:51Z",
+      "side": 1,
+      "message": "Done, the script is vendored verbatim at tests/tools/configure_cluster.sh and the custom wiring is gone (cluster.py drops from 395 to 258 lines).\n\n\n(Extra info)\n------------\nTwo things worth noting: the CONTROLLERIPS quoting bug that netconf patches at runtime was fixed upstream between scripts 13.0.2 and 13.0.4 - 13.0.5 uses IFS\u003d\u0027, \u0027 read -ra, which splits correctly. Our distribution ships sal-clustering-config 13.0.5, so the vendored copy is byte-identical to upstream with no patching at all, which should make a future switch to inheriting it straightforward.\n\nThe script also derives the distribution from its own path (CONTROLLER_DIR\u003d$(dirname $(dirname $0))), so it is copied into each member\u0027s bin/ before being run. It then seeds the three config files itself and sets hostname, roles, seed-nodes and shard replicas, so _pin_pekko_canonical_hostname and the HOCON editing could all be removed.",
+      "parentUuid": "320338b9_37e57ebd",
       "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -84,6 +120,24 @@
       "side": 1,
       "message": "Still something like this might be usable in the future once we would be migrating from infrautils to custom solution for checking readiness, but not for now.",
       "parentUuid": "c6687da0_f7e3810c",
+      "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6e11c204_5a8c9028",
+        "filename": "tests/suites/clustering/test_cluster_setup.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-09-24T08:45:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "311c01a8_5666dce2",
       "revId": "f55667e1fa4f48c0addafb73aa05302aa36ca14d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
