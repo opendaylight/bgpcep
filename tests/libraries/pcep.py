@@ -32,30 +32,39 @@ VARIABLES = pcep_variables.get_variables(TOOLS_IP)
 log = logging.getLogger(__name__)
 
 
-def check_empty_pcep_topology():
+def check_empty_pcep_topology(host: str = ODL_IP):
     """Verifies pcep tology does not have any node in ODL using RESTCONF.
 
     Args:
         None
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         None
     """
     templated_requests.get_templated_request(
-        "variables/bgpuser/empty_pcep_topology", mapping=None, json=True, verify=True
+        "variables/bgpuser/empty_pcep_topology", mapping=None, json=True, verify=True,
+        host=host,
     )
 
 
-def get_pcep_topology() -> requests.Response:
+def get_pcep_topology(host: str = ODL_IP) -> requests.Response:
     """Returns pcep topology from ODL using RESTCONF.
 
     Args:
         None
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response:: Pcep topology
     """
-    rest_session = AuthStandalone.Init_Session(ODL_IP, "admin", "admin")
+    rest_session = AuthStandalone.Init_Session(host, "admin", "admin")
     resp = AuthStandalone.Get_Using_Session(
         rest_session,
         (
@@ -75,11 +84,15 @@ def get_pcep_topology() -> requests.Response:
     return resp
 
 
-def get_path_computation_client() -> requests.Response:
+def get_path_computation_client(host: str = ODL_IP) -> requests.Response:
     """Returns PCCs path computation client.
 
     Args:
         None
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response:: Path computation client.
@@ -89,21 +102,25 @@ def get_path_computation_client() -> requests.Response:
         f"node=pcc:%2F%2F{TOOLS_IP}/"
         f"network-topology-pcep:path-computation-client?content=nonconfig"
     )
-    response = templated_requests.get_from_uri(uri)
+    response = templated_requests.get_from_uri(uri, host=host)
 
     return response
 
 
-def get_pcep_topology_hop_count(hop) -> int:
+def get_pcep_topology_hop_count(hop, host: str = ODL_IP) -> int:
     """Returns number of hop value occurences in pcep topology.
 
     Args:
         hop (str): Hop value to be counted in response
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         int: Number of hop values found in pcep topology.
     """
-    resp = get_pcep_topology()
+    resp = get_pcep_topology(host=host)
     topology_count = len(re.findall(hop, resp.text))
     log.info(f"Current pcep topology lsps count for hop {hop} is: {topology_count}")
     gc.collect()
@@ -111,11 +128,17 @@ def get_pcep_topology_hop_count(hop) -> int:
     return topology_count
 
 
-def configure_speaker_entitiy_identifier() -> requests.Response:
+def configure_speaker_entitiy_identifier(
+    host: str = ODL_IP,
+) -> requests.Response:
     """Setup spekare entity identifier.
 
     Args:
         None
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: PUT request response.
@@ -125,13 +148,16 @@ def configure_speaker_entitiy_identifier() -> requests.Response:
         "variables/pcepuser/titanium/node_speaker_entity_identifier",
         mapping,
         json=False,
+        host=host,
     )
 
     return response
 
 
 def get_statistics(
-    pcc_ip: str | None = None, verify_response: bool = False
+    pcc_ip: str | None = None,
+    verify_response: bool = False,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Returns nodes PCEP statistics.
 
@@ -139,6 +165,10 @@ def get_statistics(
         pcc_ip (str | None): PCC node IP address. If not specified,
             gets PCEP statistics for all pcc nodes.
         verify_response (bool): Verify response data using template.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: PCEP node statistics.
@@ -149,6 +179,7 @@ def get_statistics(
             None,
             json=True,
             verify=False,
+            host=host,
         )
     else:
         mapping = {"PCC_IP": pcc_ip}
@@ -157,21 +188,28 @@ def get_statistics(
             mapping,
             json=True,
             verify=verify_response,
+            host=host,
         )
 
     return response
 
 
-def verify_odl_does_not_return_statistics_for_pcc(pcc_ip: str):
+def verify_odl_does_not_return_statistics_for_pcc(
+    pcc_ip: str, host: str = ODL_IP
+):
     """Verify ODL does not return statistics using get-stats RPC.
 
     Args:
         pcc_ip (str): PCC node IP address.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         None
     """
-    response = get_statistics(pcc_ip=pcc_ip)
+    response = get_statistics(pcc_ip=pcc_ip, host=host)
     assert "pcep-session-state" not in response.text, (
         f'Did not expect "pcep-session-state" to be returned in "get-stats" RPC \n '
         f"Response:{response.text}"
@@ -179,7 +217,9 @@ def verify_odl_does_not_return_statistics_for_pcc(pcc_ip: str):
 
 
 def verify_global_pcep_statistics(
-    expected_pcc_count: int, expected_lsps_per_pcc_count: int | None = None
+    expected_pcc_count: int,
+    expected_lsps_per_pcc_count: int | None = None,
+    host: str = ODL_IP,
 ):
     """Verify total number of reported PCC nodes and their statistics infromation.
 
@@ -189,11 +229,15 @@ def verify_global_pcep_statistics(
         expected_pcc_count (int): Expected number of reported PCC nodes.
         expected_lsps_per_pcc_count (int | None): Expected number of LSPs reported
             by each PCC node. If it is set to None, do not check this value.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         None
     """
-    response = get_statistics()
+    response = get_statistics(host=host)
     response_json = response.json()
     topology = response_json["pcep-topology-stats-rpc:output"]["topology"][0]
     nodes = topology.get("node", ())
@@ -215,7 +259,10 @@ def verify_global_pcep_statistics(
 
 
 def verify_statsistics_contains_pcc_mock_data(
-    expected_pcc_count: int, expected_lsps_per_pcc_count: int, first_pcc_ip: str
+    expected_pcc_count: int,
+    expected_lsps_per_pcc_count: int,
+    first_pcc_ip: str,
+    host: str = ODL_IP,
 ):
     """Verify all PCCs and LSPs introduced by pcc mock sim are shown in PCEP stats.
 
@@ -229,13 +276,17 @@ def verify_statsistics_contains_pcc_mock_data(
         expected_lsps_per_pcc_count (int): Expected number of reported LSPs
             for each PCC node.
         first_pcc_ip (str): IP address of the first PCC node in the sequence.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         None
     """
     first_ip = ipaddress.IPv4Address(first_pcc_ip)
     last_ip = first_ip + expected_pcc_count
-    response = get_statistics()
+    response = get_statistics(host=host)
     response_json = response.json()
     topology = response_json["pcep-topology-stats-rpc:output"]["topology"][0]
     nodes = topology.get("node", ())
@@ -261,6 +312,7 @@ def verify_statsistics_contains_pcc_mock_data(
 
 def get_stat_timer_value(
     expected_response_code: int | List[int] | None = 200,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Get the PCEP statistics timer value.
 
@@ -269,6 +321,10 @@ def get_stat_timer_value(
     Args:
         expected_response_code (int | List[int] | None): Expected HTTP response code
             returned from ODL. Can be either single value or list of possible values.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: PCEP node statistics.
@@ -278,13 +334,16 @@ def get_stat_timer_value(
         None,
         json=True,
         expected_code=expected_response_code,
+        host=host,
     )
 
     return response
 
 
 def set_stat_timer_value(
-    timer_value: int, expected_response_code: int | List[int] | None = (201, 204)
+    timer_value: int,
+    expected_response_code: int | List[int] | None = (201, 204),
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Set the PCEP statistics timer value.
 
@@ -294,6 +353,10 @@ def set_stat_timer_value(
         timer_value (str): PCEP statistics timer value.
         expected_response_code (int | List[int] | None): Expected HTTP response code
             returned from ODL. Can be either single value or list of possible values.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: PCEP node statistics.
@@ -304,70 +367,99 @@ def set_stat_timer_value(
         mapping,
         json=True,
         expected_code=expected_response_code,
+        host=host,
     )
 
     return response
 
 
-def add_lsp(xml_data: str) -> requests.Response:
+def add_lsp(xml_data: str, host: str = ODL_IP) -> requests.Response:
     """Invoke add-lsp operation on ODL.
 
     Args:
         xml_data (str): Lsp data payload.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: POST request response.
     """
-    response = operate_xml_lsp_return_json("network-topology-pcep:add-lsp", xml_data)
+    response = operate_xml_lsp_return_json(
+        "network-topology-pcep:add-lsp", xml_data, host=host
+    )
     return response
 
 
-def update_lsp(xml_data: str) -> requests.Response:
+def update_lsp(xml_data: str, host: str = ODL_IP) -> requests.Response:
     """Invoke update-lsp operation on ODL.
 
     Args:
         xml_data (str): Lsp data payload.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: POST request response.
     """
-    response = operate_xml_lsp_return_json("network-topology-pcep:update-lsp", xml_data)
+    response = operate_xml_lsp_return_json(
+        "network-topology-pcep:update-lsp", xml_data, host=host
+    )
     return response
 
 
-def remove_lsp(xml_data: str) -> requests.Response:
+def remove_lsp(xml_data: str, host: str = ODL_IP) -> requests.Response:
     """Invoke remove-lsp operation on ODL.
 
     Args:
         xml_data (str): Lsp data payload.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: POST request response.
     """
-    response = operate_xml_lsp_return_json("network-topology-pcep:remove-lsp", xml_data)
+    response = operate_xml_lsp_return_json(
+        "network-topology-pcep:remove-lsp", xml_data, host=host
+    )
     return response
 
 
-def operate_xml_lsp_return_json(uri_part: str, xml_data: str) -> requests.Response:
+def operate_xml_lsp_return_json(
+    uri_part: str, xml_data: str, host: str = ODL_IP
+) -> requests.Response:
     """Invoke specific lsp operation on ODL.
 
     Args:
         uri_part (str): Full operation name.
         xml_data (str): Lsp data payload.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: POST request response.
     """
     uri_path = f"/rests/operations/{uri_part}"
     response = templated_requests.post_to_uri(
-        uri_path, None, xml_data, expected_code=templated_requests.ALLOWED_STATUS_CODES
+        uri_path, None, xml_data, expected_code=templated_requests.ALLOWED_STATUS_CODES,
+        host=host,
     )
 
     return response
 
 
 def wait_until_concrete_number_of_lsps_reported(
-    total_lsp_count: int, interval: int, timeout: int = 90
+    total_lsp_count: int,
+    interval: int,
+    timeout: int = 90,
+    host: str = ODL_IP,
 ):
     """Repeatedly check PCEP topology until concrete number of LSPs is shown.
 
@@ -375,6 +467,10 @@ def wait_until_concrete_number_of_lsps_reported(
         total_lsp_count (int): Expected total number of LSPs to be reported.
         interval (int): Number of seconds to elapse between each verification retry.
         timeout (int): Number of seconds to time out verification.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         None
@@ -385,6 +481,7 @@ def wait_until_concrete_number_of_lsps_reported(
         total_lsp_count,
         get_pcep_topology_hop_count,
         "1.1.1.1/32",
+        host=host,
     )
 
 

@@ -21,7 +21,9 @@ TOOLS_IP = variables.TOOLS_IP
 log = logging.getLogger(__name__)
 
 
-def set_change_counter(topology_name: str) -> requests.Response:
+def set_change_counter(
+    topology_name: str, host: str = ODL_IP
+) -> requests.Response:
     """Sets change counter to track changes for specific topology
 
     Uses RESTCONF to set the change counter.
@@ -29,25 +31,36 @@ def set_change_counter(topology_name: str) -> requests.Response:
     Args:
         topology_name (str): Name of the topology which changes
             should be observed.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Requests library response as returned by PUT call.
     """
     mapping = {"TOPOLOGY_NAME": topology_name}
     response = templated_requests.put_templated_request(
-        "variables/bgpuser/change_counter", mapping, json=False
+        "variables/bgpuser/change_counter", mapping, json=False,
+        host=host,
     )
 
     return response
 
 
-def get_change_count(data_change_counter: str = "data-change-counter") -> int:
+def get_change_count(
+    data_change_counter: str = "data-change-counter", host: str = ODL_IP
+) -> int:
     """Returns number of changes observed by specific change_counter in ODL.
 
     It uses RESTCONF to get the change count.
 
     Args:
         data_change_counter (str): Name of the specific change counter.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         int: Number of changes observed by the specific change counter.
@@ -55,6 +68,7 @@ def get_change_count(data_change_counter: str = "data-change-counter") -> int:
     response = templated_requests.get_from_uri(
         uri=f"rests/data/data-change-counter:{data_change_counter}?content=nonconfig",
         expected_code=200,
+        host=host,
     )
     change_count = response.json()["data-change-counter:data-change-counter"][
         "counter"
@@ -69,6 +83,7 @@ def wait_for_change_count_to_become_stable(
     timeout: int = 500,
     wait_period: int = 20,
     consecutive_times_stable_value: int = 4,
+    host: str = ODL_IP,
 ):
     """Waits until the change count stabilizes on concrete vlaue or times out.
 
@@ -84,6 +99,10 @@ def wait_for_change_count_to_become_stable(
         conscutive_times_stable_value: Sets how many consequtive calls to read
             the change counter value should return the same value
             to be considered stable.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         int: Number of changes observed by the specific change counter.
@@ -92,7 +111,7 @@ def wait_for_change_count_to_become_stable(
     last_count = None
     stable_times = 1
     while True:
-        current_count = get_change_count()
+        current_count = get_change_count(host=host)
         log.info(
             f"Waiting for change count to become stable: {current_count=}, "
             f"{last_count=}, {minimum_value=}, {stable_times=}"
