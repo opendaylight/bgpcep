@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "593e64f3_c438e763",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-09-24T07:50:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd59a165_1ca237e4",
+      "revId": "0d28378adbdae391175704cdf60b5a4cbd4c9875",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "bf711776_8649c94a",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-09-02T10:42:18Z",
       "side": 1,
       "message": "Prefixes count in original tests were checked on all three nodes, could be keep it? For checking if topology is empty, contains all prefixes, etc.\nWe would need to finish cluster setup first\nhttps://lf-opendaylight.atlassian.net/browse/BGPCEP-1099",
+      "revId": "0d28378adbdae391175704cdf60b5a4cbd4c9875",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "290d8f0d_65b49450",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-09-24T07:50:39Z",
+      "side": 1,
+      "message": "I believe this needs the cluster setup from BGPCEP-1099, which is now in review as change 126198.\n\nIf possible, I will do it as a followup, once 1099 lands, this suite will need a rebase then anyway, since 1099 renames the preconditions fixture it currently uses.",
+      "parentUuid": "bf711776_8649c94a",
       "revId": "0d28378adbdae391175704cdf60b5a4cbd4c9875",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
