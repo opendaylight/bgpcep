@@ -123,12 +123,15 @@ def allure_step_with_separate_logging(
         root_logger = logging.getLogger()
         root_logger.addHandler(handler)
 
+        hosts = cluster.active_nodes()
         try:
             with allure.step(title) as allure_step:
-                infra.log_message_to_karaf(f"Starting step: {title}")
+                for host in hosts:
+                    infra.log_message_to_karaf(f"Starting step: {title}", host=host)
                 yield allure_step
         finally:
-            infra.log_message_to_karaf(f"End of step: {title}")
+            for host in hosts:
+                infra.log_message_to_karaf(f"End of step: {title}", host=host)
             root_logger.removeHandler(handler)
             log_contents = log_capture_string.getvalue()
             if log_contents:
@@ -249,6 +252,9 @@ def _test_context_name(request: pytest.FixtureRequest) -> str:
 def log_test_suite_start_end_to_karaf(request: pytest.FixtureRequest):
     """Fixture to log in karaf test suite start and end markers
 
+    Logs to every node in cluster.active_nodes(): all cluster members for a
+    cluster session, or just the single standalone node otherwise.
+
     Args:
         request (FixtureRequest): Request fixture for accessing test context.
 
@@ -256,14 +262,20 @@ def log_test_suite_start_end_to_karaf(request: pytest.FixtureRequest):
         None
     """
     suite_name = _test_context_name(request)
-    infra.log_message_to_karaf(f"Starting suite {suite_name}")
+    hosts = cluster.active_nodes()
+    for host in hosts:
+        infra.log_message_to_karaf(f"Starting suite {suite_name}", host=host)
     yield
-    infra.log_message_to_karaf(f"End of suite {suite_name}")
+    for host in hosts:
+        infra.log_message_to_karaf(f"End of suite {suite_name}", host=host)
 
 
 @pytest.fixture(scope="function", autouse=True)
 def log_test_case_start_end_to_karaf(request: pytest.FixtureRequest):
     """Fixture to log in karaf test case start and end markers
+
+    Logs to every node in cluster.active_nodes(): all cluster members for a
+    cluster session, or just the single standalone node otherwise.
 
     Args:
         request (FixtureRequest): Request fixture for accessing test context.
@@ -272,9 +284,12 @@ def log_test_case_start_end_to_karaf(request: pytest.FixtureRequest):
         None
     """
     test_name = f"{_test_context_name(request)}.{request.node.name}"
-    infra.log_message_to_karaf(f"Starting test {test_name}")
+    hosts = cluster.active_nodes()
+    for host in hosts:
+        infra.log_message_to_karaf(f"Starting test {test_name}", host=host)
     yield
-    infra.log_message_to_karaf(f"End of test {test_name}")
+    for host in hosts:
+        infra.log_message_to_karaf(f"End of test {test_name}", host=host)
 
 
 @pytest.fixture(scope="class")

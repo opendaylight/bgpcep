@@ -19,7 +19,6 @@ from libraries.variables import variables
 ODL_IP = variables.ODL_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
 MAX_HTTP_RESPONSE_BODY_LOG_SIZE = variables.MAX_HTTP_RESPONSE_BODY_LOG_SIZE
-BASE_URL = f"http://{ODL_IP}:{RESTCONF_PORT}"
 
 ALLOWED_STATUS_CODES = {200, 201, 204}
 ALLOWED_DELETE_STATUS_CODES = {200, 201, 204, 404, 409}
@@ -28,8 +27,28 @@ DELETED_STATUS_CODES = {404, 409}
 log = logging.getLogger(__name__)
 
 
+def restconf_base_url(host: str = ODL_IP) -> str:
+    """Builds the RESTCONF base URL for a given node.
+
+    Defaults to ODL_IP, which is node 1 in a cluster (CLUSTER_MEMBER_IPS[0])
+    and the only node in a single-node setup. Pass a different address (e.g.
+    from variables.CLUSTER_MEMBER_IPS) to target another cluster member --
+    all members listen on the same RESTCONF_PORT.
+
+    Args:
+        host (str): Address of the node to target.
+
+    Returns:
+        str: RESTCONF base URL, without a trailing slash.
+    """
+    return f"http://{host}:{RESTCONF_PORT}"
+
+
 def get_from_uri(
-    uri: str, headers: dict | None = None, expected_code: int | List[int] | None = None
+    uri: str,
+    headers: dict | None = None,
+    expected_code: int | List[int] | None = None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Sends HTTP GET request to ODL.
 
@@ -39,11 +58,15 @@ def get_from_uri(
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for GET call.
     """
-    url = f"{BASE_URL}/{uri}"
+    url = f"{restconf_base_url(host)}/{uri}"
     log.info(f"Sending GET request to {url}")
     if not headers:
         headers = {}
@@ -84,6 +107,7 @@ def put_to_uri_request(
     headers: dict,
     data: dict | str,
     expected_code: int | List[int] | None = None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Sends HTTP PUT request to ODL using provided data.
 
@@ -94,11 +118,15 @@ def put_to_uri_request(
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
         data (dict | str): payload to be sent within the PUT request to ODL
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for PUT call.
     """
-    url = f"{BASE_URL}/{uri}"
+    url = f"{restconf_base_url(host)}/{uri}"
     log.info(f"Sending PUT request to {url} using this data: {data}")
     response = requests.put(
         url=url,
@@ -140,6 +168,7 @@ def post_to_uri(
     headers: dict,
     data: dict | str,
     expected_code: int | List[int] | None = None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Send HTTP POST request to ODL.
 
@@ -150,11 +179,15 @@ def post_to_uri(
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for PUT call.
     """
-    url = f"{BASE_URL}/{uri}"
+    url = f"{restconf_base_url(host)}/{uri}"
     log.info(f"Sending to {url} this data: {data}")
     response = requests.post(
         url=url,
@@ -192,7 +225,9 @@ def post_to_uri(
 
 
 def delete_from_uri_request(
-    uri: str, expected_code: int | List[int] | None = None
+    uri: str,
+    expected_code: int | List[int] | None = None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Sends HTTP DELETE request to ODL.
 
@@ -202,11 +237,15 @@ def delete_from_uri_request(
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for GET call.
     """
-    url = f"{BASE_URL}/{uri}"
+    url = f"{restconf_base_url(host)}/{uri}"
     log.info(f"Sending DELETE request to {url}")
     response = requests.delete(
         url=url, auth=requests.auth.HTTPBasicAuth("admin", "admin")
@@ -264,6 +303,7 @@ def get_templated_request(
     json: bool = True,
     verify: bool = False,
     expected_code: int | List[int] | None = None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Evaluates and sends GET request using template file.
 
@@ -282,6 +322,10 @@ def get_templated_request(
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for GET call.
@@ -291,7 +335,9 @@ def get_templated_request(
     else:
         headers = {"Accept": "application/yang-data+xml"}
     uri = resolve_templated_text(temlate_dir + "/location.uri", mapping)
-    response = get_from_uri(uri, headers=headers, expected_code=expected_code)
+    response = get_from_uri(
+        uri, headers=headers, expected_code=expected_code, host=host
+    )
 
     if verify:
         file_name_suffix = "json" if json else "xml"
@@ -321,6 +367,7 @@ def put_templated_request(
     json: bool = True,
     verify: bool = False,
     expected_code: int | List[int] | None = None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Evaluates and sends PUT request using template file.
 
@@ -339,6 +386,10 @@ def put_templated_request(
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for PUT call.
@@ -356,6 +407,7 @@ def put_templated_request(
         headers,
         data,
         expected_code=expected_code,
+        host=host,
     )
 
     if verify:
@@ -387,6 +439,7 @@ def post_templated_request(
     verify: bool = False,
     expected_code: int | List[int] | None = None,
     accept=None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Evaluates and sends POST request using template file.
 
@@ -406,6 +459,10 @@ def post_templated_request(
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
 
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for PUT call.
@@ -425,6 +482,7 @@ def post_templated_request(
         headers,
         data,
         expected_code=expected_code,
+        host=host,
     )
 
     if verify:
@@ -450,7 +508,10 @@ def post_templated_request(
 
 
 def delete_templated_request(
-    temlate_dir: str, mapping: dict, expected_code: int | List[int] | None = None
+    temlate_dir: str,
+    mapping: dict,
+    expected_code: int | List[int] | None = None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Evaluates and sends DELETE request using template file.
 
@@ -465,12 +526,16 @@ def delete_templated_request(
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for DELETE call.
     """
     uri = resolve_templated_text(temlate_dir + "/location.uri", mapping)
-    response = delete_from_uri_request(uri, expected_code=expected_code)
+    response = delete_from_uri_request(uri, expected_code=expected_code, host=host)
 
     return response
 
@@ -505,6 +570,7 @@ def get_jinja_templated_request(
     json: bool = True,
     verify: bool = False,
     expected_code: int | List[int] | None = None,
+    host: str = ODL_IP,
 ) -> requests.Response:
     """Sends GET request and verifies response using jinja template file.
 
@@ -520,6 +586,10 @@ def get_jinja_templated_request(
             returned by ODL. It could be either single numeric value or
             list of numbers. If not provided requests standard logic for
             evaluating failure response code is used.
+        host (str): Node to send the request to. Defaults to ODL_IP, which
+            is node 1 in a cluster and the only node otherwise; pass another
+            address from variables.CLUSTER_MEMBER_IPS to target a different
+            cluster member.
 
     Returns:
         requests.Response: Response returned by ODL for GET call.
@@ -529,7 +599,9 @@ def get_jinja_templated_request(
     else:
         headers = {"Accept": "application/yang-data+xml"}
     uri = resolve_templated_text(temlate_dir + "/location.uri", mapping)
-    response = get_from_uri(uri, headers=headers, expected_code=expected_code)
+    response = get_from_uri(
+        uri, headers=headers, expected_code=expected_code, host=host
+    )
 
     if verify:
         expected_response = utils.render_jinja_template(
