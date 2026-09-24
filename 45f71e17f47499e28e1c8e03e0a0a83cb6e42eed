@@ -33,6 +33,24 @@
       "message": "Since this entire block is coppied 8 times, can we squish it into something nicer? Some helper ulitity class with something like:\n\n```\nclass NewPollingHelper {\n\n  interface Check {\n    void run() throws ExecutionException, InterruptedException;    \n  }\n  \n  static void pollUntilAsserted(timeout, interval, String what, Check check) {\n    dontCatchUncaughtExceptions()\n    .atMost(timeout)\n    .pollInterval(interval)\n    .pollDelay(Duration.ZERO)\n    .untilAsserted(() -\u003e {\n      try {\n        check.run();\n      } catch (ExecutionException e) {\n        throw new AssertionError(\"Failed to \" + what,e);\n      } catch (InterruptedException e) {\n        // This runs on Awaitility\u0027s poll thread, so this only keeps \n        // the interrupt visible there. Consider if it\u0027s really necessary, since \n        // the thread will be thrown away anyway when the wait ends\n        Thread.currentThread().interrupt();\n        \n        throw new IllegalStateException(\"Interrupted while trying to \" + what, e);\n      }  \n    });\n  }\n}\n```",
       "revId": "45f71e17f47499e28e1c8e03e0a0a83cb6e42eed",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "500efc95_4e2cd150",
+        "filename": "testtool-util/src/main/java/org/opendaylight/protocol/util/CheckUtil.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-09-24T05:57:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2a607360_0894f718",
+      "revId": "45f71e17f47499e28e1c8e03e0a0a83cb6e42eed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
