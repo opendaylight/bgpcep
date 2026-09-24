@@ -16,6 +16,24 @@
       "message": "Netty empties a pipeline once the channel is closed and deregistered, so this get() returns null for any route still in flight when the session goes down, and write()\u0027s catch then logs a NullPointerException stack trace per queued message instead of the ClosedChannelException the old code produced. Could the helper check for null and throw something that names the cause, so a flap during a route push does not fill the log with NPEs that look like a defect?",
       "revId": "3490c393a05e91ce2b5da1bd19a41e7338f13bc2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0984fb4c_e26856aa",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPSessionImpl.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 666,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-09-24T08:02:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5c82a808_81ad3e42",
+      "revId": "3490c393a05e91ce2b5da1bd19a41e7338f13bc2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
