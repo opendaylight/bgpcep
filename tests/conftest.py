@@ -233,34 +233,46 @@ def odl_three_node_cluster():
 def log_test_suite_start_end_to_karaf(request: pytest.FixtureRequest):
     """Fixture to log in karaf test suite start and end markers
 
+    Logs to every node in cluster.active_nodes(): all cluster members for a
+    cluster session, or just the single standalone node otherwise.
+
     Args:
         request (FixtureRequest): Request fixture for accessing test context.
 
     Returns:
         None
     """
-    infra.log_message_to_karaf(f"Starting suite {request.cls.__name__}")
+    hosts = cluster.active_nodes()
+    for host in hosts:
+        infra.log_message_to_karaf(f"Starting suite {request.cls.__name__}", host=host)
     yield
-    infra.log_message_to_karaf(f"End of suite {request.cls.__name__}")
+    for host in hosts:
+        infra.log_message_to_karaf(f"End of suite {request.cls.__name__}", host=host)
 
 
 @pytest.fixture(scope="function", autouse=True)
 def log_test_case_start_end_to_karaf(request: pytest.FixtureRequest):
     """Fixture to log in karaf test case start and end markers
 
+    Logs to every node in cluster.active_nodes(): all cluster members for a
+    cluster session, or just the single standalone node otherwise.
+
     Args:
         request (FixtureRequest): Request fixture for accessing test context.
 
     Returns:
         None
     """
-    infra.log_message_to_karaf(
-        f"Starting test {request.cls.__name__}.{request.node.name}"
-    )
+    hosts = cluster.active_nodes()
+    for host in hosts:
+        infra.log_message_to_karaf(
+            f"Starting test {request.cls.__name__}.{request.node.name}", host=host
+        )
     yield
-    infra.log_message_to_karaf(
-        f"End of test {request.cls.__name__}.{request.node.name}"
-    )
+    for host in hosts:
+        infra.log_message_to_karaf(
+            f"End of test {request.cls.__name__}.{request.node.name}", host=host
+        )
 
 
 @pytest.fixture(scope="class")
