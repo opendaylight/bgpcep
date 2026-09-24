@@ -50,6 +50,9 @@ ODL_IP = variables.ODL_IP
 # each member's bin/ before running, because the script locates the
 # distribution relative to its own path.
 CONFIGURE_CLUSTER_SCRIPT = "tools/configure_cluster.sh"
+# Distribution the build stages, used until the cluster fixture
+# moves it into per-member copies.
+STANDALONE_DIR = "opendaylight"
 # Ports the members share because their bind addresses come from the
 # replicated configuration datastore. Logged after startup so a failing
 # run shows which member won each race.
@@ -144,6 +147,22 @@ def active_nodes() -> list[str]:
             single-element list containing just ODL_IP.
     """
     return CLUSTER_MEMBER_IPS if is_cluster_run() else [ODL_IP]
+
+
+def active_karaf_log_dirs() -> list[str]:
+    """Distribution directories whose karaf log belongs to this session.
+
+    The cluster fixture moves the single-node distribution into per-member
+    directories, so anything reading a karaf log has to follow.
+
+    Args:
+        None
+
+    Returns:
+        list[str]: Every member directory for a cluster session, otherwise
+            the single standalone distribution.
+    """
+    return get_cluster_dirs() if is_cluster_run() else [STANDALONE_DIR]
 
 
 def get_member_dir(index: int) -> str:

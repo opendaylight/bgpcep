@@ -23,11 +23,17 @@ PC_NW_TOPOLOGY = f"{variables.REST_API}/network-topology:network-topology/topolo
 log = logging.getLogger(__name__)
 
 
-def get_ipv4_topology(topology: str = "example-ipv4-topology") -> dict:
+def get_ipv4_topology(
+    topology: str = "example-ipv4-topology", host: str = ODL_IP
+) -> dict:
     """Returns example ipv4 topology from ODL using RESTCONF
 
     Args:
         topology (str): Name of the IPv4 topology to be checked.
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         dict: IPv4 topology
@@ -35,21 +41,28 @@ def get_ipv4_topology(topology: str = "example-ipv4-topology") -> dict:
     topology = templated_requests.get_from_uri(
         uri=f"{PC_NW_TOPOLOGY}={topology}?content=nonconfig",
         expected_code=200,
+        host=host,
     )
 
     return topology.json()
 
 
-def get_ipv4_topology_prefixes_count(topology: str = "example-ipv4-topology") -> int:
+def get_ipv4_topology_prefixes_count(
+    topology: str = "example-ipv4-topology", host: str = ODL_IP
+) -> int:
     """Returns number of prefixes stored in ipv4 topology
 
     Args:
         topology (str): Name of the IPv4 topology to be checked.
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         int: Number of prefixes stored in example ipv4 topology.
     """
-    topology = get_ipv4_topology(topology=topology)
+    topology = get_ipv4_topology(topology=topology, host=host)
     topology_count = len(re.findall("'prefix': '", str(topology)))
     log.info(f"Current example ipv4 topology prefixes count is: {topology_count}")
     gc.collect()
@@ -57,65 +70,89 @@ def get_ipv4_topology_prefixes_count(topology: str = "example-ipv4-topology") ->
     return topology_count
 
 
-def check_example_ipv4_topology_contains(string_to_check: str):
+def check_example_ipv4_topology_contains(
+    string_to_check: str, host: str = ODL_IP
+):
     """Check the example-ipv4-topology content for string.
 
     Args:
         string_to_check (str): Searched string in topology.
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         None
     """
-    topology = get_ipv4_topology()
+    topology = get_ipv4_topology(host=host)
     assert string_to_check in str(
         topology
     ), f"example-ipv4-topology does not contain expected '{string_to_check}' substring."
 
 
-def check_example_ipv4_topology_does_not_contain(string_to_check: str):
+def check_example_ipv4_topology_does_not_contain(
+    string_to_check: str, host: str = ODL_IP
+):
     """Check the example-ipv4-topology does not contain the string.
 
     Args:
         string_to_check (str): Searched string in topology.
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         None
     """
-    topology = get_ipv4_topology()
+    topology = get_ipv4_topology(host=host)
     assert string_to_check not in str(
         topology
     ), f"example-ipv4-topology does contain not expected '{string_to_check}' substring."
 
 
 def check_ipv4_topology_prefixes_count(
-    expected_count: int, topology: str = "example-ipv4-topology"
+    expected_count: int,
+    topology: str = "example-ipv4-topology",
+    host: str = ODL_IP,
 ):
     """Check that the count of prefixes matches the expected count
 
     Args:
         expected_count (int): Expected number or prefix occurences.
         topology (str): Name of the IPv4 topology to be checked.
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         None
     """
-    actual_count = get_ipv4_topology_prefixes_count(topology=topology)
+    actual_count = get_ipv4_topology_prefixes_count(topology=topology, host=host)
     assert actual_count == expected_count, (
         f"Expected count of prefixes: {expected_count} does not match "
         f"actuall count: {actual_count}"
     )
 
 
-def check_ipv4_topology_is_empty(topology: str = "example-ipv4-topology"):
+def check_ipv4_topology_is_empty(
+    topology: str = "example-ipv4-topology", host: str = ODL_IP
+):
     """Verifies if the ipv4 topology does not containe any prefix
 
     Args:
         topology (str): Name of the IPv4 topology to be checked.
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         None
     """
-    check_ipv4_topology_prefixes_count(0, topology=topology)
+    check_ipv4_topology_prefixes_count(0, topology=topology, host=host)
 
 
 def wait_for_ipv4_topology_prefixes_to_become_stable(
@@ -124,6 +161,7 @@ def wait_for_ipv4_topology_prefixes_to_become_stable(
     wait_period: int = 5,
     consecutive_times_stable_value: int = 4,
     topology: str = "example-ipv4-topology",
+    host: str = ODL_IP,
 ):
     """Waits until the number of prefixes in exmaple ipv4 topology stabilizes
 
@@ -142,6 +180,10 @@ def wait_for_ipv4_topology_prefixes_to_become_stable(
             the change counter value needs to return the same value
             to be considered stable.
         topology (str): name of the IPv4 topology to be checked.
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         int: Number of prefixes observed in example ipv4 topology.
@@ -150,7 +192,9 @@ def wait_for_ipv4_topology_prefixes_to_become_stable(
     last_count = None
     stable_times = 1
     while True:
-        current_count = get_ipv4_topology_prefixes_count(topology=topology)
+        current_count = get_ipv4_topology_prefixes_count(
+            topology=topology, host=host
+        )
         log.info(
             f"Waiting for ipv4 topology prefixes to become stable: {current_count=}, "
             f"{last_count=}, {excluded_value=}, {stable_times=}"
@@ -170,28 +214,39 @@ def wait_for_ipv4_topology_prefixes_to_become_stable(
             )
 
 
-def verify_ip_topology_is_empty():
+def verify_ip_topology_is_empty(host: str = ODL_IP):
     """Verify that IPv4 topology is empty.
 
     Args:
-        None
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         None
     """
     templated_requests.get_templated_request(
-        "variables/bgpuser/empty_topology", None, verify=True
+        "variables/bgpuser/empty_topology", None, verify=True, host=host
     )
 
 
-def wait_until_ip_topology_is_empty(retry_count: int = 20, interval: int = 1):
+def wait_until_ip_topology_is_empty(
+    retry_count: int = 20, interval: int = 1, host: str = ODL_IP
+):
     """Repeatedly checks the IPv4 topology until it is empty.
 
     Args:
         retry_count (int): Maximum number of retries.
         interval (int): Interval in seconds between each retry.
+        host (str): Node to query. Defaults to ODL_IP, which is node 1 in
+            a cluster and the only node otherwise; pass another address
+            from variables.CLUSTER_MEMBER_IPS to check a different cluster
+            member.
 
     Returns:
         None
     """
-    utils.wait_until_function_pass(retry_count, interval, verify_ip_topology_is_empty)
+    utils.wait_until_function_pass(
+        retry_count, interval, verify_ip_topology_is_empty, host=host
+    )

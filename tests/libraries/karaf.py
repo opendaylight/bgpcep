@@ -9,6 +9,7 @@
 import logging
 
 from libraries import excepts
+from libraries import cluster
 from libraries import infra
 
 log = logging.getLogger(__name__)
@@ -25,16 +26,30 @@ def fail_if_exception_found_during_test(step_name: str):
     Returns:
         None
     """
+    for log_dir in cluster.active_karaf_log_dirs():
+        _fail_if_exception_in_log(step_name, f"{log_dir}/data/log/karaf.log")
+
+
+def _fail_if_exception_in_log(step_name: str, log_path: str):
+    """Fails if an Exception appears after a step marker in one karaf log.
+
+    Args:
+        step_name (str): Name of the step for which to check the exceptions.
+        log_path (str): Karaf log to inspect.
+
+    Returns:
+        None
+    """
     infra.wait_for_string_in_file(
         5,
         0.2,
         f"ROBOT MESSAGE: Starting step: {step_name}",
-        "opendaylight/data/log/karaf.log",
+        log_path,
     )
     rc, stdout = infra.shell(
         (
             f"sed -n '/ROBOT MESSAGE: Starting step: {step_name}/,$ p' "
-            f"opendaylight/data/log/karaf.log"
+            f"{log_path}"
         )
     )
     assert rc == 0 and stdout, "Failed to get logs for current test step"
