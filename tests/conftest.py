@@ -170,6 +170,23 @@ def step_tag_checker(
     return _should_run_step
 
 
+@pytest.fixture(scope="session", autouse=True)
+def initialize_workspace():
+    """Session-wide setup to ensure clean workspace directories exist.
+
+    Shared by the standalone and cluster setups, so the directories exist
+    regardless of which topology the session runs.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    infra.shell("rm -rf tmp && mkdir tmp")
+    infra.shell("ls results || mkdir results")
+
+
 @pytest.fixture(scope="session")
 def odl_standalone():
     """Fixture for single instance standalone test session setup.
@@ -182,8 +199,6 @@ def odl_standalone():
     Returns:
         None
     """
-    infra.shell("rm -rf tmp && mkdir tmp")
-    infra.shell("ls results || mkdir results")
     infra.start_odl_with_features(ODL_FEATRUES)
     infra.wait_for_odl_ready(timeout=580)
     infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}")
@@ -205,8 +220,6 @@ def odl_three_node_cluster():
     Returns:
         None
     """
-    infra.shell("rm -rf tmp && mkdir tmp")
-    infra.shell("ls results || mkdir results")
     cluster.setup_cluster()
     cluster.start_cluster(ODL_FEATRUES)
     cluster.wait_cluster_ready(timeout=580)
@@ -216,7 +229,7 @@ def odl_three_node_cluster():
     infra.stop_all_karaf_instances()
 
 
-@pytest.fixture(scope="class")
+@pytest.fixture(scope="class", autouse=True)
 def log_test_suite_start_end_to_karaf(request: pytest.FixtureRequest):
     """Fixture to log in karaf test suite start and end markers
 
@@ -231,7 +244,7 @@ def log_test_suite_start_end_to_karaf(request: pytest.FixtureRequest):
     infra.log_message_to_karaf(f"End of suite {request.cls.__name__}")
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="function", autouse=True)
 def log_test_case_start_end_to_karaf(request: pytest.FixtureRequest):
     """Fixture to log in karaf test case start and end markers
 
