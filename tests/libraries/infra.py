@@ -21,8 +21,15 @@ from libraries import ssh_utils
 from libraries import utils
 from libraries.KarafShell import KarafShell
 from libraries.RemoteSSHSessionHandler import RemoteSSHSessionHandler
+from libraries.variables import variables
 
-KARAF_SHELL_INSTANCE = None
+ODL_IP = variables.ODL_IP
+CONTROLLER_MAX_MEM = variables.CONTROLLER_MAX_MEM
+KARAF_SSH_PORT = 8101
+
+# Karaf CLI sessions, keyed by (host, port), so every cluster member keeps
+# its own reused connection instead of sharing a single global one.
+karaf_shell_instances = {}
 
 log = logging.getLogger(__name__)
 
@@ -280,12 +287,19 @@ def count_port_occurences(port: int, state: str, name: str):
     return int(stdout)
 
 
-def start_odl_with_features(features: tuple[str], timeout: int = 60):
+def start_odl_with_features(features: tuple[str], cwd: str = "opendaylight"):
     """Starts ODL with installed provided features.
+
+    Returns as soon as the start script has been invoked, without waiting for
+    ODL to become ready; use wait_for_odl_ready for that. The two are separate
+    because a cluster member cannot finish joining until its peers are
+    reachable, so every member has to be started before any of them is awaited.
 
     Args:
         features (tuple[str]): Features to be installed in ODL.
-        timeout (int): Timeout within which it needs to start ODL, otherwise fail.
+        cwd (str): Distribution directory to start, relative to the working
+            directory. Defaults to the single-node distribution; cluster
+            members each get their own copy.
 
     Returns:
         None
@@ -294,49 +308,95 @@ def start_odl_with_features(features: tuple[str], timeout: int = 60):
     shell(
         f"sed -ie 's/\(featuresBoot=\|featuresBoot =\)/featuresBoot = "
         f"{",".join(features)},/g' etc/org.apache.karaf.features.cfg",
-        cwd="opendaylight",
+        cwd=cwd,
     )
 
     shell(
         "sed -ie 's/memory-mapped = true/memory-mapped = false/g' "
         "system/org/opendaylight/controller/sal-clustering-config/*/"
         "sal-clustering-config-*-factorypekkoconf.xml",
-        cwd="opendaylight",
+        cwd=cwd,
     )
 
     # start ODL
-    shell("JAVA_OPTS=-Xmx8g ./bin/start", cwd="opendaylight")
+    shell(f"JAVA_OPTS=-Xmx{CONTROLLER_MAX_MEM} ./bin/start", cwd=cwd)
 
-    # wait for proper message with timeout
+
+def wait_for_odl_ready(cwd: str = "opendaylight", timeout: int = 60):
+    """Blocks until ODL logs "System ready" in the given distribution.
+
+    Args:
+        cwd (str): Distribution directory whose karaf log to poll.
+        timeout (int): Timeout in seconds within which ODL needs to become
+            ready, otherwise fail.
+
+    Returns:
+        None
+    """
     interval = 5
     retry_shell_command(
         timeout // interval,
         interval,
         "grep 'org.opendaylight.infrautils.*System ready' data/log/karaf.log",
-        cwd="opendaylight",
+        cwd=cwd,
     )
 
 
-def execute_karaf_command(command: str) -> tuple[str, str]:
+def stop_all_karaf_instances():
+    """Kills every running Karaf main process.
+
+    Matches on the process command line, so it stops all ODL instances at once
+    regardless of how many are running (single node or cluster members).
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    shell("kill $(pgrep -f org.apache.karaf.main.[M]ain | grep -v ^$$\\$)")
+
+
+def copy_dir(src_dir: str, dst_dir: str):
+    """Copy directory from one location to another.
+
+    Args:
+        src_dir (str): Source directory to be copied.
+        dst_dir (str): Destination path the directory should be copied to.
+
+    Returns:
+        None
+    """
+    shell(f"cp -r {src_dir} {dst_dir}")
+
+
+def execute_karaf_command(
+    command: str, host: str = ODL_IP, port: int = KARAF_SSH_PORT
+) -> tuple[str, str]:
     """Executed specific command using ODL karaf CLI console
 
     It usses ssh connection to connect to karaf CLI.
 
     Args:
         command (str): Command to be executed.
+        host (str): Address of the karaf instance to connect to. Defaults to
+            ODL_IP, which is node 1 in a cluster and the only node otherwise;
+            pass another address from variables.CLUSTER_MEMBER_IPS to target
+            a different cluster member.
+        port (int): Karaf SSH port of the instance to connect to. Every member
+            keeps the default port, since members are separated by address.
 
     Returns:
         tuple[str, str]: Stdout from karaf CLI, stderr from karaf CLI.
     """
-    global KARAF_SHELL_INSTANCE
+    log.info(f"Executing command '{command}' on karaf console {host}:{port}.")
 
-    log.info(f"Executing command '{command}' on karaf console.")
-
-    if KARAF_SHELL_INSTANCE is None:
-        KARAF_SHELL_INSTANCE = KarafShell(host="127.0.0.1", port=8101)
+    if (host, port) not in karaf_shell_instances:
+        karaf_shell_instances[(host, port)] = KarafShell(host=host, port=port)
+    shell_instance = karaf_shell_instances[(host, port)]
 
     try:
-        stdout = KARAF_SHELL_INSTANCE.execute(command)
+        stdout = shell_instance.execute(command)
         log.info(f"Command Output:\n{stdout}")
 
         return stdout, ""
@@ -346,18 +406,22 @@ def execute_karaf_command(command: str) -> tuple[str, str]:
         return "", str(e)
 
 
-def log_message_to_karaf(message: str):
+def log_message_to_karaf(message: str, host: str = ODL_IP):
     """Log specific mesage to ODL karaf
 
     It usses ssh connection to connect to karaf CLI.
 
     Args:
         message (str): Message to be logged.
+        host (str): Address of the karaf instance to log to. Defaults to
+            ODL_IP, which is node 1 in a cluster and the only node otherwise;
+            pass another address from variables.CLUSTER_MEMBER_IPS to target
+            a different cluster member.
 
     Returns:
         None
     """
-    execute_karaf_command(f"log:log 'ROBOT MESSAGE: {message}'")
+    execute_karaf_command(f"log:log 'ROBOT MESSAGE: {message}'", host=host)
 
 
 def is_process_still_running(pid: int):

@@ -16,6 +16,7 @@ import pytest
 from typing import ContextManager, Generator, Iterator, Callable, List, Optional, Set
 
 
+from libraries import cluster
 from libraries import infra
 from libraries.variables import variables
 
@@ -23,6 +24,7 @@ ODL_IP = variables.ODL_IP
 TOOLS_IP = variables.TOOLS_IP
 RESTCONF_PORT = variables.RESTCONF_PORT
 KARAF_LOG_LEVEL = variables.KARAF_LOG_LEVEL
+CLUSTER_MEMBER_IPS = variables.CLUSTER_MEMBER_IPS
 ODL_FEATRUES = [
     "odl-integration-compatible-with-all",
     "odl-infrautils-ready, odl-restconf-all",
@@ -52,6 +54,38 @@ def pytest_addoption(parser):
         default=None,
         help="Comma-separated list of step tags to skip",
     )
+
+
+@pytest.hookimpl(trylast=True)
+def pytest_collection_modifyitems(items):
+    """Prevents standalone and cluster tests from running in the same session.
+
+    Both fixtures stage their ODL from the same build output and use the same
+    ports, so running them together conflicts. When both are collected,
+    standalone takes priority and cluster tests are skipped.
+
+    trylast=True ensures this runs after -m/-k filtering, so explicit
+    selections (like `-m cluster`) are not overridden.
+
+    Args:
+        items (list[pytest.Item]): Tests collected for this session.
+
+    Returns:
+        None
+    """
+    has_standalone = any(item.get_closest_marker("standalone") for item in items)
+    has_cluster = any(item.get_closest_marker("cluster") for item in items)
+
+    if not (has_standalone and has_cluster):
+        return
+
+    skip_cluster = pytest.mark.skip(
+        reason="Skipped: standalone and cluster tests cannot run in the same "
+        "session; standalone takes priority."
+    )
+    for item in items:
+        if item.get_closest_marker("cluster"):
+            item.add_marker(skip_cluster)
 
 
 @pytest.fixture
@@ -137,8 +171,8 @@ def step_tag_checker(
 
 
 @pytest.fixture(scope="session")
-def preconditions():
-    """Fixture for basic test session setup.
+def odl_standalone():
+    """Fixture for single instance standalone test session setup.
 
     It handles setting features to be installed, starting karaf, etc.
 
@@ -150,10 +184,36 @@ def preconditions():
     """
     infra.shell("rm -rf tmp && mkdir tmp")
     infra.shell("ls results || mkdir results")
-    infra.start_odl_with_features(ODL_FEATRUES, timeout=580)
+    infra.start_odl_with_features(ODL_FEATRUES)
+    infra.wait_for_odl_ready(timeout=580)
     infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}")
     yield
-    infra.shell("kill $(pgrep -f org.apache.karaf.main.[M]ain | grep -v ^$$\$)")
+    infra.stop_all_karaf_instances()
+
+
+@pytest.fixture(scope="session")
+def odl_three_node_cluster():
+    """Fixture for 3-node ODL cluster session setup.
+
+    Stages one Karaf distribution per entry in CLUSTER_MEMBER_IPS, wires them
+    into a single pekko cluster and starts every member, then waits for all
+    of them to become ready.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    infra.shell("rm -rf tmp && mkdir tmp")
+    infra.shell("ls results || mkdir results")
+    cluster.setup_cluster()
+    cluster.start_cluster(ODL_FEATRUES)
+    cluster.wait_cluster_ready(timeout=580)
+    for member_ip in CLUSTER_MEMBER_IPS:
+        infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}", host=member_ip)
+    yield
+    infra.stop_all_karaf_instances()
 
 
 @pytest.fixture(scope="class")
