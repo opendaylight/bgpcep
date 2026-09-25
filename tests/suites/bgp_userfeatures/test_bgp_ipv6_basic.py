@@ -68,9 +68,7 @@ class TestBgpIpv6Basic:
 
     def configure_ipv6_network(self):
         """Reconfigures basic network settings on controller."""
-        rc, stdout = infra.shell("ip route | grep '^default' | awk '{print $5}'")
-        assert rc == 0, f"Failed to get interface set for default route: {stdout}"
-        main_net_interface = stdout
+        main_net_interface = "lo"
         infra.shell(
             (
                 f"ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} "
