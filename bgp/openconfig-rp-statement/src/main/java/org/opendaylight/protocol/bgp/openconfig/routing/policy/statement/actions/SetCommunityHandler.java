@@ -10,7 +10,6 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.action
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
@@ -53,26 +52,23 @@ public final class SetCommunityHandler extends AbstractCommunityHandler implemen
         return setComm(attributes, bgpActions.getSetCommunityMethod(), bgpActions.getOptions());
     }
 
-    private Attributes setComm(
-            final Attributes attributes,
-            final SetCommunityMethod setCommunityMethod,
+    private Attributes setComm(final Attributes attributes, final SetCommunityMethod setCommunityMethod,
             final BgpSetCommunityOptionType options) {
-        if (setCommunityMethod instanceof Inline) {
-            final Inline inline = (Inline) setCommunityMethod;
-            final List<Communities> list = inline.getCommunities()
-                    .stream().map(ge -> new CommunitiesBuilder().setAsNumber(ge.getAsNumber())
-                            .setSemantics(ge.getSemantics()).build()).collect(Collectors.toList());
+        // FIXME: use a switch expression
+        if (setCommunityMethod instanceof Inline inline) {
+            final var list = inline.nonnullCommunities().stream()
+                .map(ge -> new CommunitiesBuilder().setAsNumber(ge.getAsNumber())
+                    .setSemantics(ge.getSemantics())
+                    .build())
+                .collect(Collectors.toList());
             return inlineSetComm(attributes, list, options);
         }
         return referenceSetComm(attributes, ((Reference) setCommunityMethod).getCommunitySetRef(), options);
     }
 
-    private Attributes referenceSetComm(
-            final Attributes attributes,
-            final String communitySetName,
+    private Attributes referenceSetComm(final Attributes attributes, final String communitySetName,
             final BgpSetCommunityOptionType options) {
-        final String setKey = StringUtils.substringBetween(communitySetName, "=\"", "\"");
-        return inlineSetComm(attributes, this.communitySets.getUnchecked(setKey), options);
+        return inlineSetComm(attributes, lookupCommunitySet(communitySetName), options);
     }
 
     private static Attributes inlineSetComm(
@@ -94,14 +90,9 @@ public final class SetCommunityHandler extends AbstractCommunityHandler implemen
         }
 
         switch (options) {
-            case ADD:
-                actualComm.addAll(actionCommunities);
-                break;
-            case REMOVE:
-                actualComm.removeAll(actionCommunities);
-                break;
-            default:
-                throw new IllegalArgumentException("Option Type not Recognized!");
+            case ADD -> actualComm.addAll(actionCommunities);
+            case REMOVE -> actualComm.removeAll(actionCommunities);
+            default -> throw new IllegalArgumentException("Option Type not Recognized!");
         }
 
         return newAtt.setCommunities(actualComm).build();
