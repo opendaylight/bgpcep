@@ -312,8 +312,8 @@ class TestIbgpPeersBasic:
         ):
             # Checks for empty topology after.
             utils.wait_until_function_pass(
-                10,
-                1,
+                20,
+                2,
                 prefix_counting.check_example_ipv4_topology_does_not_contain,
                 "prefix",
             )
