@@ -72,7 +72,7 @@ class TestBgpFlowspec:
         infra.save_to_a_file(f"tmp/{CFG2}", config)
 
     def setup_test_case(self, cfg_file: str):
-        flowspec.verify_flowspec_data_is_empty()
+        flowspec.wait_until_flowspec_data_is_empty(20, 3)
         peers_ips = [f"127.0.1.{i}" for i in range(BGP_PEERS_COUNT)]
         self.exabgp_process = bgp.start_exabgp_and_verify_connected(
             f"tmp/{cfg_file}", peers_ips, log_file="exabgp.log"
