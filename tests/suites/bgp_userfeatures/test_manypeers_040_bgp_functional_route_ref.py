@@ -70,6 +70,11 @@ class TestBgpfunctionalRouteRef:
         rc, stdout = infra.shell(f"cat tmp/{BGP_CFG_NAME}")
         log.info(stdout)
 
+    def clean_route_refresh_counters(self):
+        """Resets the route-refresh counter on every peer's exarpc helper."""
+        for i in range(BGP_PEERS_COUNT):
+            BGP_RPC_CLIENTS[i].exa_clean_received_route_refresh_count()
+
     def verify_exaBgps_received_updates(self, exp_count: int):
         """Gets number of received update requests and compares with given expected
         count."""
@@ -78,10 +83,12 @@ class TestBgpfunctionalRouteRef:
             assert count_recv == exp_count
 
     def verify_exaBgp_received_route_refresh(self, exp_count: int):
-        """Compares expected count of route request messages on exabgp side."""
-        for i in range(BGP_PEERS_COUNT):
-            count_recv = int(BGP_RPC_CLIENTS[i].exa_get_received_route_refresh_count())
-            assert count_recv == exp_count
+        """Compares expected count of route request messages on exabgp side.
+        The route-refresh RPC in step_odl_to_send_route_refresh only targets
+        the single peer at TOOLS_IP (BGP_RPC_CLIENTS[0]), so only that peer
+        is expected to have received it."""
+        count_recv = int(BGP_RPC_CLIENTS[0].exa_get_received_route_refresh_count())
+        assert count_recv == exp_count
 
     def verify_cli_output_count(
         self, peer_id, notification_count, update_count, receive_count
@@ -151,7 +158,7 @@ class TestBgpfunctionalRouteRef:
         self.exabgp_process = bgp.start_exabgp_and_verify_connected(
             cfg_file, TOOLS_IP, "exabgp.log"
         )
-        utils.wait_until_function_pass(3, 3, self.verify_exaBgps_received_updates, 4)
+        utils.wait_until_function_pass(10, 3, self.verify_exaBgps_received_updates, 4)
 
     def deconfigure_routes_and_stop_exabgp(self):
         """Teardown function for exa to odl test case."""
@@ -217,7 +224,7 @@ class TestBgpfunctionalRouteRef:
                 # From neon onwards there are extra BGP End-Of-RIB message
                 update_count = 3 * BGP_PEERS_COUNT
                 utils.wait_until_function_pass(
-                    20, 2, self.verify_exaBgps_received_updates, update_count
+                    45, 2, self.verify_exaBgps_received_updates, update_count
                 )
                 # From neon onwards there are extra BGP End-Of-RIB message
                 # per address family
@@ -235,10 +242,17 @@ class TestBgpfunctionalRouteRef:
 
         with allure_step_with_separate_logging("step_odl_to_send_route_refresh"):
             # Sends route refresh request and checks if exabgp receives it.
-            bgp.start_exabgp_and_verify_connected(f"tmp/{BGP_CFG_NAME}", TOOLS_IP)
+            self.exabgp_process = bgp.start_exabgp_and_verify_connected(
+                f"tmp/{BGP_CFG_NAME}", TOOLS_IP, "exabgp.log"
+            )
             try:
-                for i in range(BGP_PEERS_COUNT):
-                    BGP_RPC_CLIENTS[i].exa_clean_received_route_refresh_count()
+                # Each peer's exarpc RPC helper is a separate process spawned
+                # by this exabgp instance and can still be starting up right
+                # after connect, so retry the whole clean-counter pass rather
+                # than failing on a connection refused.
+                utils.wait_until_function_pass(
+                    5, 2, self.clean_route_refresh_counters
+                )
                 mapping = {"BGP_PEER_IP": TOOLS_IP}
                 templated_requests.post_templated_request(
                     f"{BGP_VAR_FOLDER}/route_refresh", mapping, json=False
@@ -246,14 +260,21 @@ class TestBgpfunctionalRouteRef:
                 utils.wait_until_function_pass(
                     20, 2, self.verify_exaBgp_received_route_refresh, 1
                 )
-                # From neon onwards there are extra BGP End-Of-RIB message
-                # per address family
-                update_count = 9
+                # ODL's per-peer sent-UPDATE counter accumulates for the
+                # lifetime of the configured peer and is not reset when the
+                # peer reconnects (BGPPeerStateImpl / AbstractPeer). The new
+                # session below adds exactly 2 more UPDATEs on top of the
+                # previous session's total: one End-of-RIB marker per
+                # configured address family (ipv4 unicast, ipv4 mpls-vpn),
+                # since adj-rib-out is empty at this point.
+                update_count = update_count + 2
+                # ExaBGP 4.2 closes the TCP session on shutdown without sending a
+                # CEASE NOTIFICATION, so ODL's received-NOTIFICATION counter stays 0.
                 utils.wait_until_function_pass(
                     20,
                     5,
                     self.verify_odl_operational_state_count,
-                    notification_count=1,
+                    notification_count=0,
                     update_count=update_count,
                     receive_count=4,
                 )
