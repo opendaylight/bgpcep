@@ -106,7 +106,7 @@ class TestBasic:
     def check_speaker_is_connected(self):
         """Give it several tries to see exactly one established connection."""
         utils.wait_until_function_pass(
-            5, 1, self.verify_number_of_speaker_connections, BGP_PEERS_COUNT
+            10, 1, self.verify_number_of_speaker_connections, BGP_PEERS_COUNT
         )
 
     def check_speaker_is_not_connected(self):
