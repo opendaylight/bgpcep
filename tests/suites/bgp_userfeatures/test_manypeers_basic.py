@@ -222,6 +222,8 @@ class TestBasic:
             # Verify that peers are present in odl's rib under local-address ip.
             self.bgp_speaker_process = bgp.start_bgp_speaker_and_verify_connected(
                 speaker_ips=TOOLS_IP,
+                retry_count=20,
+                interval=3,
                 ammount=3 * BGP_PEERS_COUNT,
                 listen=True,
                 my_ip=TOOLS_IP,

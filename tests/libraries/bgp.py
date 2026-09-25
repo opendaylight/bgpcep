@@ -429,14 +429,22 @@ def start_bgp_speaker(
     return process
 
 
+
 def start_bgp_speaker_and_verify_connected(
-    speaker_ips: str | List[str] = "127.0.0.1", *args, **kwargs
+    speaker_ips: str | List[str] = "127.0.0.1",
+    retry_count: int = 7,
+    interval: int = 2,
+    *args,
+    **kwargs,
 ) -> subprocess.Popen:
     """Starts bgp speaker and verifies if was successfully conncted.
 
     Args:
         speaker_ips (str): (str | List[str]): Single or list of BGP speaker
             ip addresses if manypeer scenario.
+        retry_count (int): Maximum number of retries to see the speaker
+            connected.
+        interval (int): Number of seconds to wait between retries.
         *args: Bgp speaker positional arguments.
         **kwargs: Bgp speaker keyword arguments.
 
@@ -446,7 +454,11 @@ def start_bgp_speaker_and_verify_connected(
     bgp_speaker_process = start_bgp_speaker(*args, **kwargs)
     try:
         utils.wait_until_function_pass(
-            7, 2, verify_bgp_speaker_connected, speaker_ips=speaker_ips, connected=True
+            retry_count,
+            interval,
+            verify_bgp_speaker_connected,
+            speaker_ips=speaker_ips,
+            connected=True,
         )
     except Exception as e:
         stop_bgp_speaker(bgp_speaker_process, gracefully=False)
