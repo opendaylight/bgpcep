@@ -326,8 +326,15 @@ def exa_msg_handler(storage, data, encoder):
         try:
             jdata = json.loads(data)
         except Exception:
-            logging.error("Unable to parse, expected json, received: {}.".format(data))
-            return
+            # ExaBGP 4.2 double-quotes values of route refresh messages,
+            # e.g. "afi": ""ipv4"", fix them up and try again
+            try:
+                jdata = json.loads(re.sub(r'""([^",{}]+)""', r'"\1"', data))
+            except Exception:
+                logging.error(
+                    "Unable to parse, expected json, received: {}.".format(data)
+                )
+                return
         if jdata["type"] == "state":
             logging.debug("State info received: {}.".format(data))
             handle_json_state(storage, jdata)
