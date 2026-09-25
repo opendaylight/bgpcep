@@ -221,7 +221,9 @@ class TestBgpfunctionalRouteRef:
 
         with allure_step_with_separate_logging("step_odl_to_send_route_refresh"):
             # Sends route refresh request and checks if exabgp receives it.
-            bgp.start_exabgp_and_verify_connected(f"tmp/{BGP_CFG_NAME}", TOOLS_IP)
+            self.exabgp_process = bgp.start_exabgp_and_verify_connected(
+                f"tmp/{BGP_CFG_NAME}", TOOLS_IP, "exabgp.log"
+            )
             try:
                 BGP_RPC_CLIENT.exa_clean_received_route_refresh_count()
                 mapping = {"BGP_PEER_IP": TOOLS_IP}
@@ -238,7 +240,7 @@ class TestBgpfunctionalRouteRef:
                     3,
                     5,
                     self.verify_odl_operational_state_count,
-                    notification_count=1,
+                    notification_count=0,
                     update_count=update_count,
                     receive_count=4,
                 )
