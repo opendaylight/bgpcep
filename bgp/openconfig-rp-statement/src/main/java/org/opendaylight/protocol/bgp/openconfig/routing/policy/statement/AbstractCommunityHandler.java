@@ -16,7 +16,9 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.DefinedSets1;
@@ -31,7 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.CommunitiesBuilder;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 
-public class AbstractCommunityHandler {
+public abstract class AbstractCommunityHandler {
     private static final DataObjectIdentifier<CommunitySets> COMMUNITY_SETS_IID =
         DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
@@ -39,28 +41,42 @@ public class AbstractCommunityHandler {
             .child(BgpDefinedSets.class)
             .child(CommunitySets.class)
             .build();
-    protected final LoadingCache<String, List<Communities>> communitySets;
 
-    public AbstractCommunityHandler(final DataBroker dataBroker) {
-        requireNonNull(dataBroker);
-        communitySets = CacheBuilder.newBuilder()
-            .build(new CacheLoader<String, List<Communities>>() {
-                @Override
-                public List<Communities> load(final String key) throws ExecutionException, InterruptedException {
-                    final FluentFuture<Optional<CommunitySet>> future;
-                    try (var tr = dataBroker.newReadOnlyTransaction()) {
-                        future = tr.read(LogicalDatastoreType.CONFIGURATION,
-                            COMMUNITY_SETS_IID.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build());
-                    }
+    private final LoadingCache<String, List<Communities>> communitySets = CacheBuilder.newBuilder()
+        .build(new CacheLoader<>() {
+            @Override
+            public List<Communities> load(final String key) throws ExecutionException, InterruptedException {
+                return List.copyOf(loadCommunitySet(key));
+            }
+        });
+    private final @NonNull DataBroker dataBroker;
 
-                    return future.get().map(set -> set.nonnullCommunities().stream()
-                        .map(ge -> new CommunitiesBuilder()
-                            .setAsNumber(ge.getAsNumber())
-                            .setSemantics(ge.getSemantics())
-                            .build())
-                        .collect(Collectors.toUnmodifiableList()))
-                        .orElse(List.of());
-                }
-            });
+    @NonNullByDefault
+    protected AbstractCommunityHandler(final DataBroker dataBroker) {
+        this.dataBroker = requireNonNull(dataBroker);
+    }
+
+    // FIXME: @Nullable
+    protected final List<Communities> lookupCommunitySet(final String name) {
+        // FIXME: ditch use of StringUtils
+        // FIXME: explain what are we doing here, exactly?
+        return communitySets.getUnchecked(StringUtils.substringBetween(name, "=\"", "\""));
+    }
+
+    private List<Communities> loadCommunitySet(final String key) throws ExecutionException, InterruptedException {
+        final FluentFuture<Optional<CommunitySet>> future;
+        try (var tx = dataBroker.newReadOnlyTransaction()) {
+            future = tx.read(LogicalDatastoreType.CONFIGURATION,
+                COMMUNITY_SETS_IID.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build());
+        }
+
+        return future.get()
+            .map(set -> set.nonnullCommunities().stream()
+                .map(ge -> new CommunitiesBuilder()
+                    .setAsNumber(ge.getAsNumber())
+                    .setSemantics(ge.getSemantics())
+                    .build())
+                .toList())
+            .orElse(List.of());
     }
 }

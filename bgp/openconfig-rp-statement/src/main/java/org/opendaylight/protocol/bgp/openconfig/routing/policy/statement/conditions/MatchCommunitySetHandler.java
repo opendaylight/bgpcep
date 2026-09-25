@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.condit
 
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
@@ -58,31 +57,20 @@ public final class MatchCommunitySetHandler
 
     private boolean matchCondition(
             final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
-                    .attributes.attributes.Communities> communities,
-            final String communitySetName,
+                    .attributes.attributes.Communities> communities, final String communitySetName,
             final MatchSetOptionsType matchSetOptions) {
-
-        final String setKey = StringUtils
-                .substringBetween(communitySetName, "=\"", "\"");
-        final List<Communities> communityFilter = communitySets.getUnchecked(setKey);
-
+        final var communityFilter = lookupCommunitySet(communitySetName);
         if (communityFilter == null || communityFilter.isEmpty()) {
             return false;
         }
 
-        List<Communities> commAttributeList;
-        if (communities == null) {
-            commAttributeList = List.of();
-        } else {
-            commAttributeList = communities;
-        }
-
+        final var commAttributeList = communities != null ? communities : List.of();
+        // FIXME: use a switch expression
         if (matchSetOptions.equals(MatchSetOptionsType.ALL)) {
             return commAttributeList.containsAll(communityFilter)
                     && communityFilter.containsAll(commAttributeList);
         }
         final boolean noneInCommon = Collections.disjoint(commAttributeList, communityFilter);
-
         if (matchSetOptions.equals(MatchSetOptionsType.ANY)) {
             return !noneInCommon;
         }
