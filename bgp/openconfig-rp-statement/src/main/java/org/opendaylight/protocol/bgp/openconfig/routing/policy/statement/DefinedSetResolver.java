@@ -25,6 +25,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.DefinedSets1;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.BgpDefinedSets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.CommunitySets;
@@ -34,12 +35,16 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev15100
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySetKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.generic.defined.sets.NeighborSets;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.neighbor.set.NeighborSet;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.neighbor.set.NeighborSetKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.CommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.osgi.service.component.annotations.Activate;
@@ -139,6 +144,27 @@ public final class DefinedSetResolver {
             }
         });
 
+    private final LoadingCache<@NonNull String, List<PeerId>> peerSets = CacheBuilder.newBuilder()
+        .build(new ListLoader<NeighborSet, PeerId>() {
+            private static final DataObjectIdentifier<NeighborSets> PREFIX =
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
+                    .child(DefinedSets.class)
+                    .child(NeighborSets.class)
+                    .build();
+
+            @Override
+            DataObjectIdentifier<NeighborSet> pathOf(final String key) {
+                return PREFIX.toBuilder().child(NeighborSet.class, new NeighborSetKey(key)).build();
+            }
+
+            @Override
+            Stream<PeerId> presentValues(final NeighborSet key) {
+                final var neighbor = key.getNeighbor();
+                return neighbor == null ? Stream.empty() : neighbor.keySet().stream()
+                    .map(nei -> RouterIds.createPeerId(nei.getAddress()));
+            }
+        });
+
     private final @NonNull DataBroker dataBroker;
 
     @Inject
@@ -156,6 +182,11 @@ public final class DefinedSetResolver {
     // FIXME: @Nullable
     public List<ExtendedCommunities> lookupExtCommunitySet(final String extCommunitySetRef) {
         return lookupRef(extCommunitySets, extCommunitySetRef);
+    }
+
+    // FIXME: @Nullable
+    public List<PeerId> lookupNeighborSet(final String neighborSetRef) {
+        return lookupRef(peerSets, neighborSetRef);
     }
 
     private static <V> V lookupRef(final LoadingCache<@NonNull String, V> cache, final String ref) {

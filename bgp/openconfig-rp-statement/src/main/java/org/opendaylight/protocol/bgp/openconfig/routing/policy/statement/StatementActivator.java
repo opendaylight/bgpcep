@@ -98,7 +98,7 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
             context.registerBgpConditionsPolicy(MatchExtCommunitySet.class, new MatchExtCommunitySetHandler(resolver)),
             context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(resolver)),
             context.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
-                new MatchBgpNeighborSetHandler(dataBroker)),
+                new MatchBgpNeighborSetHandler(resolver)),
             context.registerBgpConditionsAugmentationPolicy(MatchAfiSafiNotInCondition.class,
                 MatchAfiSafiNotInHandler.getInstance()),
             context.registerBgpConditionsAugmentationPolicy(VpnNonMemberCondition.class,
