@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.eclipse.jdt.annotation.NonNull;
 import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.AbstractBGPStatementProviderActivator;
@@ -52,19 +53,28 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.SetOriginatorIdPrepend;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.VpnNonMemberCondition;
 import org.opendaylight.yangtools.concepts.Registration;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 @Singleton
 @MetaInfServices(value = StatementProviderActivator.class)
+@Component(
+    immediate = true,
+    service = StatementProviderActivator.class,
+    property = "type=org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.StatementActivator")
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
-    private final DataBroker dataBroker;
+    private final @NonNull DataBroker dataBroker;
 
+    // FIXME: this cannot really work
     public StatementActivator() {
         this(ServiceLoader.load(DataBroker.class).findFirst().orElseThrow(
             () -> new IllegalStateException("No DataBroker found")));
     }
 
     @Inject
-    public StatementActivator(final DataBroker dataBroker) {
+    @Activate
+    public StatementActivator(@Reference final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
     }
 
