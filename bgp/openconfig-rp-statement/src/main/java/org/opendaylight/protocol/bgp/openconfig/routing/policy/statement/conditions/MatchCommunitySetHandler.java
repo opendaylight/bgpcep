@@ -7,12 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collections;
 import java.util.List;
-import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.AbstractCommunityHandler;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchCommunitySet;
@@ -24,10 +27,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 /**
  * Match a set of Communities (ALL, ANY, INVERT).
  */
-public final class MatchCommunitySetHandler
-        extends AbstractCommunityHandler implements BgpConditionsPolicy<MatchCommunitySet, List<Communities>> {
-    public MatchCommunitySetHandler(final DataBroker databroker) {
-        super(databroker);
+public final class MatchCommunitySetHandler implements BgpConditionsPolicy<MatchCommunitySet, List<Communities>> {
+    private final @NonNull DefinedSetResolver resolver;
+
+    @NonNullByDefault
+    public MatchCommunitySetHandler(final DefinedSetResolver resolver) {
+        this.resolver = requireNonNull(resolver);
     }
 
     @Override
@@ -59,7 +64,7 @@ public final class MatchCommunitySetHandler
             final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
                     .attributes.attributes.Communities> communities, final String communitySetName,
             final MatchSetOptionsType matchSetOptions) {
-        final var communityFilter = lookupCommunitySet(communitySetName);
+        final var communityFilter = resolver.lookupCommunitySet(communitySetName);
         if (communityFilter == null || communityFilter.isEmpty()) {
             return false;
         }

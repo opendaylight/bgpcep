@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+ * Copyright (c) 2026 PATHEON.tech, s.r.o.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -16,6 +17,8 @@ import com.google.common.util.concurrent.FluentFuture;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -32,8 +35,18 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.CommunitiesBuilder;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-public abstract class AbstractCommunityHandler {
+/**
+ * A service providing access to (parts of) configured {@link DefinedSets}.
+ *
+ * @since 3.0.0
+ */
+@Singleton
+@Component(service = DefinedSetResolver.class)
+public final class DefinedSetResolver {
     private static final DataObjectIdentifier<CommunitySets> COMMUNITY_SETS_IID =
         DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
@@ -51,16 +64,18 @@ public abstract class AbstractCommunityHandler {
         });
     private final @NonNull DataBroker dataBroker;
 
+    @Inject
+    @Activate
     @NonNullByDefault
-    protected AbstractCommunityHandler(final DataBroker dataBroker) {
+    public DefinedSetResolver(@Reference final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
     }
 
     // FIXME: @Nullable
-    protected final List<Communities> lookupCommunitySet(final String name) {
+    public List<Communities> lookupCommunitySet(final String communitySetRef) {
         // FIXME: ditch use of StringUtils
         // FIXME: explain what are we doing here, exactly?
-        return communitySets.getUnchecked(StringUtils.substringBetween(name, "=\"", "\""));
+        return communitySets.getUnchecked(StringUtils.substringBetween(communitySetRef, "=\"", "\""));
     }
 
     private List<Communities> loadCommunitySet(final String key) throws ExecutionException, InterruptedException {

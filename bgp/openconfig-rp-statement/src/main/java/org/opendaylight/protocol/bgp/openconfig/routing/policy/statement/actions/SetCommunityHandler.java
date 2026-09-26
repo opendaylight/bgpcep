@@ -7,14 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.AbstractCommunityHandler;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpSetCommunityOptionType;
@@ -29,10 +31,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 /**
  * Prepend / Replace / Remove a set of communities.
  */
-public final class SetCommunityHandler extends AbstractCommunityHandler implements BgpActionPolicy<SetCommunity> {
+public final class SetCommunityHandler implements BgpActionPolicy<SetCommunity> {
+    private final @NonNull DefinedSetResolver resolver;
+
     @NonNullByDefault
-    public SetCommunityHandler(final DataBroker dataBroker) {
-        super(dataBroker);
+    public SetCommunityHandler(final DefinedSetResolver resolver) {
+        this.resolver = requireNonNull(resolver);
     }
 
     @Override
@@ -58,8 +62,8 @@ public final class SetCommunityHandler extends AbstractCommunityHandler implemen
                     .setSemantics(ge.getSemantics())
                     .build())
                 .toList(), bgpActions.getOptions());
-            case Reference reference ->
-                inlineSetComm(attributes, lookupCommunitySet(reference.getCommunitySetRef()), bgpActions.getOptions());
+            case Reference reference -> inlineSetComm(attributes,
+                resolver.lookupCommunitySet(reference.getCommunitySetRef()), bgpActions.getOptions());
             default -> throw new UnsupportedOperationException(
                 "Unsupported method " + setCommunityMethod.implementedCase().getName());
         };
