@@ -9,7 +9,7 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.action
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
@@ -19,7 +19,6 @@ import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameter
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpSetCommunityOptionType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.SetExtCommunity;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.ext.community.SetExtCommunityMethod;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.ext.community.set.ext.community.method.Inline;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.policy.definitions.policy.definition.statements.statement.actions.bgp.actions.set.ext.community.set.ext.community.method.Reference;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -37,66 +36,61 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
     }
 
     @Override
-    public Attributes applyImportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+    public Attributes applyImportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final Attributes attributes,
             final SetExtCommunity bgpActions) {
-        return setExtComm(attributes, bgpActions.getSetExtCommunityMethod(), bgpActions.getOptions());
+        return setExtComm(attributes, bgpActions);
     }
 
     @Override
-    public Attributes applyExportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+    public Attributes applyExportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters, final Attributes attributes,
             final SetExtCommunity bgpActions) {
-        return setExtComm(attributes, bgpActions.getSetExtCommunityMethod(), bgpActions.getOptions());
+        return setExtComm(attributes, bgpActions);
     }
 
-    private Attributes setExtComm(
-            final Attributes attributes,
-            final SetExtCommunityMethod setExtCommunityMethod,
-            final BgpSetCommunityOptionType options) {
-        if (setExtCommunityMethod instanceof Inline inline) {
-            final List<ExtendedCommunities> list = inline.nonnullExtCommunityMember()
-                    .stream().map(ge -> new ExtendedCommunitiesBuilder().setExtendedCommunity(ge.getExtendedCommunity())
-                            .setTransitive(ge.getTransitive()).build()).collect(Collectors.toList());
-            return inlineSetExtComm(attributes, list, options);
-        }
-        return referenceSetExtComm(attributes, ((Reference) setExtCommunityMethod).getExtCommunitySetRef(), options);
+    private Attributes setExtComm(final Attributes attributes, final SetExtCommunity bgpActions) {
+        final var method = bgpActions.getSetExtCommunityMethod();
+        return switch (method) {
+            case Inline inline -> inlineSetExtComm(attributes, inline.nonnullExtCommunityMember().stream()
+                    .map(ge -> new ExtendedCommunitiesBuilder()
+                        .setExtendedCommunity(ge.getExtendedCommunity())
+                        .setTransitive(ge.getTransitive())
+                        .build())
+                    .toList(), bgpActions.getOptions());
+            case Reference reference ->
+                referenceSetExtComm(attributes, reference.getExtCommunitySetRef(), bgpActions.getOptions());
+            default -> throw new UnsupportedOperationException("Unsupported " + method.implementedCase().getName());
+        };
     }
 
-    private static Attributes inlineSetExtComm(
-            final Attributes attributes,
-            final List<ExtendedCommunities> actionExtCommunities,
-            final BgpSetCommunityOptionType options) {
-        final AttributesBuilder newAtt = new AttributesBuilder(attributes);
-
-        if (options.equals(BgpSetCommunityOptionType.REPLACE)) {
-            return newAtt.setExtendedCommunities(actionExtCommunities).build();
-        }
-
-        final var extComm = attributes.getExtendedCommunities();
-        final var actualComm = extComm == null || extComm.isEmpty() ? new ArrayList<ExtendedCommunities>()
-            : new ArrayList<>(extComm);
-
-        switch (options) {
-            case ADD -> actualComm.addAll(actionExtCommunities);
-            case REMOVE -> actualComm.removeAll(actionExtCommunities);
-            default -> throw new IllegalArgumentException("Option Type not Recognized!");
-        }
-
-        return newAtt.setExtendedCommunities(actualComm).build();
-
+    private static Attributes inlineSetExtComm(final Attributes attributes,
+            final List<ExtendedCommunities> actionExtCommunities, final BgpSetCommunityOptionType options) {
+        return new AttributesBuilder(attributes)
+            .setExtendedCommunities(switch (options) {
+                case ADD -> {
+                    final var extComm = attributes.getExtendedCommunities();
+                    yield extComm == null || extComm.isEmpty() ? actionExtCommunities
+                        : Stream.concat(extComm.stream(), actionExtCommunities.stream()).toList();
+                }
+                case REMOVE -> {
+                    final var extComm = attributes.getExtendedCommunities();
+                    if (extComm == null || extComm.isEmpty()) {
+                        yield extComm;
+                    }
+                    final var actualComm = new ArrayList<>(extComm);
+                    actualComm.removeAll(actionExtCommunities);
+                    yield List.copyOf(actualComm);
+                }
+                case REPLACE -> actionExtCommunities;
+                default -> throw new IllegalArgumentException("Option Type not Recognized!");
+            })
+            .build();
     }
 
-    private Attributes referenceSetExtComm(
-            final Attributes attributes,
-            final String extCommunitySetName,
+    private Attributes referenceSetExtComm(final Attributes attributes, final String extCommunitySetName,
             final BgpSetCommunityOptionType options) {
         final String setKey = StringUtils.substringBetween(extCommunitySetName, "=\"", "\"");
         return inlineSetExtComm(attributes, extCommunitySets.getUnchecked(setKey), options);
     }
-
 }
