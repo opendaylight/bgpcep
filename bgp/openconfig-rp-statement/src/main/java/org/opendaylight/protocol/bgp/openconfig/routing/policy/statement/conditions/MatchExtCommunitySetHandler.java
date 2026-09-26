@@ -7,13 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.conditions;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.AbstractExtCommunityHandler;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchExtCommunitySet;
@@ -25,10 +26,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 /**
  * Math a set of External Communities (ALL, ANY, INVERT).
  */
-public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandler
+public final class MatchExtCommunitySetHandler
         implements BgpConditionsPolicy<MatchExtCommunitySet, List<ExtendedCommunities>> {
-    public MatchExtCommunitySetHandler(final DataBroker databroker) {
-        super(databroker);
+    private final @NonNull DefinedSetResolver resolver;
+
+    public MatchExtCommunitySetHandler(final DefinedSetResolver resolver) {
+        this.resolver = requireNonNull(resolver);
     }
 
     @Override
@@ -52,8 +55,7 @@ public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandl
 
     private boolean matchCondition(final List<ExtendedCommunities> extendedCommunities,
             final String matchExtCommunitySetName, final MatchSetOptionsType matchSetOptions) {
-        final var setKey = StringUtils.substringBetween(matchExtCommunitySetName, "=\"", "\"");
-        final var extCommunityfilter = extCommunitySets.getUnchecked(setKey);
+        final var extCommunityfilter = resolver.lookupExtCommunitySet(matchExtCommunitySetName);
         if (extCommunityfilter == null || extCommunityfilter.isEmpty()) {
             return false;
         }
