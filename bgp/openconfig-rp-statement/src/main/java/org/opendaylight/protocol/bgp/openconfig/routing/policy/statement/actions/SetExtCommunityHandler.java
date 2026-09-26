@@ -7,14 +7,15 @@
  */
 package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.actions;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
-import org.opendaylight.mdsal.binding.api.DataBroker;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.AbstractExtCommunityHandler;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpSetCommunityOptionType;
@@ -29,10 +30,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 /**
  * Prepend External Community.
  */
-public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
-        implements BgpActionPolicy<SetExtCommunity> {
-    public SetExtCommunityHandler(final DataBroker dataBroker) {
-        super(dataBroker);
+public final class SetExtCommunityHandler implements BgpActionPolicy<SetExtCommunity> {
+    private final @NonNull DefinedSetResolver resolver;
+
+    public SetExtCommunityHandler(final DefinedSetResolver resolver) {
+        this.resolver = requireNonNull(resolver);
     }
 
     @Override
@@ -53,13 +55,14 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
         final var method = bgpActions.getSetExtCommunityMethod();
         return switch (method) {
             case Inline inline -> inlineSetExtComm(attributes, inline.nonnullExtCommunityMember().stream()
-                    .map(ge -> new ExtendedCommunitiesBuilder()
-                        .setExtendedCommunity(ge.getExtendedCommunity())
-                        .setTransitive(ge.getTransitive())
-                        .build())
-                    .toList(), bgpActions.getOptions());
+                .map(ge -> new ExtendedCommunitiesBuilder()
+                    .setExtendedCommunity(ge.getExtendedCommunity())
+                    .setTransitive(ge.getTransitive())
+                    .build())
+                .toList(), bgpActions.getOptions());
             case Reference reference ->
-                referenceSetExtComm(attributes, reference.getExtCommunitySetRef(), bgpActions.getOptions());
+                inlineSetExtComm(attributes, resolver.lookupExtCommunitySet(reference.getExtCommunitySetRef()),
+                    bgpActions.getOptions());
             default -> throw new UnsupportedOperationException("Unsupported " + method.implementedCase().getName());
         };
     }
@@ -83,14 +86,7 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
                     yield List.copyOf(actualComm);
                 }
                 case REPLACE -> actionExtCommunities;
-                default -> throw new IllegalArgumentException("Option Type not Recognized!");
             })
             .build();
-    }
-
-    private Attributes referenceSetExtComm(final Attributes attributes, final String extCommunitySetName,
-            final BgpSetCommunityOptionType options) {
-        final String setKey = StringUtils.substringBetween(extCommunitySetName, "=\"", "\"");
-        return inlineSetExtComm(attributes, extCommunitySets.getUnchecked(setKey), options);
     }
 }
