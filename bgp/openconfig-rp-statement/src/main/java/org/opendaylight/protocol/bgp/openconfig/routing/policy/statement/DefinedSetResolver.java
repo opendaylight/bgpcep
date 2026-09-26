@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2018 AT&T Intellectual Property. All rights reserved.
+ * Copyright (c) 2026 PATHEON.tech, s.r.o.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -12,10 +13,13 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.FluentFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Stream;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -31,9 +35,53 @@ import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev1
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.CommunitiesBuilder;
+import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-public abstract class AbstractCommunityHandler {
+/**
+ * A service providing access to (parts of) configured {@link DefinedSets}.
+ *
+ * @since 3.0.0
+ */
+@Singleton
+@Component(service = DefinedSetResolver.class)
+public final class DefinedSetResolver {
+    private abstract class Loader<K extends ChildOf<?>, V> extends CacheLoader<@NonNull String, V> {
+        @Override
+        public final V load(final String key) throws ExecutionException, InterruptedException {
+            final ListenableFuture<Optional<K>> future;
+            try (var tx = dataBroker.newReadOnlyTransaction()) {
+                future = tx.read(LogicalDatastoreType.CONFIGURATION, pathOf(key));
+            }
+            final var optional = future.get();
+            return optional.isEmpty() ? absentValue() : presentValue(optional.orElseThrow());
+        }
+
+        @NonNullByDefault
+        abstract DataObjectIdentifier<K> pathOf(String key);
+
+        abstract V absentValue();
+
+        abstract V presentValue(K key);
+    }
+
+    private abstract class ListLoader<K extends ChildOf<?>, V> extends Loader<K, List<V>> {
+        @Override
+        final List<V> absentValue() {
+            return List.of();
+        }
+
+        @Override
+        final List<V> presentValue(final K key) {
+            return List.copyOf(presentValues(key).toList());
+        }
+
+        abstract Stream<V> presentValues(K key);
+    }
+
     private static final DataObjectIdentifier<CommunitySets> COMMUNITY_SETS_IID =
         DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
             .child(DefinedSets.class)
@@ -42,41 +90,35 @@ public abstract class AbstractCommunityHandler {
             .child(CommunitySets.class)
             .build();
 
-    private final LoadingCache<String, List<Communities>> communitySets = CacheBuilder.newBuilder()
-        .build(new CacheLoader<>() {
+    private final LoadingCache<@NonNull String, List<Communities>> communitySets = CacheBuilder.newBuilder()
+        .build(new ListLoader<CommunitySet, Communities>() {
             @Override
-            public List<Communities> load(final String key) throws ExecutionException, InterruptedException {
-                return List.copyOf(loadCommunitySet(key));
+            DataObjectIdentifier<CommunitySet> pathOf(final String key) {
+                return COMMUNITY_SETS_IID.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build();
+            }
+
+            @Override
+            Stream<Communities> presentValues(final CommunitySet key) {
+                final var communities = key.getCommunities();
+                return communities == null ? Stream.empty()
+                    : communities.stream().map(ge ->
+                        new CommunitiesBuilder().setAsNumber(ge.getAsNumber()).setSemantics(ge.getSemantics()).build());
             }
         });
+
     private final @NonNull DataBroker dataBroker;
 
+    @Inject
+    @Activate
     @NonNullByDefault
-    protected AbstractCommunityHandler(final DataBroker dataBroker) {
+    public DefinedSetResolver(@Reference final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
     }
 
     // FIXME: @Nullable
-    protected final List<Communities> lookupCommunitySet(final String name) {
+    public List<Communities> lookupCommunitySet(final String communitySetRef) {
         // FIXME: ditch use of StringUtils
         // FIXME: explain what are we doing here, exactly?
-        return communitySets.getUnchecked(StringUtils.substringBetween(name, "=\"", "\""));
-    }
-
-    private List<Communities> loadCommunitySet(final String key) throws ExecutionException, InterruptedException {
-        final FluentFuture<Optional<CommunitySet>> future;
-        try (var tx = dataBroker.newReadOnlyTransaction()) {
-            future = tx.read(LogicalDatastoreType.CONFIGURATION,
-                COMMUNITY_SETS_IID.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build());
-        }
-
-        return future.get()
-            .map(set -> set.nonnullCommunities().stream()
-                .map(ge -> new CommunitiesBuilder()
-                    .setAsNumber(ge.getAsNumber())
-                    .setSemantics(ge.getSemantics())
-                    .build())
-                .toList())
-            .orElse(List.of());
+        return communitySets.getUnchecked(StringUtils.substringBetween(communitySetRef, "=\"", "\""));
     }
 }
