@@ -9,7 +9,8 @@ package org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.action
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
@@ -30,40 +31,37 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * Prepend / Replace / Remove a set of communities.
  */
 public final class SetCommunityHandler extends AbstractCommunityHandler implements BgpActionPolicy<SetCommunity> {
+    @NonNullByDefault
     public SetCommunityHandler(final DataBroker dataBroker) {
         super(dataBroker);
     }
 
     @Override
-    public Attributes applyImportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final Attributes attributes,
+    public Attributes applyImportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final Attributes attributes,
             final SetCommunity bgpActions) {
         return setComm(attributes, bgpActions.getSetCommunityMethod(), bgpActions.getOptions());
     }
 
     @Override
-    public Attributes applyExportAction(
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final Attributes attributes,
+    public Attributes applyExportAction(final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters, final Attributes attributes,
             final SetCommunity bgpActions) {
         return setComm(attributes, bgpActions.getSetCommunityMethod(), bgpActions.getOptions());
     }
 
     private Attributes setComm(final Attributes attributes, final SetCommunityMethod setCommunityMethod,
             final BgpSetCommunityOptionType options) {
-        // FIXME: use a switch expression
-        if (setCommunityMethod instanceof Inline inline) {
-            final var list = inline.nonnullCommunities().stream()
-                .map(ge -> new CommunitiesBuilder().setAsNumber(ge.getAsNumber())
+        return switch (setCommunityMethod) {
+            case Inline inline -> inlineSetComm(attributes, inline.nonnullCommunities().stream()
+                .map(ge -> new CommunitiesBuilder()
+                    .setAsNumber(ge.getAsNumber())
                     .setSemantics(ge.getSemantics())
                     .build())
-                .collect(Collectors.toList());
-            return inlineSetComm(attributes, list, options);
-        }
-        return referenceSetComm(attributes, ((Reference) setCommunityMethod).getCommunitySetRef(), options);
+                .toList(), options);
+            case Reference reference -> referenceSetComm(attributes, reference.getCommunitySetRef(), options);
+            default -> throw new UnsupportedOperationException("Unsupported method " + setCommunityMethod);
+        };
     }
 
     private Attributes referenceSetComm(final Attributes attributes, final String communitySetName,
@@ -71,30 +69,28 @@ public final class SetCommunityHandler extends AbstractCommunityHandler implemen
         return inlineSetComm(attributes, lookupCommunitySet(communitySetName), options);
     }
 
-    private static Attributes inlineSetComm(
-            final Attributes attributes,
-            final List<Communities> actionCommunities,
+    private static Attributes inlineSetComm(final Attributes attributes, final List<Communities> actionCommunities,
             final BgpSetCommunityOptionType options) {
-
-        final AttributesBuilder newAtt = new AttributesBuilder(attributes);
-
+        final var newAtt = new AttributesBuilder(attributes);
         if (options.equals(BgpSetCommunityOptionType.REPLACE)) {
-            return newAtt.setCommunities(actionCommunities).build();
+            return newAtt.setCommunities(List.copyOf(actionCommunities)).build();
         }
 
-        final List<Communities> actualComm;
-        if (attributes.getCommunities() != null) {
-            actualComm = new ArrayList<>(attributes.getCommunities());
-        } else {
-            actualComm = new ArrayList<>();
-        }
-
-        switch (options) {
-            case ADD -> actualComm.addAll(actionCommunities);
-            case REMOVE -> actualComm.removeAll(actionCommunities);
+        final var comm = attributes.getCommunities();
+        return newAtt.setCommunities(switch (options) {
+            case null -> throw new NullPointerException();
+            case ADD -> comm == null || comm.isEmpty() ? List.copyOf(actionCommunities)
+                : Stream.concat(comm.stream(), actionCommunities.stream()).toList();
+            case REMOVE -> {
+                if (comm == null || comm.isEmpty()) {
+                    yield List.of();
+                }
+                final var ret = new ArrayList<>(comm);
+                ret.removeAll(actionCommunities);
+                yield List.copyOf(ret);
+            }
+            case REPLACE -> throw new IllegalArgumentException("REPLACE not implemented!");
             default -> throw new IllegalArgumentException("Option Type not Recognized!");
-        }
-
-        return newAtt.setCommunities(actualComm).build();
+        }).build();
     }
 }
