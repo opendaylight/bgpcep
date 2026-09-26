@@ -77,12 +77,9 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
             return newAtt.setExtendedCommunities(actionExtCommunities).build();
         }
 
-        final List<ExtendedCommunities> actualComm;
-        if (attributes.getCommunities() != null) {
-            actualComm = new ArrayList<>(attributes.getExtendedCommunities());
-        } else {
-            actualComm = new ArrayList<>();
-        }
+        final var extComm = attributes.getExtendedCommunities();
+        final var actualComm = extComm == null || extComm.isEmpty() ? new ArrayList<ExtendedCommunities>()
+            : new ArrayList<>(extComm);
 
         switch (options) {
             case ADD -> actualComm.addAll(actionExtCommunities);
