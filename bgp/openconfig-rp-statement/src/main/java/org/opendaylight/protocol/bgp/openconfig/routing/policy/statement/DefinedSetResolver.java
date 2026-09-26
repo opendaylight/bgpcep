@@ -47,9 +47,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.BgpClusterIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.BgpOriginatorIdSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.bgp.cluster.id.sets.ClusterIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.bgp.originator.id.sets.OriginatorIdSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.cluster.id.set.ClusterIdSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.cluster.id.set.ClusterIdSetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.originator.id.set.OriginatorIdSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.originator.id.set.OriginatorIdSetKey;
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.osgi.service.component.annotations.Activate;
@@ -78,6 +82,13 @@ public final class DefinedSetResolver {
         abstract DataObjectIdentifier<K> pathOf(String key);
 
         abstract V valueOf(Optional<K> key);
+    }
+
+    private abstract class IdentityLoader<K extends ChildOf<?>> extends Loader<K, Optional<K>> {
+        @Override
+        final Optional<K> valueOf(final Optional<K> key) {
+            return key;
+        }
     }
 
     private abstract class NullableLoader<K extends ChildOf<?>, V> extends Loader<K, V> {
@@ -179,7 +190,7 @@ public final class DefinedSetResolver {
         });
 
     private final LoadingCache<@NonNull String, Optional<ClusterIdSet>> clusterIdSets = CacheBuilder.newBuilder()
-        .build(new Loader<ClusterIdSet, Optional<ClusterIdSet>>() {
+        .build(new IdentityLoader<>() {
             private static final DataObjectIdentifier<ClusterIdSets> PREFIX =
                 DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
                 .child(DefinedSets.class)
@@ -193,10 +204,22 @@ public final class DefinedSetResolver {
             DataObjectIdentifier<ClusterIdSet> pathOf(final String key) {
                 return PREFIX.toBuilder().child(ClusterIdSet.class, new ClusterIdSetKey(key)).build();
             }
+        });
+
+    private final LoadingCache<@NonNull String, Optional<OriginatorIdSet>> originatorIdSets = CacheBuilder.newBuilder()
+        .build(new IdentityLoader<>() {
+            private static final DataObjectIdentifier<OriginatorIdSets> PREFIX =
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
+                .child(DefinedSets.class)
+                .augmentation(DefinedSets1.class)
+                .child(BgpDefinedSets.class)
+                .augmentation(BgpOriginatorIdSets.class)
+                .child(OriginatorIdSets.class)
+                .build();
 
             @Override
-            Optional<ClusterIdSet> valueOf(final Optional<ClusterIdSet> key) {
-                return key;
+            DataObjectIdentifier<OriginatorIdSet> pathOf(final String key) {
+                return PREFIX.toBuilder().child(OriginatorIdSet.class, new OriginatorIdSetKey(key)).build();
             }
         });
 
@@ -226,6 +249,10 @@ public final class DefinedSetResolver {
     // FIXME: @Nullable
     public List<PeerId> lookupNeighborSet(final String neighborSetRef) {
         return lookupRef(peerSets, neighborSetRef);
+    }
+
+    public @Nullable OriginatorIdSet lookupOriginatorIdSet(final String originatorIdSetRef) {
+        return lookupRef(originatorIdSets, originatorIdSetRef).orElse(null);
     }
 
     private static <V> V lookupRef(final LoadingCache<@NonNull String, V> cache, final String ref) {
