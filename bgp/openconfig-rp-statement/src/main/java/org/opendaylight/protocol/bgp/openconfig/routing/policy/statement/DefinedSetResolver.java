@@ -28,13 +28,18 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.DefinedSets1;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.BgpDefinedSets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.CommunitySets;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ExtCommunitySets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.community.sets.CommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.community.sets.CommunitySetKey;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySet;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySetKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.OpenconfigRoutingPolicyData;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.RoutingPolicy;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.routing.policy.rev151009.routing.policy.top.routing.policy.DefinedSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.CommunitiesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.osgi.service.component.annotations.Activate;
@@ -82,27 +87,55 @@ public final class DefinedSetResolver {
         abstract Stream<V> presentValues(K key);
     }
 
-    private static final DataObjectIdentifier<CommunitySets> COMMUNITY_SETS_IID =
-        DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
-            .child(DefinedSets.class)
-            .augmentation(DefinedSets1.class)
-            .child(BgpDefinedSets.class)
-            .child(CommunitySets.class)
-            .build();
-
     private final LoadingCache<@NonNull String, List<Communities>> communitySets = CacheBuilder.newBuilder()
         .build(new ListLoader<CommunitySet, Communities>() {
+            private static final DataObjectIdentifier<CommunitySets> PREFIX =
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
+                    .child(DefinedSets.class)
+                    .augmentation(DefinedSets1.class)
+                    .child(BgpDefinedSets.class)
+                    .child(CommunitySets.class)
+                    .build();
+
             @Override
             DataObjectIdentifier<CommunitySet> pathOf(final String key) {
-                return COMMUNITY_SETS_IID.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build();
+                return PREFIX.toBuilder().child(CommunitySet.class, new CommunitySetKey(key)).build();
             }
 
             @Override
             Stream<Communities> presentValues(final CommunitySet key) {
                 final var communities = key.getCommunities();
-                return communities == null ? Stream.empty()
-                    : communities.stream().map(ge ->
-                        new CommunitiesBuilder().setAsNumber(ge.getAsNumber()).setSemantics(ge.getSemantics()).build());
+                return communities == null ? Stream.empty() : communities.stream()
+                    .map(ge -> new CommunitiesBuilder()
+                        .setAsNumber(ge.getAsNumber())
+                        .setSemantics(ge.getSemantics())
+                        .build());
+            }
+        });
+
+    private final LoadingCache<@NonNull String, List<ExtendedCommunities>> extCommunitySets = CacheBuilder.newBuilder()
+        .build(new ListLoader<ExtCommunitySet, ExtendedCommunities>() {
+            private static final DataObjectIdentifier<ExtCommunitySets> PREFIX =
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
+                    .child(DefinedSets.class)
+                    .augmentation(DefinedSets1.class)
+                    .child(BgpDefinedSets.class)
+                    .child(ExtCommunitySets.class)
+                    .build();
+
+            @Override
+            DataObjectIdentifier<ExtCommunitySet> pathOf(final String key) {
+                return PREFIX.toBuilder().child(ExtCommunitySet.class, new ExtCommunitySetKey(key)).build();
+            }
+
+            @Override
+            Stream<ExtendedCommunities> presentValues(final ExtCommunitySet key) {
+                final var communities = key.getExtCommunityMember();
+                return communities == null ? Stream.empty() : communities.stream()
+                    .map(ge -> new ExtendedCommunitiesBuilder()
+                        .setExtendedCommunity(ge.getExtendedCommunity())
+                        .setTransitive(ge.getTransitive())
+                        .build());
             }
         });
 
@@ -117,8 +150,17 @@ public final class DefinedSetResolver {
 
     // FIXME: @Nullable
     public List<Communities> lookupCommunitySet(final String communitySetRef) {
+        return lookupRef(communitySets, communitySetRef);
+    }
+
+    // FIXME: @Nullable
+    public List<ExtendedCommunities> lookupExtCommunitySet(final String extCommunitySetRef) {
+        return lookupRef(extCommunitySets, extCommunitySetRef);
+    }
+
+    private static <V> V lookupRef(final LoadingCache<@NonNull String, V> cache, final String ref) {
         // FIXME: ditch use of StringUtils
         // FIXME: explain what are we doing here, exactly?
-        return communitySets.getUnchecked(StringUtils.substringBetween(communitySetRef, "=\"", "\""));
+        return cache.getUnchecked(StringUtils.substringBetween(ref, "=\"", "\""));
     }
 }
