@@ -58,9 +58,8 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
             final Attributes attributes,
             final SetExtCommunityMethod setExtCommunityMethod,
             final BgpSetCommunityOptionType options) {
-        if (setExtCommunityMethod instanceof Inline) {
-            final Inline inline = (Inline) setExtCommunityMethod;
-            final List<ExtendedCommunities> list = inline.getExtCommunityMember()
+        if (setExtCommunityMethod instanceof Inline inline) {
+            final List<ExtendedCommunities> list = inline.nonnullExtCommunityMember()
                     .stream().map(ge -> new ExtendedCommunitiesBuilder().setExtendedCommunity(ge.getExtendedCommunity())
                             .setTransitive(ge.getTransitive()).build()).collect(Collectors.toList());
             return inlineSetExtComm(attributes, list, options);
@@ -86,14 +85,9 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
         }
 
         switch (options) {
-            case ADD:
-                actualComm.addAll(actionExtCommunities);
-                break;
-            case REMOVE:
-                actualComm.removeAll(actionExtCommunities);
-                break;
-            default:
-                throw new IllegalArgumentException("Option Type not Recognized!");
+            case ADD -> actualComm.addAll(actionExtCommunities);
+            case REMOVE -> actualComm.removeAll(actionExtCommunities);
+            default -> throw new IllegalArgumentException("Option Type not Recognized!");
         }
 
         return newAtt.setExtendedCommunities(actualComm).build();
@@ -105,7 +99,7 @@ public final class SetExtCommunityHandler extends AbstractExtCommunityHandler
             final String extCommunitySetName,
             final BgpSetCommunityOptionType options) {
         final String setKey = StringUtils.substringBetween(extCommunitySetName, "=\"", "\"");
-        return inlineSetExtComm(attributes, this.extCommunitySets.getUnchecked(setKey), options);
+        return inlineSetExtComm(attributes, extCommunitySets.getUnchecked(setKey), options);
     }
 
 }
