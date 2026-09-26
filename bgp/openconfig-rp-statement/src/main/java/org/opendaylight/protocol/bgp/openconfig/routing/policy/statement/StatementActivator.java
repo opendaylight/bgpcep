@@ -11,11 +11,9 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
 import java.util.List;
-import java.util.ServiceLoader;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.kohsuke.MetaInfServices;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.AbstractBGPStatementProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementProviderActivator;
@@ -58,23 +56,18 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 @Singleton
-@MetaInfServices(value = StatementProviderActivator.class)
 @Component(
     immediate = true,
     service = StatementProviderActivator.class,
     property = "type=org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.StatementActivator")
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
+    private final @NonNull DefinedSetResolver resolver;
     private final @NonNull DataBroker dataBroker;
-
-    // FIXME: this cannot really work
-    public StatementActivator() {
-        this(ServiceLoader.load(DataBroker.class).findFirst().orElseThrow(
-            () -> new IllegalStateException("No DataBroker found")));
-    }
 
     @Inject
     @Activate
-    public StatementActivator(@Reference final DataBroker dataBroker) {
+    public StatementActivator(@Reference final DefinedSetResolver resolver, @Reference final DataBroker dataBroker) {
+        this.resolver = requireNonNull(resolver);
         this.dataBroker = requireNonNull(dataBroker);
     }
 
@@ -85,7 +78,7 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
             context.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.getInstance()),
             context.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,
                 LocalAsPathPrependHandler.getInstance()),
-            context.registerBgpActionPolicy(SetCommunity.class, new SetCommunityHandler(dataBroker)),
+            context.registerBgpActionPolicy(SetCommunity.class, new SetCommunityHandler(resolver)),
             context.registerBgpActionPolicy(SetExtCommunity.class, new SetExtCommunityHandler(dataBroker)),
             context.registerBgpActionAugmentationPolicy(SetOriginatorIdPrepend.class,
                 SetOriginatorIdPrependHandler.getInstance()),
@@ -104,7 +97,7 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
             context.registerBgpConditionsPolicy(MatchAsPathSet.class, new MatchAsPathSetHandler(dataBroker)),
             context.registerBgpConditionsPolicy(MatchExtCommunitySet.class,
                 new MatchExtCommunitySetHandler(dataBroker)),
-            context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(dataBroker)),
+            context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(resolver)),
             context.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
                 new MatchBgpNeighborSetHandler(dataBroker)),
             context.registerBgpConditionsAugmentationPolicy(MatchAfiSafiNotInCondition.class,
