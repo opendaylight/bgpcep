@@ -31,59 +31,39 @@ public final class MatchExtCommunitySetHandler extends AbstractExtCommunityHandl
         super(databroker);
     }
 
+    @Override
+    public List<ExtendedCommunities> getConditionParameter(final Attributes attributes) {
+        return attributes.getExtendedCommunities();
+    }
+
+    @Override
+    public boolean matchImportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters,
+            final List<ExtendedCommunities> extendedCommunities, final MatchExtCommunitySet conditions) {
+        return matchCondition(extendedCommunities, conditions.getExtCommunitySet(), conditions.getMatchSetOptions());
+    }
+
+    @Override
+    public boolean matchExportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters,
+            final List<ExtendedCommunities> extendedCommunities, final MatchExtCommunitySet conditions) {
+        return matchCondition(extendedCommunities, conditions.getExtCommunitySet(), conditions.getMatchSetOptions());
+    }
+
     private boolean matchCondition(final List<ExtendedCommunities> extendedCommunities,
             final String matchExtCommunitySetName, final MatchSetOptionsType matchSetOptions) {
-
-        final String setKey = StringUtils
-                .substringBetween(matchExtCommunitySetName, "=\"", "\"");
-        final List<ExtendedCommunities> extCommunityfilter = extCommunitySets.getUnchecked(setKey);
-
+        final var setKey = StringUtils.substringBetween(matchExtCommunitySetName, "=\"", "\"");
+        final var extCommunityfilter = extCommunitySets.getUnchecked(setKey);
         if (extCommunityfilter == null || extCommunityfilter.isEmpty()) {
             return false;
         }
 
-        List<ExtendedCommunities> extCommList;
-        if (extendedCommunities == null) {
-            extCommList = List.of();
-        } else {
-            extCommList = extendedCommunities;
-        }
-
-        if (matchSetOptions.equals(MatchSetOptionsType.ALL)) {
-            return extCommList.containsAll(extCommunityfilter) && extCommunityfilter.containsAll(extCommList);
-        }
-        final boolean noneInCommon = Collections.disjoint(extCommList, extCommunityfilter);
-        if (matchSetOptions.equals(MatchSetOptionsType.ANY)) {
-            return !noneInCommon;
-        }
-        //(matchSetOptions.equals(MatchSetOptionsType.INVERT))
-        return noneInCommon;
-    }
-
-    @Override
-    public boolean matchImportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final List<ExtendedCommunities> extendedCommunities,
-            final MatchExtCommunitySet conditions) {
-        return matchCondition(extendedCommunities, conditions.getExtCommunitySet(),
-                conditions.getMatchSetOptions());
-    }
-
-    @Override
-    public boolean matchExportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final List<ExtendedCommunities> extendedCommunities,
-            final MatchExtCommunitySet conditions) {
-        return matchCondition(extendedCommunities, conditions.getExtCommunitySet(),
-                conditions.getMatchSetOptions());
-    }
-
-    @Override
-    public List<ExtendedCommunities> getConditionParameter(final Attributes attributes) {
-        return attributes.getExtendedCommunities();
+        // TODO: inline into cases and specialize
+        final var extCommList = extendedCommunities != null ? extendedCommunities : List.<ExtendedCommunities>of();
+        return switch (matchSetOptions) {
+            case ALL -> extCommList.containsAll(extCommunityfilter) && extCommunityfilter.containsAll(extCommList);
+            case ANY -> !Collections.disjoint(extCommList, extCommunityfilter);
+            case INVERT -> Collections.disjoint(extCommList, extCommunityfilter);
+        };
     }
 }
