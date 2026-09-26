@@ -23,6 +23,7 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -45,6 +46,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.BgpClusterIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.bgp.cluster.id.sets.ClusterIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.cluster.id.set.ClusterIdSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.cluster.id.set.ClusterIdSetKey;
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.osgi.service.component.annotations.Activate;
@@ -66,19 +71,27 @@ public final class DefinedSetResolver {
             try (var tx = dataBroker.newReadOnlyTransaction()) {
                 future = tx.read(LogicalDatastoreType.CONFIGURATION, pathOf(key));
             }
-            final var optional = future.get();
-            return optional.isEmpty() ? absentValue() : presentValue(optional.orElseThrow());
+            return valueOf(future.get());
         }
 
         @NonNullByDefault
         abstract DataObjectIdentifier<K> pathOf(String key);
+
+        abstract V valueOf(Optional<K> key);
+    }
+
+    private abstract class NullableLoader<K extends ChildOf<?>, V> extends Loader<K, V> {
+        @Override
+        final V valueOf(final Optional<K> key) {
+            return key.isEmpty() ? absentValue() : presentValue(key.orElseThrow());
+        }
 
         abstract V absentValue();
 
         abstract V presentValue(K key);
     }
 
-    private abstract class ListLoader<K extends ChildOf<?>, V> extends Loader<K, List<V>> {
+    private abstract class ListLoader<K extends ChildOf<?>, V> extends NullableLoader<K, List<V>> {
         @Override
         final List<V> absentValue() {
             return List.of();
@@ -165,6 +178,28 @@ public final class DefinedSetResolver {
             }
         });
 
+    private final LoadingCache<@NonNull String, Optional<ClusterIdSet>> clusterIdSets = CacheBuilder.newBuilder()
+        .build(new Loader<ClusterIdSet, Optional<ClusterIdSet>>() {
+            private static final DataObjectIdentifier<ClusterIdSets> PREFIX =
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
+                .child(DefinedSets.class)
+                .augmentation(DefinedSets1.class)
+                .child(BgpDefinedSets.class)
+                .augmentation(BgpClusterIdSets.class)
+                .child(ClusterIdSets.class)
+                .build();
+
+            @Override
+            DataObjectIdentifier<ClusterIdSet> pathOf(final String key) {
+                return PREFIX.toBuilder().child(ClusterIdSet.class, new ClusterIdSetKey(key)).build();
+            }
+
+            @Override
+            Optional<ClusterIdSet> valueOf(final Optional<ClusterIdSet> key) {
+                return key;
+            }
+        });
+
     private final @NonNull DataBroker dataBroker;
 
     @Inject
@@ -182,6 +217,10 @@ public final class DefinedSetResolver {
     // FIXME: @Nullable
     public List<ExtendedCommunities> lookupExtCommunitySet(final String extCommunitySetRef) {
         return lookupRef(extCommunitySets, extCommunitySetRef);
+    }
+
+    public @Nullable ClusterIdSet lookupClusterIdSet(final String clusterIdSetRef) {
+        return lookupRef(clusterIdSets, clusterIdSetRef).orElse(null);
     }
 
     // FIXME: @Nullable
