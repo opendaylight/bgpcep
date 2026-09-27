@@ -13,7 +13,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -26,10 +26,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  * Match a Peer Role (FROM, TO).
  */
 public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolicy<MatchRoleSetCondition, Void> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
-    public MatchRoleSetHandler(final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
+    public MatchRoleSetHandler(final DefinedSetsIndex definedSets) {
+        this.definedSets = requireNonNull(definedSets);
     }
 
     @Override
@@ -75,7 +75,7 @@ public final class MatchRoleSetHandler implements BgpConditionsAugmentationPolic
 
     private boolean checkMatch(final String roleSetName, final PeerRole role,
             final MatchSetOptionsRestrictedType matchSetOptions) {
-        final var roles = resolver.lookupRoleSets(roleSetName);
+        final var roles = definedSets.lookupRoleSets(roleSetName);
         return switch (matchSetOptions) {
             case ANY -> roles.contains(role);
             case INVERT -> !roles.contains(role);

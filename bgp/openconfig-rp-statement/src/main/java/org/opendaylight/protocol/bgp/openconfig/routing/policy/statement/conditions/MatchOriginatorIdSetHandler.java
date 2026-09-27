@@ -12,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -26,10 +26,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  */
 public final class MatchOriginatorIdSetHandler
         implements BgpConditionsAugmentationPolicy<MatchOriginatorIdSetCondition, OriginatorId> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
-    public MatchOriginatorIdSetHandler(final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
+    public MatchOriginatorIdSetHandler(final DefinedSetsIndex definedSets) {
+        this.definedSets = requireNonNull(definedSets);
     }
 
     @Override
@@ -54,7 +54,7 @@ public final class MatchOriginatorIdSetHandler
     private boolean match(final RouteEntryBaseAttributes routeEntryInfo, final OriginatorId originatorId,
             final MatchOriginatorIdSetCondition conditions) {
         final var condition = conditions.getMatchOriginatorIdSetCondition();
-        final var originatorIdSet = resolver.lookupOriginatorIdSet(condition.getOriginatorIdSet());
+        final var originatorIdSet = definedSets.lookupOriginatorIdSet(condition.getOriginatorIdSet());
         if (originatorIdSet == null) {
             return false;
         }
