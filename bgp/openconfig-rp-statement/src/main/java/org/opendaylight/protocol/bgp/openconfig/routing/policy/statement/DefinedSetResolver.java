@@ -30,8 +30,11 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.DefinedSets1;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.BgpDefinedSets;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.AsPathSets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.CommunitySets;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ExtCommunitySets;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.as.path.sets.AsPathSet;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.as.path.sets.AsPathSetKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.community.sets.CommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.community.sets.CommunitySetKey;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.ext.community.sets.ExtCommunitySet;
@@ -256,6 +259,22 @@ public final class DefinedSetResolver {
             }
         });
 
+    private final LoadingCache<@NonNull String, Optional<AsPathSet>> asPathSets = CacheBuilder.newBuilder()
+        .build(new IdentityLoader<AsPathSet>() {
+            private static final DataObjectIdentifier<AsPathSets> PREFIX =
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
+                    .child(DefinedSets.class)
+                    .augmentation(DefinedSets1.class)
+                    .child(BgpDefinedSets.class)
+                    .child(AsPathSets.class)
+                    .build();
+
+            @Override
+            DataObjectIdentifier<AsPathSet> pathOf(final String key) {
+                return PREFIX.toBuilder().child(AsPathSet.class, new AsPathSetKey(key)).build();
+            }
+        });
+
     private final @NonNull DataBroker dataBroker;
 
     @Inject
@@ -263,6 +282,10 @@ public final class DefinedSetResolver {
     @NonNullByDefault
     public DefinedSetResolver(@Reference final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
+    }
+
+    public @Nullable AsPathSet lookupAsPathSet(final String asPathSetRef) {
+        return lookupRef(asPathSets, asPathSetRef).orElse(null);
     }
 
     // FIXME: @Nullable
