@@ -14,7 +14,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.AbstractBGPStatementProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementProviderActivator;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.registry.StatementRegistryProvider;
@@ -62,13 +61,11 @@ import org.osgi.service.component.annotations.Reference;
     property = "type=org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.StatementActivator")
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
     private final @NonNull DefinedSetResolver resolver;
-    private final @NonNull DataBroker dataBroker;
 
     @Inject
     @Activate
-    public StatementActivator(@Reference final DefinedSetResolver resolver, @Reference final DataBroker dataBroker) {
+    public StatementActivator(@Reference final DefinedSetResolver resolver) {
         this.resolver = requireNonNull(resolver);
-        this.dataBroker = requireNonNull(dataBroker);
     }
 
     @Override
@@ -94,7 +91,7 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
                 new MatchOriginatorIdSetHandler(resolver)),
             context.registerBgpConditionsAugmentationPolicy(MatchClusterIdSetCondition.class,
                 new MatchClusterIdSetHandler(resolver)),
-            context.registerBgpConditionsPolicy(MatchAsPathSet.class, new MatchAsPathSetHandler(dataBroker)),
+            context.registerBgpConditionsPolicy(MatchAsPathSet.class, new MatchAsPathSetHandler(resolver)),
             context.registerBgpConditionsPolicy(MatchExtCommunitySet.class, new MatchExtCommunitySetHandler(resolver)),
             context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(resolver)),
             context.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
@@ -107,6 +104,6 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("dataBroker", dataBroker).toString();
+        return MoreObjects.toStringHelper(this).add("definedSets", resolver).toString();
     }
 }
