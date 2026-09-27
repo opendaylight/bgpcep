@@ -61,13 +61,13 @@ import org.osgi.service.component.annotations.Reference;
     service = StatementProviderActivator.class,
     property = "type=org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.StatementActivator")
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
     private final @NonNull DataBroker dataBroker;
 
     @Inject
     @Activate
-    public StatementActivator(@Reference final DefinedSetResolver resolver, @Reference final DataBroker dataBroker) {
-        this.resolver = requireNonNull(resolver);
+    public StatementActivator(@Reference final DefinedSetsIndex definedSets, @Reference final DataBroker dataBroker) {
+        this.definedSets = requireNonNull(definedSets);
         this.dataBroker = requireNonNull(dataBroker);
     }
 
@@ -78,8 +78,8 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
             context.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.getInstance()),
             context.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,
                 LocalAsPathPrependHandler.getInstance()),
-            context.registerBgpActionPolicy(SetCommunity.class, new SetCommunityHandler(resolver)),
-            context.registerBgpActionPolicy(SetExtCommunity.class, new SetExtCommunityHandler(resolver)),
+            context.registerBgpActionPolicy(SetCommunity.class, new SetCommunityHandler(definedSets)),
+            context.registerBgpActionPolicy(SetExtCommunity.class, new SetExtCommunityHandler(definedSets)),
             context.registerBgpActionAugmentationPolicy(SetOriginatorIdPrepend.class,
                 SetOriginatorIdPrependHandler.getInstance()),
             context.registerBgpActionAugmentationPolicy(NonTransitiveAttributesFilter.class,
@@ -95,8 +95,9 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
             context.registerBgpConditionsAugmentationPolicy(MatchClusterIdSetCondition.class,
                 new MatchClusterIdSetHandler(resolver)),
             context.registerBgpConditionsPolicy(MatchAsPathSet.class, new MatchAsPathSetHandler(dataBroker)),
-            context.registerBgpConditionsPolicy(MatchExtCommunitySet.class, new MatchExtCommunitySetHandler(resolver)),
-            context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(resolver)),
+            context.registerBgpConditionsPolicy(MatchExtCommunitySet.class,
+                new MatchExtCommunitySetHandler(definedSets)),
+            context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(definedSets)),
             context.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
                 new MatchBgpNeighborSetHandler(resolver)),
             context.registerBgpConditionsAugmentationPolicy(MatchAfiSafiNotInCondition.class,

@@ -13,6 +13,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -26,7 +27,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  */
 public final class MatchOriginatorIdSetHandler
         implements BgpConditionsAugmentationPolicy<MatchOriginatorIdSetCondition, OriginatorId> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex resolver;
 
     public MatchOriginatorIdSetHandler(final DefinedSetResolver resolver) {
         this.resolver = requireNonNull(resolver);
