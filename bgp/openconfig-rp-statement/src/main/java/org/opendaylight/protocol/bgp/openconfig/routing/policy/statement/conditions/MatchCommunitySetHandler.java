@@ -15,12 +15,11 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchCommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.Communities;
 
@@ -28,31 +27,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * Match a set of Communities (ALL, ANY, INVERT).
  */
 public final class MatchCommunitySetHandler implements BgpConditionsPolicy<MatchCommunitySet, List<Communities>> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
     @NonNullByDefault
-    public MatchCommunitySetHandler(final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
-    }
-
-    @Override
-    public boolean matchImportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryImportParameters routeEntryImportParameters,
-            final List<Communities> communities,
-            final MatchCommunitySet conditions) {
-        return matchCondition(communities, conditions.getCommunitySet(), conditions.getMatchSetOptions());
-    }
-
-    @Override
-    public boolean matchExportCondition(
-            final AfiSafiType afiSafi,
-            final RouteEntryBaseAttributes routeEntryInfo,
-            final BGPRouteEntryExportParameters routeEntryExportParameters,
-            final List<Communities> communities,
-            final MatchCommunitySet conditions) {
-        return matchCondition(communities, conditions.getCommunitySet(), conditions.getMatchSetOptions());
+    public MatchCommunitySetHandler(final DefinedSetsIndex resolver) {
+        definedSets = requireNonNull(resolver);
     }
 
     @Override
@@ -60,26 +39,33 @@ public final class MatchCommunitySetHandler implements BgpConditionsPolicy<Match
         return attributes.getCommunities();
     }
 
-    private boolean matchCondition(
-            final List<org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path
-                    .attributes.attributes.Communities> communities, final String communitySetName,
-            final MatchSetOptionsType matchSetOptions) {
-        final var communityFilter = resolver.lookupCommunitySet(communitySetName);
-        if (communityFilter == null || communityFilter.isEmpty()) {
+    @Override
+    public boolean matchImportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryImportParameters routeEntryImportParameters, final List<Communities> communities,
+            final MatchCommunitySet conditions) {
+        return matchCondition(communities, conditions);
+    }
+
+    @Override
+    public boolean matchExportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
+            final BGPRouteEntryExportParameters routeEntryExportParameters, final List<Communities> communities,
+            final MatchCommunitySet conditions) {
+        return matchCondition(communities, conditions);
+    }
+
+    private boolean matchCondition( final List<Communities> communities, final MatchCommunitySet conditions) {
+        final var communitySet = definedSets.lookupCommunitySet(conditions.getCommunitySet());
+        // FIXME: document why isEmpty() has type-independent treatment
+        if (communitySet == null || communitySet.isEmpty()) {
             return false;
         }
 
+        // FIXME: push this check down
         final var commAttributeList = communities != null ? communities : List.of();
-        // FIXME: use a switch expression
-        if (matchSetOptions.equals(MatchSetOptionsType.ALL)) {
-            return commAttributeList.containsAll(communityFilter)
-                    && communityFilter.containsAll(commAttributeList);
-        }
-        final boolean noneInCommon = Collections.disjoint(commAttributeList, communityFilter);
-        if (matchSetOptions.equals(MatchSetOptionsType.ANY)) {
-            return !noneInCommon;
-        }
-        //(matchSetOptions.equals(MatchSetOptionsType.INVERT))
-        return noneInCommon;
+        return switch (conditions.getMatchSetOptions()) {
+            case ALL -> commAttributeList.containsAll(communitySet) && communitySet.containsAll(commAttributeList);
+            case ANY -> !Collections.disjoint(commAttributeList, communitySet);
+            case INVERT -> Collections.disjoint(commAttributeList, communitySet);
+        };
     }
 }
