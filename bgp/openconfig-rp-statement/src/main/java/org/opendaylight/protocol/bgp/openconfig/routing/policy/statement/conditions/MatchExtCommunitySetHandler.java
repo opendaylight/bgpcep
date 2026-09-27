@@ -14,12 +14,11 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchExtCommunitySet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
 
@@ -28,10 +27,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  */
 public final class MatchExtCommunitySetHandler
         implements BgpConditionsPolicy<MatchExtCommunitySet, List<ExtendedCommunities>> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
-    public MatchExtCommunitySetHandler(final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
+    public MatchExtCommunitySetHandler(final DefinedSetsIndex definedSets) {
+        this.definedSets = requireNonNull(definedSets);
     }
 
     @Override
@@ -43,24 +42,24 @@ public final class MatchExtCommunitySetHandler
     public boolean matchImportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryImportParameters routeEntryImportParameters,
             final List<ExtendedCommunities> extendedCommunities, final MatchExtCommunitySet conditions) {
-        return matchCondition(extendedCommunities, conditions.getExtCommunitySet(), conditions.getMatchSetOptions());
+        return match(extendedCommunities, conditions);
     }
 
     @Override
     public boolean matchExportCondition(final AfiSafiType afiSafi, final RouteEntryBaseAttributes routeEntryInfo,
             final BGPRouteEntryExportParameters routeEntryExportParameters,
             final List<ExtendedCommunities> extendedCommunities, final MatchExtCommunitySet conditions) {
-        return matchCondition(extendedCommunities, conditions.getExtCommunitySet(), conditions.getMatchSetOptions());
+        return match(extendedCommunities, conditions);
     }
 
-    private boolean matchCondition(final List<ExtendedCommunities> extendedCommunities,
-            final String matchExtCommunitySetName, final MatchSetOptionsType matchSetOptions) {
-        final var extCommunityfilter = resolver.lookupExtCommunitySet(matchExtCommunitySetName);
+    private boolean match(final List<ExtendedCommunities> extendedCommunities, final MatchExtCommunitySet conditions) {
+        final var extCommunityfilter = definedSets.lookupExtCommunitySet(conditions.getExtCommunitySet());
         if (extCommunityfilter == null || extCommunityfilter.isEmpty()) {
             return false;
         }
 
         // TODO: inline into cases and specialize
+        final var matchSetOptions = conditions.getMatchSetOptions();
         final var extCommList = extendedCommunities != null ? extendedCommunities : List.<ExtendedCommunities>of();
         return switch (matchSetOptions) {
             case ALL -> extCommList.containsAll(extCommunityfilter) && extCommunityfilter.containsAll(extCommList);

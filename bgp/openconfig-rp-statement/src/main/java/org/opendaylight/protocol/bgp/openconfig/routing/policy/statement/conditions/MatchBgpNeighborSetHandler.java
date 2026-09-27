@@ -12,7 +12,7 @@ import static java.util.Objects.requireNonNull;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -27,10 +27,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  */
 public final class MatchBgpNeighborSetHandler
         implements BgpConditionsAugmentationPolicy<MatchBgpNeighborCondition, Void> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
-    public MatchBgpNeighborSetHandler(final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
+    public MatchBgpNeighborSetHandler(final DefinedSetsIndex definedSets) {
+        this.definedSets = requireNonNull(definedSets);
     }
 
     @Override
@@ -73,7 +73,7 @@ public final class MatchBgpNeighborSetHandler
     private boolean checkMatch(final String neighborSetName, final PeerId peerId,
             final MatchSetOptionsRestrictedType matchSetOptions) {
         // FIXME: we are really doing a combined lookup and want to operate on Set.contains()
-        final var roles = resolver.lookupNeighborSet(neighborSetName);
+        final var roles = definedSets.lookupNeighborSet(neighborSetName);
         final boolean found = roles.contains(peerId);
         if (MatchSetOptionsRestrictedType.ANY.equals(matchSetOptions)) {
             return found;
