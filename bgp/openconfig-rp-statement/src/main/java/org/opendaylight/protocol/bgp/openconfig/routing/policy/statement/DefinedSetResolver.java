@@ -16,6 +16,7 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Stream;
 import javax.inject.Inject;
@@ -46,14 +47,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ExtendedCommunitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.BgpClusterIdSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.BgpOriginatorIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.BgpRoleSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.bgp.cluster.id.sets.ClusterIdSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.bgp.originator.id.sets.OriginatorIdSets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.bgp.role.sets.RoleSets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.cluster.id.set.ClusterIdSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.cluster.id.set.ClusterIdSetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.originator.id.set.OriginatorIdSet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.originator.id.set.OriginatorIdSetKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.role.set.RoleSet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp._default.policy.rev200120.role.set.RoleSetKey;
 import org.opendaylight.yangtools.binding.ChildOf;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.osgi.service.component.annotations.Activate;
@@ -210,16 +216,43 @@ public final class DefinedSetResolver {
         .build(new IdentityLoader<>() {
             private static final DataObjectIdentifier<OriginatorIdSets> PREFIX =
                 DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
-                .child(DefinedSets.class)
-                .augmentation(DefinedSets1.class)
-                .child(BgpDefinedSets.class)
-                .augmentation(BgpOriginatorIdSets.class)
-                .child(OriginatorIdSets.class)
-                .build();
+                    .child(DefinedSets.class)
+                    .augmentation(DefinedSets1.class)
+                    .child(BgpDefinedSets.class)
+                    .augmentation(BgpOriginatorIdSets.class)
+                    .child(OriginatorIdSets.class)
+                    .build();
 
             @Override
             DataObjectIdentifier<OriginatorIdSet> pathOf(final String key) {
                 return PREFIX.toBuilder().child(OriginatorIdSet.class, new OriginatorIdSetKey(key)).build();
+            }
+        });
+
+    private final LoadingCache<@NonNull String, Set<PeerRole>> roleSets = CacheBuilder.newBuilder()
+        .build(new NullableLoader<RoleSet, Set<PeerRole>>() {
+            private static final DataObjectIdentifier<RoleSets> ROLE_SET_IID =
+                DataObjectIdentifier.builderOfInherited(OpenconfigRoutingPolicyData.class, RoutingPolicy.class)
+                    .child(DefinedSets.class)
+                    .augmentation(DefinedSets1.class)
+                    .child(BgpDefinedSets.class)
+                    .augmentation(BgpRoleSets.class)
+                    .child(RoleSets.class)
+                    .build();
+
+            @Override
+            DataObjectIdentifier<RoleSet> pathOf(final String key) {
+                return ROLE_SET_IID.toBuilder().child(RoleSet.class, new RoleSetKey(key)).build();
+            }
+
+            @Override
+            Set<PeerRole> absentValue() {
+                return Set.of();
+            }
+
+            @Override
+            Set<PeerRole> presentValue(final RoleSet key) {
+                return key.getRole();
             }
         });
 
@@ -253,6 +286,10 @@ public final class DefinedSetResolver {
 
     public @Nullable OriginatorIdSet lookupOriginatorIdSet(final String originatorIdSetRef) {
         return lookupRef(originatorIdSets, originatorIdSetRef).orElse(null);
+    }
+
+    public Set<PeerRole> lookupRoleSets(final String roleSetRef) {
+        return lookupRef(roleSets, roleSetRef);
     }
 
     private static <V> V lookupRef(final LoadingCache<@NonNull String, V> cache, final String ref) {
