@@ -60,12 +60,12 @@ import org.osgi.service.component.annotations.Reference;
     service = StatementProviderActivator.class,
     property = "type=org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.StatementActivator")
 public final class StatementActivator extends AbstractBGPStatementProviderActivator {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
     @Inject
     @Activate
-    public StatementActivator(@Reference final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
+    public StatementActivator(@Reference final DefinedSetsIndex definedSets) {
+        this.definedSets = requireNonNull(definedSets);
     }
 
     @Override
@@ -75,8 +75,8 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
             context.registerBgpActionPolicy(SetAsPathPrepend.class, AsPathPrepend.getInstance()),
             context.registerBgpActionAugmentationPolicy(LocalAsPathPrepend.class,
                 LocalAsPathPrependHandler.getInstance()),
-            context.registerBgpActionPolicy(SetCommunity.class, new SetCommunityHandler(resolver)),
-            context.registerBgpActionPolicy(SetExtCommunity.class, new SetExtCommunityHandler(resolver)),
+            context.registerBgpActionPolicy(SetCommunity.class, new SetCommunityHandler(definedSets)),
+            context.registerBgpActionPolicy(SetExtCommunity.class, new SetExtCommunityHandler(definedSets)),
             context.registerBgpActionAugmentationPolicy(SetOriginatorIdPrepend.class,
                 SetOriginatorIdPrependHandler.getInstance()),
             context.registerBgpActionAugmentationPolicy(NonTransitiveAttributesFilter.class,
@@ -86,16 +86,17 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
             // Register conditions
             context.registerBgpConditionsAugmentationPolicy(MatchRoleSetCondition.class,
-                new MatchRoleSetHandler(resolver)),
+                new MatchRoleSetHandler(definedSets)),
             context.registerBgpConditionsAugmentationPolicy(MatchOriginatorIdSetCondition.class,
-                new MatchOriginatorIdSetHandler(resolver)),
+                new MatchOriginatorIdSetHandler(definedSets)),
             context.registerBgpConditionsAugmentationPolicy(MatchClusterIdSetCondition.class,
-                new MatchClusterIdSetHandler(resolver)),
-            context.registerBgpConditionsPolicy(MatchAsPathSet.class, new MatchAsPathSetHandler(resolver)),
-            context.registerBgpConditionsPolicy(MatchExtCommunitySet.class, new MatchExtCommunitySetHandler(resolver)),
-            context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(resolver)),
+                new MatchClusterIdSetHandler(definedSets)),
+            context.registerBgpConditionsPolicy(MatchAsPathSet.class, new MatchAsPathSetHandler(definedSets)),
+            context.registerBgpConditionsPolicy(MatchExtCommunitySet.class,
+                new MatchExtCommunitySetHandler(definedSets)),
+            context.registerBgpConditionsPolicy(MatchCommunitySet.class, new MatchCommunitySetHandler(definedSets)),
             context.registerBgpConditionsAugmentationPolicy(MatchBgpNeighborCondition.class,
-                new MatchBgpNeighborSetHandler(resolver)),
+                new MatchBgpNeighborSetHandler(definedSets)),
             context.registerBgpConditionsAugmentationPolicy(MatchAfiSafiNotInCondition.class,
                 MatchAfiSafiNotInHandler.getInstance()),
             context.registerBgpConditionsAugmentationPolicy(VpnNonMemberCondition.class,
@@ -104,6 +105,6 @@ public final class StatementActivator extends AbstractBGPStatementProviderActiva
 
     @Override
     public String toString() {
-        return MoreObjects.toStringHelper(this).add("definedSets", resolver).toString();
+        return MoreObjects.toStringHelper(this).add("definedSets", definedSets).toString();
     }
 }

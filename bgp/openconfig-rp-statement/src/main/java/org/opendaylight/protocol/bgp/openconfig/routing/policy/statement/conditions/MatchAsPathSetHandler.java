@@ -19,27 +19,25 @@ import java.util.stream.Stream;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.bgp.match.conditions.MatchAsPathSet;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.routing.policy.defined.sets.bgp.defined.sets.as.path.sets.AsPathSet;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.policy.types.rev151009.MatchSetOptionsType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPath;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.as.path.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.AsPathSegment;
 
 /**
  * Match a set of AS (All, ANY, INVERT).
  */
 public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsPathSet, AsPath> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
-    public MatchAsPathSetHandler(final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
+    public MatchAsPathSetHandler(final DefinedSetsIndex definedSets) {
+        this.definedSets = requireNonNull(definedSets);
     }
 
     @Override
@@ -62,14 +60,14 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
     }
 
     private boolean match(final @NonNull AsPath asPath, final MatchAsPathSet conditions) {
-        final var matchSetOptions = conditions.getMatchSetOptions();
-        final AsPathSet asPathSetFilter = resolver.lookupAsPathSet(conditions.getAsPathSet());
-
-        final List<Segments> segments = asPath.getSegments();
+        final var asPathSetFilter = definedSets.lookupAsPathSet(conditions.getAsPathSet());
+        final var segments = asPath.getSegments();
         if (asPathSetFilter == null || segments == null) {
             return false;
         }
 
+        // FIXME: refactor this code
+        final var matchSetOptions = conditions.getMatchSetOptions();
         final List<AsNumber> l1 = segments.stream()
                 .map(AsPathSegment::getAsSequence)
                 .filter(Objects::nonNull)
@@ -88,8 +86,7 @@ public final class MatchAsPathSetHandler implements BgpConditionsPolicy<MatchAsP
 
         final Set<AsNumber> asPathSetFilterList = asPathSetFilter.getAsPathSetMember();
         if (matchSetOptions.equals(MatchSetOptionsType.ALL)) {
-            return allAs.containsAll(asPathSetFilterList)
-                    && asPathSetFilterList.containsAll(allAs);
+            return allAs.containsAll(asPathSetFilterList) && asPathSetFilterList.containsAll(allAs);
         }
         final boolean noneInCommon = Collections.disjoint(allAs, asPathSetFilterList);
         if (matchSetOptions.equals(MatchSetOptionsType.ANY)) {

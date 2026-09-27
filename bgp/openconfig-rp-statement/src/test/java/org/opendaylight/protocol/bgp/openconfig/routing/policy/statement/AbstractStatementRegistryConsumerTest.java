@@ -35,7 +35,7 @@ public class AbstractStatementRegistryConsumerTest extends AbstractStatementRegi
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        activator = new StatementActivator(new DefinedSetResolver(getDataBroker()));
+        activator = new StatementActivator(new LegacyDefinedSetsIndex(getDataBroker()));
         activator.start(statementRegistry);
     }
 
