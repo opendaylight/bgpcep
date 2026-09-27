@@ -24,7 +24,6 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
@@ -74,9 +73,10 @@ import org.osgi.service.component.annotations.Reference;
  *
  * @since 3.0.0
  */
+// FIXME: this class does not invalidate caches and should be refactored, so that we inline the caches to their users
 @Singleton
-@Component(service = DefinedSetResolver.class)
-public final class DefinedSetResolver {
+@Component
+public final class LegacyDefinedSetsIndex implements DefinedSetsIndex {
     private abstract class Loader<K extends ChildOf<?>, V> extends CacheLoader<@NonNull String, V> {
         @Override
         public final V load(final String key) throws ExecutionException, InterruptedException {
@@ -280,37 +280,42 @@ public final class DefinedSetResolver {
     @Inject
     @Activate
     @NonNullByDefault
-    public DefinedSetResolver(@Reference final DataBroker dataBroker) {
+    public LegacyDefinedSetsIndex(@Reference final DataBroker dataBroker) {
         this.dataBroker = requireNonNull(dataBroker);
     }
 
-    public @Nullable AsPathSet lookupAsPathSet(final String asPathSetRef) {
+    @Override
+    public AsPathSet lookupAsPathSet(final String asPathSetRef) {
         return lookupRef(asPathSets, asPathSetRef).orElse(null);
     }
 
     // FIXME: @Nullable
+    @Override
     public List<Communities> lookupCommunitySet(final String communitySetRef) {
         return lookupRef(communitySets, communitySetRef);
     }
 
-    // FIXME: @Nullable
+    @Override
     public List<ExtendedCommunities> lookupExtCommunitySet(final String extCommunitySetRef) {
         return lookupRef(extCommunitySets, extCommunitySetRef);
     }
 
-    public @Nullable ClusterIdSet lookupClusterIdSet(final String clusterIdSetRef) {
+    @Override
+    public ClusterIdSet lookupClusterIdSet(final String clusterIdSetRef) {
         return lookupRef(clusterIdSets, clusterIdSetRef).orElse(null);
     }
 
-    // FIXME: @Nullable
+    @Override
     public List<PeerId> lookupNeighborSet(final String neighborSetRef) {
         return lookupRef(peerSets, neighborSetRef);
     }
 
-    public @Nullable OriginatorIdSet lookupOriginatorIdSet(final String originatorIdSetRef) {
+    @Override
+    public OriginatorIdSet lookupOriginatorIdSet(final String originatorIdSetRef) {
         return lookupRef(originatorIdSets, originatorIdSetRef).orElse(null);
     }
 
+    @Override
     public Set<PeerRole> lookupRoleSets(final String roleSetRef) {
         return lookupRef(roleSets, roleSetRef);
     }
