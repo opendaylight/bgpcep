@@ -16,7 +16,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.action.BgpActionPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.policy.rev151009.BgpSetCommunityOptionType;
@@ -32,11 +32,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
  * Prepend / Replace / Remove a set of communities.
  */
 public final class SetCommunityHandler implements BgpActionPolicy<SetCommunity> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
     @NonNullByDefault
-    public SetCommunityHandler(final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
+    public SetCommunityHandler(final DefinedSetsIndex definedSets) {
+        this.definedSets = requireNonNull(definedSets);
     }
 
     @Override
@@ -63,7 +63,7 @@ public final class SetCommunityHandler implements BgpActionPolicy<SetCommunity> 
                     .build())
                 .toList(), bgpActions.getOptions());
             case Reference reference -> inlineSetComm(attributes,
-                resolver.lookupCommunitySet(reference.getCommunitySetRef()), bgpActions.getOptions());
+                definedSets.lookupCommunitySet(reference.getCommunitySetRef()), bgpActions.getOptions());
             default -> throw new UnsupportedOperationException(
                 "Unsupported method " + setCommunityMethod.implementedCase().getName());
         };

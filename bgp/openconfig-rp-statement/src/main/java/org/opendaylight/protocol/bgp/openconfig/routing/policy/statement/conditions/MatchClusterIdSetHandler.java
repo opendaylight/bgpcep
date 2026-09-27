@@ -15,7 +15,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.RouteEntryBaseAttributes;
 import org.opendaylight.protocol.bgp.openconfig.routing.policy.spi.policy.condition.BgpConditionsAugmentationPolicy;
-import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetResolver;
+import org.opendaylight.protocol.bgp.openconfig.routing.policy.statement.DefinedSetsIndex;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryExportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
@@ -30,10 +30,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.
  */
 public final class MatchClusterIdSetHandler
         implements BgpConditionsAugmentationPolicy<MatchClusterIdSetCondition, ClusterId> {
-    private final @NonNull DefinedSetResolver resolver;
+    private final @NonNull DefinedSetsIndex definedSets;
 
-    public MatchClusterIdSetHandler(final DefinedSetResolver resolver) {
-        this.resolver = requireNonNull(resolver);
+    public MatchClusterIdSetHandler(final DefinedSetsIndex definedSets) {
+        this.definedSets = requireNonNull(definedSets);
     }
 
     @Override
@@ -59,7 +59,7 @@ public final class MatchClusterIdSetHandler
             final @Nullable ClusterIdentifier paramClusterId, final MatchClusterIdSetCondition conditions) {
         final var localClusterId = paramClusterId != null ? paramClusterId : routeEntryInfo.getClusterId();
         final var matchClusterIdSetCondition = conditions.getMatchClusterIdSetCondition();
-        final var clusterIdSet = resolver.lookupClusterIdSet(matchClusterIdSetCondition.getClusterIdSet());
+        final var clusterIdSet = definedSets.lookupClusterIdSet(matchClusterIdSetCondition.getClusterIdSet());
         if (clusterIdSet == null) {
             return false;
         }
