@@ -45,7 +45,6 @@ IPV4_IP_TEMPLATE = "127.0.0.{i}"
 IPV6_IP_TEMPLATE = "2607:f0d0:1002:0011:0000:0000:0000:{i:04d}"
 IPV6_IP_2_TEMPLATE = "2607:f0d0:1002:11:0:0:0:{i}"
 IPV6_IP_3_TEMPLATE = "2607:f0d0:1002:11::{i}"
-IPV6_IP_GW = "2607:f0d0:1002:0011:0000:0000:0000:0001"
 IPV6_PREFIX_LENGTH = 64
 HOLDTIME = 180
 RIB_INSTANCE = "example-bgp-rib"
@@ -67,17 +66,25 @@ class TestBgpIpv6Basic:
     exabgp_process = None
 
     def configure_ipv6_network(self):
-        """Reconfigures basic network settings on controller."""
+        """Adds every exabgp peer's IPv6 address to the loopback interface.
+
+        The operation is idempotent: addresses that are already assigned,
+        e.g. by a previous run, are kept as is.
+
+        Requires the CAP_NET_ADMIN capability."""
         main_net_interface = "lo"
         for i in range(BGP_PEERS_COUNT):
             IPV6_IP = f"2607:f0d0:1002:0011:0000:0000:0000:{i+2:04d}"
-            infra.shell(
-                (
-                    f"ip -6 addr add {IPV6_IP}/{IPV6_PREFIX_LENGTH} "
-                    f"dev {main_net_interface}"
-                )
+            # "replace" succeeds also when the address is already present
+            rc, stdout = infra.shell(
+                f"ip -6 addr replace {IPV6_IP}/{IPV6_PREFIX_LENGTH} "
+                f"dev {main_net_interface} 2>&1"
             )
-        infra.shell(f"ip -6 route add default via {IPV6_IP_GW}")
+            assert rc == 0, (
+                f"Cannot add IPv6 address {IPV6_IP} to {main_net_interface}: "
+                f"{stdout.strip()}. Adding IP addresses requires the "
+                "CAP_NET_ADMIN capability."
+            )
         rc, stdout = infra.shell("ip -6 addr show")
         log.info(stdout)
         rc, stdout = infra.shell("ip -6 route show")
