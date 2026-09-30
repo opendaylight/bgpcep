@@ -21,6 +21,9 @@ from libraries import ssh_utils
 from libraries import utils
 from libraries.KarafShell import KarafShell
 from libraries.RemoteSSHSessionHandler import RemoteSSHSessionHandler
+from libraries.variables import variables
+
+CONTROLLER_MAX_MEM = variables.CONTROLLER_MAX_MEM
 
 KARAF_SHELL_INSTANCE = None
 
@@ -305,7 +308,7 @@ def start_odl_with_features(features: tuple[str], timeout: int = 60):
     )
 
     # start ODL
-    shell("JAVA_OPTS=-Xmx8g ./bin/start", cwd="opendaylight")
+    shell(f"JAVA_OPTS=-Xmx{CONTROLLER_MAX_MEM} ./bin/start", cwd="opendaylight")
 
     # wait for proper message with timeout
     interval = 5

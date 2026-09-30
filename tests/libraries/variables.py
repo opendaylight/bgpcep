@@ -36,6 +36,9 @@ class Variables(BaseSettings):
     TOOLS_USER: str = "admin"
     TOOLS_PASSWORD: str = "admin"
     KARAF_LOG_LEVEL: str = "INFO"
+    # Java heap for an ODL instance started on its own. The ingest
+    # performance suites are sized against this value.
+    CONTROLLER_MAX_MEM: str = "8G"
     TEST_DURATION_MULTIPLIER: int = 1
     TOPOLOGY_URL: str = "rests/data/network-topology:network-topology/topology"
     DEFAULT_PCEP_STATS_UPDATE_INTERVAL: int = 5
