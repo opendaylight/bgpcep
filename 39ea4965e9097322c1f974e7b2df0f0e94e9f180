@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "09be0aa3_1c11613e",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-01T07:58:06Z",
+      "side": 1,
+      "message": "Would it not be better to use inheritance instead of listing all items? It would be possible for example to use in the base class this:\n\n    class BaseTestSinglePeerPrefixCountClustering:\n\n    def run_scenario(self, allure_step_with_separate_logging, prefixes_count, bgp_filling_timeout):\n        \"\"\"Runs the advertise-and-withdraw part against the configured peer.\n        Subclasses override this to change how often it runs.\"\"\"\n        self.run_ingest_cycle(allure_step_with_separate_logging, prefixes_count, bgp_filling_timeout)\n\n    def run_ingest_cycle(self, allure_step_with_separate_logging, prefixes_count, bgp_filling_timeout):\n        ...  # today\u0027s module-level run_ingest_cycle body, unchanged\n\n    def test_single_peer_prefix_count_clustering(self, allure_step_with_separate_logging, prefixes_count):\n        ...description, bgp_filling_timeout...\n        ...step_check_for_empty_topology_before_talking...\n        ...step_reconfigure_odl_to_accept_connection...\n        try:\n            self.run_scenario(allure_step_with_separate_logging, prefixes_count, bgp_filling_timeout)\n        finally:\n            ...step_delete_bgp_peer_configuration...\n\nand in here only overwrite the `run_scenario` function\n\n    def run_scenario(self, allure_step_with_separate_logging, prefixes_count, bgp_filling_timeout):\n        # Repeat the single-pass cycle for the whole soak duration.\n        utils.verify_function_does_not_fail_for_duration(\n            LONGEVITY_TEST_DURATION_IN_SECS, SCENARIO_INTERVAL,\n            self.run_ingest_cycle, allure_step_with_separate_logging,\n            prefixes_count, bgp_filling_timeout,\n        )",
+      "revId": "39ea4965e9097322c1f974e7b2df0f0e94e9f180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f9af57f8_59b7e4ff",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-01T07:58:06Z",
+      "side": 1,
+      "message": "It is important to think about logging. Running this test for hours would produce a lot of log entries and some of them stay in RAM until the test ends, both in the step logging and in pytest\u0027s own log capture. This needs to be handled somehow.",
+      "revId": "39ea4965e9097322c1f974e7b2df0f0e94e9f180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "95b1efe6_41053ef0",
+        "filename": "tests/suites/suite_order.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-01T07:58:06Z",
+      "side": 1,
+      "message": "It might be good to put longevity test as last since the are long running.",
+      "revId": "39ea4965e9097322c1f974e7b2df0f0e94e9f180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
