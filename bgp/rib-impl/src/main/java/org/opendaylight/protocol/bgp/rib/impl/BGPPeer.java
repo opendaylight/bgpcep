@@ -358,8 +358,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (isLocalRestarting()) {
             if (missingEOT.isEmpty()) {
                 createEffRibInWriter();
-                effRibInWriter.init();
-                registerPrefixesCounters(effRibInWriter, effRibInWriter);
+
                 for (var key : getAfiSafisAdvertized()) {
                     createAdjRibOutListener(key, true);
                 }
@@ -416,9 +415,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             peerPath = createPeerPath(peerId);
             peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
             createEffRibInWriter();
-            registerPrefixesCounters(effRibInWriter, effRibInWriter);
-
-            effRibInWriter.init();
             ribWriter = ribWriter.transform(peerId, peerPath, rib.getRibSupportContext(), tables, addPathTableMaps);
 
             if (rpcRegistry != null) {
@@ -541,6 +537,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         effRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath, tables, tableTypeRegistry, rtMemberships,
             rtCache);
+        registerPrefixesCounters(effRibInWriter.prefixesReceived(), effRibInWriter.prefixesInstalled());
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability
