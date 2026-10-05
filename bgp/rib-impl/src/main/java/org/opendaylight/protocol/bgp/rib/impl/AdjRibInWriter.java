@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
@@ -57,7 +56,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
@@ -78,17 +76,6 @@ final class AdjRibInWriter {
     private static final NodeIdentifier PEER_ROLE = NodeIdentifier.create(PEER_ROLE_QNAME);
     private static final NodeIdentifier PEER_TABLES = NodeIdentifier.create(SupportedTables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
-
-    // FIXME: is there a utility method to construct this?
-    private static final MapNode EMPTY_TABLES = ImmutableNodes.newSystemMapBuilder()
-        .withNodeIdentifier(TABLES_NID)
-        .build();
-    private static final ContainerNode EMPTY_ADJRIBIN = ImmutableNodes.newContainerBuilder()
-            .withNodeIdentifier(ADJRIBIN_NID).addChild(EMPTY_TABLES).build();
-    private static final ContainerNode EMPTY_EFFRIBIN = ImmutableNodes.newContainerBuilder()
-            .withNodeIdentifier(EFFRIBIN_NID).addChild(EMPTY_TABLES).build();
-    private static final ContainerNode EMPTY_ADJRIBOUT = ImmutableNodes.newContainerBuilder()
-            .withNodeIdentifier(ADJRIBOUT_NID).addChild(EMPTY_TABLES).build();
 
     private final Map<TablesKey, TableContext> tables;
     private final YangInstanceIdentifier ribPath;
@@ -234,10 +221,6 @@ final class AdjRibInWriter {
             .withNodeIdentifier(peerKey)
             .withChild(ImmutableNodes.leafNode(PEER_ID, peerId))
             .withChild(ImmutableNodes.leafNode(PEER_ROLE, role.getName()))
-            .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(PEER_TABLES).build())
-            .withChild(EMPTY_ADJRIBIN)
-            .withChild(EMPTY_EFFRIBIN)
-            .withChild(EMPTY_ADJRIBOUT)
             .build();
     }
 
