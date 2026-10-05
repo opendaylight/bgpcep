@@ -19,20 +19,15 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_
 
 import com.google.common.base.VerifyException;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.LongAdder;
-import java.util.function.Function;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -99,8 +94,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This class is NOT thread-safe.
  */
-final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesInstalledCounters,
-        AutoCloseable, DOMDataTreeChangeListener {
+final class EffectiveRibInWriter implements AutoCloseable, DOMDataTreeChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     private static final TablesKey IVP4_VPN_TABLE_KEY =
         new TablesKey(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE);
@@ -117,14 +111,13 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         .build();
 
     private final @NonNull RIBSupportContextRegistry registry;
-    private final @NonNull YangInstanceIdentifier peerIId;
     private final @NonNull YangInstanceIdentifier effRibTables;
     private final @NonNull DataTreeChangeExtension service;
     private final List<RouteTarget> rtMemberships;
     private final @NonNull RibOutRefresh vpnTableRefresher;
     private final ClientRouteTargetContrainCache rtCache;
-    private final Map<TablesKey, LongAdder> prefixesReceived;
-    private final Map<TablesKey, LongAdder> prefixesInstalled;
+    private final PrefixCounters.@NonNull Received prefixesReceived;
+    private final PrefixCounters.@NonNull Installed prefixesInstalled;
     private final @NonNull BGPRibRoutingPolicy ribPolicies;
     private final BGPRouteEntryImportParameters peerImportParameters;
     private final @NonNull BGPTableTypeRegistryConsumer tableTypeRegistry;
@@ -146,10 +139,9 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             final ClientRouteTargetContrainCache rtCache) {
         registry = requireNonNull(rib.getRibSupportContext());
         this.chain = requireNonNull(chain);
-        this.peerIId = requireNonNull(peerIId);
-        effRibTables = this.peerIId.node(EFFRIBIN_NID);
-        prefixesInstalled = buildPrefixesTables(tables);
-        prefixesReceived = buildPrefixesTables(tables);
+        effRibTables = peerIId.node(EFFRIBIN_NID);
+        prefixesReceived = new PrefixCounters.Received(tables);
+        prefixesInstalled = new PrefixCounters.Installed(tables);
         ribPolicies = requireNonNull(rib.getRibPolicies());
         service = requireNonNull(rib.getService());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
@@ -157,17 +149,19 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         this.rtMemberships = rtMemberships;
         this.rtCache = rtCache;
         vpnTableRefresher = rib;
-    }
 
-    public void init() {
-        LOG.debug("Registered Effective RIB on {}", peerIId);
         reg = service.registerTreeChangeListener(
             DOMDataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, peerIId.node(ADJRIBIN_NID).node(TABLES_NID)),
             this);
+        LOG.debug("Registered Effective RIB on {}", peerIId);
     }
 
-    private static Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
-        return tables.stream().collect(ImmutableMap.toImmutableMap(Function.identity(), unused -> new LongAdder()));
+    @NonNull PrefixesReceivedCounters prefixesReceived() {
+        return prefixesReceived;
+    }
+
+    @NonNull PrefixesInstalledCounters prefixesInstalled() {
+        return prefixesInstalled;
     }
 
     @Override
@@ -236,35 +230,8 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             chain.close();
             chain = null;
         }
-        prefixesReceived.values().forEach(LongAdder::reset);
-        prefixesInstalled.values().forEach(LongAdder::reset);
-    }
-
-    @Override
-    public long getPrefixedReceivedCount(final TablesKey tablesKey) {
-        final var counter = prefixesReceived.get(tablesKey);
-        return counter == null ? 0 : counter.longValue();
-    }
-
-    @Override
-    public Set<TablesKey> getTableKeys() {
-        return ImmutableSet.copyOf(prefixesReceived.keySet());
-    }
-
-    @Override
-    public boolean isSupported(final TablesKey tablesKey) {
-        return prefixesReceived.containsKey(tablesKey);
-    }
-
-    @Override
-    public long getPrefixedInstalledCount(final TablesKey tablesKey) {
-        final var counter = prefixesInstalled.get(tablesKey);
-        return counter == null ? 0 : counter.longValue();
-    }
-
-    @Override
-    public long getTotalPrefixesInstalled() {
-        return prefixesInstalled.values().stream().mapToLong(LongAdder::longValue).sum();
+        prefixesReceived.clear();
+        prefixesInstalled.clear();
     }
 
     @GuardedBy("this")
@@ -414,16 +381,15 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
     private void onRoutesDeleted(final RIBSupport ribSupport, final YangInstanceIdentifier effectiveTablePath,
             final Collection<MapEntryNode> deletedRoutes) {
-        if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(ribSupport.getTablesKey().getSafi())) {
+        final var table = ribSupport.getTablesKey();
+        if (RouteTargetConstrainSubsequentAddressFamily.VALUE.equals(table.getSafi())) {
             final var routesPath = routeMapPath(ribSupport, effectiveTablePath);
             for (var routeBefore : deletedRoutes) {
                 deleteRouteTarget(ribSupport, routesPath.node(routeBefore.name()), routeBefore);
             }
             rtMembershipsUpdated = true;
         }
-
-        final var tablesKey = ribSupport.getTablesKey();
-        CountersUtil.add(prefixesInstalled.get(tablesKey), tablesKey, -deletedRoutes.size());
+        prefixesInstalled.decrement(table, deletedRoutes.size());
     }
 
     private void processRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport ribSupport,
@@ -446,15 +412,14 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         handleRouteTarget(ModificationType.DELETE, ribSupport, routeIdPath, route);
         tx.delete(LogicalDatastoreType.OPERATIONAL, routeIdPath);
         LOG.debug("Route deleted. routeId={}", routeIdPath);
-        final var tablesKey = ribSupport.getTablesKey();
-        CountersUtil.decrement(prefixesInstalled.get(tablesKey), tablesKey);
+        prefixesInstalled.decrement(ribSupport.getTablesKey());
     }
 
     private void writeRoute(final DOMDataTreeWriteTransaction tx, final RIBSupport ribSupport,
             final YangInstanceIdentifier routePath, final @Nullable NormalizedNode routeBefore,
             final @NonNull NormalizedNode routeAfter, final boolean longLivedStale) {
-        final var tablesKey = ribSupport.getTablesKey();
-        CountersUtil.increment(prefixesReceived.get(tablesKey), tablesKey);
+        final var table = ribSupport.getTablesKey();
+        prefixesReceived.increment(table);
 
         // Lookup per-table attributes from RIBSupport
         final var advertisedAttrs = (ContainerNode) NormalizedNodes.findNode(routeAfter,
@@ -473,7 +438,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             effAttrs = wrapLongLivedStale(routeAttrs);
         } else {
             effAttrs = ribPolicies.applyImportPolicies(peerImportParameters, routeAttrs,
-                verifyNotNull(tableTypeRegistry.getAfiSafiType(ribSupport.getTablesKey())));
+                verifyNotNull(tableTypeRegistry.getAfiSafiType(table)));
         }
         if (effAttrs == null) {
             deleteRoute(tx, ribSupport, routePath, routeBefore);
@@ -482,7 +447,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         handleRouteTarget(ModificationType.WRITE, ribSupport, routePath, routeAfter);
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, routeAfter);
-        CountersUtil.increment(prefixesInstalled.get(tablesKey), tablesKey);
+        prefixesInstalled.increment(table);
 
         // deep comparison to prevent datastore churn
         if (!effAttrs.equals(routeAttrs)) {
