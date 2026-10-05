@@ -35,11 +35,10 @@ import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 
 /**
- * Interface implemented for AFI/SAFI-specific RIB extensions. The extensions need
- * to register an implementation of this class and the RIB core then calls into it
- * to inquire about details specific to that particular model.
+ * Interface implemented for AFI/SAFI-specific RIB extensions. The extensions need to register an implementation of this
+ * class and the RIB core then calls into it to inquire about details specific to that particular model.
  */
-public interface RIBSupport {
+public sealed interface RIBSupport permits AbstractRIBSupport {
     /**
      * Return the table-type-specific empty table with routes empty container, as augmented into the
      * bgp-rib model under /rib/tables/routes choice node. This needs to include all

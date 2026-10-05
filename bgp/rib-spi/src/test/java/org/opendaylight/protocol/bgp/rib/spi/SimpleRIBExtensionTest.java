@@ -55,7 +55,7 @@ public class SimpleRIBExtensionTest extends AbstractConcurrentDataBrokerTest {
         @Override
         public List<Registration> startRIBExtensionProvider(final RIBExtensionProviderContext context,
                 final BindingNormalizedNodeSerializer mappingService) {
-            final var support = mock(RIBSupport.class);
+            final var support = mock(AbstractRIBSupport.class);
             doReturn(Route.class).when(support).routesListClass();
             doReturn(DataObject.class).when(support).routesContainerClass();
             doReturn(DataObject.class).when(support).routesCaseClass();
