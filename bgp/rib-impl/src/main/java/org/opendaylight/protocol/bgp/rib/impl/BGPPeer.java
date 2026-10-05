@@ -535,7 +535,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         return isLocalRestarting() || isPeerRestarting();
     }
 
-    private synchronized void createEffRibInWriter() {
+    @GuardedBy("this")
+    private void createEffRibInWriter() {
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
 
