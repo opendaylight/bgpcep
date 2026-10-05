@@ -145,6 +145,10 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
     private WithKey<LinkstateRoute, LinkstateRouteKey> linkstatePrefixRouteIID;
     private WithKey<LinkstateRoute, LinkstateRouteKey> linkstateLinkRouteIID;
 
+    public LinkstateTopologyBuilderTest() {
+        super(true);
+    }
+
     @Before
     @Override
     public void setUp() {

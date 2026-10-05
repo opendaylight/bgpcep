@@ -46,7 +46,6 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 
 // FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilderTest {
-
     static final Uint32 PATH_ID = Uint32.ONE;
     private static final String ROUTE_IP4PREFIX = "127.1.0.0/32";
     private static final String NEXT_HOP = "127.1.0.1";
@@ -54,6 +53,10 @@ public class Ipv4ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
 
     private Ipv4ReachabilityTopologyBuilder ipv4TopoBuilder;
     private WithKey<Ipv4Route, Ipv4RouteKey> ipv4RouteIID;
+
+    public Ipv4ReachabilityTopologyBuilderTest() {
+        super(false);
+    }
 
     @Before
     @Override
