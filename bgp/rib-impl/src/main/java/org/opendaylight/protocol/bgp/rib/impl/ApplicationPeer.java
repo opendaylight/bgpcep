@@ -144,8 +144,8 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
 
-        effectiveRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath, localTables, tableTypeRegistry,
-            new ArrayList<>(), rtCache);
+        effectiveRibInWriter = new EffectiveRibInWriter(newImportParams(), rib, chain, peerPath, localTables,
+            tableTypeRegistry, new ArrayList<>(), rtCache);
         bgpSessionState.registerMessagesCounter(this);
         trackerRegistration = rib.getPeerTracker().registerPeer(this);
     }

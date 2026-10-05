@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -55,9 +57,40 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract sealed class AbstractPeer extends BGPPeerStateImpl
-        implements BGPRouteEntryImportParameters, Peer, PeerTransactionChain, FutureCallback<Empty>
+abstract sealed class AbstractPeer extends BGPPeerStateImpl implements Peer, PeerTransactionChain, FutureCallback<Empty>
         permits ApplicationPeer, BGPPeer {
+    @NonNullByDefault
+    private record ImportParams(
+            PeerRole peerRole,
+            PeerId peerId,
+            @Nullable ClusterIdentifier clusterId,
+            @Nullable AsNumber peerLocalAs) implements BGPRouteEntryImportParameters {
+        ImportParams {
+            requireNonNull(peerRole);
+            requireNonNull(peerId);
+        }
+
+        @Override
+        public PeerRole getFromPeerRole() {
+            return peerRole;
+        }
+
+        @Override
+        public PeerId getFromPeerId() {
+            return peerId;
+        }
+
+        @Override
+        public @Nullable ClusterIdentifier getFromClusterId() {
+            return clusterId;
+        }
+
+        @Override
+        public @Nullable AsNumber getFromPeerLocalAs() {
+            return peerLocalAs;
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
 
     final RTCClientRouteCache rtCache = new RTCClientRouteCache();
@@ -137,6 +170,11 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         return rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(newPeerId));
     }
 
+    @GuardedBy("this")
+    final @NonNull BGPRouteEntryImportParameters newImportParams() {
+        return new ImportParams(role, verifyNotNull(peerId), clusterId, localAs);
+    }
+
     @Override
     public final synchronized PeerId getPeerId() {
         return peerId;
@@ -145,21 +183,6 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     @Override
     public final PeerRole getRole() {
         return role;
-    }
-
-    @Override
-    public final PeerRole getFromPeerRole() {
-        return getRole();
-    }
-
-    @Override
-    public final PeerId getFromPeerId() {
-        return getPeerId();
-    }
-
-    @Override
-    public final ClusterIdentifier getFromClusterId() {
-        return getClusterId();
     }
 
     @Override
@@ -175,11 +198,6 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     @Override
     public final BGPAfiSafiState getBGPAfiSafiState() {
         return this;
-    }
-
-    @Override
-    public final AsNumber getFromPeerLocalAs() {
-        return getLocalAs();
     }
 
     @Override
