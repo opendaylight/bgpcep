@@ -32,6 +32,10 @@ public abstract class AbstractTopologyBuilderTest extends AbstractConcurrentData
         .child(Rib.class, new RibKey(requireNonNull(new RibId("test-rib"))))
         .build());
 
+    protected AbstractTopologyBuilderTest(final boolean useMTDataTreeChangeListenerExecutor) {
+        super(useMTDataTreeChangeListenerExecutor);
+    }
+
     @Before
     public void setUp() {
         createEmptyTopology();
