@@ -52,6 +52,10 @@ public class Ipv6ReachabilityTopologyBuilderTest extends AbstractTopologyBuilder
     private Ipv6ReachabilityTopologyBuilder ipv6TopoBuilder;
     private WithKey<Ipv6Route, Ipv6RouteKey> ipv6RouteIID;
 
+    public Ipv6ReachabilityTopologyBuilderTest() {
+        super(false);
+    }
+
     @Before
     @Override
     public void setUp() {
