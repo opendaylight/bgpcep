@@ -56,7 +56,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -196,10 +195,9 @@ final class AdjRibInWriter {
             final RIBSupportContext rs, final DOMDataTreeWriteTransaction tx,
             final Builder<TablesKey, TableContext> tb) {
         // We will use table keys very often, make sure they are optimized
-        final InstanceIdentifierBuilder idb = YangInstanceIdentifier.builder(newPeerPath
-                .node(EMPTY_ADJRIBIN.name()).node(TABLES_NID)).node(rs.getRibSupport().tablesKey());
-
-        final TableContext ctx = new TableContext(rs, idb.build());
+        final var ctx = new TableContext(rs, YangInstanceIdentifier.builder(newPeerPath)
+                .node(ADJRIBIN_NID).node(TABLES_NID).node(rs.getRibSupport().tablesKey())
+                .build());
         ctx.createEmptyTableStructure(tx);
 
         tx.merge(LogicalDatastoreType.OPERATIONAL, ctx.getTableId().node(ATTRIBUTES_NID).node(UPTODATE_NID),
@@ -220,8 +218,7 @@ final class AdjRibInWriter {
             tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.getName()));
         }
         tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
-        rs.createEmptyTableStructure(tx,
-            newPeerPath.node(EMPTY_ADJRIBOUT.name()).node(TABLES_NID).node(tableKey));
+        rs.createEmptyTableStructure(tx, newPeerPath.node(ADJRIBOUT_NID).node(TABLES_NID).node(tableKey));
     }
 
     private void createEmptyPeerStructure(final PeerId newPeerId,
