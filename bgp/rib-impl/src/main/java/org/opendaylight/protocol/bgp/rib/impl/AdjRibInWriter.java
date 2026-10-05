@@ -43,7 +43,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
-import org.opendaylight.protocol.bgp.rib.spi.PeerRoleUtil;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
@@ -237,7 +236,7 @@ final class AdjRibInWriter {
         return ImmutableNodes.newMapEntryBuilder()
             .withNodeIdentifier(peerKey)
             .withChild(ImmutableNodes.leafNode(PEER_ID, peerId))
-            .withChild(ImmutableNodes.leafNode(PEER_ROLE, PeerRoleUtil.roleForString(role)))
+            .withChild(ImmutableNodes.leafNode(PEER_ROLE, role.getName()))
             .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(PEER_TABLES).build())
             .withChild(EMPTY_ADJRIBIN)
             .withChild(EMPTY_EFFRIBIN)
