@@ -536,8 +536,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
 
-        effRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath, tables, tableTypeRegistry, rtMemberships,
-            rtCache);
+        effRibInWriter = new EffectiveRibInWriter(newImportParams(), rib, chain, peerPath, tables, tableTypeRegistry,
+            rtMemberships, rtCache);
         registerPrefixesCounters(effRibInWriter.prefixesReceived(), effRibInWriter.prefixesInstalled());
     }
 
