@@ -84,7 +84,7 @@ import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidateNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class AbstractRIBSupport<
+public non-sealed abstract class AbstractRIBSupport<
         C extends CaseObject<Tables, ? extends Routes, C>,
         S extends ContainerObject<? super C, S>,
         R extends Route & EntryObject<? super S, ?, ?>> implements RIBSupport {
