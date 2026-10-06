@@ -16,6 +16,24 @@
       "message": "Please move peerAddedListeners attribute under peers attribute.",
       "revId": "deb4c6a6aa9b01631af01782d07064db32cf95e6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0f9059ba_0a8a0d15",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/BGPPeerTrackerImpl.java",
+        "patchSetId": 27
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-10-06T14:48:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "df1fd5a5_6ebd82da",
+      "revId": "deb4c6a6aa9b01631af01782d07064db32cf95e6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
