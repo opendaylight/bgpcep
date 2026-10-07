@@ -18,13 +18,12 @@ import io.netty.util.TimerTask;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgpcep.pcep.server.PceServerProvider;
 import org.opendaylight.bgpcep.programming.spi.InstructionSchedulerFactory;
@@ -100,8 +99,9 @@ public final class PCEPTopologyTracker
     //
     // In order to achieve that without risking deadlocks, instances are tracked using a concurrent map and each
     // 'create' edge allocates a new PCEPTopologyInstance object.
-    private final ConcurrentMap<TopologyKey, PCEPTopologySingleton> instances = new ConcurrentHashMap<>();
-    @GuardedBy("this")
+    private final ConcurrentHashMap<TopologyKey, PCEPTopologySingleton> instances = new ConcurrentHashMap<>();
+    private final AtomicBoolean closed = new AtomicBoolean();
+    // accessed once via close(), single-threadedness is guarded by 'closed' false->true CAS
     private Registration reg;
 
     @Inject
@@ -137,6 +137,7 @@ public final class PCEPTopologyTracker
         statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpc(dataBroker, rpcProviderRegistry);
 
+        // Must be the last statement: onDataTreeChanged() may be run before this call returns
         reg = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
             DataObjectReference.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
                 .augmentation(TopologyTypes1.class).child(TopologyPcep.class).build(), this);
@@ -181,9 +182,9 @@ public final class PCEPTopologyTracker
     @PreDestroy
     @Deactivate
     @Override
-    public synchronized void close() {
-        if (reg == null) {
-            // Already closed, bail out
+    public void close() {
+        if (!closed.compareAndSet(false, true)) {
+            // Already closed or closing, bail out
             return;
         }
 
@@ -191,6 +192,10 @@ public final class PCEPTopologyTracker
         reg.close();
         reg = null;
 
+        lockedClose();
+    }
+
+    private synchronized void lockedClose() {
         statsRpcs.close();
 
         // First pass: destroy all tracked instances
@@ -210,7 +215,7 @@ public final class PCEPTopologyTracker
 
     @Override
     public synchronized void onDataTreeChanged(final List<DataTreeModification<TopologyPcep>> changes) {
-        if (reg == null) {
+        if (closed.getAcquire()) {
             // Registration has been terminated, do not process any changes
             LOG.trace("PCEP Topology tracker is closed, ignoring changes");
             return;

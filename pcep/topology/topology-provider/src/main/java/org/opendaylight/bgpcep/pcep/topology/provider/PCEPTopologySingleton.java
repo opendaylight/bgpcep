@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.checkerframework.checker.lock.qual.GuardedBy;
 import org.checkerframework.checker.lock.qual.Holding;
 import org.eclipse.jdt.annotation.NonNull;
@@ -39,13 +40,14 @@ final class PCEPTopologySingleton {
 
     // The state for alive-and-kickin'. We are registered for cluster-wide instantiation
     private final class Active extends State implements ClusterSingletonService {
+        private final AtomicBoolean closed = new AtomicBoolean();
         private final InstructionScheduler scheduler;
 
         @GuardedBy("this")
         private SettableFuture<Empty> closeFuture;
         @GuardedBy("this")
         private PCEPTopologyInstance instance;
-        @GuardedBy("this")
+        // accessed once via terminate(), single-threadedness is guarded by 'closed' false->true CAS
         private Registration reg;
 
         Active() {
@@ -61,7 +63,7 @@ final class PCEPTopologySingleton {
 
         @Override
         public synchronized void instantiateServiceInstance() {
-            if (reg == null) {
+            if (closed.getAcquire()) {
                 LOG.trace("Topology {} instance {} is closed, instantiation skipped", topologyId(),
                     PCEPTopologySingleton.this);
                 return;
@@ -103,6 +105,15 @@ final class PCEPTopologySingleton {
         }
 
         ListenableFuture<?> terminate() {
+            if (!closed.compareAndSet(false, true)) {
+                throw new VerifyException(
+                    "Topology %s instance %s already terminating".formatted(topologyId(), PCEPTopologySingleton.this));
+            }
+
+            // Close the registration, potentially triggering closeServiceInstance(), which may even run on this thread
+            reg.close();
+            reg = null;
+
             // Acquire the service termination future and shut down the scheduler once it completes
             final var future = lockedTerminate();
             future.addListener(scheduler::close, MoreExecutors.directExecutor());
@@ -111,24 +122,18 @@ final class PCEPTopologySingleton {
 
         // This part of the shutdown procedure needs to synchronize with instantiation and closure
         private synchronized ListenableFuture<?> lockedTerminate() {
-            verifyNotNull(reg, "Topology %s instance %s already terminating", topologyId(), PCEPTopologySingleton.this);
-
-            final ListenableFuture<?> ret;
-            if (closeFuture == null) {
-                // Service is not being closed, we need to create a future...
-                ret = closeFuture = SettableFuture.create();
-                if (instance == null) {
-                    // ... and there is no instance, hence we need to also compete it immediate
-                    closeFuture.set(Empty.value());
-                }
-            } else {
+            var ret = closeFuture;
+            if (ret != null) {
                 // Service close is already going on, reuse that future
-                ret = closeFuture;
+                return ret;
             }
 
-            // Close the registration, potentially triggering closeServiceInstance(), which may even run on this thread
-            reg.close();
-            reg = null;
+            // Service is not being closed, we need to create a future...
+            closeFuture = ret = SettableFuture.create();
+            if (instance == null) {
+                // ... and there is no instance, hence we need to also compete it immediately
+                ret.set(Empty.value());
+            }
             return ret;
         }
     }
@@ -153,8 +158,8 @@ final class PCEPTopologySingleton {
 
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologySingleton.class);
 
-    private final PCEPTopologyTracker tracker;
-    private final TopologyKey topology;
+    private final @NonNull PCEPTopologyTracker tracker;
+    private final @NonNull TopologyKey topology;
 
     @GuardedBy("this")
     private State state;
