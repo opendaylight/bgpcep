@@ -7,12 +7,13 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static com.google.common.base.Verify.verifyNotNull;
+import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.mdsal.binding.api.DataListener;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -38,8 +39,11 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
     @GuardedBy("this")
     private Registration reg;
     @GuardedBy("this")
+    private boolean closed;
+    @GuardedBy("this")
     private boolean initialReceived;
 
+    @NonNullByDefault
     PCEPTopologyInstance(final TopologyKey topology, final PCEPTopologyProviderDependencies dependencies,
             final InstructionScheduler scheduler) {
         this.topology = requireNonNull(topology);
@@ -49,14 +53,15 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
             .build();
 
         provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
-
+        // Must be the last statement: dataChangedTo(...) may be run before this call returns
         reg = dependencies.getDataBroker().registerDataListener(LogicalDatastoreType.CONFIGURATION, instanceIdentifier,
             this);
         LOG.info("Topology instance for {} initialized", topologyId());
     }
 
     synchronized ListenableFuture<?> terminate() {
-        verifyNotNull(reg, "Topology %s instance %s already terminating", topologyId(), this);
+        verify(!closed, "Topology %s instance %s already terminating", topologyId(), this);
+        closed = true;
         reg.close();
         reg = null;
 
@@ -67,7 +72,7 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
 
     @Override
     public synchronized void dataChangedTo(final Topology data) {
-        if (reg == null) {
+        if (closed) {
             // We have been shut down, do not process any more updates
             LOG.trace("Topology {} instance is closed, ignoring update", topologyId());
             return;

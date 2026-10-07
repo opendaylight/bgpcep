@@ -105,6 +105,8 @@ public final class PCEPTopologyTracker
     private final ConcurrentMap<TopologyKey, PCEPTopologySingleton> instances = new ConcurrentHashMap<>();
     @GuardedBy("this")
     private Registration reg;
+    @GuardedBy("this")
+    private boolean closed;
 
     @Inject
     @Activate
@@ -139,6 +141,7 @@ public final class PCEPTopologyTracker
         statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpc(dataBroker, rpcProviderRegistry);
 
+        // Must be the last statement: onDataTreeChanged() may be run before this call returns
         reg = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
             DataObjectReference.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
                 .augmentation(TopologyTypes1.class).child(TopologyPcep.class).build(), this);
@@ -184,12 +187,13 @@ public final class PCEPTopologyTracker
     @Deactivate
     @Override
     public synchronized void close() {
-        if (reg == null) {
+        if (closed) {
             // Already closed, bail out
             return;
         }
 
         LOG.info("PCEP Topology tracker shutting down");
+        closed = true;
         reg.close();
         reg = null;
 
@@ -212,7 +216,7 @@ public final class PCEPTopologyTracker
 
     @Override
     public synchronized void onDataTreeChanged(final List<DataTreeModification<TopologyPcep>> changes) {
-        if (reg == null) {
+        if (closed) {
             // Registration has been terminated, do not process any changes
             LOG.trace("PCEP Topology tracker is closed, ignoring changes");
             return;
