@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c1d9cbe_881a45bb",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-07T07:55:07Z",
+      "side": 1,
+      "message": "Done. insert/withdraw/prefill are test parameters now.",
+      "parentUuid": "bd55fdd0_67b9107b",
+      "revId": "3d67ed89e54a0207775e3e9a819d9477332a6da1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1fbd8dc8_17c51716",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-10-01T07:58:52Z",
       "side": 1,
       "message": "In here it could be uisng the bgp emptying timeout as seperate value which was by mistake not used in here https://git.opendaylight.org/gerrit/c/bgpcep/+/125390/2/tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes.py#b147\nbut should have been.",
+      "revId": "3d67ed89e54a0207775e3e9a819d9477332a6da1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9c1331eb_c2540de0",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-07T07:55:07Z",
+      "side": 1,
+      "message": "Done. Added bgp_emptying_timeout \u003d bgp_filling_timeout * 3 / 4 and used it for the post-kill wait. \n\nThough it was dead in Robot too: PrefixcountKeywords.robot sets ${bgp_emptying_timeout} but no bgpclustering suite reads it, unlike the bgpingest ones.",
+      "parentUuid": "1fbd8dc8_17c51716",
       "revId": "3d67ed89e54a0207775e3e9a819d9477332a6da1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
