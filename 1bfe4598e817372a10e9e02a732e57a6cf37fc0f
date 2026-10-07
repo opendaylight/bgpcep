@@ -34,6 +34,24 @@
       "parentUuid": "bac5ded7_457de83f",
       "revId": "1bfe4598e817372a10e9e02a732e57a6cf37fc0f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f781e50b_b7414739",
+        "filename": "tests/libraries/variables.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-07T07:35:56Z",
+      "side": 1,
+      "message": "Alright, so Martin - I split out separate commit as 126697.\nAnd Robert - The 4G is per cluster member (CLUSTER_MEMBER_MAX_MEM); single node currently stays 8G since the ingest performance suites need it. Verified the cluster forms at 4G. So please say if you\u0027d rather have 4G everywhere and ill get on it.",
+      "parentUuid": "68976384_8b4b679b",
+      "revId": "1bfe4598e817372a10e9e02a732e57a6cf37fc0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
