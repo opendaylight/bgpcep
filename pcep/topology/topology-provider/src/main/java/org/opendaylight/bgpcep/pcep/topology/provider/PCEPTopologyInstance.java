@@ -7,7 +7,7 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static com.google.common.base.Verify.verifyNotNull;
+import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -37,6 +37,10 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
     private PCEPTopologyProvider provider;
     @GuardedBy("this")
     private Registration reg;
+    // Tracked separately from reg, as the datastore may deliver the initial notification before
+    // registerDataListener() returns, i.e. while reg is still null
+    @GuardedBy("this")
+    private boolean closed;
     @GuardedBy("this")
     private boolean initialReceived;
 
@@ -50,13 +54,16 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
 
         provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
 
+        // Must be the last assignment: dataChangedTo() may run before this call returns, on this or another thread,
+        // and it relies on all other fields having been initialized
         reg = dependencies.getDataBroker().registerDataListener(LogicalDatastoreType.CONFIGURATION, instanceIdentifier,
             this);
         LOG.info("Topology instance for {} initialized", topologyId());
     }
 
     synchronized ListenableFuture<?> terminate() {
-        verifyNotNull(reg, "Topology %s instance %s already terminating", topologyId(), this);
+        verify(!closed, "Topology %s instance %s already terminating", topologyId(), this);
+        closed = true;
         reg.close();
         reg = null;
 
@@ -67,7 +74,7 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
 
     @Override
     public synchronized void dataChangedTo(final Topology data) {
-        if (reg == null) {
+        if (closed) {
             // We have been shut down, do not process any more updates
             LOG.trace("Topology {} instance is closed, ignoring update", topologyId());
             return;
