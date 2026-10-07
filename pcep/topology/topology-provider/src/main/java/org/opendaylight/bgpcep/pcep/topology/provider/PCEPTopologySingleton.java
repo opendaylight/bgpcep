@@ -46,10 +46,16 @@ final class PCEPTopologySingleton {
         private PCEPTopologyInstance instance;
         @GuardedBy("this")
         private Registration reg;
+        // Tracked separately from reg, as the singleton service provider may instantiate us before
+        // registerClusterSingletonService() returns, i.e. while reg is still null
+        @GuardedBy("this")
+        private boolean closed;
 
         Active() {
             scheduler = tracker.instructionSchedulerFactory.createInstructionScheduler(
                 topology.getTopologyId().getValue());
+            // Must be the last statement: instantiateServiceInstance() may run before this call returns, on this or
+            // another thread, and it relies on all other fields having been initialized
             reg = tracker.singletonService.registerClusterSingletonService(this);
         }
 
@@ -60,7 +66,7 @@ final class PCEPTopologySingleton {
 
         @Override
         public synchronized void instantiateServiceInstance() {
-            if (reg == null) {
+            if (closed) {
                 LOG.trace("Topology {} instance {} is closed, instantiation skipped", topologyId(),
                     PCEPTopologySingleton.this);
                 return;
@@ -110,7 +116,8 @@ final class PCEPTopologySingleton {
 
         // This part of the shutdown procedure needs to synchronize with instantiation and closure
         private synchronized ListenableFuture<?> lockedTerminate() {
-            verifyNotNull(reg, "Topology %s instance %s already terminating", topologyId(), PCEPTopologySingleton.this);
+            verify(!closed, "Topology %s instance %s already terminating", topologyId(), PCEPTopologySingleton.this);
+            closed = true;
 
             final ListenableFuture<?> ret;
             if (closeFuture == null) {
