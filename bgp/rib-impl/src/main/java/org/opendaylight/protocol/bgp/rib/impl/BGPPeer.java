@@ -108,8 +108,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private static final TablesKey IPV4_UCAST_TABLE_KEY =
         new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
-    private final RIB rib;
-
     // FIXME: Alright, this right here is a ton of state which has intertwined initialization and dependencies Split
     //        these out into separate behavior objects. This also has relationship with state in AbstractPeer -- which
     //        hints at an obvious layer of indirection. Yeah, yeah, we can always add one of those, but the point
@@ -172,7 +170,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId, localAs, neighborAddress,
             afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
-        this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
