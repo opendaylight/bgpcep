@@ -60,8 +60,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         permits ApplicationPeer, BGPPeer {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
 
-    final RTCClientRouteCache rtCache = new RTCClientRouteCache();
-    final RIB rib;
+    final @NonNull RTCClientRouteCache rtCache = new RTCClientRouteCache();
+    final @NonNull RIB rib;
 
     private final ClusterIdentifier clusterId;
     private final @NonNull PeerRole role;
@@ -103,11 +103,11 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             final Map<TablesKey, Uint24> afiSafisLlGracefulAdvertized) {
         super(rib.getInstanceIdentifier(), groupId, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized,
                 afiSafisLlGracefulAdvertized);
+        this.rib = rib;
         this.name = requireNonNull(name);
         this.role = requireNonNull(role);
         this.clusterId = clusterId;
         this.localAs = localAs;
-        this.rib = rib;
     }
 
     final synchronized FluentFuture<? extends CommitInfo> removePeer(final @Nullable YangInstanceIdentifier peerPath) {
