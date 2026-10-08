@@ -418,6 +418,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             createEffRibInWriter();
             registerPrefixesCounters(effRibInWriter, effRibInWriter);
 
+            trackerRegistration = rib.getPeerTracker().registerPeer(this);
             effRibInWriter.init();
             ribWriter = ribWriter.transform(peerId, peerPath, rib.getRibSupportContext(), tables, addPathTableMaps);
 
@@ -485,7 +486,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         // This initialization is separated from the !isRestartingGracefully() check at the top of this method
         // to enforce execution ordering. The listeners (created just above) must be created before the containers
-        // are created and the peer is exposed via registration.
+        // are created. The peer lock prevents route advertisements until initialization finishes.
         if (!isRestartingGracefully()) {
             initializeAdjRibOutTables();
         }
@@ -507,18 +508,11 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             .withNodeIdentifier(ADJRIBOUT_NID)
             .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(TABLES_NID).build())
             .build());
-        // Postpone registration until the containers exist in datastore
+        // Subsequent Adj-RIB-Out writes use the same chain and follow this initialization.
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                synchronized (BGPPeer.this) {
-                    // Prevent registration if the session dropped during write
-                    if (sessionUp) {
-                        trackerRegistration = rib.getPeerTracker().registerPeer(BGPPeer.this);
-                    } else {
-                        LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId);
-                    }
-                }
+                LOG.debug("Initialized adj-rib-out for peer {}", peerId);
             }
 
             @Override
