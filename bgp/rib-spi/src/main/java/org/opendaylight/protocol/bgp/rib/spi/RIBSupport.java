@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -89,12 +89,11 @@ public sealed interface RIBSupport permits AbstractRIBSupport {
      * Given the NLRI as ContainerNode, this method should extract withdrawn routes
      * from the DOM model and delete them from RIBs.
      *
-     * @param tx        DOMDataWriteTransaction
+     * @param tx           the transaction
      * @param tablePath YangInstanceIdentifier
      * @param nlri      ContainerNode DOM representation of NLRI in Update message
      */
-    // FIXME: operate on DOMDataTreeWriteOperations
-    void deleteRoutes(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
+    void deleteRoutes(@NonNull DOMDataTreeWriteOperations tx, @NonNull YangInstanceIdentifier tablePath,
             @NonNull ContainerNode nlri);
 
     /**
@@ -105,27 +104,25 @@ public sealed interface RIBSupport permits AbstractRIBSupport {
      * Provide {@link NodeIdentifier} with customized "routes" QName.
      * For default "bgp-rib" RIBs use {@link #deleteRoutes}
      *
-     * @param tx           DOMDataWriteTransaction
+     * @param tx           the transaction
      * @param tablePath    YangInstanceIdentifier
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param routesNodeId NodeIdentifier of "routes" data node
      */
-    // FIXME: operate on DOMDataTreeWriteOperations
-    void deleteRoutes(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier tablePath,
+    void deleteRoutes(@NonNull DOMDataTreeWriteOperations tx, @NonNull YangInstanceIdentifier tablePath,
             @NonNull ContainerNode nlri, @NonNull NodeIdentifier routesNodeId);
 
     /**
      * Given the NLRI as ContainerNode, this method should extract advertised routes
      * from the DOM model and put them into RIBs.
      *
-     * @param tx         DOMDataWriteTransaction
+     * @param tx           the transaction
      * @param tablePath  YangInstanceIdentifier
      * @param nlri       ContainerNode DOM representation of NLRI in Update message
      * @param attributes ContainerNode
      * @return List of processed route Identifiers
      */
-    // FIXME: operate on DOMDataTreeWriteOperations
-    Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataTreeWriteTransaction tx,
+    List<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataTreeWriteOperations tx,
             @NonNull YangInstanceIdentifier tablePath, @NonNull ContainerNode nlri, @NonNull ContainerNode attributes);
 
     /**
@@ -136,15 +133,14 @@ public sealed interface RIBSupport permits AbstractRIBSupport {
      * Provide {@link NodeIdentifier} with customized "routes" QName.
      * For default "bgp-rib" RIBs use {@link #putRoutes}
      *
-     * @param tx           DOMDataWriteTransaction
+     * @param tx           the transaction
      * @param tablePath    YangInstanceIdentifier
      * @param nlri         ContainerNode DOM representation of NLRI in Update message
      * @param attributes   ContainerNode
      * @param routesNodeId NodeIdentifier of "routes" data node
      * @return List of processed routes identifiers
      */
-    // FIXME: operate on DOMDataTreeWriteOperations
-    Collection<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataTreeWriteTransaction tx,
+    List<NodeIdentifierWithPredicates> putRoutes(@NonNull DOMDataTreeWriteOperations tx,
             @NonNull YangInstanceIdentifier tablePath, @NonNull ContainerNode nlri, @NonNull ContainerNode attributes,
             @NonNull NodeIdentifier routesNodeId);
 
@@ -254,8 +250,7 @@ public sealed interface RIBSupport permits AbstractRIBSupport {
     @NonNull ContainerNode attributeToContainerNode(YangInstanceIdentifier routePath, Attributes attributes);
 
     interface ApplyRoute {
-        // FIXME: operate on DOMDataTreeWriteOperations
-        void apply(@NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier base,
+        void apply(@NonNull DOMDataTreeWriteOperations tx, @NonNull YangInstanceIdentifier base,
                 @NonNull NodeIdentifierWithPredicates routeKey, @NonNull DataContainerNode route,
                 ContainerNode attributes);
     }

@@ -15,7 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.PathId;
@@ -73,7 +73,7 @@ public abstract class AbstractFlowspecRIBSupport<
     protected abstract @NonNull DestinationType buildWithdrawnDestination(MapEntryNode route, @Nullable PathId pathId);
 
     @Override
-    protected final List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+    protected final List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteOperations tx,
             final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
             final ApplyRoute function) {
         final var routeKey = PathIdUtil.createNidKey(routeQName(), routeKeyTemplate(),

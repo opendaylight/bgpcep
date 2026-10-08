@@ -10,9 +10,9 @@ package org.opendaylight.protocol.bgp.rib.impl;
 import static java.util.Objects.requireNonNull;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.Collection;
+import java.util.List;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -39,7 +39,7 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteTransaction tx,
+    public List<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteOperations tx,
             final YangInstanceIdentifier tableId, final MpReachNlri nlri, final Attributes attributes) {
         final var domNlri = codecs.serializeReachNlri(nlri);
         final var routeAttributes = codecs.serializeAttributes(attributes);
@@ -47,12 +47,12 @@ class RIBSupportContextImpl extends RIBSupportContext {
     }
 
     @Override
-    public void createEmptyTableStructure(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tableId) {
+    public void createEmptyTableStructure(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier tableId) {
         tx.put(LogicalDatastoreType.OPERATIONAL, tableId, ribSupport.emptyTable());
     }
 
     @Override
-    public void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tableId,
+    public void deleteRoutes(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier tableId,
             final MpUnreachNlri nlri) {
         ribSupport.deleteRoutes(tx, tableId, codecs.serializeUnreachNlri(nlri));
     }

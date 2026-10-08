@@ -21,16 +21,14 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
-import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
@@ -82,7 +80,7 @@ final class AdjRibInWriter {
     private final PeerTransactionChain chain;
     private final PeerRole role;
     @GuardedBy("this")
-    private final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
+    private final HashMap<TablesKey, ArrayList<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
@@ -251,9 +249,9 @@ final class AdjRibInWriter {
             return;
         }
 
-        final DOMDataTreeWriteTransaction tx = chain.getDomChain().newWriteOnlyTransaction();
-        final Collection<NodeIdentifierWithPredicates> routeKeys = ctx.writeRoutes(tx, nlri, attributes);
-        final Collection<NodeIdentifierWithPredicates> staleRoutes = staleRoutesRegistry.get(key);
+        final var tx = chain.getDomChain().newWriteOnlyTransaction();
+        final var routeKeys = ctx.writeRoutes(tx, nlri, attributes);
+        final var staleRoutes = staleRoutesRegistry.get(key);
         if (staleRoutes != null) {
             staleRoutes.removeAll(routeKeys);
         }
@@ -325,17 +323,7 @@ final class AdjRibInWriter {
                         @Override
                         public void onSuccess(final Optional<NormalizedNode> routesOptional) {
                             try {
-                                if (routesOptional.isPresent()) {
-                                    synchronized (staleRoutesRegistry) {
-                                        final MapNode routesNode = (MapNode) routesOptional.orElseThrow();
-                                        final List<NodeIdentifierWithPredicates> routes = routesNode.body().stream()
-                                                .map(MapEntryNode::name)
-                                                .collect(Collectors.toList());
-                                        if (!routes.isEmpty()) {
-                                            staleRoutesRegistry.put(tablesKey, routes);
-                                        }
-                                    }
-                                }
+                                routesOptional.ifPresent(routes -> storeRoutes((MapNode) routes));
                             } finally {
                                 latch.countDown();
                             }
@@ -345,6 +333,20 @@ final class AdjRibInWriter {
                         public void onFailure(final Throwable throwable) {
                             LOG.warn("Failed to store stale routes for table {}", tablesKey, throwable);
                             latch.countDown();
+                        }
+
+                        private void storeRoutes(final MapNode routesNode) {
+                            final var size = routesNode.size();
+                            if (size != 0) {
+                                final var routes = new ArrayList<NodeIdentifierWithPredicates>(size);
+                                for (var entry : routesNode.body()) {
+                                    routes.add(entry.name());
+                                }
+
+                                synchronized (staleRoutesRegistry) {
+                                    staleRoutesRegistry.put(tablesKey, routes);
+                                }
+                            }
                         }
                     }, MoreExecutors.directExecutor());
             }
@@ -364,18 +366,20 @@ final class AdjRibInWriter {
             LOG.debug("No table for {}, not removing any stale routes", tableKey);
             return;
         }
-        final Collection<NodeIdentifierWithPredicates> routeKeys = staleRoutesRegistry.get(tableKey);
+        final var routeKeys = staleRoutesRegistry.get(tableKey);
         if (routeKeys == null || routeKeys.isEmpty()) {
             LOG.debug("No stale routes present in table {}", tableKey);
             return;
         }
+
         LOG.trace("Removing routes {}", routeKeys);
-        final DOMDataTreeWriteTransaction tx = chain.getDomChain().newWriteOnlyTransaction();
-        routeKeys.forEach(routeKey -> {
+        final var tx = chain.getDomChain().newWriteOnlyTransaction();
+        for (var routeKey : routeKeys) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, ctx.routePath(routeKey));
-        });
-        final FluentFuture<? extends CommitInfo> future = tx.commit();
+        }
+        final var future = tx.commit();
         submitted = future;
+
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -397,11 +401,11 @@ final class AdjRibInWriter {
             return CommitInfo.emptyFluentFuture();
         }
 
-        final DOMDataTreeWriteTransaction wtx = chain.getDomChain().newWriteOnlyTransaction();
-        tablesToClear.forEach(tableKey -> {
+        final var wtx = chain.getDomChain().newWriteOnlyTransaction();
+        for (var tableKey : tablesToClear) {
             final TableContext ctx = tables.get(tableKey);
             wtx.delete(LogicalDatastoreType.OPERATIONAL, ctx.routesPath().getParent());
-        });
+        }
         return wtx.commit();
     }
 }

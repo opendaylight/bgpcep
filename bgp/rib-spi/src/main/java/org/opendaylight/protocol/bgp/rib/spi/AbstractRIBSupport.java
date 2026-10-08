@@ -30,7 +30,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -275,9 +275,8 @@ public abstract non-sealed class AbstractRIBSupport<
         return routesContainerIdentifier;
     }
 
-    // FIXME: require a List here
-    protected abstract Collection<NodeIdentifierWithPredicates> processDestination(
-        @NonNull DOMDataTreeWriteTransaction tx, @NonNull YangInstanceIdentifier routesPath,
+    protected abstract List<NodeIdentifierWithPredicates> processDestination(
+        @NonNull DOMDataTreeWriteOperations tx, @NonNull YangInstanceIdentifier routesPath,
         @NonNull ContainerNode destination, ContainerNode attributes, @NonNull ApplyRoute applyFunction);
 
     private @Nullable ContainerNode getDestination(final @NonNull DataContainerChild routes) {
@@ -356,13 +355,13 @@ public abstract non-sealed class AbstractRIBSupport<
     }
 
     @Override
-    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    public final void deleteRoutes(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri) {
         deleteRoutes(tx, tablePath, nlri, ROUTES_NID);
     }
 
     @Override
-    public final void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tablePath,
+    public final void deleteRoutes(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier tablePath,
             final ContainerNode nlri, final NodeIdentifier routesNodeId) {
         final var routes = nlri.childByArg(WITHDRAWN_ROUTES);
         if (routes != null) {
@@ -376,13 +375,13 @@ public abstract non-sealed class AbstractRIBSupport<
     }
 
     @Override
-    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
+    public final List<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteOperations tx,
             final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes) {
         return putRoutes(tx, tablePath, nlri, attributes, ROUTES_NID);
     }
 
     @Override
-    public final Collection<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteTransaction tx,
+    public final List<NodeIdentifierWithPredicates> putRoutes(final DOMDataTreeWriteOperations tx,
             final YangInstanceIdentifier tablePath, final ContainerNode nlri, final ContainerNode attributes,
             final NodeIdentifier routesNodeId) {
         final var routes = nlri.childByArg(ADVERTISED_ROUTES);
@@ -426,7 +425,7 @@ public abstract non-sealed class AbstractRIBSupport<
 
     private static final class DeleteRoute implements ApplyRoute {
         @Override
-        public void apply(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier base,
+        public void apply(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier base,
                 final NodeIdentifierWithPredicates routeKey, final DataContainerNode route,
                 final ContainerNode attributes) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, base.node(routeKey));
@@ -435,7 +434,7 @@ public abstract non-sealed class AbstractRIBSupport<
 
     private final class PutRoute implements ApplyRoute {
         @Override
-        public void apply(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier base,
+        public void apply(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier base,
                 final NodeIdentifierWithPredicates routeKey, final DataContainerNode route,
                 final ContainerNode attributes) {
             // Build the DataContainer data

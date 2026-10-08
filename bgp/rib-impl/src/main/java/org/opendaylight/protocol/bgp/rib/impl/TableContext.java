@@ -9,7 +9,8 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import java.util.Collection;
+import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -27,41 +28,40 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgum
  */
 // FIXME: need a better name once we local-rib and rib-out contexts
 final class TableContext {
-    private final YangInstanceIdentifier tableId;
-    private final RIBSupportContext tableSupport;
+    private final @NonNull YangInstanceIdentifier tableId;
+    private final @NonNull RIBSupportContext tableSupport;
 
     TableContext(final RIBSupportContext tableSupport, final YangInstanceIdentifier tableId) {
         this.tableSupport = requireNonNull(tableSupport);
         this.tableId = requireNonNull(tableId);
     }
 
-    YangInstanceIdentifier getTableId() {
-        return this.tableId;
+    @NonNull YangInstanceIdentifier getTableId() {
+        return tableId;
     }
 
-
     void createEmptyTableStructure(final DOMDataTreeWriteTransaction tx) {
-        this.tableSupport.createEmptyTableStructure(tx, this.tableId);
+        tableSupport.createEmptyTableStructure(tx, tableId);
     }
 
     void removeTable(final DOMDataTreeWriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.OPERATIONAL, this.tableId);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, tableId);
     }
 
-    Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri,
-                                                         final Attributes attributes) {
-        return this.tableSupport.writeRoutes(tx, this.tableId, nlri, attributes);
+    List<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri,
+            final Attributes attributes) {
+        return tableSupport.writeRoutes(tx, tableId, nlri, attributes);
     }
 
     void removeRoutes(final DOMDataTreeWriteTransaction tx, final MpUnreachNlri nlri) {
-        this.tableSupport.deleteRoutes(tx, this.tableId, nlri);
+        tableSupport.deleteRoutes(tx, tableId, nlri);
     }
 
     YangInstanceIdentifier routesPath() {
-        return tableSupport.getRibSupport().routesPath(this.tableId);
+        return tableSupport.getRibSupport().routesPath(tableId);
     }
 
     YangInstanceIdentifier routePath(final PathArgument routeId) {
-        return tableSupport.getRibSupport().routePath(this.tableId, routeId);
+        return tableSupport.getRibSupport().routePath(tableId, routeId);
     }
 }
