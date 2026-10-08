@@ -38,6 +38,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
@@ -51,11 +52,14 @@ import org.opendaylight.protocol.bgp.rib.impl.config.BgpPeerBean;
 import org.opendaylight.protocol.bgp.rib.impl.config.GracefulRestartUtil;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.impl.state.AbstractBGPPeerState;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateProvider;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSessionListener;
 import org.opendaylight.protocol.bgp.rib.spi.BGPTerminationReason;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
@@ -84,12 +88,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RestartGracefully;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.peer.rpc.rev180329.RouteRefreshRequest;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.PeerKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.Notification;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Empty;
@@ -104,11 +111,50 @@ import org.slf4j.LoggerFactory;
  * RIB actions.
  */
 public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
+    private static final class State extends AbstractBGPPeerState {
+        State(final DataObjectIdentifier.WithKey<Rib, RibKey> instanceIdentifier,
+                final @NonNull IpAddressNoZone neighborAddress, final @Nullable String groupId,
+                final @NonNull Set<TablesKey> afiSafisAdvertized,
+                final @NonNull Set<TablesKey> afiSafisGracefulAdvertized,
+                final @NonNull Map<TablesKey, Uint24> afiSafisLlGracefulAdvertized) {
+            super(instanceIdentifier, groupId, neighborAddress, afiSafisAdvertized, afiSafisGracefulAdvertized,
+                afiSafisLlGracefulAdvertized);
+        }
+
+        @Override
+        public @NonNull BGPErrorHandlingState getBGPErrorHandlingState() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public @NonNull BGPAfiSafiState getBGPAfiSafiState() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public @Nullable BGPSessionState getBGPSessionState() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public @Nullable BGPTimersState getBGPTimersState() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public @Nullable BGPTransportState getBGPTransportState() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(BGPPeer.class);
     private static final TablesKey IPV4_UCAST_TABLE_KEY =
         new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
-
-    private final RIB rib;
 
     // FIXME: Alright, this right here is a ton of state which has intertwined initialization and dependencies Split
     //        these out into separate behavior objects. This also has relationship with state in AbstractPeer -- which
@@ -155,6 +201,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private long currentSelectionDeferralTimerSeconds;
     private final List<TablesKey> missingEOT = new ArrayList<>();
 
+    private final @NonNull State state;
+
     public BGPPeer(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final IpAddressNoZone neighborAddress,
@@ -169,13 +217,14 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final Map<TablesKey, Uint24> llGracefulTablesAdvertised,
             final boolean treatAsWithdraw,
             final BgpPeerBean bean) {
-        super(rib, Ipv4Util.toStringIP(neighborAddress), peerGroupName, role, clusterId, localAs, neighborAddress,
-            afiSafisAdvertized, afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
+        super(rib, Ipv4Util.toStringIP(neighborAddress), role, clusterId, localAs);
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
-        this.rib = requireNonNull(rib);
         this.rpcRegistry = rpcRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
+
+        state = new State(rib.getInstanceIdentifier(), neighborAddress, peerGroupName, afiSafisAdvertized,
+            afiSafisGracefulAdvertized, llGracefulTablesAdvertised);
 
         createDomChain();
     }
@@ -644,8 +693,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     private Set<TablesKey> getGracefulTables() {
         return tables.stream()
-                .filter(this::isGracefulRestartReceived)
-                .filter(this::isGracefulRestartAdvertized)
+                .filter(state::isGracefulRestartReceived)
+                .filter(state::isGracefulRestartAdvertized)
                 .collect(Collectors.toSet());
     }
 
