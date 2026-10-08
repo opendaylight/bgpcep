@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "db4e7511_a38da0d5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 28
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-10-08T09:14:06Z",
+      "side": 1,
+      "message": "This patch is approaching the problem from the wrong side and introduces a ton of complexity in the common case.",
+      "revId": "9caa5347a20754e200cf7b5b7de32caa577f1ef2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
