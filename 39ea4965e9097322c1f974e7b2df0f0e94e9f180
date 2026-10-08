@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e32faf6c_b57c3621",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-08T05:31:24Z",
+      "side": 1,
+      "message": "Makes sense and fully agreed. Done",
+      "parentUuid": "09be0aa3_1c11613e",
+      "revId": "39ea4965e9097322c1f974e7b2df0f0e94e9f180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "f9af57f8_59b7e4ff",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "0122505a_44982c64",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-08T05:31:24Z",
+      "side": 1,
+      "message": "`run_scenario` now drops the captured records after each passing iteration; a failing one raises first, so its logs survive for the report",
+      "parentUuid": "f9af57f8_59b7e4ff",
+      "revId": "39ea4965e9097322c1f974e7b2df0f0e94e9f180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "95b1efe6_41053ef0",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-10-01T07:58:06Z",
       "side": 1,
       "message": "It might be good to put longevity test as last since the are long running.",
+      "revId": "39ea4965e9097322c1f974e7b2df0f0e94e9f180",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1318c183_37eb9bea",
+        "filename": "tests/suites/suite_order.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-08T05:31:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "95b1efe6_41053ef0",
       "revId": "39ea4965e9097322c1f974e7b2df0f0e94e9f180",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
