@@ -15,10 +15,12 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -28,6 +30,9 @@ import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
+import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesInstalledCounters;
+import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesReceivedCounters;
+import org.opendaylight.protocol.bgp.rib.impl.state.peer.PrefixesSentCounters;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.Peer;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -40,15 +45,24 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
+import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState.Mode;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -61,6 +75,357 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         implements BGPPeerStateProvider, BGPRouteEntryImportParameters, Peer, PeerTransactionChain,
                    FutureCallback<Empty>
         permits ApplicationPeer, BGPPeer {
+    private abstract static sealed class Invariants permits OperState {
+        final @NonNull IpAddressNoZone neighborAddress;
+        final @NonNull Set<TablesKey> advertized;
+        final @NonNull Set<TablesKey> gracefulAdvertized;
+        final @NonNull Map<TablesKey, Uint24> llGracefulAdvertized;
+        final @Nullable String groupId;
+
+        Invariants(final IpAddressNoZone neighborAddress, final Set<TablesKey> advertized,
+                final Set<TablesKey> gracefulAdvertized, final @NonNull Map<TablesKey, Uint24> llGracefulAdvertized,
+                final @Nullable String groupId) {
+            this.neighborAddress = requireNonNull(neighborAddress);
+            this.advertized = requireNonNull(advertized);
+            this.gracefulAdvertized = requireNonNull(gracefulAdvertized);
+            this.llGracefulAdvertized = requireNonNull(llGracefulAdvertized);
+            this.groupId = groupId;
+        }
+
+        Invariants(final Invariants prev) {
+            neighborAddress = prev.neighborAddress;
+            advertized = prev.advertized;
+            gracefulAdvertized = prev.gracefulAdvertized;
+            llGracefulAdvertized = prev.llGracefulAdvertized;
+            groupId = prev.groupId;
+        }
+    }
+
+    //    BGPLlGracelfulRestartState
+    //    BGPErrorHandlingState
+    //    BGPPeerMessagesState
+    //    BGPMessagesListener
+
+    abstract static sealed class OperState extends Invariants
+            implements BGPPeerState, BGPAfiSafiState, BGPGracelfulRestartState
+            permits ActiveState, InactiveState {
+        final @NonNull RIB rib;
+
+        OperState(final RIB rib, final IpAddressNoZone neighborAddress, final Set<TablesKey> advertized,
+                final Set<TablesKey> gracefulAdvertized, final @NonNull Map<TablesKey, Uint24> llGracefulAdvertized,
+                final @Nullable String groupId) {
+            super(neighborAddress, advertized, gracefulAdvertized, llGracefulAdvertized, groupId);
+            this.rib = requireNonNull(rib);
+        }
+
+        OperState(final OperState prev) {
+            super(prev);
+            rib = prev.rib;
+        }
+
+        @Override
+        public final DataObjectIdentifier.WithKey<Rib, RibKey> getInstanceIdentifier() {
+            return rib.getInstanceIdentifier();
+        }
+
+        @Override
+        public final String getGroupId() {
+            return groupId;
+        }
+
+        @Override
+        public final IpAddressNoZone getNeighborAddress() {
+            return neighborAddress;
+        }
+
+        @Override
+        public final BGPAfiSafiState getBGPAfiSafiState() {
+            return this;
+        }
+
+        @Override
+        public final boolean isAfiSafiSupported(final TablesKey tablesKey) {
+            if (advertized.contains(tablesKey)) {
+                final var counters = prefixesReceived();
+                if (counters != null) {
+                    return counters.isSupported(tablesKey);
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public final long getPrefixesInstalledCount(final TablesKey tablesKey) {
+            final var counters = prefixesInstalled();
+            return counters == null ? 0 : counters.getPrefixedInstalledCount(tablesKey);
+        }
+
+        @Override
+        public final long getPrefixesSentCount(final TablesKey tablesKey) {
+            final var counters = prefixesSent(tablesKey);
+            return counters == null ? 0 : counters.getPrefixesSentCount();
+        }
+
+        @Override
+        public final long getPrefixesReceivedCount(final TablesKey tablesKey) {
+            final var counters = prefixesReceived();
+            return counters == null ? 0 : counters.getPrefixedReceivedCount(tablesKey);
+        }
+
+        abstract @Nullable PrefixesInstalledCounters prefixesInstalled();
+
+        abstract @Nullable PrefixesReceivedCounters prefixesReceived();
+
+        abstract @Nullable PrefixesSentCounters prefixesSent(@NonNull TablesKey tablesKey);
+
+        @Override
+        public final Set<TablesKey> getAfiSafisAdvertized() {
+            return advertized;
+        }
+
+        @Override
+        public final Set<TablesKey> getAfiSafisReceived() {
+            final var counters = prefixesReceived();
+            return counters == null ? Set.of() : counters.getTableKeys();
+        }
+
+        @Override
+        public final BGPGracelfulRestartState getBGPGracelfulRestart() {
+            return this;
+        }
+
+        @Override
+        public final boolean isGracefulRestartAdvertized(final TablesKey tablesKey) {
+            return gracefulAdvertized.contains(tablesKey);
+        }
+
+        @Override
+        public final boolean isGracefulRestartReceived(final TablesKey tablesKey) {
+            return gracefulReceived(tablesKey);
+        }
+
+        abstract boolean gracefulReceived(@NonNull TablesKey tablesKey);
+
+        @Override
+        public final boolean isLlGracefulRestartAdvertised(final TablesKey tablesKey) {
+            return llGracefulAdvertized.containsKey(tablesKey);
+        }
+
+        @Override
+        public final boolean isLlGracefulRestartReceived(final TablesKey tablesKey) {
+            return llGracefulReceived(tablesKey) != null;
+        }
+
+        @Override
+        public final int getLlGracefulRestartTimer(final TablesKey tablesKey) {
+            final var advertized = llGracefulAdvertized.get(tablesKey);
+            if (advertized == null) {
+                return 0;
+            }
+            final var received = llGracefulReceived(tablesKey);
+            return received == null ? 0 : Integer.min(advertized.getValue().intValue(), received.getValue().intValue());
+        }
+
+        abstract @Nullable Uint24 llGracefulReceived(@NonNull TablesKey tablesKey);
+    }
+
+    abstract static non-sealed class InactiveState extends OperState {
+        InactiveState(final RIB rib, final IpAddressNoZone neighborAddress, final Set<TablesKey> advertized,
+                final Set<TablesKey> gracefulAdvertized, final @NonNull Map<TablesKey, Uint24> llGracefulAdvertized,
+                final @Nullable String groupId) {
+            super(rib, neighborAddress, advertized, gracefulAdvertized, llGracefulAdvertized, groupId);
+        }
+
+        InactiveState(final ActiveState prev) {
+            super(prev);
+        }
+
+        @Override
+        public final boolean isActive() {
+            return false;
+        }
+
+        @Override
+        final boolean gracefulReceived(final TablesKey tablesKey) {
+            requireNonNull(tablesKey);
+            return false;
+        }
+
+        @Override
+        final Uint24 llGracefulReceived(final TablesKey tablesKey) {
+            requireNonNull(tablesKey);
+            return null;
+        }
+
+        @Override
+        final PrefixesInstalledCounters prefixesInstalled() {
+            return null;
+        }
+
+        @Override
+        final PrefixesReceivedCounters prefixesReceived() {
+            return null;
+        }
+
+        @Override
+        final PrefixesSentCounters prefixesSent(final TablesKey tablesKey) {
+            requireNonNull(tablesKey);
+            return null;
+        }
+    }
+
+    private static final class InitialState extends InactiveState {
+        InitialState(final RIB rib, final IpAddressNoZone neighborAddress, final Set<TablesKey> advertized,
+                final Set<TablesKey> gracefulAdvertized, final @NonNull Map<TablesKey, Uint24> llGracefulAdvertized,
+                final @Nullable String groupId) {
+            super(rib, neighborAddress, advertized, gracefulAdvertized, llGracefulAdvertized, groupId);
+        }
+
+        @Override
+        public long getTotalPrefixes() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public @NonNull BGPErrorHandlingState getBGPErrorHandlingState() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public @Nullable BGPSessionState getBGPSessionState() {
+            return null;
+        }
+
+        @Override
+        public @Nullable BGPPeerMessagesState getBGPPeerMessagesState() {
+            return null;
+        }
+
+        @Override
+        public BGPTimersState getBGPTimersState() {
+            return null;
+        }
+
+        @Override
+        public BGPTransportState getBGPTransportState() {
+            return null;
+        }
+
+        @Override
+        public boolean isLocalRestarting() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public int getPeerRestartTime() {
+            // TODO Auto-generated method stub
+            return 0;
+        }
+
+        @Override
+        public boolean isPeerRestarting() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public @NonNull Mode getMode() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+    }
+
+    abstract static sealed class ActiveState extends OperState permits ConnectedState, DisconnectedState {
+        private final @NonNull PrefixesReceivedCounters prefixesReceived;
+        private final @NonNull PrefixesInstalledCounters prefixesInstalled;
+
+        @GuardedBy("prefixesSent")
+        private final HashMap<TablesKey, PrefixesSentCounters> prefixesSent;
+
+//      private final HashSet<TablesKey> afiSafisGracefulReceived = new HashSet<>();
+//      private final HashMap<TablesKey, Uint24> afiSafisLlGracefulReceived = new HashMap<>();
+//      private final LongAdder updateSentCounter = new LongAdder();
+//      private final LongAdder notificationSentCounter = new LongAdder();
+//      private final LongAdder updateReceivedCounter = new LongAdder();
+//      private final LongAdder notificationReceivedCounter = new LongAdder();
+//      private final LongAdder erroneousUpdate = new LongAdder();
+//      private final String groupId;
+//      private final AtomicBoolean active = new AtomicBoolean(false);
+//
+//      @GuardedBy("this")
+//      private boolean localRestarting;
+//      @GuardedBy("this")
+//      private int peerRestartTime;
+//      @GuardedBy("this")
+//      private boolean peerRestarting;
+
+        @NonNullByDefault
+        ActiveState(final InactiveState prev, final PrefixesInstalledCounters prefixesInstalled,
+                final PrefixesReceivedCounters prefixesReceived) {
+            super(prev);
+            this.prefixesInstalled = requireNonNull(prefixesInstalled);
+            this.prefixesReceived = requireNonNull(prefixesReceived);
+            prefixesSent = new HashMap<>();
+        }
+
+        @NonNullByDefault
+        ActiveState(final ActiveState prev) {
+            super(prev);
+            prefixesInstalled = prev.prefixesInstalled;
+            prefixesReceived = prev.prefixesReceived;
+            prefixesSent = prev.prefixesSent;
+        }
+
+        @Override
+        public final boolean isActive() {
+            return true;
+        }
+
+        @Override
+        final PrefixesInstalledCounters prefixesInstalled() {
+            return prefixesInstalled;
+        }
+
+        @Override
+        final PrefixesReceivedCounters prefixesReceived() {
+            return prefixesReceived;
+        }
+
+        @Override
+        final PrefixesSentCounters prefixesSent(final TablesKey tablesKey) {
+            synchronized (prefixesSent) {
+                return prefixesSent.get(requireNonNull(tablesKey));
+            }
+        }
+    }
+
+    @NonNullByDefault
+    abstract static non-sealed class ConnectedState extends ActiveState {
+        ConnectedState(final InactiveState prev, final PrefixesInstalledCounters prefixesInstalled,
+                final PrefixesReceivedCounters prefixesReceived) {
+            super(prev, prefixesInstalled, prefixesReceived);
+        }
+
+        ConnectedState(final DisconnectedState prev) {
+            super(prev);
+        }
+    }
+
+    @NonNullByDefault
+    abstract static non-sealed class DisconnectedState extends ActiveState {
+        DisconnectedState(final InactiveState prev, final PrefixesInstalledCounters prefixesInstalled,
+                final PrefixesReceivedCounters prefixesReceived) {
+            super(prev, prefixesInstalled, prefixesReceived);
+        }
+
+        DisconnectedState(final ConnectedState prev) {
+            super(prev);
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
 
     final @NonNull RTCClientRouteCache rtCache = new RTCClientRouteCache();
