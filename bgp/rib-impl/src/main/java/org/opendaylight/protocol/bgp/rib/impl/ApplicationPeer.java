@@ -117,6 +117,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
+        trackerRegistration = rib.getPeerTracker().registerPeer(this);
         initializeDatastore(localTables, Map.of()).addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
@@ -136,7 +137,6 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
             new ArrayList<>(), rtCache);
         effectiveRibInWriter.init();
         bgpSessionState.registerMessagesCounter(this);
-        trackerRegistration = rib.getPeerTracker().registerPeer(this);
     }
 
     private synchronized void onAdjRibInitialized(final DataTreeChangeExtension dataTreeChangeService,
