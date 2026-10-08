@@ -32,7 +32,6 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPLlGracelfulRestartState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.operational.rev151009.BgpAfiSafiGracefulRestartState.Mode;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
@@ -46,7 +45,7 @@ import org.opendaylight.yangtools.binding.Notification;
 
 public abstract class BGPPeerStateImpl extends DefaultRibReference implements BGPPeerState, BGPAfiSafiState,
         BGPGracelfulRestartState, BGPLlGracelfulRestartState,BGPErrorHandlingState, BGPPeerMessagesState,
-        BGPPeerStateProvider, BGPMessagesListener {
+        BGPMessagesListener {
     private final @NonNull IpAddressNoZone neighborAddress;
     private final Set<TablesKey> afiSafisAdvertized;
     private final Set<TablesKey> afiSafisGracefulAdvertized;
@@ -215,11 +214,6 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
 
     protected final synchronized void setLocalRestartingState(final boolean restarting) {
         localRestarting = restarting;
-    }
-
-    @Override
-    public final BGPPeerState getPeerState() {
-        return this;
     }
 
     @Override
