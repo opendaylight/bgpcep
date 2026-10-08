@@ -16,6 +16,24 @@
       "message": "This patch is approaching the problem from the wrong side and introduces a ton of complexity in the common case.",
       "revId": "9caa5347a20754e200cf7b5b7de32caa577f1ef2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d89d0275_973d330b",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 28
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-10-08T09:20:54Z",
+      "side": 1,
+      "message": "https://linuxfoundation.zulipchat.com/#narrow/channel/513553-lfn-opendaylight-discussion/topic/BGPCEP-1094.20design/near/630085923",
+      "parentUuid": "db4e7511_a38da0d5",
+      "revId": "9caa5347a20754e200cf7b5b7de32caa577f1ef2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
