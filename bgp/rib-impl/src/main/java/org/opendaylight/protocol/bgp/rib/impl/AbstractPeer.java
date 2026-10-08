@@ -40,6 +40,8 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
@@ -56,7 +58,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract sealed class AbstractPeer extends BGPPeerStateImpl
-        implements BGPRouteEntryImportParameters, Peer, PeerTransactionChain, FutureCallback<Empty>
+        implements BGPPeerStateProvider, BGPRouteEntryImportParameters, Peer, PeerTransactionChain,
+                   FutureCallback<Empty>
         permits ApplicationPeer, BGPPeer {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
 
@@ -108,6 +111,11 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         this.role = requireNonNull(role);
         this.clusterId = clusterId;
         this.localAs = localAs;
+    }
+
+    @Override
+    public final BGPPeerState getPeerState() {
+        return this;
     }
 
     final synchronized FluentFuture<? extends CommitInfo> removePeer(final @Nullable YangInstanceIdentifier peerPath) {
