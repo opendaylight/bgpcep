@@ -132,6 +132,7 @@ public class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeLi
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
+        trackerRegistration = rib.getPeerTracker().registerPeer(this);
         createDomChain();
         adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
         final RIBSupportContextRegistry context = rib.getRibSupportContext();
@@ -152,7 +153,6 @@ public class ApplicationPeer extends AbstractPeer implements DOMDataTreeChangeLi
             new ArrayList<>(), rtCache);
         effectiveRibInWriter.init();
         bgpSessionState.registerMessagesCounter(this);
-        trackerRegistration = rib.getPeerTracker().registerPeer(this);
     }
 
     @Override
