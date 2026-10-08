@@ -129,6 +129,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
+        trackerRegistration = rib.getPeerTracker().registerPeer(this);
         createDomChain();
         adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
         final var context = rib.getRibSupportContext();
@@ -148,7 +149,6 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
             new ArrayList<>(), rtCache);
         effectiveRibInWriter.init();
         bgpSessionState.registerMessagesCounter(this);
-        trackerRegistration = rib.getPeerTracker().registerPeer(this);
     }
 
     @Override
