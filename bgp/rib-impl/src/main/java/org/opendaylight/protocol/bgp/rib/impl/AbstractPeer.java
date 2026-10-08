@@ -25,6 +25,7 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
+import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
@@ -40,13 +41,17 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRouteEntryImportParameters;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -58,6 +63,64 @@ import org.slf4j.LoggerFactory;
 abstract sealed class AbstractPeer extends BGPPeerStateImpl
         implements BGPRouteEntryImportParameters, Peer, PeerTransactionChain, FutureCallback<Empty>
         permits ApplicationPeer, BGPPeer {
+
+    abstract static sealed class OperState extends DefaultRibReference implements BGPPeerState
+            permits ActiveState, InactiveState {
+        OperState(final DataObjectIdentifier.WithKey<Rib, RibKey> instanceIdentifier) {
+            super(instanceIdentifier);
+        }
+
+        OperState(final OperState prev) {
+            super(prev.getInstanceIdentifier());
+        }
+    }
+
+    abstract static non-sealed class InactiveState extends OperState {
+        InactiveState(final DataObjectIdentifier.WithKey<Rib, RibKey> instanceIdentifier) {
+            super(instanceIdentifier);
+        }
+
+        InactiveState(final ActiveState prev) {
+            super(prev);
+        }
+
+        @Override
+        public final boolean isActive() {
+            return false;
+        }
+    }
+
+    abstract static sealed class ActiveState extends OperState permits ConnectedState, DisconnectedState {
+        ActiveState(final OperState prev) {
+            super(prev);
+        }
+
+        @Override
+        public final boolean isActive() {
+            return true;
+        }
+    }
+
+    abstract static non-sealed class ConnectedState extends ActiveState {
+        ConnectedState(final InactiveState prev) {
+            super(prev);
+        }
+
+        ConnectedState(final DisconnectedState prev) {
+            super(prev);
+        }
+    }
+
+    abstract static non-sealed class DisconnectedState extends ActiveState {
+        DisconnectedState(final InactiveState prev) {
+            super(prev);
+        }
+
+        DisconnectedState(final ConnectedState prev) {
+            super(prev);
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
 
     final @NonNull RTCClientRouteCache rtCache = new RTCClientRouteCache();
