@@ -1,0 +1,174 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7c6747d7_da77c557",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "There are also these additional to the comments which might be updated \n\nchange_counter.py\nset_change_counter, get_change_count\n\nflowspec.py\nverify_flowspec_data_is_empty\n\npcep.py\ncheck_empty_pcep_topology, get_pcep_topology, get_path_computation_client, get_pcep_topology_hop_count, configure_speaker_entitiy_identifier, get_statistics, verify_odl_does_not_return_statistics_for_pcc, verify_global_pcep_statistics,verify_statsistics_contains_pcc_mock_data, get_stat_timer_value, set_stat_timer_value, add_lsp,update_lsp,remove_lsp,operate_xml_lsp_return_json,wait_until_concrete_number_of_lsps_reported",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "39bde81c_7c69d142",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "It might be good to also add here the host param to distinguish for which node it is in a clustered env.",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a95efa06_daf62d5e",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "18a2d94b_b79cc9e3",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "also here",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "0574b04b_a02f6067",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "also here",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "77dfb1f3_f89e72a1",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 289,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "also here",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "435374e4_e84b94a2",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "also here",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a13cf0f3_8783017a",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "also here",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e8779174_b607b794",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 970,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "also here",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "23e5facb_78547923",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 1036,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-13T06:41:59Z",
+      "side": 1,
+      "message": "also here",
+      "revId": "be8b4c342f453225f6480be8c2bb7e00fa002534",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
