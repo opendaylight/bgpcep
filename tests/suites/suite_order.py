@@ -13,6 +13,7 @@ class SuiteOrder(IntEnum):
     """Defines the execution order of all test suites."""
 
     BGP_INGEST_SINGLEPEER_PREFIXCOUNT_1ROUTE = auto()
+    BGP_INGEST_SINGLEPEER_PREFIXCOUNT_100KROUTES = auto()
     BGP_INGEST_PC_SHM_300K = auto()
     BGP_INGEST_SINGLEPEER_PREFIX_COUNT = auto()
     BGP_INGEST_SINGLEPEER_CHANGE_COUNT = auto()
