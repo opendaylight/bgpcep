@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5f1c59f1_3b537d26",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-10-14T11:38:04Z",
+      "side": 1,
+      "message": "This test also passes on master. What is the purpose of this test? The test registers the peer before calling onDataTreeChanged() itself, so it passes without the fix for this issue.",
+      "revId": "eca8b7ff29119af96f82eddfb8c79342e8b20258",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
