@@ -52,6 +52,24 @@
       "parentUuid": "68976384_8b4b679b",
       "revId": "1bfe4598e817372a10e9e02a732e57a6cf37fc0f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a8df5415_1973e9cd",
+        "filename": "tests/libraries/variables.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-14T08:11:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f781e50b_b7414739",
+      "revId": "1bfe4598e817372a10e9e02a732e57a6cf37fc0f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
