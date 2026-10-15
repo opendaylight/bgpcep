@@ -16,6 +16,24 @@
       "message": "This test also passes on master. What is the purpose of this test? The test registers the peer before calling onDataTreeChanged() itself, so it passes without the fix for this issue.",
       "revId": "eca8b7ff29119af96f82eddfb8c79342e8b20258",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7899cef1_4cfd40fe",
+        "filename": "bgp/rib-impl/src/test/java/org/opendaylight/protocol/bgp/rib/impl/Bgpcep1094Test.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-10-15T07:44:46Z",
+      "side": 1,
+      "message": "I\u0027ve updated it to call BGPPeer.onSessionUp() and deliver the table-creation event while initialization commit callbacks are pending. It now fails with the pre-fix BGPPeer because initializeRibOut() is never called, and passes with the fix.",
+      "parentUuid": "5f1c59f1_3b537d26",
+      "revId": "eca8b7ff29119af96f82eddfb8c79342e8b20258",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
