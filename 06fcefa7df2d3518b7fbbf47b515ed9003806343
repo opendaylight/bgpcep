@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "48d5d866_ebeb2f5f",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-15T07:06:33Z",
+      "side": 1,
+      "message": "Since all members start concurrently, which one gets 0.0.0.0:1790 is a race, and BgpPeerBean only adds peers to the registry on the BGP singleton owner, so a speaker reaching a non-owner gets rejected. Am I right that the follow-up bgpclustering suites will only connect when the bind winner happens to be the owner? Could the docstring say so and the fixture log which member holds 1790/12345?",
+      "revId": "06fcefa7df2d3518b7fbbf47b515ed9003806343",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a1a09f7_910a9471",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-15T07:06:33Z",
+      "side": 1,
+      "message": "infra.shell() swallows non-zero exit codes (and check_rc returns rather than raises), so if this script exits 1, or the mv/cp/sed steps above fail, setup carries on and we only find out from a 580 s-per-member \"System ready\" timeout, or end up with unclustered members. Could setup_cluster use a small helper that asserts rc \u003d\u003d 0 for every step?",
+      "revId": "06fcefa7df2d3518b7fbbf47b515ed9003806343",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
