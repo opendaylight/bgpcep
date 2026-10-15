@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e09b2fee_fabf10f7",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-15T08:14:42Z",
+      "side": 1,
+      "message": "Confirmed and fixed.\n\n(`BGPClusterSingletonService.instantiateServiceInstance` is owner-only and is what reaches `addPeer`, so a speaker is accepted only when the 1790 winner is also the owner. Docstring says so now. Added `log_shared_port_owners()`, called from the fixture, logging which member holds 1790/4189/12345.)",
+      "parentUuid": "48d5d866_ebeb2f5f",
+      "revId": "06fcefa7df2d3518b7fbbf47b515ed9003806343",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a1a09f7_910a9471",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-10-15T07:06:33Z",
       "side": 1,
       "message": "infra.shell() swallows non-zero exit codes (and check_rc returns rather than raises), so if this script exits 1, or the mv/cp/sed steps above fail, setup carries on and we only find out from a 580 s-per-member \"System ready\" timeout, or end up with unclustered members. Could setup_cluster use a small helper that asserts rc \u003d\u003d 0 for every step?",
+      "revId": "06fcefa7df2d3518b7fbbf47b515ed9003806343",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4aaa82ff_fc249bcf",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-15T08:14:42Z",
+      "side": 1,
+      "message": "Done\n\nyes, `check_rc` wouldn\u0027t have helped either: it does return `AssertionError(...)` instead of raising. Added `_checked_shell()` asserting `rc \u003d\u003d 0`, used by every setup step including `copy_dir`. Left `infra.shell` itself alone since four existing callers pass `check_rc\u003dTrue`, do you think I should fix this too or is that fine?",
+      "parentUuid": "9a1a09f7_910a9471",
       "revId": "06fcefa7df2d3518b7fbbf47b515ed9003806343",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
