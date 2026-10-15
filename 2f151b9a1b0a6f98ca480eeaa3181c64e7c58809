@@ -16,6 +16,24 @@
       "message": "Now that this fixture is autouse in the root conftest it also runs for module-level test functions, where request.cls is None, so the first such test would error with AttributeError here. How about falling back to request.module.__name__ ? Here and in the test-case fixture.",
       "revId": "2f151b9a1b0a6f98ca480eeaa3181c64e7c58809",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "a1a0bfde_22339e37",
+        "filename": "tests/conftest.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-15T08:14:45Z",
+      "side": 1,
+      "message": "Yea this is right.\nAdded `_test_context_name()` falling back to `request.module.__name__`, used by both fixtures. Verified with a module-level test: marker reads the module name instead of raising.",
+      "parentUuid": "663fae5c_e973206e",
+      "revId": "2f151b9a1b0a6f98ca480eeaa3181c64e7c58809",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
