@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "684cf6e6_8d9ed4b2",
+        "filename": "tests/conftest.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-15T07:14:08Z",
+      "side": 1,
+      "message": "Suite and test markers now go to every member, but the step markers in allure_step_with_separate_logging still go to node 1 only, and karaf.fail_if_exception_found_during_test reads opendaylight/data/log/karaf.log, which the cluster fixture has moved to opendaylight-member-1. Could both use the active-node list too?",
+      "revId": "5847dfae5df1e563ab3b257c1432ee80b8bd24be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "86472a47_d302d73b",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-15T07:14:08Z",
+      "side": 1,
+      "message": "A few request helpers still have no host parameter: play_to_odl_non_removal_template and play_to_odl_template pass get_templated_request to wait_until_function_pass without host, odl_to_play_template and remove_configured_routes post/delete to the default node, and start_bgp_app_peer hard-codes --host {ODL_IP}. Could these get host too?",
+      "revId": "5847dfae5df1e563ab3b257c1432ee80b8bd24be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
