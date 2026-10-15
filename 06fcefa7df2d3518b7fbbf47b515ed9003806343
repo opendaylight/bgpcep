@@ -69,6 +69,24 @@
       "parentUuid": "9a1a09f7_910a9471",
       "revId": "06fcefa7df2d3518b7fbbf47b515ed9003806343",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bb5034d0_86ab9384",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-15T09:00:17Z",
+      "side": 1,
+      "message": "Agreed, keep that out of this change. One detail for the follow-up: check_rc is actually a no-op either way, because subprocess.run(check\u003dTrue) raises on any non-zero exit and the except at infra.py:102 returns (rc, stdout), so the check_rc branch only runs when rc is already 0. The fix needs to raise in the except branches when check_rc is set.",
+      "parentUuid": "4aaa82ff_fc249bcf",
+      "revId": "06fcefa7df2d3518b7fbbf47b515ed9003806343",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
