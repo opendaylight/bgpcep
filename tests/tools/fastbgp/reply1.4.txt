@@ -1,0 +1,312 @@
+### Engineering Specification: Upgrading `play.py` to `play2.py` for RFC 9857 (BGP-LS SR Policy Candidate Path)
+
+#### 1. Scope & Architectural Objective
+
+This specification provides the technical blueprint to refactor `play.py` into `play2.py`. The test tool currently constructs obsolete BGP-LS Network Layer Reachability Information (NLRI) based on `draft-ietf-idr-te-lsp-distribution-03` under NLRI Type 5. The refactored version must construct standardized Segment Routing (SR) Policy Candidate Path NLRIs under NLRI Type 5 adhering strictly to RFC 9857 and RFC 9552.
+
+The tool's primary role remains performance-stressing OpenDaylight's (ODL) MD-SAL data tree by injecting high volumes of unique BGP-LS routes via stepped identifiers.
+
+---
+
+#### 2. Terminology & Parameter Mapping
+
+The following schema maps the legacy draft fields to the standardized RFC 9857 data structures:
+
+* **NLRI Type:** Remains `5`, but the schema transitions from raw payload bytes to a Type-Length-Value (TLV) hierarchy.
+
+
+* **Protocol-ID:** Changes from `7` (RSVP-TE) to `9` (Segment Routing).
+
+
+* **Identifier (`lsid`):** Retained as the 64-bit BGP-LS Instance-ID defined in RFC 9552 Section 5.2.
+
+
+* **Local Node Identification:** In the draft, only the raw tunnel sender IP was sent. RFC 9857 mandates a Local Node Descriptors TLV (TLV 256) containing sub-TLVs:
+
+
+* Sub-TLV 512: Autonomous System (4 octets).
+
+
+* Sub-TLV 516: BGP Router-ID (4 octets).
+
+
+* Sub-TLV 1028: IPv4 Router-ID of Local Node (4 octets).
+
+
+
+
+* **Candidate Path Descriptors:** Flat fields in the draft are replaced by the SR Policy Candidate Path Descriptor TLV (TLV 554):
+
+
+* Legacy `IPv4TunnelSenderAddress` maps to **Originator Address** (4 octets).
+
+
+* Legacy `IPv4TunnelEndPointAddress` maps to **Endpoint** (4 octets).
+
+
+* Legacy `TunnelID` (16-bit uint) maps to **Policy Color** (32-bit uint).
+
+
+* Legacy `LSPID` (16-bit uint) maps to **Discriminator** (32-bit uint).
+
+
+* Added fields: **Protocol-Origin** (1 octet, default value `3` for Configuration/CLI), **Flags** (1 octet, `0x00` for IPv4), and **Originator AS Number** (4 octets).
+
+
+
+
+
+---
+
+#### 3. CLI Argument Updates (`parse_arguments`)
+
+Modify the argument parser in `play2.py` (lines 174–198 of `play.py`):
+
+* Retain `-lsid` / `--lsid` (integer, default `1`) and `-lsidstep` (integer, default `1`).
+
+
+* Replace `-lstid` with `--color` (or keep `-lstid` as a backward-compatible alias), type integer, default `100`.
+
+
+* Replace `-lstidstep` with `--colorstep` (or `-lstidstep`), type integer, default `1`.
+
+
+* Replace `-lspid` with `--discriminator` (or keep `-lspid` as an alias), type integer, default `1`.
+
+
+* Replace `-lspidstep` with `--discriminatorstep` (or `-lspidstep`), type integer, default `1`.
+
+
+* Replace `--lstsaddr` with `--originator-ip` (default `ipaddr.IPv4Address("1.2.3.4")`).
+
+
+* Replace `-lstsaddrstep` with `--originator-ip-step` (default `16`).
+
+
+* Replace `--lsteaddr` with `--endpoint-ip` (default `ipaddr.IPv4Address("5.6.7.8")`).
+
+
+* Replace `-lsteaddrstep` with `--endpoint-ip-step` (default `1`).
+
+
+* Add `--proto-origin` (integer, default `3`, range 0–255).
+
+
+* Add `--originator-asn` (integer, default value referencing the existing `--asnumber` parameter).
+
+
+
+---
+
+#### 4. Generator State & Stepping Logic
+
+##### State Initialization (`MessageGenerator.__init__`)
+
+Initialize `self.ls_nlri_default` as a dictionary containing:
+
+* `"Identifier"`: parsed from `args.lsid`
+
+* `"ProtocolOrigin"`: parsed from `args.proto_origin`
+
+* `"Endpoint"`: parsed from `args.endpoint_ip`
+
+* `"Color"`: parsed from `args.color`
+
+* `"OriginatorASN"`: parsed from `args.originator_asn`
+
+* `"OriginatorAddress"`: parsed from `args.originator_ip`
+
+* `"Discriminator"`: parsed from `args.discriminator`
+
+* `"NodeASN"`: parsed from `args.asnumber`
+
+* `"BgpRouterID"`: derived from `args.myip` (integer representation)
+
+
+
+Store corresponding stepping variables (`self.lsid_step`, `self.color_step`, `self.discriminator_step`, `self.originator_ip_step`, and `self.endpoint_ip_step`).
+
+##### Stepping Arithmetic (`MessageGenerator.get_ls_nlri_values`)
+
+Replace lines 723–753 of `play.py`. For a given iteration index $i$:
+
+1. $Identifier = \text{default}[\text{"Identifier"}] + \lfloor i / \text{step}_{id} \rfloor$
+
+2. $Color = \text{default}[\text{"Color"}] + \lfloor i / \text{step}_{color} \rfloor$
+
+3. $Discriminator = \text{default}[\text{"Discriminator"}] + \lfloor i / \text{step}_{disc} \rfloor$
+
+4. $OriginatorAddress = \text{default}[\text{"OriginatorAddress"}] + (\lfloor i / \text{step}_{orig} \rfloor \times 16)$
+
+5. $Endpoint = \text{default}[\text{"Endpoint"}] + (\lfloor i / \text{step}_{end} \rfloor \times 1)$
+
+6. Return the dictionary containing these dynamic values alongside static keys (`ProtocolOrigin`, `OriginatorASN`, `NodeASN`, `BgpRouterID`).
+
+
+
+---
+
+#### 5. Binary Wire Encoding Specification (`update_message`)
+
+In `MessageGenerator.update_message()` (lines 1362–1392 of `play.py`), re-engineer the construction of `path_attributes_hex` for BGP-LS when `self.bgpls and not end_of_rib`.
+
+##### A. Local Node Descriptors TLV (TLV 256)
+
+RFC 9552 Section 5.1 mandates that sub-TLVs within a Node Descriptor must be placed in ascending order by Type.
+
+* **Sub-TLV 512 (Autonomous System Number):**
+* Type: 2 octets = `512` (`0x0200`)
+
+
+* Length: 2 octets = `4` (`0x0004`)
+
+
+* Value: 4 octets = big-endian unsigned 32-bit integer formatted from `NodeASN`
+
+
+
+* **Sub-TLV 516 (BGP Router-ID):**
+* Type: 2 octets = `516` (`0x0204`)
+
+
+* Length: 2 octets = `4` (`0x0004`)
+
+
+* Value: 4 octets = big-endian unsigned 32-bit integer formatted from `BgpRouterID`
+
+
+
+* **Sub-TLV 1028 (IPv4 Router-ID of Local Node):**
+* Type: 2 octets = `1028` (`0x0404`)
+
+
+* Length: 2 octets = `4` (`0x0004`)
+
+
+* Value: 4 octets = big-endian unsigned 32-bit integer formatted from `OriginatorAddress`
+
+
+
+* **Enclosing TLV 256:**
+* Header: Type = `256` (`0x0100`), Length = `24` octets (`0x0018`)
+
+
+* Value: concatenation of Sub-TLV 512 (8 octets), Sub-TLV 516 (8 octets), and Sub-TLV 1028 (8 octets)
+
+
+* Total TLV 256 serialized size: 28 octets
+
+
+
+
+
+##### B. SR Policy Candidate Path Descriptor TLV (TLV 554)
+
+RFC 9857 Section 4 defines the layout for TLV 554:
+
+* **TLV Header:** Type = `554` (`0x022a`), Length = `24` octets (`0x0018`) for pure IPv4 endpoint and originator.
+
+
+* **Value Fields (24 octets total):**
+1. *Protocol-Origin:* 1 octet = unsigned 8-bit integer (`ProtocolOrigin`, default `0x03`).
+
+
+2. *Flags:* 1 octet = `0x00` (E-flag = 0 indicates IPv4 endpoint, O-flag = 0 indicates IPv4 originator).
+
+
+3. *Reserved:* 2 octets = `0x0000`.
+
+
+4. *Endpoint:* 4 octets = big-endian 32-bit IPv4 address (`Endpoint`).
+
+
+5. *Policy Color:* 4 octets = big-endian 32-bit unsigned integer (`Color`).
+
+
+6. *Originator ASN:* 4 octets = big-endian 32-bit unsigned integer (`OriginatorASN`).
+
+
+7. *Originator Address:* 4 octets = big-endian 32-bit IPv4 address (`OriginatorAddress`).
+
+
+8. *Discriminator:* 4 octets = big-endian 32-bit unsigned integer (`Discriminator`).
+
+
+
+
+* Total TLV 554 serialized size: 28 octets.
+
+
+
+##### C. Link-State NLRI Framing
+
+* **Protocol-ID:** 1 octet = `9` (`0x09`) for Segment Routing (RFC 9857 Section 3).
+
+
+* **Identifier:** 8 octets = big-endian 64-bit unsigned integer (`Identifier`).
+
+
+* **Concatenated Descriptors:** Serialized TLV 256 (28 octets) followed by serialized TLV 554 (28 octets).
+
+
+* **Total NLRI Length:** $1 + 8 + 28 + 28 = 65$ octets (`0x0041`).
+
+
+* **NLRI Header:**
+* NLRI Type: 2 octets = `5` (`0x0005`)
+
+
+* Total NLRI Length: 2 octets = `65` (`0x0041`)
+
+
+
+
+
+##### D. MP_REACH_NLRI Attribute Assembly
+
+Assemble the complete attribute bytes in sequential order:
+
+1. Attribute Flags: 1 octet = `0x80` (Optional, non-transitive).
+
+
+2. Attribute Type: 1 octet = `0x0e` (MP_REACH_NLRI).
+
+
+3. Attribute Length: 1 octet = total octets of the attribute content following this field.
+
+
+* Calculation: 2 (AFI) + 1 (SAFI) + 1 (NextHop Length) + 4 (NextHop) + 1 (Reserved) + 4 (NLRI Header) + 65 (NLRI Payload) = **78 octets** (`0x4e`).
+
+
+
+
+4. Address Family Identifier (AFI): 2 octets = `16388` (`0x4004`, BGP-LS).
+
+
+5. Subsequent AFI (SAFI): 1 octet = `71` (`0x47`, BGP-LS).
+
+
+6. Length of Next Hop Network Address: 1 octet = `4` (`0x04`).
+
+
+7. Network Address of Next Hop: 4 octets = big-endian 32-bit IPv4 address of `next_hop`.
+
+
+8. Reserved: 1 octet = `0x00`.
+
+
+9. NLRI Payload: 69 octets (4-octet NLRI header + 65-octet NLRI content).
+
+
+
+---
+
+#### 6. Verification & Implementation Checklist for Developer Agent
+
+* Ensure `total_path_attributes_length` and overall message `length` computations in `play2.py` continue to dynamically compute length via Python `len()` so that changes in byte sizes propagate correctly into the BGP message header.
+
+
+* Update the debug logging in line 1487 from printing legacy tunnel parameters to logging the updated dictionary keys (`Identifier`, `Color`, `Discriminator`, `Endpoint`, `OriginatorAddress`).
+
+
+* Ensure strict adherence to sub-TLV ascending sorting (512 $\rightarrow$ 516 $\rightarrow$ 1028) inside TLV 256; failure to canonically sort sub-TLVs causes ODL's BGP parser to reject Link-State NLRIs as malformed under RFC 9552 Section 5.1 rules.

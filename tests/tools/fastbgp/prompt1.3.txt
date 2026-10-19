@@ -1,0 +1,1 @@
+I think I should prepare a "translation dictionary" to map each old draft term into new RFC term and perhaps a comment describing how the associated values differ.

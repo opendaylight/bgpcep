@@ -1,0 +1,36 @@
+Your assessment regarding the choice of NLRI type is sound, though the characterization of RFC 9552 requires a key clarification.
+
+### Review of Your Summary
+
+* **Role of RFC 9552:** RFC 9552 does not merely establish registries; it is the comprehensive base standard for BGP Link-State (obsoleting RFC 7752 and RFC 9029). It defines the core protocol operation, TLV encoding rules, syntactical error handling, and the four foundational Link-State NLRI types: Node (Type 1), Link (Type 2), IPv4 Topology Prefix (Type 3), and IPv6 Topology Prefix (Type 4).
+
+
+* **Status of Type 7:** Type 7 (`draft-ietf-idr-bgpls-inter-as-topology-ext`) is indeed an Internet-Draft rather than an approved RFC, making it less suitable for standardized regression testing.
+* **Selecting Type 5 vs. Type 6:** Selecting **Type 5 (SR Policy Candidate Path NLRI, RFC 9857)** is the better choice for matching `play.py`'s existing structure:
+
+
+* Type 5 mirrors the path/tunnel semantics of the old TE-LSP implementation. It features an 8-octet Identifier, an Originator address and ASN (analogous to the old Tunnel Sender Address), an Endpoint address (analogous to the old Tunnel End Point Address), and a 32-bit Discriminator (analogous to the old Tunnel ID / LSP ID).
+
+
+* Type 6 (SRv6 SID NLRI, RFC 9514) represents an individual 128-bit IPv6 segment tied to node descriptors. It does not model a path or tunnel and uses completely different IPv6-only data structures.
+
+
+
+
+* **Database Stress vs. Parsing:** While the primary objective is stressing ODL's distributed data store (MD-SAL), ODL's BGP-LS plugin still requires strict syntactical conformance before an update reaches the datastore. Unlike the legacy TE-LSP NLRI (which placed raw fields directly in the NLRI value), RFC 9857 specifies that NLRI Type 5 must encapsulate those fields inside TLVs (specifically Local Node Descriptors TLV 256 and SR Policy Candidate Path Descriptor TLV 554) under Protocol-ID 9 (Segment Routing).
+
+
+
+---
+
+### Line Numbers in `play.py` to Edit
+
+The specific line ranges in `play.py` that need modification to support the updated NLRI schema are:
+
+* **Lines 174–198 (`parse_arguments`)**: Command-line arguments defining the TE-LSP fields (`-lsid`, `-lstid`, `-lspid`, `--lstsaddr`, `--lsteaddr`) and their iteration step parameters (`-lsidstep`, `-lstidstep`, etc.).
+* **Lines 443–454 (`MessageGenerator.__init__`)**: The initialization of `self.ls_nlri_default` dictionary keys and the step variable assignments.
+* **Lines 723–753 (`MessageGenerator.get_ls_nlri_values`)**: The docstring referencing the obsolete draft, the calculation of stepping values per iteration, and the constructed dictionary return value.
+* **Lines 886–889 (`MessageGenerator.compose_update_message`)**: The method call and keyword argument expansion passing the generated parameters into `self.update_message()`.
+* **Lines 1290–1291 (`MessageGenerator.update_message`)**: Dictionary copying and updating of the BGP-LS parameters.
+* **Lines 1362–1394 (`MessageGenerator.update_message`)**: The binary serialization of `MP_REACH_NLRI`, including the NLRI type (`b"\x00\x05"`), length, Protocol-ID (`b"\x07"`), and the binary packing of the identifier and tunnel fields.
+* **Lines 1487–1488 (`MessageGenerator.update_message`)**: The debug logging statement reporting the formatted dictionary.

@@ -1,0 +1,1 @@
+I attached two files. The `reply1.4.txt` one defines the task for you, `play.py` is the old script mentioned there. Write the new script.

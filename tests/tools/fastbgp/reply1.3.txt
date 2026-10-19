@@ -1,0 +1,106 @@
+A translation dictionary mapping the legacy fields in `play.py` (`draft-ietf-idr-te-lsp-distribution-03`) to the standardized RFC 9857 terms is detailed below:
+
+| Old Draft / `play.py` Term | RFC 9857 Term | Old Encoding / Format | New Encoding / Format (RFC 9857) |
+| --- | --- | --- | --- |
+| **NLRI Type = 5** (`IPv4 TE LSP NLRI`) | **NLRI Type = 5** (`SR Policy Candidate Path NLRI`) | 2 octets (`0x0005`) directly followed by raw fields
+
+ | 2 octets (`0x0005`) followed by encapsulated TLVs (TLV 256 and TLV 554)
+
+ |
+| **Protocol-ID = 7** (`RSVP-TE`) | **Protocol-ID = 9** (`Segment Routing`) | 1 octet (`0x07`)
+
+ | 1 octet (`0x09`)
+
+ |
+| **Identifier** (`lsid`) | **Identifier** (BGP-LS Instance-ID) | 8 octets (64-bit uint)
+
+ | 8 octets (64-bit uint, per RFC 9552 Section 5.2)
+
+ |
+| *(None / Not modeled)* | **Local Node Descriptors TLV** | Not present (flat fields followed the header)
+
+ | Mandatory TLV 256 containing sub-TLVs (e.g., TLV 1028 for IPv4 Router-ID, TLV 512 for ASN)
+
+ |
+| **IPv4 Tunnel Sender Address** (`lstsaddr`) | **Originator Address** *(TLV 554)* & **Local Node Router-ID** *(TLV 256)* | 4 octets flat in NLRI payload
+
+ | 4 octets in TLV 554 (when O-flag = 0), plus 4 octets in sub-TLV 1028 inside TLV 256
+
+ |
+| **IPv4 Tunnel End Point Address** (`lsteaddr`) | **Endpoint** *(TLV 554)* | 4 octets flat in NLRI payload
+
+ | 4 octets in TLV 554 (when E-flag = 0; 16 octets if IPv6)
+
+ |
+| **Tunnel ID** (`lstid`) + **LSP ID** (`lspid`) | **Policy Color** + **Discriminator** *(TLV 554)* | Two 2-octet unsigned ints (16 bits each)
+
+ | Two 4-octet unsigned ints (32 bits each) inside TLV 554
+
+ |
+| *(None / Not modeled)* | **Protocol-Origin** *(TLV 554)* | Not present
+
+ | 1 octet in TLV 554 (e.g., `1` for PCEP, `2` for BGP SR Policy, `3` for Configuration)
+
+ |
+| *(None / Not modeled)* | **Originator AS Number** *(TLV 554)* | Not present
+
+ | 4 octets in TLV 554 representing the originator ASN
+
+ |
+| *(None / Not modeled)* | **Flags** *(TLV 554)* | Not present
+
+ | 1 octet in TLV 554 (Bit 0: E-flag for IPv6 endpoint; Bit 1: O-flag for IPv6 originator)
+
+ |
+
+---
+
+### Detailed Value and Structural Differences
+
+* **NLRI Framing & TLV Encapsulation:**
+* In `draft-ietf-idr-te-lsp-distribution-03`, all parameters were serialized as a continuous, unpadded 21-octet binary string following the NLRI header.
+
+
+* In RFC 9857, the NLRI body consists of the 1-octet Protocol-ID (`0x09`), the 8-octet Identifier, followed strictly by TLV structures: first the **Local Node Descriptors TLV** (Type 256), followed by the **SR Policy Candidate Path Descriptor TLV** (Type 554).
+
+
+
+
+* **Protocol-ID:**
+* Old: Set to `0x07` representing RSVP-TE.
+
+
+* New: RFC 9857 Section 3 mandates Protocol-ID `9` ("Segment Routing") for all SR Policy Candidate Path advertisements.
+
+
+
+
+* **Local Node Identification (TLV 256):**
+* Old: Only carried the raw IPv4 tunnel sender address.
+
+
+* New: RFC 9857 Section 3 mandates the inclusion of a Local Node Descriptors TLV (Type 256). When the headend originates the path, it MUST include the BGP Router-ID (TLV 516), Autonomous System Number (TLV 512, 4 octets), and at least one local Router-ID (such as IPv4 Router-ID of Local Node, TLV 1028, 4 octets).
+
+
+
+
+* **Path Identification & Stepping Fields:**
+* Old: Paths were identified using a 16-bit `Tunnel ID` and a 16-bit `LSP ID`.
+
+
+* New: In RFC 9857 (aligned with RFC 9256), a candidate path is uniquely identified by the tuple <Headend, Color, Discriminator Endpoint, Originator,>. The `Discriminator` is a 32-bit integer that uniquely differentiates candidate paths from the same originator. In `play.py`, stepping can be mapped directly to `Discriminator` or `Color` instead of `TunnelID` and `LSPID`.
+
+
+
+
+* **Descriptor Length (TLV 554):**
+* Old: Fixed payload size of 21 octets.
+
+
+* New: Type 554 has a variable length depending on IP version flags. For pure IPv4 (`E=0`, `O=0`), the TLV value length is exactly 24 octets.
+
+
+
+
+
+Would you like to map the stepping logic so that `Discriminator` replaces `LSP ID` and `Policy Color` replaces `Tunnel ID`?

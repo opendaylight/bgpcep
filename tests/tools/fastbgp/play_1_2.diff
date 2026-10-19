@@ -1,0 +1,358 @@
+--- play.py	2026-10-15 10:27:27.937745054 +0000
++++ play2.py	2026-10-16 11:05:08.656139400 +0000
+@@ -1,4 +1,4 @@
+-"""Utility for playing generated BGP data to ODL.
++"""Utility for playing generated BGP data to ODL supporting RFC 9857 and RFC 9552.
+ 
+ It needs to be run with sudo-able user when you want to use ports below 1024
+ as --myip. This utility is used to avoid excessive waiting times which EXABGP
+@@ -179,29 +179,104 @@ def parse_arguments():
+     str_help = "Link-State NLRI supported"
+     parser.add_argument("--bgpls", default=False, type=bool, help=str_help)
+     str_help = "Link-State NLRI: Identifier"
+-    parser.add_argument("-lsid", default="1", type=int, help=str_help)
+-    str_help = "Link-State NLRI: Tunnel ID"
+-    parser.add_argument("-lstid", default="1", type=int, help=str_help)
+-    str_help = "Link-State NLRI: LSP ID"
+-    parser.add_argument("-lspid", default="1", type=int, help=str_help)
+-    str_help = "Link-State NLRI: IPv4 Tunnel Sender Address"
++    parser.add_argument("-lsid", "--lsid", dest="lsid", default=1, type=int, help=str_help)
++    str_help = "Link-State NLRI: Policy Color"
+     parser.add_argument(
+-        "--lstsaddr", default="1.2.3.4", type=ipaddr.IPv4Address, help=str_help
++        "--color", "-lstid", dest="color", default=100, type=int, help=str_help
+     )
+-    str_help = "Link-State NLRI: IPv4 Tunnel End Point Address"
++    str_help = "Link-State NLRI: Discriminator"
+     parser.add_argument(
+-        "--lsteaddr", default="5.6.7.8", type=ipaddr.IPv4Address, help=str_help
++        "--discriminator",
++        "-lspid",
++        dest="discriminator",
++        default=1,
++        type=int,
++        help=str_help,
++    )
++    str_help = "Link-State NLRI: Originator IP Address"
++    parser.add_argument(
++        "--originator-ip",
++        "--lstsaddr",
++        dest="originator_ip",
++        default=ipaddr.IPv4Address("1.2.3.4"),
++        type=ipaddr.IPv4Address,
++        help=str_help,
++    )
++    str_help = "Link-State NLRI: Endpoint IP Address"
++    parser.add_argument(
++        "--endpoint-ip",
++        "--lsteaddr",
++        dest="endpoint_ip",
++        default=ipaddr.IPv4Address("5.6.7.8"),
++        type=ipaddr.IPv4Address,
++        help=str_help,
+     )
+     str_help = "Link-State NLRI: Identifier Step"
+-    parser.add_argument("-lsidstep", default="1", type=int, help=str_help)
+-    str_help = "Link-State NLRI: Tunnel ID Step"
+-    parser.add_argument("-lstidstep", default="2", type=int, help=str_help)
+-    str_help = "Link-State NLRI: LSP ID Step"
+-    parser.add_argument("-lspidstep", default="4", type=int, help=str_help)
+-    str_help = "Link-State NLRI: IPv4 Tunnel Sender Address Step"
+-    parser.add_argument("-lstsaddrstep", default="16", type=int, help=str_help)
+-    str_help = "Link-State NLRI: IPv4 Tunnel End Point Address Step"
+-    parser.add_argument("-lsteaddrstep", default="1", type=int, help=str_help)
++    parser.add_argument(
++        "-lsidstep",
++        "--lsidstep",
++        "--lsid-step",
++        dest="lsidstep",
++        default=1,
++        type=int,
++        help=str_help,
++    )
++    str_help = "Link-State NLRI: Policy Color Step"
++    parser.add_argument(
++        "--colorstep",
++        "--color-step",
++        "-lstidstep",
++        dest="colorstep",
++        default=1,
++        type=int,
++        help=str_help,
++    )
++    str_help = "Link-State NLRI: Discriminator Step"
++    parser.add_argument(
++        "--discriminatorstep",
++        "--discriminator-step",
++        "-lspidstep",
++        dest="discriminatorstep",
++        default=1,
++        type=int,
++        help=str_help,
++    )
++    str_help = "Link-State NLRI: Originator IP Address Step"
++    parser.add_argument(
++        "--originator-ip-step",
++        "--originatoripstep",
++        "-lstsaddrstep",
++        dest="originator_ip_step",
++        default=16,
++        type=int,
++        help=str_help,
++    )
++    str_help = "Link-State NLRI: Endpoint IP Address Step"
++    parser.add_argument(
++        "--endpoint-ip-step",
++        "--endpointipstep",
++        "-lsteaddrstep",
++        dest="endpoint_ip_step",
++        default=1,
++        type=int,
++        help=str_help,
++    )
++    str_help = "Link-State NLRI: Protocol-Origin (range 0-255)"
++    parser.add_argument(
++        "--proto-origin",
++        dest="proto_origin",
++        default=3,
++        type=int,
++        help=str_help,
++    )
++    str_help = "Link-State NLRI: Originator AS Number"
++    parser.add_argument(
++        "--originator-asn",
++        dest="originator_asn",
++        default=None,
++        type=int,
++        help=str_help,
++    )
+     str_help = "How many play utilities are to be started."
+     parser.add_argument("--multiplicity", default="1", type=int, help=str_help)
+     str_help = "Open message includes multiprotocol extension capability l2vpn-evpn.\
+@@ -247,6 +322,16 @@ def parse_arguments():
+     if arguments.multiplicity < 1:
+         print("Multiplicity", arguments.multiplicity, "is not positive.")
+         raise SystemExit(1)
++    if arguments.originator_asn is None:
++        arguments.originator_asn = arguments.asnumber
++    if not (0 <= arguments.proto_origin <= 255):
++        print("proto-origin", arguments.proto_origin, "is not in range 0-255.")
++        raise SystemExit(1)
++    arguments.color_step = arguments.colorstep
++    arguments.discriminator_step = arguments.discriminatorstep
++    arguments.lsid_step = arguments.lsidstep
++    arguments.originator_ip_step = arguments.originator_ip_step
++    arguments.endpoint_ip_step = arguments.endpoint_ip_step
+     # TODO: Are sanity checks (such as asnumber>=0) required?
+     return arguments
+ 
+@@ -456,18 +541,33 @@ class MessageGenerator(object):
+         if self.bgpls:
+             self.prefix_count_to_add_default = 1
+             self.prefix_count_to_del_default = 0
++        originator_asn = (
++            args.originator_asn
++            if getattr(args, "originator_asn", None) is not None
++            else args.asnumber
++        )
+         self.ls_nlri_default = {
+             "Identifier": args.lsid,
+-            "TunnelID": args.lstid,
+-            "LSPID": args.lspid,
+-            "IPv4TunnelSenderAddress": args.lstsaddr,
+-            "IPv4TunnelEndPointAddress": args.lsteaddr,
++            "ProtocolOrigin": args.proto_origin,
++            "Endpoint": args.endpoint_ip,
++            "Color": args.color,
++            "OriginatorASN": originator_asn,
++            "OriginatorAddress": args.originator_ip,
++            "Discriminator": args.discriminator,
++            "NodeASN": args.asnumber,
++            "BgpRouterID": int(args.myip),
+         }
+-        self.lsid_step = args.lsidstep
+-        self.lstid_step = args.lstidstep
+-        self.lspid_step = args.lspidstep
+-        self.lstsaddr_step = args.lstsaddrstep
+-        self.lsteaddr_step = args.lsteaddrstep
++        self.lsid_step = getattr(args, "lsid_step", getattr(args, "lsidstep", 1))
++        self.color_step = getattr(args, "color_step", getattr(args, "colorstep", 1))
++        self.discriminator_step = getattr(
++            args, "discriminator_step", getattr(args, "discriminatorstep", 1)
++        )
++        self.originator_ip_step = getattr(
++            args, "originator_ip_step", getattr(args, "originatoripstep", 16)
++        )
++        self.endpoint_ip_step = getattr(
++            args, "endpoint_ip_step", getattr(args, "endpointipstep", 1)
++        )
+         # Default values used for randomized part
+         s1_slots = (
+             int(
+@@ -728,30 +828,38 @@ class MessageGenerator(object):
+         return new_index
+ 
+     def get_ls_nlri_values(self, index):
+-        """Generates LS-NLRI parameters.
+-        http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03
++        """Generates LS-NLRI parameters for SR Policy Candidate Path (RFC 9857 / RFC 9552).
+ 
+         Arguments:
+             :param index: index (iteration)
+         Returns:
+             :return: dictionary of LS NLRI parameters and values
+         """
+-        # generating list of LS NLRI parameters
+-        identifier = self.ls_nlri_default["Identifier"] + int(index / self.lsid_step)
+-        ipv4_tunnel_sender_address = self.ls_nlri_default[
+-            "IPv4TunnelSenderAddress"
+-        ] + int(index / self.lstsaddr_step)
+-        tunnel_id = self.ls_nlri_default["TunnelID"] + int(index / self.lstid_step)
+-        lsp_id = self.ls_nlri_default["LSPID"] + int(index / self.lspid_step)
+-        ipv4_tunnel_endpoint_address = self.ls_nlri_default[
+-            "IPv4TunnelEndPointAddress"
+-        ] + int(index / self.lsteaddr_step)
++        identifier = self.ls_nlri_default["Identifier"] + int(
++            index / self.lsid_step
++        )
++        color = self.ls_nlri_default["Color"] + int(
++            index / self.color_step
++        )
++        discriminator = self.ls_nlri_default["Discriminator"] + int(
++            index / self.discriminator_step
++        )
++        originator_address = self.ls_nlri_default["OriginatorAddress"] + (
++            int(index / self.originator_ip_step) * 16
++        )
++        endpoint = self.ls_nlri_default["Endpoint"] + (
++            int(index / self.endpoint_ip_step) * 1
++        )
+         ls_nlri_values = {
+             "Identifier": identifier,
+-            "IPv4TunnelSenderAddress": ipv4_tunnel_sender_address,
+-            "TunnelID": tunnel_id,
+-            "LSPID": lsp_id,
+-            "IPv4TunnelEndPointAddress": ipv4_tunnel_endpoint_address,
++            "Color": color,
++            "Discriminator": discriminator,
++            "OriginatorAddress": originator_address,
++            "Endpoint": endpoint,
++            "ProtocolOrigin": self.ls_nlri_default["ProtocolOrigin"],
++            "OriginatorASN": self.ls_nlri_default["OriginatorASN"],
++            "NodeASN": self.ls_nlri_default["NodeASN"],
++            "BgpRouterID": self.ls_nlri_default["BgpRouterID"],
+         }
+         return ls_nlri_values
+ 
+@@ -1364,29 +1472,65 @@ class MessageGenerator(object):
+                 path_attributes_hex += struct.pack(">I", int(cluster_list_item))
+ 
+         if self.bgpls and not end_of_rib:
+-            path_attributes_hex += (
+-                b"\x80"  # Flags ("Optional, non-transitive")
+-                b"\x0e"  # Type (MP_REACH_NLRI)
+-                b"\x22"  # Length (34)
+-                b"\x40\x04"  # AFI (BGP-LS)
+-                b"\x47"  # SAFI (BGP-LS)
+-                b"\x04"  # Next Hop Length (4)
++            # Sub-TLVs for Local Node Descriptors TLV (TLV 256)
++            # RFC 9552 Section 5.1: sub-TLVs MUST be sorted in ascending order by Type.
++            # Sub-TLV 512: Autonomous System Number (4 octets)
++            sub_tlv_512 = struct.pack(">HH", 512, 4) + struct.pack(
++                ">I", int(ls_nlri["NodeASN"])
+             )
+-            path_attributes_hex += struct.pack(">I", int(next_hop))
+-            path_attributes_hex += b"\x00"  # Reserved
+-            path_attributes_hex += (
+-                b"\x00\x05"  # LS-NLRI.NLRIType (IPv4 TE LSP NLRI)
+-                b"\x00\x15"  # LS-NLRI.TotalNLRILength (21)
+-                b"\x07"  # LS-NLRI.Variable.ProtocolID (RSVP-TE)
++            # Sub-TLV 516: BGP Router-ID (4 octets)
++            sub_tlv_516 = struct.pack(">HH", 516, 4) + struct.pack(
++                ">I", int(ls_nlri["BgpRouterID"])
+             )
+-            path_attributes_hex += struct.pack(">Q", int(ls_nlri["Identifier"]))
+-            path_attributes_hex += struct.pack(
+-                ">I", int(ls_nlri["IPv4TunnelSenderAddress"])
++            # Sub-TLV 1028: IPv4 Router-ID of Local Node (4 octets)
++            sub_tlv_1028 = struct.pack(">HH", 1028, 4) + struct.pack(
++                ">I", int(ls_nlri["OriginatorAddress"])
+             )
+-            path_attributes_hex += struct.pack(">H", int(ls_nlri["TunnelID"]))
+-            path_attributes_hex += struct.pack(">H", int(ls_nlri["LSPID"]))
+-            path_attributes_hex += struct.pack(
+-                ">I", int(ls_nlri["IPv4TunnelEndPointAddress"])
++            # Enclosing TLV 256 (Local Node Descriptors): 28 octets total
++            tlv_256_val = sub_tlv_512 + sub_tlv_516 + sub_tlv_1028
++            tlv_256 = struct.pack(">HH", 256, len(tlv_256_val)) + tlv_256_val
++
++            # SR Policy Candidate Path Descriptor TLV (TLV 554) - RFC 9857 Section 4
++            tlv_554_val = (
++                struct.pack("B", int(ls_nlri["ProtocolOrigin"]))  # 1 octet: Protocol-Origin
++                + b"\x00"  # 1 octet: Flags (E=0, O=0 for IPv4)
++                + b"\x00\x00"  # 2 octets: Reserved
++                + struct.pack(">I", int(ls_nlri["Endpoint"]))  # 4 octets: Endpoint
++                + struct.pack(">I", int(ls_nlri["Color"]))  # 4 octets: Policy Color
++                + struct.pack(">I", int(ls_nlri["OriginatorASN"]))  # 4 octets: Originator ASN
++                + struct.pack(">I", int(ls_nlri["OriginatorAddress"]))  # 4 octets: Originator Address
++                + struct.pack(">I", int(ls_nlri["Discriminator"]))  # 4 octets: Discriminator
++            )
++            tlv_554 = struct.pack(">HH", 554, len(tlv_554_val)) + tlv_554_val
++
++            # Link-State NLRI Framing (RFC 9857 / RFC 9552)
++            # Protocol-ID = 9 (Segment Routing)
++            # Identifier: 8 octets (64-bit BGP-LS Instance-ID)
++            nlri_content = (
++                struct.pack("B", 9)
++                + struct.pack(">Q", int(ls_nlri["Identifier"]))
++                + tlv_256
++                + tlv_554
++            )
++            # NLRI Header: Type = 5 (SR Policy Candidate Path), Length = 65 octets
++            nlri = struct.pack(">HH", 5, len(nlri_content)) + nlri_content
++
++            # MP_REACH_NLRI attribute content (78 octets total)
++            mp_reach_content = (
++                b"\x40\x04"  # AFI (BGP-LS = 16388)
++                b"\x47"  # SAFI (BGP-LS = 71)
++                b"\x04"  # Length of Next Hop Network Address (4 octets)
++                + struct.pack(">I", int(next_hop))  # Next Hop IPv4 Address
++                + b"\x00"  # Reserved
++                + nlri  # 69 octets (4-octet NLRI header + 65-octet NLRI content)
++            )
++
++            # MP_REACH_NLRI attribute assembly
++            path_attributes_hex += (
++                b"\x80"  # Attribute Flags: Optional, non-transitive
++                b"\x0e"  # Attribute Type: MP_REACH_NLRI (14)
++                + struct.pack("B", len(mp_reach_content))  # Attribute Length: 78 octets
++                + mp_reach_content
+             )
+ 
+         # Total Path Attributes Length
+@@ -1867,9 +2011,6 @@ class ReadTracker(object):
+         while len(hex_to_decode):
+             attr_flags_hex = hex_to_decode[0:1]
+             attr_flags = int(binascii.b2a_hex(attr_flags_hex), 16)
+-            #            attr_optional_bit = attr_flags & 128
+-            #            attr_transitive_bit = attr_flags & 64
+-            #            attr_partial_bit = attr_flags & 32
+             attr_extended_length_bit = attr_flags & 16
+ 
+             attr_type_code_hex = hex_to_decode[1:2]
+@@ -2425,7 +2566,7 @@ def job(arguments, inqueue, storage):
+ 
+     Arguments:
+         :arguments: Command line arguments
+-        :inqueue: Data to be sent from play.py
++        :inqueue: Data to be sent from play2.py
+         :storage: Shared dict for rpc server
+     Returns:
+         :return: None
+@@ -2603,4 +2744,4 @@ def threaded_job(arguments):
+ if __name__ == "__main__":
+     arguments = parse_arguments()
+     logger = create_logger(arguments.loglevel, arguments.logfile)
+-    threaded_job(arguments)
++    threaded_job(arguments)
+\ No newline at end of file
