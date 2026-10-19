@@ -40,7 +40,7 @@ BGP_PEER_COMMAND = (
     f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
     f"--{BGP_PEER_LOG_LEVEL} --logfile {BGP_PEER_LOG_FILE} --bgpls True"
 )
-BGP_PEER_OPTIONS = f"2>&1 >tmp/{BGP_PEER_LOG_FILE}"
+BGP_PEER_OPTIONS = f">{BGP_PEER_LOG_FILE} 2>&1"
 JSONKEYSTR = "linkstate-route"
 BGP_PEER_NAME = "example-bgp-peer"
 SKIP_PARAMS = "--skipattr"

@@ -112,7 +112,7 @@ class TestIbgpPeerLsp:
                         f"--peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} "
                         f"--logfile {log_file} --bgpls True  -lsid {ls_identifier} "
                         f"--lstsaddr {sender_addr} --lsteaddr {endpoint_addr} "
-                        f"--skipattr 2>&1 >{log_file}"
+                        f"--skipattr >{log_file} 2>&1"
                     ),
                     run_in_background=True,
                 )
@@ -189,7 +189,7 @@ class TestIbgpPeerLsp:
                         f"--peerport={ODL_BGP_PORT} --{BGP_PEER_LOG_LEVEL} "
                         f"--logfile {log_file} --bgpls True -lsid {ls_identifier} "
                         f"--lstsaddr {sender_addr} --lsteaddr {endpoint_addr} "
-                        f"2>&1 >{log_file}"
+                        f">{log_file} 2>&1"
                     ),
                     run_in_background=True,
                 )
