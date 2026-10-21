@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "5a0495b9_cf2f0bb3",
+        "filename": "tests/conftest.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T08:11:49Z",
+      "side": 1,
+      "message": "Done in ps6. The step markers now loop cluster.active_nodes(), and fail_if_exception_found_during_test loops cluster.active_karaf_log_dirs(), so it reads every member\u0027s karaf.log.",
+      "parentUuid": "684cf6e6_8d9ed4b2",
+      "revId": "5847dfae5df1e563ab3b257c1432ee80b8bd24be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "86472a47_d302d73b",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-10-15T07:14:08Z",
       "side": 1,
       "message": "A few request helpers still have no host parameter: play_to_odl_non_removal_template and play_to_odl_template pass get_templated_request to wait_until_function_pass without host, odl_to_play_template and remove_configured_routes post/delete to the default node, and start_bgp_app_peer hard-codes --host {ODL_IP}. Could these get host too?",
+      "revId": "5847dfae5df1e563ab3b257c1432ee80b8bd24be",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bdce0392_bc9a9cda",
+        "filename": "tests/libraries/bgp.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 1016,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T08:11:49Z",
+      "side": 1,
+      "message": "Done in ps6. All five take host and thread it inward: the two play_to_odl_* pass host\u003d into get_templated_request, odl_to_play_template and remove_configured_routes pass it to the post/delete, and start_bgp_app_peer uses --host {host}.",
+      "parentUuid": "86472a47_d302d73b",
       "revId": "5847dfae5df1e563ab3b257c1432ee80b8bd24be",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
