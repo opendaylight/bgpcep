@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "152508da_6973ca89",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T06:21:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "81188c5e_9887be08",
+      "revId": "9137b293e65e37b34f8da57e5f38e3dbb9917038",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "8c06cc58_5ee14aa5",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "79f3d4ff_14566180",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T06:21:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c06cc58_5ee14aa5",
+      "revId": "9137b293e65e37b34f8da57e5f38e3dbb9917038",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "710f0ed4_b8230d8d",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-10-19T09:28:51Z",
       "side": 1,
       "message": "The marker says \"own CI job, never in smoke\", but nothing enforces that: the README\u0027s plain tox -e pytest, or -m performance / -m bgp, now ends with a 23 h soak. Could we make it opt-in, e.g. a pytest_collection_modifyitems hook in conftest.py that deselects longevity items unless -m mentions longevity, or at least document the -m \"not longevity\" exclusion?",
+      "revId": "9137b293e65e37b34f8da57e5f38e3dbb9917038",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "bf28abe8_d562bcdc",
+        "filename": "tests/tox.ini",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T06:21:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "710f0ed4_b8230d8d",
       "revId": "9137b293e65e37b34f8da57e5f38e3dbb9917038",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
