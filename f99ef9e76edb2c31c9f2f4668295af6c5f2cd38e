@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a993bfa0_7fd1cd52",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T10:17:05Z",
+      "side": 1,
+      "message": "done / reworded; the message now also mentions the collection hook and the peer removal applying to the two inheriting suites",
+      "parentUuid": "62295b2c_a7081688",
+      "revId": "f99ef9e76edb2c31c9f2f4668295af6c5f2cd38e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "82a1647c_84796cb3",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e999afbc_3070429f",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T10:17:05Z",
+      "side": 1,
+      "message": "Done. fixed leftover issue so description now aligns with reality and the commit message has the \"left out\" sentence back.",
+      "parentUuid": "82a1647c_84796cb3",
+      "revId": "f99ef9e76edb2c31c9f2f4668295af6c5f2cd38e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a0bf2b0a_b0cd4b0c",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-10-21T07:10:28Z",
       "side": 1,
       "message": "report_handler is a private pytest attribute, and the None fallback means a pytest bump that renames it silently turns the clearing off, bringing back hours of log growth. Would it be better to read logging_plugin.report_handler directly and drop the None check below, so the soak fails at setup instead of running out of memory late in the run?",
+      "revId": "f99ef9e76edb2c31c9f2f4668295af6c5f2cd38e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "82dcbfa8_726c9175",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T10:17:05Z",
+      "side": 1,
+      "message": "Right, that makes sense, a silent no-op that OOMs ~hours into a soak is worse that setup fail - Reading report_handler directly now, guard dropped.",
+      "parentUuid": "a0bf2b0a_b0cd4b0c",
       "revId": "f99ef9e76edb2c31c9f2f4668295af6c5f2cd38e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
