@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "62295b2c_a7081688",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-21T07:10:28Z",
+      "side": 1,
+      "message": "In the commit message: \"The shared ingest cycle moves out of the prefix count base class\" is backwards. It moves out of the test method into a new method *on* the base class. The message also does not mention two changes that reach beyond this suite: the repo-wide collection hook in `conftest.py`, and the peer removal now running on failure in the two existing suites.",
+      "revId": "f99ef9e76edb2c31c9f2f4668295af6c5f2cd38e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "82a1647c_84796cb3",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-21T07:10:28Z",
+      "side": 1,
+      "message": "The description still promises shard monitoring, but the suite only counts prefixes on a single node; the Robot original\u0027s shard leader pinning and stability check are not ported. The 300k sibling dropped the \"shm\" expansion for that reason. Could the description say the check is not ported, and the commit message keep the earlier patch set\u0027s sentence that it was left out?",
+      "revId": "f99ef9e76edb2c31c9f2f4668295af6c5f2cd38e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a0bf2b0a_b0cd4b0c",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-21T07:10:28Z",
+      "side": 1,
+      "message": "report_handler is a private pytest attribute, and the None fallback means a pytest bump that renames it silently turns the clearing off, bringing back hours of log growth. Would it be better to read logging_plugin.report_handler directly and drop the None check below, so the soak fails at setup instead of running out of memory late in the run?",
+      "revId": "f99ef9e76edb2c31c9f2f4668295af6c5f2cd38e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
