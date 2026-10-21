@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e2d66eb4_e1a8cc45",
+        "filename": "tests/conftest.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T07:58:57Z",
+      "side": 1,
+      "message": "Done, keyed on item.fixturenames for both fixtures; unit-tested the exact case: cluster fixture requested with the marker forgotten is now skipped",
+      "parentUuid": "82610549_1bc32758",
+      "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "e7c38219_369c90b0",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-10-15T09:00:17Z",
       "side": 1,
       "message": "If wait_cluster_ready raises, pytest never runs the code after yield, so three 4G member JVMs keep holding 127.0.0.x:8101/8181/2550 and the next run fails to start. Could setup and yield go inside try/finally so stop_all_karaf_instances() always runs?",
+      "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "cb8628f2_1321ca2a",
+        "filename": "tests/conftest.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T07:58:57Z",
+      "side": 1,
+      "message": "Done. Applied to odl_standalone too, since the same leak exists there with one JVM instead of three.",
+      "parentUuid": "e7c38219_369c90b0",
       "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -52,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "70ec8cdd_d2b4536e",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T07:58:57Z",
+      "side": 1,
+      "message": "Done, both keys added. They\u0027re hardcoded to 127.0.0.1 in the staged distribution; `serviceUrl` interpolates them so it follows automatically",
+      "parentUuid": "a07a10fb_43316b17",
+      "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "1f2197d1_85a22e68",
@@ -65,6 +119,24 @@
       "writtenOn": "2026-10-15T09:00:17Z",
       "side": 1,
       "message": "Checking the mv helps a second cluster run, but a cluster run after a standalone one still copies its data/ (including a karaf.log that already says \"System ready\"), so wait_cluster_ready returns immediately, and a standalone run after a cluster one finds no opendaylight/. Could we cp -r into every member and drop data/ from each copy instead of moving?",
+      "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f01fc3c2_d713d49d",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T07:58:57Z",
+      "side": 1,
+      "message": "Done, every member is now a cp -r of opendaylight/ with data/ dropped. costs one extra full copy - worth it over the two failure modes.",
+      "parentUuid": "1f2197d1_85a22e68",
       "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -86,6 +158,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9d1692f_da26b01d",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T07:58:57Z",
+      "side": 1,
+      "message": "Done. Constant split into `BGP_SHARED_PORT` and `SINGLETON_SHARED_PORTS`, and the function now also reports the member whose log has `BGPClusterSingletonService` … instantiatedd, warning when that differs from the port holder. Also docstring corrected \u003e only 1790 is a genuine race.",
+      "parentUuid": "f189456b_27085310",
+      "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "02fab933_24287126",
@@ -99,6 +189,24 @@
       "writtenOn": "2026-10-15T09:00:17Z",
       "side": 1,
       "message": "what if ss isn\u0027t installed?",
+      "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b1e84960_d8701e08",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T07:58:57Z",
+      "side": 1,
+      "message": "Done, early return with a warning if ss is missing",
+      "parentUuid": "02fab933_24287126",
       "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -120,6 +228,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "b73d1637_91c9ca40",
+        "filename": "tests/libraries/infra.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T07:58:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "744f6fd8_b8484f09",
+      "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "31fa6410_31a71016",
@@ -133,6 +259,24 @@
       "writtenOn": "2026-10-15T09:00:17Z",
       "side": 1,
       "message": "This is now dead code, since the only caller now uses _checked_shell(\"cp -r …\")",
+      "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "9014c192_903d80e8",
+        "filename": "tests/libraries/infra.py",
+        "patchSetId": 3
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-21T07:58:57Z",
+      "side": 1,
+      "message": "removed - was added and never used.",
+      "parentUuid": "31fa6410_31a71016",
       "revId": "6d1d04fa01153ebc9949b987332d434ba3846c25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
