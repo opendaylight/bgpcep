@@ -40,7 +40,7 @@ record AdjRibInTable(YangInstanceIdentifier path, RIBSupportContext ribSupport) 
 
     static AdjRibInTable ofPeer(final RIBSupportContext ribSupport, final YangInstanceIdentifier peerPath) {
         return new AdjRibInTable(YangInstanceIdentifier.builder(peerPath)
-            .node(ADJRIBIN_NID).node(TABLES_NID).node(ribSupport.getRibSupport().tablesKey())
+            .node(ADJRIBIN_NID).node(TABLES_NID).node(ribSupport.ribSupport().tablesKey())
             .build(), ribSupport);
     }
 
@@ -62,10 +62,10 @@ record AdjRibInTable(YangInstanceIdentifier path, RIBSupportContext ribSupport) 
     }
 
     YangInstanceIdentifier routesPath() {
-        return ribSupport.getRibSupport().routesPath(path);
+        return ribSupport.ribSupport().routesPath(path);
     }
 
     YangInstanceIdentifier routePath(final PathArgument routeId) {
-        return ribSupport.getRibSupport().routePath(path, routeId);
+        return ribSupport.ribSupport().routePath(path, routeId);
     }
 }

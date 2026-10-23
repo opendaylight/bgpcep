@@ -189,7 +189,7 @@ final class AdjRibInWriter {
 
     private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
             final SendReceive sendReceive, final DOMDataTreeWriteTransaction tx) {
-        final var tableKey = rs.getRibSupport().tablesKey();
+        final var tableKey = rs.ribSupport().tablesKey();
         final var supTablesKey = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, tableKey.asMap());
         final var tt = ImmutableNodes.newMapEntryBuilder().withNodeIdentifier(supTablesKey);
         for (var e : supTablesKey.entrySet()) {

@@ -9,10 +9,10 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Collection;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
@@ -24,7 +24,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 class RIBSupportContextImpl extends RIBSupportContext {
-    private final RIBSupport ribSupport;
+    private final @NonNull RIBSupport ribSupport;
     private final Codecs codecs;
 
     RIBSupportContextImpl(final RIBSupport ribSupport, final CodecsRegistry codecs) {
@@ -32,28 +32,27 @@ class RIBSupportContextImpl extends RIBSupportContext {
         this.codecs = codecs.getCodecs(ribSupport);
     }
 
-    @SuppressFBWarnings("NM_CONFUSING")
     @Override
-    public RIBSupport getRibSupport() {
+    public RIBSupport ribSupport() {
         return ribSupport;
     }
 
     @Override
-    public Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteTransaction tx,
-            final YangInstanceIdentifier tableId, final MpReachNlri nlri, final Attributes attributes) {
+    public Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteOperations tx,
+            final YangInstanceIdentifier tablePath, final MpReachNlri nlri, final Attributes attributes) {
         final var domNlri = codecs.serializeReachNlri(nlri);
         final var routeAttributes = codecs.serializeAttributes(attributes);
-        return ribSupport.putRoutes(tx, tableId, domNlri, routeAttributes);
+        return ribSupport.putRoutes(tx, tablePath, domNlri, routeAttributes);
     }
 
     @Override
-    public void createEmptyTableStructure(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tableId) {
-        tx.put(LogicalDatastoreType.OPERATIONAL, tableId, ribSupport.emptyTable());
+    public void createEmptyTableStructure(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier tablePath) {
+        tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, ribSupport.emptyTable());
     }
 
     @Override
-    public void deleteRoutes(final DOMDataTreeWriteTransaction tx, final YangInstanceIdentifier tableId,
+    public void deleteRoutes(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier tablePath,
             final MpUnreachNlri nlri) {
-        ribSupport.deleteRoutes(tx, tableId, codecs.serializeUnreachNlri(nlri));
+        ribSupport.deleteRoutes(tx, tablePath, codecs.serializeUnreachNlri(nlri));
     }
 }
