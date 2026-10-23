@@ -14,6 +14,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import java.util.Collection;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -40,11 +41,11 @@ record AdjRibInTable(YangInstanceIdentifier path, RIBSupportContext ribSupport) 
 
     static AdjRibInTable ofPeer(final RIBSupportContext ribSupport, final YangInstanceIdentifier peerPath) {
         return new AdjRibInTable(YangInstanceIdentifier.builder(peerPath)
-            .node(ADJRIBIN_NID).node(TABLES_NID).node(ribSupport.getRibSupport().tablesKey())
+            .node(ADJRIBIN_NID).node(TABLES_NID).node(ribSupport.ribSupport().tablesKey())
             .build(), ribSupport);
     }
 
-    void createEmptyTableStructure(final DOMDataTreeWriteTransaction tx) {
+    void createEmptyTableStructure(final DOMDataTreeWriteOperations tx) {
         ribSupport.createEmptyTableStructure(tx, path);
     }
 
@@ -52,20 +53,20 @@ record AdjRibInTable(YangInstanceIdentifier path, RIBSupportContext ribSupport) 
         tx.delete(LogicalDatastoreType.OPERATIONAL, path);
     }
 
-    Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri,
+    Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteOperations tx, final MpReachNlri nlri,
             final Attributes attributes) {
         return ribSupport.writeRoutes(tx, path, nlri, attributes);
     }
 
-    void removeRoutes(final DOMDataTreeWriteTransaction tx, final MpUnreachNlri nlri) {
+    void removeRoutes(final DOMDataTreeWriteOperations tx, final MpUnreachNlri nlri) {
         ribSupport.deleteRoutes(tx, path, nlri);
     }
 
     YangInstanceIdentifier routesPath() {
-        return ribSupport.getRibSupport().routesPath(path);
+        return ribSupport.ribSupport().routesPath(path);
     }
 
     YangInstanceIdentifier routePath(final PathArgument routeId) {
-        return ribSupport.getRibSupport().routePath(path, routeId);
+        return ribSupport.ribSupport().routePath(path, routeId);
     }
 }

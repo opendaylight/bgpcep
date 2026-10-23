@@ -28,8 +28,8 @@ public interface RIBSupportContextRegistry {
      * @return RIBSupport instance, or null if the AFI/SAFI is not implemented.
      */
     default @Nullable RIBSupport getRIBSupport(final NodeIdentifierWithPredicates key) {
-        final var support = getRIBSupportContext(key);
-        return support == null ? null : support.getRibSupport();
+        final var supportContext = getRIBSupportContext(key);
+        return supportContext == null ? null : supportContext.ribSupport();
     }
 
     /**

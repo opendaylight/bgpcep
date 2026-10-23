@@ -295,7 +295,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void deleteTable(final DOMDataTreeWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Delete Effective Table {}", effectiveTablePath);
-        onDeleteTable(ribContext.getRibSupport(), effectiveTablePath, table.dataBefore());
+        onDeleteTable(ribContext.ribSupport(), effectiveTablePath, table.dataBefore());
         tx.delete(LogicalDatastoreType.OPERATIONAL, effectiveTablePath);
     }
 
@@ -326,7 +326,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
 
         final var modifiedRoutes = table.modifiedChild(ROUTES_NID);
         if (modifiedRoutes != null) {
-            final var ribSupport = ribContext.getRibSupport();
+            final var ribSupport = ribContext.ribSupport();
             switch (modifiedRoutes.modificationType()) {
                 case null -> throw new NullPointerException();
                 case APPEARED, WRITE -> {
@@ -356,7 +356,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
     private void writeTable(final DOMDataTreeWriteTransaction tx, final RIBSupportContext ribContext,
             final YangInstanceIdentifier effectiveTablePath, final DataTreeCandidateNode table) {
         LOG.debug("Write Effective Table {}", effectiveTablePath);
-        onDeleteTable(ribContext.getRibSupport(), effectiveTablePath, table.dataBefore());
+        onDeleteTable(ribContext.ribSupport(), effectiveTablePath, table.dataBefore());
 
         final var node = table.dataAfter();
         if (node != null) {
@@ -376,7 +376,7 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
                 longLivedStale = false;
             }
 
-            writeRoutesAfter(tx, ribContext.getRibSupport(), effectiveTablePath,
+            writeRoutesAfter(tx, ribContext.ribSupport(), effectiveTablePath,
                 NormalizedNodes.findNode(tableAfter, ROUTES_NID), longLivedStale);
         }
     }

@@ -47,8 +47,8 @@ final class RIBSupportContextRegistryImpl implements RIBSupportContextRegistry {
 
     @Override
     public RIBSupport getRIBSupport(final TablesKey key) {
-        final var ribSupport = getRIBSupportContext(key);
-        return ribSupport == null ? null : ribSupport.getRibSupport();
+        final var supportContext = getRIBSupportContext(key);
+        return supportContext == null ? null : supportContext.ribSupport();
     }
 
     @Override
