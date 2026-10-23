@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.bgp.concepts.RouteDistinguisherUtil;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.labeled.unicast.LUNlriParser;
 import org.opendaylight.protocol.bgp.labeled.unicast.LabeledUnicastIpv4RIBSupport;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
@@ -111,7 +111,7 @@ public abstract class AbstractVpnRIBSupport<
     }
 
     @Override
-    protected List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+    protected List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteOperations tx,
             final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
             final ApplyRoute function) {
         final var routes = destination.childByArg(nlriRoutesListNid);

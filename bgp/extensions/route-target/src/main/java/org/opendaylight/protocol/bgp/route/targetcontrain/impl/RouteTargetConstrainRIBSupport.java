@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.parser.spi.PathIdUtil;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.bgp.route.targetcontrain.impl.nlri.ImmutableRouteTargetConstrainNlriRegistry;
@@ -129,7 +129,7 @@ public final class RouteTargetConstrainRIBSupport
     }
 
     @Override
-    protected List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteTransaction tx,
+    protected List<NodeIdentifierWithPredicates> processDestination(final DOMDataTreeWriteOperations tx,
             final YangInstanceIdentifier routesPath, final ContainerNode destination, final ContainerNode attributes,
             final ApplyRoute function) {
         final var routes = destination.childByArg(NLRI_ROUTES_LIST);
