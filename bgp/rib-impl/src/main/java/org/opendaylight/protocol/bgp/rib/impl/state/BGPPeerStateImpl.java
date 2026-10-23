@@ -288,7 +288,7 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         return Mode.BILATERAL;
     }
 
-    public final synchronized void setAdvertizedLlGracefulRestartTableTypes(
+    protected final synchronized void setAdvertizedLlGracefulRestartTableTypes(
             final Map<TablesKey, Uint24> afiSafiReceived) {
         afiSafisLlGracefulReceived.clear();
         afiSafisLlGracefulReceived.putAll(afiSafiReceived);
