@@ -8,60 +8,64 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
 import java.util.Collection;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
+import org.opendaylight.yangtools.concepts.Immutable;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 
 /**
- * A context for a single RIB table instance. It is always bound to a particular {@link AdjRibInWriter}.
+ * The combination of a peer adj-rib-in table path and its corresponding {@link RIBSupportContext}.
  *
- * <p>This class is NOT thread-safe.
+ * @param path adj-rib-in table path
+ * @param ribSupport the {@link RIBSupportContext}
  */
-// FIXME: need a better name once we local-rib and rib-out contexts
-final class TableContext {
-    private final YangInstanceIdentifier tableId;
-    private final RIBSupportContext tableSupport;
-
-    TableContext(final RIBSupportContext tableSupport, final YangInstanceIdentifier tableId) {
-        this.tableSupport = requireNonNull(tableSupport);
-        this.tableId = requireNonNull(tableId);
+@NonNullByDefault
+record AdjRibInTable(YangInstanceIdentifier path, RIBSupportContext ribSupport) implements Immutable {
+    @Deprecated
+    AdjRibInTable {
+        requireNonNull(path);
+        requireNonNull(ribSupport);
     }
 
-    YangInstanceIdentifier getTableId() {
-        return this.tableId;
+    static AdjRibInTable ofPeer(final RIBSupportContext ribSupport, final YangInstanceIdentifier peerPath) {
+        return new AdjRibInTable(YangInstanceIdentifier.builder(peerPath)
+            .node(ADJRIBIN_NID).node(TABLES_NID).node(ribSupport.getRibSupport().tablesKey())
+            .build(), ribSupport);
     }
-
 
     void createEmptyTableStructure(final DOMDataTreeWriteTransaction tx) {
-        this.tableSupport.createEmptyTableStructure(tx, this.tableId);
+        ribSupport.createEmptyTableStructure(tx, path);
     }
 
     void removeTable(final DOMDataTreeWriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.OPERATIONAL, this.tableId);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, path);
     }
 
     Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteTransaction tx, final MpReachNlri nlri,
-                                                         final Attributes attributes) {
-        return this.tableSupport.writeRoutes(tx, this.tableId, nlri, attributes);
+            final Attributes attributes) {
+        return ribSupport.writeRoutes(tx, path, nlri, attributes);
     }
 
     void removeRoutes(final DOMDataTreeWriteTransaction tx, final MpUnreachNlri nlri) {
-        this.tableSupport.deleteRoutes(tx, this.tableId, nlri);
+        ribSupport.deleteRoutes(tx, path, nlri);
     }
 
     YangInstanceIdentifier routesPath() {
-        return tableSupport.getRibSupport().routesPath(this.tableId);
+        return ribSupport.getRibSupport().routesPath(path);
     }
 
     YangInstanceIdentifier routePath(final PathArgument routeId) {
-        return tableSupport.getRibSupport().routePath(this.tableId, routeId);
+        return ribSupport.getRibSupport().routePath(path, routeId);
     }
 }
