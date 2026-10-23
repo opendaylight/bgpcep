@@ -416,7 +416,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             registerPrefixesCounters(effRibInWriter, effRibInWriter);
 
             effRibInWriter.init();
-            ribWriter = ribWriter.transform(peerId, peerPath, rib.getRibSupportContext(), tables, addPathTableMaps);
+            ribWriter = ribWriter.transform(peerId, peerPath, rib.getRibSupportContext(), tables, addPathTableMaps,
+                null);
 
             if (rpcRegistry != null) {
                 final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);

@@ -27,6 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -38,13 +39,11 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
-import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -65,9 +64,6 @@ import org.slf4j.LoggerFactory;
 final class AdjRibInWriter {
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
 
-    private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
-    private static final NodeIdentifier PEER_ID = NodeIdentifier.create(RIBQNames.PEER_ID_QNAME);
-    private static final NodeIdentifier PEER_ROLE = NodeIdentifier.create(PEER_ROLE_QNAME);
     private static final NodeIdentifier PEER_TABLES = NodeIdentifier.create(SupportedTables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
 
@@ -113,12 +109,6 @@ final class AdjRibInWriter {
      * @param addPathTablesType supported add path tables
      * @return New writer
      */
-    AdjRibInWriter transform(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
-            final RIBSupportContextRegistry registry,
-            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType) {
-        return transform(newPeerId, peerPath, registry, tableTypes, addPathTablesType, null);
-    }
-
     AdjRibInWriter transform(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
             final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
             final Map<TablesKey, SendReceive> addPathTablesType,
@@ -197,19 +187,15 @@ final class AdjRibInWriter {
 
     private void createEmptyPeerStructure(final PeerId newPeerId,
             final YangInstanceIdentifier peerPath, final DOMDataTreeWriteOperations tx) {
-        final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
-
+        final var peerKey = IdentifierUtils.domPeerId(newPeerId);
         tx.put(LogicalDatastoreType.OPERATIONAL, peerPath, peerSkeleton(peerKey, newPeerId.getValue()));
         LOG.debug("New peer {} structure installed.", peerPath);
     }
 
+    @NonNullByDefault
     @VisibleForTesting
     MapEntryNode peerSkeleton(final NodeIdentifierWithPredicates peerKey, final String peerId) {
-        return ImmutableNodes.newMapEntryBuilder()
-            .withNodeIdentifier(peerKey)
-            .withChild(ImmutableNodes.leafNode(PEER_ID, peerId))
-            .withChild(ImmutableNodes.leafNode(PEER_ROLE, role.getName()))
-            .build();
+        return AbstractPeer.skeletonOf(peerKey, peerId, role);
     }
 
     void markTableUptodate(final @NonNull TablesKey tableTypes) {

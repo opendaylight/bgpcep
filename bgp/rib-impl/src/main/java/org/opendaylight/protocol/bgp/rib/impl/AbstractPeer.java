@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
@@ -29,7 +30,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
-import org.opendaylight.protocol.bgp.rib.spi.Peer;
+import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AbstractAdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
@@ -47,21 +48,28 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
+import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
+import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
+import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 abstract sealed class AbstractPeer extends BGPPeerStateImpl
-        implements BGPPeerStateProvider, BGPRouteEntryImportParameters, Peer, PeerTransactionChain,
-                   FutureCallback<Empty>
+        implements BGPPeerStateProvider, BGPRouteEntryImportParameters, org.opendaylight.protocol.bgp.rib.spi.Peer,
+                   PeerTransactionChain, FutureCallback<Empty>
         permits ApplicationPeer, BGPPeer {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
+    private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
+    private static final NodeIdentifier PEER_ID = NodeIdentifier.create(RIBQNames.PEER_ID_QNAME);
+    private static final NodeIdentifier PEER_ROLE = NodeIdentifier.create(PEER_ROLE_QNAME);
 
     final @NonNull RTCClientRouteCache rtCache = new RTCClientRouteCache();
     final @NonNull RIB rib;
@@ -518,5 +526,15 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     boolean supportsLLGR() {
         return false;
+    }
+
+    @NonNullByDefault
+    static final MapEntryNode skeletonOf(final NodeIdentifierWithPredicates peerKey, final String peerId,
+            final PeerRole role) {
+        return ImmutableNodes.newMapEntryBuilder()
+            .withNodeIdentifier(peerKey)
+            .withChild(ImmutableNodes.leafNode(PEER_ID, peerId))
+            .withChild(ImmutableNodes.leafNode(PEER_ROLE, role.getName()))
+            .build();
     }
 }
