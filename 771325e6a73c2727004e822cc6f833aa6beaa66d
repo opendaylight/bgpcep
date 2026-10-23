@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "4168baa8_6a66dd22",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-23T11:28:46Z",
+      "side": 1,
+      "message": "Still need to resolve https://git.opendaylight.org/gerrit/c/bgpcep/+/125390/comment/bf711776_8649c94a/",
+      "revId": "771325e6a73c2727004e822cc6f833aa6beaa66d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
