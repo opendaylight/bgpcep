@@ -508,12 +508,14 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         chain.close();
     }
 
-    final synchronized void createDomChain() {
-        if (domChain == null) {
+    final synchronized @NonNull DOMTransactionChain createDomChain() {
+        var ret = domChain;
+        if (ret == null) {
             LOG.info("Creating DOM peer chain {}", getPeerId());
-            domChain = rib.createPeerDOMChain();
-            domChain.addCallback(this);
+            domChain = ret = rib.createPeerDOMChain();
+            ret.addCallback(this);
         }
+        return ret;
     }
 
     final synchronized void closeDomChain() {
