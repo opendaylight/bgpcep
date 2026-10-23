@@ -11,7 +11,6 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import org.eclipse.jdt.annotation.NonNull;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.rib.impl.spi.Codecs;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -43,11 +42,6 @@ class RIBSupportContextImpl extends RIBSupportContext {
         final var domNlri = codecs.serializeReachNlri(nlri);
         final var routeAttributes = codecs.serializeAttributes(attributes);
         return ribSupport.putRoutes(tx, tablePath, domNlri, routeAttributes);
-    }
-
-    @Override
-    public void createEmptyTableStructure(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier tablePath) {
-        tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, ribSupport.emptyTable());
     }
 
     @Override

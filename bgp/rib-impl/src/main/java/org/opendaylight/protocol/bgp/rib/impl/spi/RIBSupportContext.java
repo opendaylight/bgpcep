@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.Collection;
 import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
@@ -33,7 +34,10 @@ public abstract class RIBSupportContext {
      * @param tx Transaction to to be used
      * @param tablePath Instance Identifier of table to be cleared.
      */
-    public abstract void createEmptyTableStructure(DOMDataTreeWriteOperations tx, YangInstanceIdentifier tablePath);
+    public final void createEmptyTableStructure(final DOMDataTreeWriteOperations tx,
+            final YangInstanceIdentifier tablePath) {
+        tx.put(LogicalDatastoreType.OPERATIONAL, tablePath, ribSupport().emptyTable());
+    }
 
     /**
      * Removes supplied routes from RIB table using supplied transaction.
