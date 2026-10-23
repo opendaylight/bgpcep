@@ -86,7 +86,7 @@ class AdjRibsInWriterTest {
         doReturn(context).when(registry).getRIBSupportContext(any(TablesKey.class));
         doReturn(chain).when(ptc).getDomChain();
         doNothing().when(context).createEmptyTableStructure(eq(tx), any(YangInstanceIdentifier.class));
-        doReturn(support).when(context).getRibSupport();
+        doReturn(support).when(context).ribSupport();
         doReturn(DOM_K4).when(support).tablesKey();
     }
 

@@ -8,7 +8,8 @@
 package org.opendaylight.protocol.bgp.rib.impl.spi;
 
 import java.util.Collection;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
+import org.eclipse.jdt.annotation.NonNull;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
@@ -17,28 +18,32 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 
 /**
- * {@link RIBSupport} wrapper which provides additional functionality
- * such as logic to update / remove routes using Binding DTOs
- * for BGP messages.
+ * {@link RIBSupport} wrapper which provides additional functionality such as logic to update / remove routes using
+ * Binding DTOs for BGP messages.
  */
 public abstract class RIBSupportContext {
+    /**
+     * {@return backing RIB support}
+     */
+    public abstract @NonNull RIBSupport ribSupport();
+
     /**
      * Create specified Rib table structure using supplied transaction.
      *
      * @param tx Transaction to to be used
-     * @param tableId Instance Identifier of table to be cleared.
+     * @param tablePath Instance Identifier of table to be cleared.
      */
-    public abstract void createEmptyTableStructure(DOMDataTreeWriteTransaction tx, YangInstanceIdentifier tableId);
+    public abstract void createEmptyTableStructure(DOMDataTreeWriteOperations tx, YangInstanceIdentifier tablePath);
 
     /**
      * Removes supplied routes from RIB table using supplied transaction.
      *
      * @param tx Transaction to be used
-     * @param tableId Instance Identifier of table to be updated
+     * @param tablePath Instance Identifier of table to be updated
      * @param nlri UnreachNlri which contains routes to be removed.
      */
-    public abstract void deleteRoutes(DOMDataTreeWriteTransaction tx, YangInstanceIdentifier tableId,
-            MpUnreachNlri nlri);
+    public abstract void deleteRoutes(DOMDataTreeWriteOperations tx, YangInstanceIdentifier tablePath,
+        MpUnreachNlri nlri);
 
     /**
      * Writes supplied routes and attributes to RIB table using supplied transaction.
@@ -49,15 +54,6 @@ public abstract class RIBSupportContext {
      * @param attributes Attributes which should be written.
      * @return Set of processed route key identifiers
      */
-    public abstract Collection<NodeIdentifierWithPredicates> writeRoutes(DOMDataTreeWriteTransaction tx,
-                                                                         YangInstanceIdentifier tableId,
-                                                                         MpReachNlri nlri,
-                                                                         Attributes attributes);
-
-    /**
-     * Returns backing RIB support.
-     *
-     * @return RIBSupport
-     */
-    public abstract RIBSupport getRibSupport();
+    public abstract Collection<NodeIdentifierWithPredicates> writeRoutes(DOMDataTreeWriteOperations tx,
+        YangInstanceIdentifier tableId, MpReachNlri nlri, Attributes attributes);
 }

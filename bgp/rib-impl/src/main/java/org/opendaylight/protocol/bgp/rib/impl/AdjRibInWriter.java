@@ -33,6 +33,7 @@ import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
@@ -159,7 +160,7 @@ final class AdjRibInWriter {
     private static ImmutableMap<TablesKey, AdjRibInTable> createNewTableInstances(
             final YangInstanceIdentifier newPeerPath, final RIBSupportContextRegistry registry,
             final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
-            final DOMDataTreeWriteTransaction tx) {
+            final DOMDataTreeWriteOperations tx) {
 
         final Builder<TablesKey, AdjRibInTable> tb = ImmutableMap.builder();
         for (final TablesKey tableKey : tableTypes) {
@@ -175,7 +176,7 @@ final class AdjRibInWriter {
     }
 
     private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,
-            final RIBSupportContext rs, final DOMDataTreeWriteTransaction tx,
+            final RIBSupportContext rs, final DOMDataTreeWriteOperations tx,
             final Builder<TablesKey, AdjRibInTable> tb) {
         // We will use table keys very often, make sure they are optimized
         final var table = AdjRibInTable.ofPeer(rs, newPeerPath);
@@ -188,8 +189,8 @@ final class AdjRibInWriter {
     }
 
     private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
-            final SendReceive sendReceive, final DOMDataTreeWriteTransaction tx) {
-        final var tableKey = rs.getRibSupport().tablesKey();
+            final SendReceive sendReceive, final DOMDataTreeWriteOperations tx) {
+        final var tableKey = rs.ribSupport().tablesKey();
         final var supTablesKey = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, tableKey.asMap());
         final var tt = ImmutableNodes.newMapEntryBuilder().withNodeIdentifier(supTablesKey);
         for (var e : supTablesKey.entrySet()) {
@@ -203,7 +204,7 @@ final class AdjRibInWriter {
     }
 
     private void createEmptyPeerStructure(final PeerId newPeerId,
-            final YangInstanceIdentifier peerPath, final DOMDataTreeWriteTransaction tx) {
+            final YangInstanceIdentifier peerPath, final DOMDataTreeWriteOperations tx) {
         final NodeIdentifierWithPredicates peerKey = IdentifierUtils.domPeerId(newPeerId);
 
         tx.put(LogicalDatastoreType.OPERATIONAL, peerPath, peerSkeleton(peerKey, newPeerId.getValue()));
