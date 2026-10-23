@@ -14,14 +14,11 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -65,7 +62,6 @@ import org.slf4j.LoggerFactory;
  * {@link ApplicationPeer}. This class is NOT thread-safe.
  */
 final class AdjRibInWriter {
-
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
 
     private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
@@ -74,17 +70,18 @@ final class AdjRibInWriter {
     private static final NodeIdentifier PEER_TABLES = NodeIdentifier.create(SupportedTables.QNAME);
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
 
-    private final Map<TablesKey, AdjRibInTable> tables;
-    private final YangInstanceIdentifier ribPath;
-    private final PeerTransactionChain chain;
-    private final PeerRole role;
+    private final @NonNull AdjRibInTables tables;
+    private final @NonNull YangInstanceIdentifier ribPath;
+    private final @NonNull PeerTransactionChain chain;
+    private final @NonNull PeerRole role;
+
     @GuardedBy("this")
-    private final Map<TablesKey, Collection<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
+    private final HashMap<TablesKey, Collection<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
     private AdjRibInWriter(final YangInstanceIdentifier ribPath, final PeerTransactionChain chain, final PeerRole role,
-            final Map<TablesKey, AdjRibInTable> tables) {
+            final AdjRibInTables tables) {
         this.ribPath = requireNonNull(ribPath);
         this.chain = requireNonNull(chain);
         this.tables = requireNonNull(tables);
@@ -100,7 +97,7 @@ final class AdjRibInWriter {
      */
     static AdjRibInWriter create(final @NonNull YangInstanceIdentifier ribId, final @NonNull PeerRole role,
             final @NonNull PeerTransactionChain chain) {
-        return new AdjRibInWriter(ribId, chain, role, Collections.emptyMap());
+        return new AdjRibInWriter(ribId, chain, role, AdjRibInTables.EMPTY);
     }
 
     /**
@@ -128,8 +125,7 @@ final class AdjRibInWriter {
         final DOMDataTreeWriteTransaction tx = chain.getDomChain().newWriteOnlyTransaction();
 
         createEmptyPeerStructure(newPeerId, peerPath, tx);
-        final ImmutableMap<TablesKey, AdjRibInTable> tb = createNewTableInstances(peerPath, registry, tableTypes,
-                addPathTablesType, tx);
+        final var tables = createNewTableInstances(peerPath, registry, tableTypes, addPathTablesType, tx);
 
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -150,41 +146,39 @@ final class AdjRibInWriter {
                 }
             }
         }, MoreExecutors.directExecutor());
-        return new AdjRibInWriter(ribPath, chain, role, tb);
+        return new AdjRibInWriter(ribPath, chain, role, tables);
     }
 
     /**
      * Create new table instances, potentially creating their empty entries.
      */
-    private static ImmutableMap<TablesKey, AdjRibInTable> createNewTableInstances(
+    private static @NonNull AdjRibInTables createNewTableInstances(
             final YangInstanceIdentifier newPeerPath, final RIBSupportContextRegistry registry,
             final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
             final DOMDataTreeWriteTransaction tx) {
-
-        final Builder<TablesKey, AdjRibInTable> tb = ImmutableMap.builder();
-        for (final TablesKey tableKey : tableTypes) {
-            final RIBSupportContext rs = registry.getRIBSupportContext(tableKey);
-            if (rs == null) {
-                LOG.warn("No support for table type {}, skipping it", tableKey);
-                continue;
+        final var tables = AdjRibInTables.of(newPeerPath, tableTypes, tableType -> {
+            final var supportContext = registry.getRIBSupportContext(tableType);
+            if (supportContext == null) {
+                LOG.warn("No support for table type {}, skipping it", tableType);
             }
-            installAdjRibsOutTables(newPeerPath, rs, addPathTablesType.get(tableKey), tx);
-            installAdjRibInTables(newPeerPath, tableKey, rs, tx, tb);
-        }
-        return tb.build();
+            return supportContext;
+        });
+
+        tables.install(tx);
+
+        tables.forEach((tableType, table) -> {
+            installAdjRibsOutTables(newPeerPath, table.ribSupport(), addPathTablesType.get(tableType), tx);
+            installAdjRibInTables(newPeerPath, tableType, table, tx);
+        });
+        return tables;
     }
 
     private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,
-            final RIBSupportContext rs, final DOMDataTreeWriteTransaction tx,
-            final Builder<TablesKey, AdjRibInTable> tb) {
-        // We will use table keys very often, make sure they are optimized
-        final var table = AdjRibInTable.ofPeer(rs, newPeerPath);
+            final AdjRibInTable table, final DOMDataTreeWriteTransaction tx) {
         table.createEmptyTableStructure(tx);
-
         tx.merge(LogicalDatastoreType.OPERATIONAL, table.path().node(ATTRIBUTES_NID).node(UPTODATE_NID),
             RIBNormalizedNodes.ATTRIBUTES_UPTODATE_FALSE);
         LOG.debug("Created table instance {}", table.path());
-        tb.put(tableKey, table);
     }
 
     private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
@@ -219,9 +213,9 @@ final class AdjRibInWriter {
             .build();
     }
 
-    void markTableUptodate(final TablesKey tableTypes) {
+    void markTableUptodate(final @NonNull TablesKey tableTypes) {
         final var tx = chain.getDomChain().newWriteOnlyTransaction();
-        final var table = tables.get(tableTypes);
+        final var table = tables.getTableOf(tableTypes);
         tx.merge(LogicalDatastoreType.OPERATIONAL, table.path().node(ATTRIBUTES_NID).node(UPTODATE_NID),
             RIBNormalizedNodes.ATTRIBUTES_UPTODATE_TRUE);
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
@@ -240,7 +234,7 @@ final class AdjRibInWriter {
     void updateRoutes(final MpReachNlri nlri, final org.opendaylight.yang.gen.v1.urn.opendaylight.params
             .xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes attributes) {
         final var key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final var table = tables.get(key);
+        final var table = tables.tableOf(key);
         if (table == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
@@ -270,7 +264,7 @@ final class AdjRibInWriter {
 
     void removeRoutes(final MpUnreachNlri nlri) {
         final var key = new TablesKey(nlri.getAfi(), nlri.getSafi());
-        final var table = tables.get(key);
+        final var table = tables.tableOf(key);
         if (table == null) {
             LOG.debug("No table for {}, not accepting NLRI {}", key, nlri);
             return;
@@ -308,7 +302,7 @@ final class AdjRibInWriter {
 
         try (var tx = chain.getDomChain().newReadOnlyTransaction()) {
             for (var tablesKey : gracefulTables) {
-                final var table = tables.get(tablesKey);
+                final var table = tables.tableOf(tablesKey);
                 if (table == null) {
                     LOG.warn("Missing table for address family {}", tablesKey);
                     latch.countDown();
@@ -354,7 +348,7 @@ final class AdjRibInWriter {
     }
 
     void removeStaleRoutes(final TablesKey tableKey) {
-        final var table = tables.get(tableKey);
+        final var table = tables.tableOf(tableKey);
         if (table == null) {
             LOG.debug("No table for {}, not removing any stale routes", tableKey);
             return;
@@ -366,10 +360,10 @@ final class AdjRibInWriter {
         }
         LOG.trace("Removing routes {}", routeKeys);
         final var tx = chain.getDomChain().newWriteOnlyTransaction();
-        // FIXME: simple iteration?
-        routeKeys.forEach(routeKey -> {
+        for (var routeKey : routeKeys) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, table.routePath(routeKey));
-        });
+        }
+
         final var future = tx.commit();
         submitted = future;
         future.addCallback(new FutureCallback<CommitInfo>() {
@@ -394,11 +388,12 @@ final class AdjRibInWriter {
         }
 
         final var wtx = chain.getDomChain().newWriteOnlyTransaction();
-        // FIXME: simple iteration?
-        tablesToClear.forEach(tableKey -> {
-            final var table = tables.get(tableKey);
-            wtx.delete(LogicalDatastoreType.OPERATIONAL, table.routesPath().getParent());
-        });
+        for (var tableType : tablesToClear) {
+            final var table = tables.tableOf(tableType);
+            if (table != null) {
+                wtx.delete(LogicalDatastoreType.OPERATIONAL, table.routesPath().getParent());
+            }
+        }
         return wtx.commit();
     }
 }
