@@ -109,34 +109,13 @@ final class AdjRibInWriter {
      * @param addPathTablesType supported add path tables
      * @return New writer
      */
-    AdjRibInWriter transform(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
+    AdjRibInWriter createStarted(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
             final RIBSupportContextRegistry registry, final Set<TablesKey> tableTypes,
             final Map<TablesKey, SendReceive> addPathTablesType,
-            final @Nullable RegisterAppPeerListener registerAppPeerListener) {
-        final var tx = chain.getDomChain().newWriteOnlyTransaction();
-
+            final @Nullable RegisterAppPeerListener registerAppPeerListener,
+            final DOMDataTreeWriteOperations tx) {
         createEmptyPeerStructure(newPeerId, peerPath, tx);
         final var newTables = createNewTableInstances(peerPath, registry, tableTypes, addPathTablesType, tx);
-
-        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                if (registerAppPeerListener != null) {
-                    LOG.trace("Application Peer Listener registered");
-                    registerAppPeerListener.register();
-                }
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                if (registerAppPeerListener != null) {
-                    LOG.error("Failed to create Empty Structure, Application Peer Listener won't be registered",
-                            throwable);
-                } else {
-                    LOG.error("Failed to create Empty Structure", throwable);
-                }
-            }
-        }, MoreExecutors.directExecutor());
         return new AdjRibInWriter(ribPath, chain, role, newTables);
     }
 

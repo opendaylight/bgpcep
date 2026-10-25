@@ -111,8 +111,6 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         final var peerRib = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(peerId));
         adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
         peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
-
-        createDomChain();
     }
 
     public synchronized void instantiateServiceInstance(final DataTreeChangeExtension dataTreeChangeService,
@@ -129,17 +127,18 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
-        createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
         final var context = rib.getRibSupportContext();
         peerPath = createPeerPath(peerId);
-        adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables, Map.of(), () -> {
-            synchronized (this) {
-                if (getDomChain() != null) {
-                    registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
+
+        createDomChain();
+        adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this)
+            .transform(peerId, peerPath, context, localTables, Map.of(), () -> {
+                synchronized (this) {
+                    if (getDomChain() != null) {
+                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
+                    }
                 }
-            }
-        });
+            });
 
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);

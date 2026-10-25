@@ -261,8 +261,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     public synchronized void instantiateServiceInstance() {
-        createDomChain();
-        ribWriter = AdjRibInWriter.create(rib.getYangRibId(), getRole(), this);
         setActive(true);
     }
 
@@ -416,8 +414,10 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             registerPrefixesCounters(effRibInWriter, effRibInWriter);
 
             effRibInWriter.init();
-            ribWriter = ribWriter.transform(peerId, peerPath, rib.getRibSupportContext(), tables, addPathTableMaps,
-                null);
+
+            createDomChain();
+            ribWriter = AdjRibInWriter.create(rib.getYangRibId(), getRole(), this)
+                .transform(peerId, peerPath, rib.getRibSupportContext(), tables, addPathTableMaps, null);
 
             if (rpcRegistry != null) {
                 final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
