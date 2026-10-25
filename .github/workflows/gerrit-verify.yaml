@@ -56,7 +56,7 @@ jobs:
     steps:
       - name: Clear votes
         # yamllint disable-line rule:line-length
-        uses: lfit/gerrit-review-action@9627b9a144f2a2cad70707ddfae87c87dce60729 # v0.8
+        uses: lfit/gerrit-review-action@537251ec667665b386f70b330b05446e3fc29087 # v0.9
         with:
           host: ${{ vars.GERRIT_SERVER }}
           username: ${{ vars.GERRIT_SSH_USER }}
@@ -111,7 +111,7 @@ jobs:
 
   info-yaml-verify:
     # yamllint disable-line rule:line-length
-    uses: lfit/releng-reusable-workflows/.github/workflows/gerrit-required-info-yaml-verify.yaml@37bbdea5cca2f21e502f7ff580306c78307d1d41 # v0.3.1
+    uses: lfit/releng-reusable-workflows/.github/workflows/gerrit-required-info-yaml-verify.yaml@fb907909b12bbaf262de6b24fcafd181cabe6b24 # v0.10.4
     with:
       GERRIT_BRANCH: ${{ inputs.GERRIT_BRANCH }}
       GERRIT_CHANGE_ID: ${{ inputs.GERRIT_CHANGE_ID }}
@@ -134,10 +134,10 @@ jobs:
     steps:
       - name: Get conclusion
         # yamllint disable-line rule:line-length
-        uses: im-open/workflow-conclusion@fce18569e28a9f2ed1feca1e6d4251e6a7365fdc # v2.2.4
+        uses: im-open/workflow-conclusion@8eac7f17381a6917bc04fec3e2c92e70ebc37526 # v3.0.0
       - name: Set vote
         # yamllint disable-line rule:line-length
-        uses: lfit/gerrit-review-action@9627b9a144f2a2cad70707ddfae87c87dce60729 # v0.8
+        uses: lfit/gerrit-review-action@537251ec667665b386f70b330b05446e3fc29087 # v0.9
         with:
           host: ${{ vars.GERRIT_SERVER }}
           username: ${{ vars.GERRIT_SSH_USER }}
