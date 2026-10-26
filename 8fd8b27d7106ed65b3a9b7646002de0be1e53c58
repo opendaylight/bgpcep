@@ -16,6 +16,40 @@
       "message": "needs a manual rebase",
       "revId": "8fd8b27d7106ed65b3a9b7646002de0be1e53c58",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3466b053_81b7d095",
+        "filename": "tests/conftest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-26T08:54:24Z",
+      "side": 1,
+      "message": "There could be two problems with this solution:\n\nThe -m check is a substring match. Any expression that contains the word \"longevity\" turns the protection off, including one meant to exclude it. `-m \"performance or not longevity\"` selects the soak, because it\u0027s also marked performance, and the hook then keeps it.\n\nThe \"file named on the command line\" rule fires for globs and file lists. `pytest suites/bgp_ingest/test_*.py -m performance` expands to include the longevity file, so the hook keeps it. The shell expands the glob before pytest starts, so pytest can\u0027t tell it from typing the file name on purpose. But I do not think this it as much problematic as it would be hard to make it avoid this.",
+      "revId": "8fd8b27d7106ed65b3a9b7646002de0be1e53c58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "80c9c6d8_7c76d698",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-26T08:54:24Z",
+      "side": 1,
+      "message": "I would suggest to extract the setup and teardown for the BGP peer to a seperate context manager. While `step_reconfigure_odl_to_accept_connection` would be in the `try` block together with yield, and the `step_delete_bgp_peer_configuration` would be in the `finally` block.",
+      "revId": "8fd8b27d7106ed65b3a9b7646002de0be1e53c58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
