@@ -2,19 +2,7 @@
     "bgp-linkstate:linkstate-routes": {
         "linkstate-route": [
             {
-                "path-id": 0,
-                "route-key": "$ROUTE_KEY",
-                "tunnel-id": 1,
-                "lsp-id": 1,
-                "ipv4-tunnel-endpoint-address": "5.6.7.8",
-                "ipv4-tunnel-sender-address": "1.2.3.4",
                 "attributes": {
-                    "ipv4-next-hop": {
-                        "global": "192.0.2.1"
-                    },
-                    "origin": {
-                        "value": "igp"
-                    },
                     "as-path": {
                         "segments": [
                             {
@@ -24,12 +12,38 @@
                             }
                         ]
                     },
+                    "ipv4-next-hop": {
+                        "global": "192.0.2.1"
+                    },
                     "local-pref": {
                         "pref": 100
+                    },
+                    "origin": {
+                        "value": "igp"
+                    },
+                    "srv6-sid-attributes": {
+                        "srv6-endpoint-behavior": {
+                            "algo": 0,
+                            "endpoint-behavior": 1
+                        },
+                        "srv6-sid-structure": {
+                            "argument-length": 0,
+                            "function-length": 16,
+                            "locator-block-length": 48,
+                            "locator-node-length": 16
+                        }
                     }
                 },
                 "identifier": "1",
-                "protocol-id": "bgp-epe"
+                "path-id": 0,
+                "protocol-id": "direct",
+                "route-key": "AAYAGQQAAAAAAAAAAQEAAAgCAAAEAAD78AIGAAA=",
+                "srv6-node-descriptors": {
+                    "as-number": 64496
+                },
+                "srv6-sid-descriptors": {
+                    "srv6-sid": "IAENuAAAAAAAAAAAAAAAAQ=="
+                }
             }
         ]
     }
