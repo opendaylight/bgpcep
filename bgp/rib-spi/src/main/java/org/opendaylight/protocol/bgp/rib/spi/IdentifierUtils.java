@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
+import java.util.function.Predicate;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
@@ -30,45 +30,60 @@ public final class IdentifierUtils {
     }
 
     // FIXME: implement as id.firstIdentifierOf(IS_PEER), null indicating not found
-    private static NodeIdentifierWithPredicates firstKeyOf(final YangInstanceIdentifier id,
+    private static @NonNull NodeIdentifierWithPredicates firstKeyOf(final YangInstanceIdentifier id,
             final Predicate<PathArgument> match) {
-        final PathArgument ret = id.getPathArguments().stream().filter(match::apply).findFirst().orElseThrow();
-        Preconditions.checkArgument(ret instanceof NodeIdentifierWithPredicates,
-                "Non-key peer identifier %s", ret);
-        return (NodeIdentifierWithPredicates) ret;
+        final var arg = id.getPathArguments().stream().filter(match).findFirst().orElseThrow();
+        if (arg instanceof NodeIdentifierWithPredicates nip) {
+            return nip;
+        }
+        throw new IllegalArgumentException("Non-key peer identifier " + arg);
     }
 
-    private static YangInstanceIdentifier firstIdentifierOf(final YangInstanceIdentifier id,
+    private static @NonNull YangInstanceIdentifier firstIdentifierOf(final YangInstanceIdentifier id,
             final Predicate<PathArgument> match) {
         final var args = id.getPathArguments();
-        final int idx = Iterables.indexOf(args, match);
-        Preconditions.checkArgument(idx != -1, "Failed to find %s in %s", match, id);
-        // we want the element at index idx to be included in the list
-        return YangInstanceIdentifier.of(args.subList(0, idx + 1));
+        final var it = args.iterator();
+        if (it.hasNext()) {
+            int idx = 0;
+            do {
+                if (match.test(it.next())) {
+                    // we want the element at index idx to be included in the list
+                    return YangInstanceIdentifier.of(args.subList(0, idx + 1));
+                }
+                idx++;
+            } while (it.hasNext());
+        }
+
+        throw new IllegalArgumentException("Failed to find %s in %s".formatted(match, id));
     }
 
-    public static YangInstanceIdentifier peerPath(final YangInstanceIdentifier id) {
+    public static @NonNull YangInstanceIdentifier peerPath(final YangInstanceIdentifier id) {
         return firstIdentifierOf(id, IS_PEER);
     }
 
-    public static NodeIdentifierWithPredicates peerKey(final YangInstanceIdentifier id) {
+    public static @NonNull NodeIdentifierWithPredicates peerKey(final YangInstanceIdentifier id) {
         return firstKeyOf(id, IS_PEER);
     }
 
+    @NonNullByDefault
     public static PeerId peerId(final NodeIdentifierWithPredicates peerKey) {
         // We could use a codec, but this is simple enough
-        return new PeerId((String) peerKey.getValue(PEER_ID));
+        final var value = peerKey.getValue(PEER_ID);
+        if (value == null) {
+            throw new IllegalArgumentException("Missing %s in %s".formatted(PEER_ID, peerKey));
+        }
+        return new PeerId((String) value);
     }
 
-    public static PeerId peerKeyToPeerId(final YangInstanceIdentifier id) {
+    public static @NonNull PeerId peerKeyToPeerId(final YangInstanceIdentifier id) {
         return peerId(peerKey(id));
     }
 
-
-    static NodeIdentifierWithPredicates tableKey(final YangInstanceIdentifier id) {
+    static @NonNull NodeIdentifierWithPredicates tableKey(final YangInstanceIdentifier id) {
         return firstKeyOf(id, IS_TABLES);
     }
 
+    @NonNullByDefault
     public static NodeIdentifierWithPredicates domPeerId(final PeerId peer) {
         return NodeIdentifierWithPredicates.of(Peer.QNAME, PEER_ID, peer.getValue());
     }
