@@ -49,6 +49,7 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
@@ -566,7 +567,22 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     final void activate() {
         setActive(true);
         createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(role);
+        adjRibInWriter = new AdjRibInWriter(role, AdjRibInTables.EMPTY);
+    }
+
+    @GuardedBy("this")
+    final @NonNull FluentFuture<? extends @NonNull CommitInfo> initializeDatastore(final Set<TablesKey> tables,
+            final Map<TablesKey, SendReceive> addPathTablesType) {
+        final var localPeerPath = peerPath();
+        final var registry = rib.getRibSupportContext();
+        adjRibInWriter = new AdjRibInWriter(role, AdjRibInTables.of(localPeerPath, tables, tableType -> {
+            final var supportContext = registry.getRIBSupportContext(tableType);
+            if (supportContext == null) {
+                LOG.warn("No support for table type {}, skipping it", tableType);
+            }
+            return supportContext;
+        }));
+        return adjRibInWriter.initialize(newRibInTransaction(), requirePeerId(), localPeerPath, addPathTablesType);
     }
 
     @GuardedBy("this")

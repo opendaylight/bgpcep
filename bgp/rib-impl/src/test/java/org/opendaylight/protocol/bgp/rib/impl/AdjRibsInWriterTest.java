@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -21,7 +21,6 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_
 
 import java.util.Map;
 import java.util.Set;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -30,7 +29,6 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
@@ -54,59 +52,41 @@ class AdjRibsInWriterTest {
     private static final NodeIdentifierWithPredicates DOM_K4 = NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(
         RIBQNames.AFI_QNAME, Ipv4AddressFamily.QNAME, RIBQNames.SAFI_QNAME, UnicastSubsequentAddressFamily.QNAME));
     private static final Map<TablesKey, SendReceive> ADD_PATH_TABLE_MAPS = Map.of(K4, SendReceive.Both);
-
-    private final Set<TablesKey> tableTypes = Set.of(K4);
-    private final String peerIp = "12.34.56.78";
+    private static final Set<TablesKey> TABLE_TYPES = Set.of(K4);
+    private static final String PEER_IP = "12.34.56.78";
 
     @Mock
     private DOMDataTreeWriteTransaction tx;
-    @Mock
-    private RIBSupportContextRegistry registry;
     @Mock
     private RIBSupportContext context;
     @Mock
     private AbstractRIBSupport<?, ?, ?> support;
 
-    private AdjRibInWriter writer;
-
-    @BeforeEach
-    void setUp() {
+    @Test
+    void testTransform() {
         doReturn(CommitInfo.emptyFluentFuture()).when(tx).commit();
         doNothing().when(tx).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
-        doReturn(context).when(registry).getRIBSupportContext(any(TablesKey.class));
         doNothing().when(context).createEmptyTableStructure(eq(tx), any(YangInstanceIdentifier.class));
         doReturn(support).when(context).ribSupport();
         doReturn(DOM_K4).when(support).tablesKey();
-    }
 
-    @Test
-    void testTransform() {
-        writer = AdjRibInWriter.create(PeerRole.Ebgp);
-        assertNotNull(writer);
-        final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(RIB_NID)
-                .node(Peer.QNAME).nodeWithKey(Peer.QNAME,
-                        RIBQNames.PEER_ID_QNAME, peerIp).build();
-        writer.transform(tx,new PeerId(peerIp), peerPath, registry, tableTypes, ADD_PATH_TABLE_MAPS, null);
-        verifyPeerSkeletonInsertedCorrectly(peerPath);
+        final var peerPath = YangInstanceIdentifier.builder()
+            .node(RIB_NID)
+            .node(Peer.QNAME).nodeWithKey(Peer.QNAME, RIBQNames.PEER_ID_QNAME, PEER_IP)
+            .build();
+        final var writer = new AdjRibInWriter(PeerRole.Ebgp, AdjRibInTables.of(peerPath, TABLE_TYPES, type -> context));
+        assertThat(writer.initialize(tx, new PeerId(PEER_IP), peerPath, ADD_PATH_TABLE_MAPS)).isDone();
+
+        verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath),
+            eq(writer.peerSkeleton(IdentifierUtils.peerKey(peerPath), PEER_IP)));
         // verify supported tables were inserted for ipv4
         verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath.node(SupportedTables.QNAME)
             .node(NodeIdentifierWithPredicates.of(SupportedTables.QNAME, DOM_K4.asMap()))), any(NormalizedNode.class));
-        verifyUptodateSetToFalse(peerPath);
-    }
-
-    private void verifyUptodateSetToFalse(final YangInstanceIdentifier peerPath) {
-        final YangInstanceIdentifier path = peerPath.node(ADJRIBIN_NID)
-                .node(TABLES_NID).node(DOM_K4)
-                .node(ATTRIBUTES_NID).node(UPTODATE_NID);
-        verify(tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(path),
-                eq(RIBNormalizedNodes.ATTRIBUTES_UPTODATE_FALSE));
-    }
-
-    private void verifyPeerSkeletonInsertedCorrectly(final YangInstanceIdentifier peerPath) {
-        verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath),
-                eq(writer.peerSkeleton(IdentifierUtils.peerKey(peerPath), peerIp)));
+        verify(tx).merge(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath.node(ADJRIBIN_NID)
+            .node(TABLES_NID).node(DOM_K4)
+            .node(ATTRIBUTES_NID).node(UPTODATE_NID)), eq(RIBNormalizedNodes.ATTRIBUTES_UPTODATE_FALSE));
     }
 }
