@@ -17,6 +17,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Collection;
 import java.util.HashMap;
@@ -28,15 +29,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeReadOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
-import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
@@ -76,20 +74,9 @@ final class AdjRibInWriter {
     private FluentFuture<? extends CommitInfo> submitted;
 
     @NonNullByDefault
-    private AdjRibInWriter(final PeerRole role, final AdjRibInTables tables) {
+    AdjRibInWriter(final PeerRole role, final AdjRibInTables tables) {
         this.tables = requireNonNull(tables);
         this.role = requireNonNull(role);
-    }
-
-    /**
-     * Create a new writer using a transaction chain.
-     *
-     * @param role                peer's role
-     * @return A fresh writer instance
-     */
-    @NonNullByDefault
-    static AdjRibInWriter create(final PeerRole role) {
-        return new AdjRibInWriter(role, AdjRibInTables.EMPTY);
     }
 
     /**
@@ -99,60 +86,21 @@ final class AdjRibInWriter {
      *
      * @param newPeerId         new peer BGP identifier
      * @param peerPath          path of the peer in the datastore
-     * @param registry          RIB extension registry
-     * @param tableTypes        New tables, must not be null
      * @param addPathTablesType supported add path tables
-     * @return New writer
+     * @return a {@link FluentFuture}
      */
-    AdjRibInWriter transform(final DOMDataTreeWriteTransaction tx, final PeerId newPeerId,
-            final YangInstanceIdentifier peerPath, final RIBSupportContextRegistry registry,
-            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
-            final @Nullable RegisterAppPeerListener registerAppPeerListener) {
+    @CheckReturnValue
+    @NonNullByDefault
+    FluentFuture<? extends CommitInfo> initialize(final DOMDataTreeWriteTransaction tx, final PeerId newPeerId,
+            final YangInstanceIdentifier peerPath, final Map<TablesKey, SendReceive> addPathTablesType) {
         createEmptyPeerStructure(newPeerId, peerPath, tx);
-        final var newTables = createNewTableInstances(peerPath, registry, tableTypes, addPathTablesType, tx);
-
-        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                if (registerAppPeerListener != null) {
-                    LOG.trace("Application Peer Listener registered");
-                    registerAppPeerListener.register();
-                }
-            }
-
-            @Override
-            public void onFailure(final Throwable throwable) {
-                if (registerAppPeerListener != null) {
-                    LOG.error("Failed to create Empty Structure, Application Peer Listener won't be registered",
-                            throwable);
-                } else {
-                    LOG.error("Failed to create Empty Structure", throwable);
-                }
-            }
-        }, MoreExecutors.directExecutor());
-        return new AdjRibInWriter(role, newTables);
-    }
-
-    /**
-     * Create new table instances, potentially creating their empty entries.
-     */
-    private static @NonNull AdjRibInTables createNewTableInstances(
-            final YangInstanceIdentifier newPeerPath, final RIBSupportContextRegistry registry,
-            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
-            final DOMDataTreeWriteOperations tx) {
-        final var tables = AdjRibInTables.of(newPeerPath, tableTypes, tableType -> {
-            final var supportContext = registry.getRIBSupportContext(tableType);
-            if (supportContext == null) {
-                LOG.warn("No support for table type {}, skipping it", tableType);
-            }
-            return supportContext;
-        });
 
         tables.forEach((tableType, table) -> {
-            installAdjRibsOutTables(newPeerPath, table.ribSupport(), addPathTablesType.get(tableType), tx);
-            installAdjRibInTables(newPeerPath, tableType, table, tx);
+            installAdjRibsOutTables(peerPath, table.ribSupport(), addPathTablesType.get(tableType), tx);
+            installAdjRibInTables(peerPath, tableType, table, tx);
         });
-        return tables;
+
+        return tx.commit();
     }
 
     private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,

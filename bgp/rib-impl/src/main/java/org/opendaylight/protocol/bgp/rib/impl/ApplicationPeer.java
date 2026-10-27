@@ -126,15 +126,30 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         setAdvertizedGracefulRestartTableTypes(List.of());
 
         final var peerPath = peerPath();
-        final var context = rib.getRibSupportContext();
-        adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), requirePeerId(), peerPath, context,
-            localTables, Map.of(), () -> {
-                synchronized (this) {
-                    if (ribInChain() != null) {
-                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
-                    }
+        final var registry = rib.getRibSupportContext();
+
+        final var ribInTables = AdjRibInTables.of(peerPath, localTables, tableType -> {
+            final var supportContext = registry.getRIBSupportContext(tableType);
+            if (supportContext == null) {
+                LOG.warn("No support for table type {}, skipping it", tableType);
+            }
+            return supportContext;
+        });
+
+        adjRibInWriter = new AdjRibInWriter(PeerRole.Internal, ribInTables);
+        adjRibInWriter.initialize(newRibInTransaction(), requirePeerId(), peerPath, Map.of())
+            .addCallback(new FutureCallback<CommitInfo>() {
+                @Override
+                public void onSuccess(final CommitInfo result) {
+                    onAdjRibInitialized(dataTreeChangeService, appPeerDOMId);
                 }
-            });
+
+                @Override
+                public void onFailure(final Throwable throwable) {
+                    LOG.error("Failed to create Empty Structure, Application Peer Listener won't be registered",
+                        throwable);
+                }
+            }, MoreExecutors.directExecutor());
 
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
@@ -144,6 +159,14 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         effectiveRibInWriter.init();
         bgpSessionState.registerMessagesCounter(this);
         trackerRegistration = rib.getPeerTracker().registerPeer(this);
+    }
+
+    private synchronized void onAdjRibInitialized(final DataTreeChangeExtension dataTreeChangeService,
+            final DOMDataTreeIdentifier appPeerDOMId) {
+        if (ribInChain() != null) {
+            registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
+            LOG.trace("Application Peer Listener registered");
+        }
     }
 
     @Override
