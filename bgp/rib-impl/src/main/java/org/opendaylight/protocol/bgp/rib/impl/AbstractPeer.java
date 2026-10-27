@@ -31,6 +31,7 @@ import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
+import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -96,7 +97,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     @GuardedBy("this")
     private PeerId peerId;
     @GuardedBy("this")
-    YangInstanceIdentifier peerPath;
+    private YangInstanceIdentifier peerPath;
     // FIXME: similar to the two above, but has a distinct lifecycle
     @GuardedBy("this")
     AdjRibInWriter adjRibInWriter;
@@ -135,23 +136,25 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     @GuardedBy("this")
     final FluentFuture<? extends CommitInfo> removePeer() {
-        if (peerPath == null) {
+        // captured for callback
+        final var removedPeer = peerId;
+        if (removedPeer == null) {
             return CommitInfo.emptyFluentFuture();
         }
 
-        LOG.info("Closed per Peer {} removed", peerPath);
+        LOG.info("Closed peer {} removed", removedPeer.getValue());
         final var tx = domChain.newWriteOnlyTransaction();
         tx.delete(LogicalDatastoreType.OPERATIONAL, peerPath);
         final var future = tx.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.debug("Peer {} removed", peerPath);
+                LOG.debug("Peer {} removed", removedPeer.getValue());
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to remove Peer {}", peerPath, throwable);
+                LOG.error("Failed to remove peer {}", removedPeer.getValue(), throwable);
             }
         }, MoreExecutors.directExecutor());
         return future;
@@ -173,13 +176,26 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         return verifyNotNull(peerId);
     }
 
+    /**
+     * Resolve {@link #peerId()} to the specified value. The value is considered to have originated
+     * from the equivalent of {@link BGPSession#getBgpId()}.
+     *
+     * @param newPeerId the {@link #peerId()} to resolve to.
+     * @return new value of {@link #peerPath()}
+     */
     @GuardedBy("this")
     @NonNullByDefault
-    final NodeIdentifierWithPredicates setPeerId(final PeerId newPeerId) {
-        final var domPeerId = IdentifierUtils.domPeerId(newPeerId);
+    final YangInstanceIdentifier setPeerId(final PeerId newPeerId) {
         peerId = requireNonNull(newPeerId);
-        peerPath = rib.getYangRibId().node(PEER_NID).node(domPeerId);
-        return domPeerId;
+        final var ret = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(newPeerId));
+        peerPath = ret;
+        return ret;
+    }
+
+    @GuardedBy("this")
+    @SuppressWarnings("null")
+    final @NonNull YangInstanceIdentifier peerPath() {
+        return verifyNotNull(peerPath);
     }
 
     @Override
