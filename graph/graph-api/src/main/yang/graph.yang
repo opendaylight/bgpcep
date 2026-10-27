@@ -5,6 +5,7 @@ module graph {
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-routing-types { prefix rt-types; }
+    import odl-igp-algo-types { prefix oiat; }
 
     organization "Orange";
     contact "Philippe Niger <philippe.niger@orange.com>
@@ -294,14 +295,7 @@ module graph {
     }
 
     typedef algorithm {
-        type enumeration {
-            enum spf {
-                value 0;
-            }
-            enum strict-spf {
-                value 1;
-            }
-        }
+        type oiat:algo-type;
     }
 
     typedef flex-metric {
@@ -320,9 +314,7 @@ module graph {
 
     grouping node-flex-algo {
         leaf flex-algo {
-            type uint8 {
-                range "128..255";
-            }
+            type oiat:algo-type;
         }
         leaf metric-type {
             type flex-metric;

@@ -373,6 +373,9 @@ module bgp-linkstate {
                     uses prefix-identifiers;
                 }
             }
+            case sr-policy-case {
+                reference "https://www.rfc-editor.org/info/rfc9857/#section-8.1";
+            }
             case srv6-sid-case {
                 reference "https://www.rfc-editor.org/info/rfc9514/#section-6";
                 container srv6-node-descriptors {
