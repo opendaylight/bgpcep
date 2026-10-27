@@ -54,10 +54,13 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
 
         provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
 
-        // Must be the last assignment: dataChangedTo() may run before this call returns, on this or another thread,
+        // Must be the last registration: dataChangedTo() may run before this call returns, on this or another thread,
         // and it relies on all other fields having been initialized
-        reg = dependencies.getDataBroker().registerDataListener(LogicalDatastoreType.CONFIGURATION, instanceIdentifier,
-            this);
+        final var listenerReg = dependencies.getDataBroker().registerDataListener(LogicalDatastoreType.CONFIGURATION,
+            instanceIdentifier, this);
+        synchronized (this) {
+            reg = listenerReg;
+        }
         LOG.info("Topology instance for {} initialized", topologyId());
     }
 
