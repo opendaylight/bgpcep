@@ -117,6 +117,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.graph.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.Bandwidth;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.odl.bgp.topology.types.rev160524.bgp.linkstate.topology.type.BgpLinkstateTopologyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.yang.igp.algo.types.rev261110.AlgoNamed;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypes;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.TopologyTypesBuilder;
@@ -515,7 +516,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
 
         // Link MSD
         if (sa.getLinkMsd() != null) {
-            final List<LinkMsd> msds = new ArrayList<LinkMsd>();
+            final var msds = new ArrayList<LinkMsd>();
             sa.getLinkMsd().forEach(msd -> msds.add(new LinkMsdBuilder()
                     .setMsdType(Uint8.valueOf(msd.getType().getIntValue()))
                     .setValue(msd.getValue())
@@ -708,7 +709,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             // Algorithms
             if (srMpls.getAlgorithms() != null) {
                 final var algos = ImmutableSet.<Algorithm>builder();
-                srMpls.getAlgorithms().forEach(algo -> algos.add(Algorithm.forValue(algo.getIntValue())));
+                srMpls.getAlgorithms().forEach(algo -> algos.add(srToGraph(algo)));
                 sraBuilder.setAlgorithms(algos.build());
             }
             // SRGB
@@ -766,6 +767,15 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             sraBuilder.setFlexAlgo(getFlexAlgoDefinition(sr.getFlexAlgoDefinition()));
         }
         return sraBuilder.build();
+    }
+
+    private static Algorithm srToGraph(final org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp
+            .segment.routing.rev241219.Algorithm algo) {
+        final var flex = algo.getAlgoFlex();
+        return flex != null ? new Algorithm(flex) : new Algorithm(switch (algo.getAlgorithmStd()) {
+                case ShortestPathFirst -> AlgoNamed.Spf;
+                case StrictShortestPathFirst -> AlgoNamed.StrictSpf;
+            });
     }
 
     /**
@@ -901,7 +911,11 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             srpBuilder.setPrefixSid(((LabelCase) pa.getSrPrefix().getSidLabelIndex()).getLabel().getValue());
         }
         // Algo
-        srpBuilder.setPrefixAlgo(Uint8.valueOf(pa.getSrPrefix().getAlgorithm().getIntValue()));
+        srpBuilder.setPrefixAlgo(switch (pa.getSrPrefix().getAlgorithm().getAlgorithmStd()) {
+            case null -> null;
+            case ShortestPathFirst -> AlgoNamed.Spf;
+            case StrictShortestPathFirst -> AlgoNamed.StrictSpf;
+        });
         // Flag
         final PrefixSrFlagsBuilder pFlagsBuilder = new PrefixSrFlagsBuilder();
         if (pa.getSrPrefix().getFlags() instanceof IsisPrefixFlagsCase) {

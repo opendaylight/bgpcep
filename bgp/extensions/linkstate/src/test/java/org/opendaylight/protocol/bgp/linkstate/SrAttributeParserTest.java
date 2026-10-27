@@ -34,7 +34,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.FlexAlgoDefinitionBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.NodeMsd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.NodeMsdBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilities;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.state.segment.routing.SrMplsCapabilitiesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.SrPrefix;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.SrPrefixBuilder;
@@ -45,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.sr.attributes.SrLanAdjIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.sr.attributes.SrLanAdjIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.AlgorithmStd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.ExtendedAdminGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.FlexAlgoDefinitionFlag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.FlexMetric;
@@ -81,7 +81,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.MplsLabel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
+<<<<<<< HEAD
 import org.opendaylight.yang.gen.v1.urn.opendaylight.yang.igp.algo.types.rev261110.FlexAlgo;
+||||||| parent of be364a0388 (WIP: Correct SR algorithm parser in BGP LinkState)
+=======
+import org.opendaylight.yang.gen.v1.urn.opendaylight.yang.igp.algo.types.rev261110.AlgoFlex;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.yang.igp.algo.types.rev261110.OdlIgpAlgoUtil;
+>>>>>>> be364a0388 (WIP: Correct SR algorithm parser in BGP LinkState)
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
@@ -166,19 +172,21 @@ class SrAttributeParserTest {
     void testSrMplsCapabilities() {
         final byte[] bytesIsis = { (byte)0xC0, 0, 0, 0, 10, 4, (byte)0x89, 0, 4, 1, 2, 3, 4 };
         final byte[] bytesOspf = { 0, 0, 0, 0, 10, 4, (byte)0x89, 0, 4, 1, 2, 3, 4 };
-        final List<Srgb> srgb = new ArrayList<Srgb>();
+        final var srgb = new ArrayList<Srgb>();
         srgb.add(new SrgbBuilder()
-                .setRangeSize(new Uint24(Uint32.TEN))
-                .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
-                .build());
-        final SrMplsCapabilities capsIsis = new SrMplsCapabilitiesBuilder().setMplsIpv4(Boolean.TRUE)
-                .setMplsIpv6(Boolean.TRUE)
-                .setSrgb(srgb)
-                .build();
-        final SrMplsCapabilities capsOspf = new SrMplsCapabilitiesBuilder().setMplsIpv4(Boolean.FALSE)
-                .setMplsIpv6(Boolean.FALSE)
-                .setSrgb(srgb)
-                .build();
+            .setRangeSize(new Uint24(Uint32.TEN))
+            .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
+            .build());
+        final var capsIsis = new SrMplsCapabilitiesBuilder()
+            .setMplsIpv4(Boolean.TRUE)
+            .setMplsIpv6(Boolean.TRUE)
+            .setSrgb(srgb)
+            .build();
+        final var capsOspf = new SrMplsCapabilitiesBuilder()
+            .setMplsIpv4(Boolean.FALSE)
+            .setMplsIpv6(Boolean.FALSE)
+            .setSrgb(srgb)
+            .build();
         final SrMplsCapabilitiesBuilder parseCapsIsis = new SrMplsCapabilitiesBuilder();
         SrNodeAttributesParser.parseSrCapabilities(parseCapsIsis, Unpooled.wrappedBuffer(bytesIsis),
                 ProtocolId.IsisLevel1);
@@ -197,17 +205,17 @@ class SrAttributeParserTest {
     // tools.ietf.org/html/rfc90850#section-2.1.3
     @Test
     void testSrAlgorithm() {
-        final byte[] bytes = { 0, 1 };
-        final var algos = ImmutableSet.<Algorithm>builder();
-        algos.add(Algorithm.ShortestPathFirst);
-        algos.add(Algorithm.StrictShortestPathFirst);
-        final Set<Algorithm> alg = algos.build();
+        final byte[] bytes = { 0, 1 , (byte )128, 127};
+        final Set<Algorithm> alg = ImmutableSet.<Algorithm>builder()
+            .add(new Algorithm(AlgorithmStd.ShortestPathFirst))
+            .add(new Algorithm(AlgorithmStd.StrictShortestPathFirst))
+            .add(new Algorithm(OdlIgpAlgoUtil.algoFlexOf(Uint8.valueOf(128)))).build();
         final Set<Algorithm> empty = Set.of();
         assertEquals(alg, SrNodeAttributesParser.parseSrAlgorithms(Unpooled.wrappedBuffer(bytes)));
         final ByteBuf b = Unpooled.buffer();
         assertEquals(empty, SrNodeAttributesParser.parseSrAlgorithms(b));
         SrNodeAttributesParser.serializeSrAlgorithms(alg, b);
-        assertArrayEquals(bytes, ByteArray.readAllBytes(b));
+        assertArrayEquals(new byte [] { 0, 1, (byte ) 128} , ByteArray.readAllBytes(b));
 
         SrNodeAttributesParser.serializeSrAlgorithms(empty, b);
         assertEquals(0, b.readableBytes());
@@ -217,7 +225,7 @@ class SrAttributeParserTest {
     @Test
     void testSrLocalBlock() {
         final byte[] bytesSrlb = { 0, 0, 0, 0, 10, 4, (byte)0x89, 0, 3, 0, 1, 2 };
-        final List<Srlb> srlbs = new ArrayList<Srlb>();
+        final List<Srlb> srlbs = new ArrayList<>();
         srlbs.add(new SrlbBuilder()
                 .setRangeSize(new Uint24(Uint32.TEN))
                 .setSidLabelIndex(new LabelCaseBuilder().setLabel(new MplsLabel(Uint32.valueOf(258L))).build())
@@ -232,7 +240,7 @@ class SrAttributeParserTest {
     @Test
     void testMSD() {
         final byte[] bytesMSD = { 1, 10, 2, 8 };
-        final List<NodeMsd> msds = new ArrayList<NodeMsd>();
+        final List<NodeMsd> msds = new ArrayList<>();
         msds.add(new NodeMsdBuilder().setType(MsdType.forValue(1)).setValue(Uint8.valueOf(10)).build());
         msds.add(new NodeMsdBuilder().setType(MsdType.forValue(2)).setValue(Uint8.valueOf(8)).build());
         assertEquals(msds, SrNodeAttributesParser.parseSrNodeMsd(Unpooled.wrappedBuffer(bytesMSD)));
@@ -248,12 +256,12 @@ class SrAttributeParserTest {
         final byte[] bytesOspf = { (byte)0x20, 0, 0, 0, 1, 2, 3, 4 };
         final SrPrefix prefixIsis = new SrPrefixBuilder()
             .setFlags(ISIS_PREFIX_FLAGS)
-            .setAlgorithm(Algorithm.ShortestPathFirst)
+            .setAlgorithm(new Algorithm(AlgorithmStd.ShortestPathFirst))
             .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
             .build();
         final SrPrefix prefixOspf = new SrPrefixBuilder()
             .setFlags(OSPF_PREFIX_FLAGS)
-            .setAlgorithm(Algorithm.ShortestPathFirst)
+            .setAlgorithm(new Algorithm(AlgorithmStd.ShortestPathFirst))
             .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
             .build();
         assertEquals(prefixIsis,
@@ -277,16 +285,14 @@ class SrAttributeParserTest {
         };
         final SrRange parsedRange = SrRangeParser.parseSrRange(Unpooled.wrappedBuffer(tested), ProtocolId.IsisLevel1);
         final SrRange expected = new SrRangeBuilder()
-                .setRangeFlags(ISIS_RANGE_FLAGS)
-                .setRangeSize(Uint16.valueOf(4))
-                .setPrefixSid(new PrefixSidBuilder()
-                        .setFlags(ISIS_PREFIX_RANGE_FLAGS)
-                        .setAlgorithm(Algorithm.StrictShortestPathFirst)
-                        .setSidLabelIndex(new LabelCaseBuilder()
-                                .setLabel(new MplsLabel(Uint32.valueOf(66048)))
-                                .build())
-                        .build())
-                .build();
+            .setRangeFlags(ISIS_RANGE_FLAGS)
+            .setRangeSize(Uint16.valueOf(4))
+            .setPrefixSid(new PrefixSidBuilder()
+                .setFlags(ISIS_PREFIX_RANGE_FLAGS)
+                .setAlgorithm(new Algorithm(AlgorithmStd.StrictShortestPathFirst))
+                .setSidLabelIndex(new LabelCaseBuilder().setLabel(new MplsLabel(Uint32.valueOf(66048))).build())
+                .build())
+            .build();
 
         assertEquals(expected, parsedRange);
 
@@ -383,7 +389,7 @@ class SrAttributeParserTest {
                     .build())
             .build();
         final FlexAlgoDefinitionTlv fadTlv = new FlexAlgoDefinitionTlvBuilder()
-            .setFlexAlgo(new FlexAlgo(Uint8.valueOf(128)))
+            .setFlexAlgo(new AlgoFlex(Uint8.valueOf(128)))
             .setMetricType(FlexMetric.Delay)
             .setCalcType(Uint8.ONE)
             .setPriority(Uint8.TEN)
