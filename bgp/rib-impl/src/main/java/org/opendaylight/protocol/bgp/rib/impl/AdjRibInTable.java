@@ -11,19 +11,10 @@ import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
-import java.util.Collection;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
 import org.opendaylight.yangtools.concepts.Immutable;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 
 /**
  * The combination of a peer adj-rib-in table path and its corresponding {@link RIBSupportContext}.
@@ -45,28 +36,7 @@ record AdjRibInTable(YangInstanceIdentifier path, RIBSupportContext ribSupport) 
             .build(), ribSupport);
     }
 
-    void createEmptyTableStructure(final DOMDataTreeWriteOperations tx) {
-        ribSupport.createEmptyTableStructure(tx, path);
-    }
-
-    void removeTable(final DOMDataTreeWriteTransaction tx) {
-        tx.delete(LogicalDatastoreType.OPERATIONAL, path);
-    }
-
-    Collection<NodeIdentifierWithPredicates> writeRoutes(final DOMDataTreeWriteOperations tx, final MpReachNlri nlri,
-            final Attributes attributes) {
-        return ribSupport.writeRoutes(tx, path, nlri, attributes);
-    }
-
-    void removeRoutes(final DOMDataTreeWriteOperations tx, final MpUnreachNlri nlri) {
-        ribSupport.deleteRoutes(tx, path, nlri);
-    }
-
     YangInstanceIdentifier routesPath() {
         return ribSupport.ribSupport().routesPath(path);
-    }
-
-    YangInstanceIdentifier routePath(final PathArgument routeId) {
-        return ribSupport.ribSupport().routePath(path, routeId);
     }
 }
