@@ -140,8 +140,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     @GuardedBy("this")
     private BGPSession currentSession;
     @GuardedBy("this")
-    private AdjRibInWriter ribWriter;
-    @GuardedBy("this")
     private EffectiveRibInWriter effRibInWriter;
     private Registration rpcRegistration;
     private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
@@ -174,8 +172,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.rpcRegistry = rpcRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
-
-        createDomChain();
     }
 
     private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
@@ -262,9 +258,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     public synchronized void instantiateServiceInstance() {
-        createDomChain();
-        ribWriter = AdjRibInWriter.create(getRole());
-        setActive(true);
+        activate();
     }
 
     @Override
@@ -329,7 +323,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final boolean isAnyNlriAnnounced = message.getNlri() != null;
         final var mpReach = isAnyNlriAnnounced ? prefixesToMpReach(message) : MessageUtil.getMpReachNlri(attrs);
         if (mpReach != null) {
-            ribWriter.updateRoutes(newRibInTransaction(), mpReach, nextHopToAttribute(attrs, mpReach));
+            adjRibInWriter.updateRoutes(newRibInTransaction(), mpReach, nextHopToAttribute(attrs, mpReach));
         }
 
         final var mpUnreach = message.getWithdrawnRoutes() != null ? prefixesToMpUnreach(message, isAnyNlriAnnounced)
@@ -338,14 +332,14 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (mpUnreach != null) {
             if (endOfRib) {
                 final var tablesKey = new TablesKey(mpUnreach.requireAfi(), mpUnreach.requireSafi());
-                ribWriter.removeStaleRoutes(newRibInTransaction(), tablesKey);
+                adjRibInWriter.removeStaleRoutes(newRibInTransaction(), tablesKey);
                 missingEOT.remove(tablesKey);
                 handleGracefulEndOfRib();
             } else {
-                ribWriter.removeRoutes(newRibInTransaction(), mpUnreach);
+                adjRibInWriter.removeRoutes(newRibInTransaction(), mpUnreach);
             }
         } else if (endOfRib) {
-            ribWriter.removeStaleRoutes(newRibInTransaction(), IPV4_UCAST_TABLE_KEY);
+            adjRibInWriter.removeStaleRoutes(newRibInTransaction(), IPV4_UCAST_TABLE_KEY);
             missingEOT.remove(IPV4_UCAST_TABLE_KEY);
             handleGracefulEndOfRib();
         }
@@ -417,8 +411,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             registerPrefixesCounters(effRibInWriter, effRibInWriter);
 
             effRibInWriter.init();
-            ribWriter = ribWriter.transform(newRibInTransaction(), peerId, peerPath, rib.getRibSupportContext(), tables,
-                addPathTableMaps, null);
+            adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), peerId, peerPath,
+                rib.getRibSupportContext(), tables, addPathTableMaps, null);
 
             if (rpcRegistry != null) {
                 final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
@@ -440,7 +434,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     })
                     .map(table -> new TablesKey(table.getAfi(), table.getSafi()))
                     .collect(Collectors.toSet());
-            ribWriter.clearTables(newRibInTransaction(), Sets.difference(tables, forwardingTables));
+            adjRibInWriter.clearTables(newRibInTransaction(), Sets.difference(tables, forwardingTables));
             if (restartingLocally) {
                 effRibInWriter.close();
                 peerRestartStopwatch = Stopwatch.createStarted();
@@ -612,13 +606,13 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final var gracefulTables = getGracefulTables();
             if (!gracefulTables.isEmpty()) {
                 final var rw = getRibInChain().newReadWriteTransaction();
-                ribWriter.storeStaleRoutes(rw, gracefulTables);
+                adjRibInWriter.storeStaleRoutes(rw, gracefulTables);
                 tx = rw;
             } else {
                 tx = newRibInTransaction();
             }
 
-            future = ribWriter.clearTables(tx, Sets.difference(tables, gracefulTables));
+            future = adjRibInWriter.clearTables(tx, Sets.difference(tables, gracefulTables));
             if (isPeerRestarting()) {
                 peerRestartStopwatch = Stopwatch.createStarted();
                 handleRestartTimer();
@@ -664,7 +658,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         if (rpcRegistration != null) {
             rpcRegistration.close();
         }
-        ribWriter.releaseChain();
+        adjRibInWriter.releaseChain();
 
         if (effRibInWriter != null) {
             effRibInWriter.close();
@@ -748,7 +742,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @Override
     public synchronized void markUptodate(final TablesKey tablesKey) {
-        ribWriter.markTableUptodate(newRibInTransaction(), tablesKey);
+        adjRibInWriter.markTableUptodate(newRibInTransaction(), tablesKey);
     }
 
     @Override

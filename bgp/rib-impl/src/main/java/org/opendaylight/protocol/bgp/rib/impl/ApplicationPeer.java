@@ -96,7 +96,6 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
     private final BGPTableTypeRegistryConsumer tableTypeRegistry;
 
     private EffectiveRibInWriter effectiveRibInWriter;
-    private AdjRibInWriter adjRibInWriter;
     private Registration registration;
     private Registration trackerRegistration;
     private YangInstanceIdentifier peerPath;
@@ -111,13 +110,12 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         final var peerRib = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(peerId));
         adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
         peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
-
-        createDomChain();
     }
 
     public synchronized void instantiateServiceInstance(final DataTreeChangeExtension dataTreeChangeService,
             final DOMDataTreeIdentifier appPeerDOMId) {
-        setActive(true);
+        activate();
+
         final var localTables = rib.getLocalTablesKeys();
         for (var localTable : localTables) {
             final var tableSupport = rib.getRibSupportContext().getRIBSupport(localTable);
@@ -129,10 +127,8 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
-        createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(PeerRole.Internal);
-        final var context = rib.getRibSupportContext();
         peerPath = createPeerPath(peerId);
+        final var context = rib.getRibSupportContext();
         adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), peerId, peerPath, context, localTables,
             Map.of(), () -> {
                 synchronized (this) {

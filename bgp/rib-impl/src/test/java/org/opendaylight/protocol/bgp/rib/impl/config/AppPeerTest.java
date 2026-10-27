@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.rib.impl.config;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
@@ -44,10 +45,10 @@ public class AppPeerTest extends AbstractConfig {
     @Test
     public void testAppPeer() throws ExecutionException, InterruptedException {
         appPeer.start(rib, neighbor, null, peerGroupLoader, tableTypeRegistry);
+        verify(rib, never()).createPeerDOMChain();
         verify(rib).getYangRibId();
         verify(rib).getService();
-        verify(rib).createPeerDOMChain();
-        verify(rib, times(1)).getLocalTablesKeys();
+        verify(rib).getLocalTablesKeys();
 
         appPeer.instantiateServiceInstance();
         verify(rib, times(2)).getYangRibId();
