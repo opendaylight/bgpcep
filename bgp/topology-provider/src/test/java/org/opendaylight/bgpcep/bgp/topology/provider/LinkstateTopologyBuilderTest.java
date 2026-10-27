@@ -85,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.AlgorithmStd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.sid.label.index.sid.label.index.LabelCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.sid.label.index.sid.label.index.SidCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.sr.capabilities.tlv.Srgb;
@@ -541,7 +542,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                                 .setOspfForwardingAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ospfFwdAddress)))
                                 .setPrefixMetric(new IgpMetric(Uint32.valueOf(igpMetric)))
                                 .setSrPrefix(new SrPrefixBuilder()
-                                        .setAlgorithm(Algorithm.ShortestPathFirst)
+                                        .setAlgorithm(new Algorithm(AlgorithmStd.ShortestPathFirst))
                                         .setSidLabelIndex(new SidCaseBuilder()
                                                 .setSid(Uint32.valueOf(NODE_SID_INDEX)).build())
                                         .build())

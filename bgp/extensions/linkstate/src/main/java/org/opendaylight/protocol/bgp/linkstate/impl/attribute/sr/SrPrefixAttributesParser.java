@@ -37,14 +37,14 @@ public final class SrPrefixAttributesParser {
     private static final int RESERVED_PREFIX = 2;
 
     private SrPrefixAttributesParser() {
-
+        // hidden on purpose
     }
 
     public static SrPrefix parseSrPrefix(final ByteBuf buffer, final ProtocolId protocol) {
         final var flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         final var builder = new SrPrefixBuilder()
-                .setFlags(parsePrefixFlags(flags, protocol))
-                .setAlgorithm(Algorithm.forValue(buffer.readUnsignedByte()));
+            .setFlags(parsePrefixFlags(flags, protocol))
+            .setAlgorithm(SrNodeAttributesParser.readAlgorithm(buffer));
         buffer.skipBytes(RESERVED_PREFIX);
         return builder
             .setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndexByFlags(buffer, flags.get(VALUE), flags.get(LOCAL)))
@@ -85,7 +85,7 @@ public final class SrPrefixAttributesParser {
             final SidLabelIndex sidLabelIndex, final ByteBuf buffer) {
         final BitArray bitFlags = serializePrefixFlags(flags, sidLabelIndex);
         bitFlags.toByteBuf(buffer);
-        buffer.writeByte(algorithm.getIntValue());
+        SrNodeAttributesParser.writeAlgorithm(buffer, algorithm);
         buffer.writeZero(RESERVED_PREFIX);
         buffer.writeBytes(SidLabelIndexParser.serializeSidValue(sidLabelIndex));
     }
