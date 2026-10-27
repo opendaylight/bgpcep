@@ -7,18 +7,17 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl.config;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
-import java.util.concurrent.ExecutionException;
-import org.junit.Before;
+import java.time.Duration;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPStateCollector;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbor.group.ConfigBuilder;
-import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.Neighbor;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.rev151009.bgp.neighbors.NeighborBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -26,32 +25,24 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.open
 
 // FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AppPeerTest extends AbstractConfig {
-    private final AppPeerBean appPeer = new AppPeerBean(new BGPStateCollector());
-
-    private final Neighbor neighbor = new NeighborBuilder()
-        .setConfig(new ConfigBuilder()
-            .addAugmentation(new NeighborPeerGroupConfigBuilder()
-                .setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME)
-                .build())
-            .build())
-        .setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
-
-    @Override
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-    }
-
     @Test
-    public void testAppPeer() throws ExecutionException, InterruptedException {
+    public void testAppPeer() {
+        final var appPeer = new AppPeerBean(new BGPStateCollector());
+        final var neighbor = new NeighborBuilder()
+            .setConfig(new ConfigBuilder()
+                .addAugmentation(new NeighborPeerGroupConfigBuilder()
+                    .setPeerGroup(OpenConfigMappingUtil.APPLICATION_PEER_GROUP_NAME)
+                    .build())
+                .build())
+            .setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.1"))).build();
+
         appPeer.start(rib, neighbor, null, peerGroupLoader, tableTypeRegistry);
         verify(rib, never()).createPeerDOMChain();
-        verify(rib).getYangRibId();
+        verify(rib, times(2)).getYangRibId();
         verify(rib).getService();
         verify(rib).getLocalTablesKeys();
 
         appPeer.instantiateServiceInstance();
-        verify(rib, times(2)).getYangRibId();
         verify(rib, times(2)).getRibSupportContext();
         verify(rib, times(2)).getLocalTablesKeys();
         verify(rib, times(2)).createPeerDOMChain();
@@ -59,7 +50,7 @@ public class AppPeerTest extends AbstractConfig {
 
         appPeer.closeServiceInstance();
         verify(domTx, times(2)).close();
-        appPeer.stop().get();
+        assertThat(appPeer.stop()).succeedsWithin(Duration.ofSeconds(10));
 
         appPeer.start(rib, appPeer.getCurrentConfiguration(), null, peerGroupLoader, tableTypeRegistry);
         appPeer.instantiateServiceInstance();
@@ -70,8 +61,8 @@ public class AppPeerTest extends AbstractConfig {
 
         assertTrue(appPeer.containsEqualConfiguration(neighbor));
         assertFalse(appPeer.containsEqualConfiguration(new NeighborBuilder()
-                .setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.2")))
-                .build()));
+            .setNeighborAddress(new IpAddress(new Ipv4Address("127.0.0.2")))
+            .build()));
         appPeer.closeServiceInstance();
         verify(domTx, times(4)).close();
 
@@ -79,6 +70,6 @@ public class AppPeerTest extends AbstractConfig {
         verify(rib, times(6)).createPeerDOMChain();
         appPeer.closeServiceInstance();
         verify(domTx, times(6)).close();
-        appPeer.stop().get();
+        assertThat(appPeer.stop()).succeedsWithin(Duration.ofSeconds(10));
     }
 }
