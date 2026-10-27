@@ -432,8 +432,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             addBgp4Support();
         }
         if (!isRestartingGracefully()) {
-            peerId = RouterIds.createPeerId(session.getBgpId());
-            setPeerPath(peerId);
+            final var peerId = RouterIds.createPeerId(session.getBgpId());
+            setPeerId(peerId);
 
             peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
             createEffRibInWriter();
@@ -539,15 +539,15 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     if (sessionUp) {
                         trackerRegistration = rib.getPeerTracker().registerPeer(BGPPeer.this);
                     } else {
-                        LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId);
+                        LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId());
                     }
                 }
             }
 
             @Override
             public void onFailure(final Throwable cause) {
-                LOG.error("Failed to initialize adj-rib-out for peer {}", peerId, cause);
                 synchronized (BGPPeer.this) {
+                    LOG.error("Failed to initialize adj-rib-out for peer {}", peerId(), cause);
                     BGPPeer.this.releaseConnection(false);
                 }
             }
@@ -585,7 +585,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         // not particularly nice
         if (ribSupport != null && currentSession instanceof BGPSessionImpl bgpSession) {
-            final var adjRibOut = AdjRibOutListener.create(peerId, rib.getYangRibId(), rib.getCodecsRegistry(),
+            final var adjRibOut = AdjRibOutListener.create(requirePeerId(), rib.getYangRibId(), rib.getCodecsRegistry(),
                 ribSupport, rib.getService(), bgpSession.getLimiter(), mpSupport);
             adjRibOutListenerSet.put(key, adjRibOut);
             registerPrefixesSentCounter(key, adjRibOut);
@@ -808,7 +808,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     public synchronized ListenableFuture<?> restartGracefully(final long selectionDeferralTimerSeconds) {
         final var tablesToPreserve = getGracefulTables();
         if (tablesToPreserve == null || tablesToPreserve.isEmpty()) {
-            LOG.info("Peer {} is not capable of graceful restart or have no matching graceful tables.", peerId);
+            LOG.info("Peer {} is not capable of graceful restart or have no matching graceful tables.", peerId());
             return Futures.immediateFailedFuture(
                 new UnsupportedOperationException("Peer is not capable of graceful restart"));
         }
