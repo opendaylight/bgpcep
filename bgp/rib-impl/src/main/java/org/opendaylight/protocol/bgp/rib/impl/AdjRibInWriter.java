@@ -36,7 +36,6 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.rib.impl.ApplicationPeer.RegisterAppPeerListener;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
@@ -76,20 +75,9 @@ final class AdjRibInWriter {
     private FluentFuture<? extends CommitInfo> submitted;
 
     @NonNullByDefault
-    private AdjRibInWriter(final PeerRole role, final AdjRibInTables tables) {
+    AdjRibInWriter(final PeerRole role, final AdjRibInTables tables) {
         this.tables = requireNonNull(tables);
         this.role = requireNonNull(role);
-    }
-
-    /**
-     * Create a new writer using a transaction chain.
-     *
-     * @param role                peer's role
-     * @return A fresh writer instance
-     */
-    @NonNullByDefault
-    static AdjRibInWriter create(final PeerRole role) {
-        return new AdjRibInWriter(role, AdjRibInTables.EMPTY);
     }
 
     /**
@@ -104,12 +92,15 @@ final class AdjRibInWriter {
      * @param addPathTablesType supported add path tables
      * @return New writer
      */
-    AdjRibInWriter transform(final DOMDataTreeWriteTransaction tx, final PeerId newPeerId,
-            final YangInstanceIdentifier peerPath, final RIBSupportContextRegistry registry,
-            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
+    void initialize(final DOMDataTreeWriteTransaction tx, final PeerId newPeerId, final YangInstanceIdentifier peerPath,
+            final Map<TablesKey, SendReceive> addPathTablesType,
             final @Nullable RegisterAppPeerListener registerAppPeerListener) {
         createEmptyPeerStructure(newPeerId, peerPath, tx);
-        final var newTables = createNewTableInstances(peerPath, registry, tableTypes, addPathTablesType, tx);
+
+        tables.forEach((tableType, table) -> {
+            installAdjRibsOutTables(peerPath, table.ribSupport(), addPathTablesType.get(tableType), tx);
+            installAdjRibInTables(peerPath, tableType, table, tx);
+        });
 
         tx.commit().addCallback(new FutureCallback<CommitInfo>() {
             @Override
@@ -130,29 +121,6 @@ final class AdjRibInWriter {
                 }
             }
         }, MoreExecutors.directExecutor());
-        return new AdjRibInWriter(role, newTables);
-    }
-
-    /**
-     * Create new table instances, potentially creating their empty entries.
-     */
-    private static @NonNull AdjRibInTables createNewTableInstances(
-            final YangInstanceIdentifier newPeerPath, final RIBSupportContextRegistry registry,
-            final Set<TablesKey> tableTypes, final Map<TablesKey, SendReceive> addPathTablesType,
-            final DOMDataTreeWriteOperations tx) {
-        final var tables = AdjRibInTables.of(newPeerPath, tableTypes, tableType -> {
-            final var supportContext = registry.getRIBSupportContext(tableType);
-            if (supportContext == null) {
-                LOG.warn("No support for table type {}, skipping it", tableType);
-            }
-            return supportContext;
-        });
-
-        tables.forEach((tableType, table) -> {
-            installAdjRibsOutTables(newPeerPath, table.ribSupport(), addPathTablesType.get(tableType), tx);
-            installAdjRibInTables(newPeerPath, tableType, table, tx);
-        });
-        return tables;
     }
 
     private static void installAdjRibInTables(final YangInstanceIdentifier newPeerPath, final TablesKey tableKey,
