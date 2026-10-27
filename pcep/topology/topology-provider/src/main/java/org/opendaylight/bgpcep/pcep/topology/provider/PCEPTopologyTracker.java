@@ -103,8 +103,9 @@ public final class PCEPTopologyTracker
     // In order to achieve that without risking deadlocks, instances are tracked using a concurrent map and each
     // 'create' edge allocates a new PCEPTopologyInstance object.
     private final ConcurrentMap<TopologyKey, PCEPTopologySingleton> instances = new ConcurrentHashMap<>();
-    @GuardedBy("this")
-    private Registration reg;
+    // Assigned in the constructor, which does not hold the lock, as callbacks may already be running.
+    // Closed and cleared under the lock.
+    private volatile Registration reg;
     // Tracked separately from reg, as the datastore may deliver the initial notification before
     // registerTreeChangeListener() returns, i.e. while reg is still null
     @GuardedBy("this")

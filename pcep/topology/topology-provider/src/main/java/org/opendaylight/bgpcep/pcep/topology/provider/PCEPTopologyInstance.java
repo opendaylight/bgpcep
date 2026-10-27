@@ -35,8 +35,9 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
 
     @GuardedBy("this")
     private PCEPTopologyProvider provider;
-    @GuardedBy("this")
-    private Registration reg;
+    // Assigned in the constructor, which does not hold the lock, as callbacks may already be running.
+    // Closed and cleared under the lock.
+    private volatile Registration reg;
     // Tracked separately from reg, as the datastore may deliver the initial notification before
     // registerDataListener() returns, i.e. while reg is still null
     @GuardedBy("this")

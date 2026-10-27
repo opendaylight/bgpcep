@@ -44,8 +44,9 @@ final class PCEPTopologySingleton {
         private SettableFuture<Empty> closeFuture;
         @GuardedBy("this")
         private PCEPTopologyInstance instance;
-        @GuardedBy("this")
-        private Registration reg;
+        // Assigned in the constructor, which does not hold the lock, as callbacks may already be running.
+        // Closed and cleared under the lock.
+        private volatile Registration reg;
         // Tracked separately from reg, as the singleton service provider may instantiate us before
         // registerClusterSingletonService() returns, i.e. while reg is still null
         @GuardedBy("this")
