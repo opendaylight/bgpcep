@@ -26,14 +26,12 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
-import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AbstractAdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
@@ -49,19 +47,16 @@ import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerStateProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.routing.types.rev171204.Uint24;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
-import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,9 +65,6 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
                    FutureCallback<Empty>
         permits ApplicationPeer, BGPPeer {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
-    private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
-    private static final NodeIdentifier PEER_ID = NodeIdentifier.create(RIBQNames.PEER_ID_QNAME);
-    private static final NodeIdentifier PEER_ROLE = NodeIdentifier.create(PEER_ROLE_QNAME);
 
     final @NonNull RTCClientRouteCache rtCache = new RTCClientRouteCache();
     final @NonNull RIB rib;
@@ -98,7 +90,10 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     private PeerId peerId;
     @GuardedBy("this")
     private YangInstanceIdentifier peerPath;
-    // FIXME: similar to the two above, but has a distinct lifecycle
+    // FIXME: similar to the two above, but has a distinct lifecycle:
+    //        - requires peerId/peerPath
+    //        - instantiated on first connection
+    //        - retained in graceful restart scenarios
     @GuardedBy("this")
     AdjRibInWriter adjRibInWriter;
 
@@ -257,18 +252,6 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     @SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "SpotBugs does not grok @GuardedBy")
     final @Nullable DOMTransactionChain ribInChain() {
         return domChain;
-    }
-
-    @GuardedBy("this")
-    @SuppressWarnings("null")
-    final @NonNull DOMTransactionChain getRibInChain() {
-        return verifyNotNull(ribInChain());
-    }
-
-    @GuardedBy("this")
-    @NonNullByDefault
-    final DOMDataTreeWriteTransaction newRibInTransaction() {
-        return getRibInChain().newWriteOnlyTransaction();
     }
 
     /**
@@ -565,8 +548,22 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     @GuardedBy("this")
     final void activate() {
         setActive(true);
-        createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(role);
+    }
+
+    @GuardedBy("this")
+    final @NonNull FluentFuture<? extends @NonNull CommitInfo> initializeDatastore(final Set<TablesKey> tables,
+            final Map<TablesKey, SendReceive> addPathTablesType) {
+        final var localPeerPath = peerPath();
+        final var supportRegistry = rib.getRibSupportContext();
+        adjRibInWriter = new AdjRibInWriter(createDomChain(), role, AdjRibInTables.of(localPeerPath, tables,
+            tableType -> {
+                final var supportContext = supportRegistry.getRIBSupportContext(tableType);
+                if (supportContext == null) {
+                    LOG.warn("No support for table type {}, skipping it", tableType);
+                }
+                return supportContext;
+            }));
+        return adjRibInWriter.initialize(requirePeerId(), localPeerPath, addPathTablesType);
     }
 
     @GuardedBy("this")
@@ -590,14 +587,4 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     @GuardedBy("this")
     abstract boolean supportsLLGR();
-
-    @NonNullByDefault
-    static final MapEntryNode skeletonOf(final NodeIdentifierWithPredicates peerKey, final String peerId,
-            final PeerRole role) {
-        return ImmutableNodes.newMapEntryBuilder()
-            .withNodeIdentifier(peerKey)
-            .withChild(ImmutableNodes.leafNode(PEER_ID, peerId))
-            .withChild(ImmutableNodes.leafNode(PEER_ROLE, role.getName()))
-            .build();
-    }
 }

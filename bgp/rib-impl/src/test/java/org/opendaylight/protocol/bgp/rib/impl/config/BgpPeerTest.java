@@ -135,7 +135,7 @@ public class BgpPeerTest extends AbstractConfig {
 
     @Test
     public void testBgpPeer() throws ExecutionException, InterruptedException {
-        final Neighbor neighbor = new NeighborBuilder()
+        final var neighbor = new NeighborBuilder()
             .setAfiSafis(createAfiSafi())
             .setConfig(createConfig())
             .setNeighborAddress(NEIGHBOR_ADDRESS)
@@ -164,14 +164,14 @@ public class BgpPeerTest extends AbstractConfig {
         bgpPeer.stop().get();
         bgpPeer.start(rib, bgpPeer.getCurrentConfiguration(), null, peerGroupLoader, tableTypeRegistry);
         bgpPeer.instantiateServiceInstance();
-        verify(rib, times(2)).createPeerDOMChain();
+        verify(rib, never()).createPeerDOMChain();
         verify(rib, times(4)).getLocalAs();
         verify(rib, times(2)).getLocalTables();
         verify(bgpPeerRegistry, times(2)).addPeer(any(), any(), any());
         verify(dispatcher, times(2)).createReconnectingClient(any(InetSocketAddress.class), any(), anyInt(),
             any(KeyMapping.class));
 
-        final Neighbor neighborExpected = createNeighborExpected(NEIGHBOR_ADDRESS);
+        final var neighborExpected = createNeighborExpected(NEIGHBOR_ADDRESS);
         assertTrue(bgpPeer.containsEqualConfiguration(neighborExpected));
         assertFalse(bgpPeer.containsEqualConfiguration(createNeighborExpected(
             new IpAddress(new Ipv4Address("127.0.0.2")))));
@@ -188,12 +188,12 @@ public class BgpPeerTest extends AbstractConfig {
         bgpPeer.closeServiceInstance();
         verify(bgpPeerRegistry, times(3)).removePeer(any());
         verify(future, times(3)).cancel(true);
-        verify(rib, times(3)).createPeerDOMChain();
+        verify(rib, never()).createPeerDOMChain();
 
         bgpPeer.stop().get();
         bgpPeer.start(rib, bgpPeer.getCurrentConfiguration(), null, peerGroupLoader, tableTypeRegistry);
         bgpPeer.instantiateServiceInstance();
-        verify(rib, times(4)).createPeerDOMChain();
+        verify(rib, never()).createPeerDOMChain();
         verify(rib, times(6)).getLocalAs();
         verify(rib, times(3)).getLocalTables();
         verify(bgpPeerRegistry, times(4)).addPeer(any(), any(), any());
@@ -204,7 +204,7 @@ public class BgpPeerTest extends AbstractConfig {
         verify(future, times(4)).cancel(true);
         bgpPeer.stop().get();
 
-        final Neighbor neighborDiffConfig = new NeighborBuilder()
+        final var neighborDiffConfig = new NeighborBuilder()
             .setNeighborAddress(NEIGHBOR_ADDRESS)
             .setAfiSafis(createAfiSafi())
             .build();
