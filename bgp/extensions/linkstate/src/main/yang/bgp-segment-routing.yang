@@ -7,6 +7,7 @@ module bgp-segment-routing {
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-routing-types { prefix rt-types; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
+    import odl-igp-algo-types { prefix oiat; }
 
     organization "Cisco Systems, Inc.";
     contact "Iveta Halanova <ihalanov@cisco.com>";
@@ -100,7 +101,7 @@ module bgp-segment-routing {
 
     // Node Attributes
 
-    typedef algorithm {
+    typedef algorithm-std {
         reference "https://www.rfc-editor.org/info/rfc8665/#section-3.1";
         type enumeration {
             enum shortest-path-first {
@@ -109,6 +110,13 @@ module bgp-segment-routing {
             enum strict-shortest-path-first {
                 value 1;
             }
+        }
+    }
+    typedef algorithm {
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.1.2";
+        type union {
+            type algorithm-std;
+            type oiat:algo-flex;
         }
     }
 
@@ -201,13 +209,6 @@ module bgp-segment-routing {
         }
     }
 
-    typedef flex-algo {
-        reference "https://www.rfc-editor.org/info/rfc9351";
-        type uint8 {
-            range "128..255";
-        }
-    }
-
     grouping unsupported-tlvs {
         reference "https://www.rfc-editor.org/info/rfc9351/#section-3.6";
         leaf protocol-id {
@@ -246,7 +247,7 @@ module bgp-segment-routing {
         reference "https://www.rfc-editor.org/info/rfc9351/#section-3";
         list flex-algo-definition-tlv {
             leaf flex-algo {
-                type flex-algo;
+                type oiat:algo-flex;
             }
             leaf metric-type {
                 type flex-metric;
@@ -511,7 +512,7 @@ module bgp-segment-routing {
     grouping flex-algo-prefix-metric {
         reference "https://www.rfc-editor.org/info/rfc9351/#section-4";
         leaf flex-algo {
-            type flex-algo;
+            type oiat:algo-flex;
         }
         leaf flags {
             type flex-algo-prefix-flag;
