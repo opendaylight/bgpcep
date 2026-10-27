@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
+
 import io.netty.buffer.ByteBuf;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.ProtocolId;
@@ -21,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.prefix.sid.tlv.flags.isis.prefix.flags._case.IsisPrefixFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.prefix.sid.tlv.flags.ospf.prefix.flags._case.OspfPrefixFlagsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.sid.label.index.SidLabelIndex;
+import org.opendaylight.yangtools.yang.common.Uint8;
 
 public final class SrPrefixAttributesParser {
 
@@ -43,8 +46,12 @@ public final class SrPrefixAttributesParser {
     public static SrPrefix parseSrPrefix(final ByteBuf buffer, final ProtocolId protocol) {
         final var flags = BitArray.valueOf(buffer, FLAGS_SIZE);
         final var builder = new SrPrefixBuilder()
-                .setFlags(parsePrefixFlags(flags, protocol))
-                .setAlgorithm(Algorithm.forValue(buffer.readUnsignedByte()));
+                .setFlags(parsePrefixFlags(flags, protocol));
+        // Read and check that Algorithm is valid: 0 or 1 for standard algorithms and > 128 for FlexAlgo
+        final var algo = buffer.readUnsignedByte();
+        if (!(algo > 1 && algo < 128)) {
+            builder.setAlgorithm(new Algorithm(Uint8.valueOf(algo)));
+        }
         buffer.skipBytes(RESERVED_PREFIX);
         return builder
             .setSidLabelIndex(SidLabelIndexParser.parseSidLabelIndexByFlags(buffer, flags.get(VALUE), flags.get(LOCAL)))
@@ -85,7 +92,7 @@ public final class SrPrefixAttributesParser {
             final SidLabelIndex sidLabelIndex, final ByteBuf buffer) {
         final BitArray bitFlags = serializePrefixFlags(flags, sidLabelIndex);
         bitFlags.toByteBuf(buffer);
-        buffer.writeByte(algorithm.getIntValue());
+        writeUint8(buffer, algorithm.getValue());
         buffer.writeZero(RESERVED_PREFIX);
         buffer.writeBytes(SidLabelIndexParser.serializeSidValue(sidLabelIndex));
     }
