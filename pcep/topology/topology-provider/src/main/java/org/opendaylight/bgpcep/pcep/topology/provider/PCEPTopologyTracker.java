@@ -143,11 +143,14 @@ public final class PCEPTopologyTracker
         statsProvider = new TopologyStatsProvider(timer);
         statsRpcs = new TopologyStatsRpc(dataBroker, rpcProviderRegistry);
 
-        // Must be the last statement: onDataTreeChanged() may run before this call returns, on this or another
+        // Must be the last registration: onDataTreeChanged() may run before this call returns, on this or another
         // thread, and it relies on all other fields having been initialized
-        reg = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
+        final var listenerReg = dataBroker.registerTreeChangeListener(LogicalDatastoreType.CONFIGURATION,
             DataObjectReference.builder(NetworkTopology.class).child(Topology.class).child(TopologyTypes.class)
                 .augmentation(TopologyTypes1.class).child(TopologyPcep.class).build(), this);
+        synchronized (this) {
+            reg = listenerReg;
+        }
         LOG.info("PCEP Topology tracker initialized");
     }
 
