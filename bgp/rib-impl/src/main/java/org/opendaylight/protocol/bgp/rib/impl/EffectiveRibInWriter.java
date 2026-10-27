@@ -100,7 +100,7 @@ import org.slf4j.LoggerFactory;
  * <p>This class is NOT thread-safe.
  */
 final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesInstalledCounters,
-        AutoCloseable, DOMDataTreeChangeListener {
+        DOMDataTreeChangeListener {
     private static final Logger LOG = LoggerFactory.getLogger(EffectiveRibInWriter.class);
     private static final TablesKey IVP4_VPN_TABLE_KEY =
         new TablesKey(Ipv4AddressFamily.VALUE, MplsLabeledVpnSubsequentAddressFamily.VALUE);
@@ -159,15 +159,38 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
         vpnTableRefresher = rib;
     }
 
-    public void init() {
-        LOG.debug("Registered Effective RIB on {}", peerIId);
+    private static Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
+        return tables.stream().collect(ImmutableMap.toImmutableMap(Function.identity(), unused -> new LongAdder()));
+    }
+
+    synchronized void init() {
+        if (reg != null) {
+            throw new VerifyException(peerIId + " already initialized");
+        }
         reg = service.registerTreeChangeListener(
             DOMDataTreeIdentifier.of(LogicalDatastoreType.OPERATIONAL, peerIId.node(ADJRIBIN_NID).node(TABLES_NID)),
             this);
+        LOG.debug("Registered Effective RIB on {}", peerIId);
     }
 
-    private static Map<TablesKey, LongAdder> buildPrefixesTables(final Set<TablesKey> tables) {
-        return tables.stream().collect(ImmutableMap.toImmutableMap(Function.identity(), unused -> new LongAdder()));
+    synchronized void close() {
+        if (reg != null) {
+            reg.close();
+            reg = null;
+        }
+        if (submitted != null) {
+            try {
+                submitted.get();
+            } catch (final InterruptedException | ExecutionException throwable) {
+                LOG.error("Write routes failed", throwable);
+            }
+        }
+        if (chain != null) {
+            chain.close();
+            chain = null;
+        }
+        prefixesReceived.values().forEach(LongAdder::reset);
+        prefixesInstalled.values().forEach(LongAdder::reset);
     }
 
     @Override
@@ -217,27 +240,6 @@ final class EffectiveRibInWriter implements PrefixesReceivedCounters, PrefixesIn
             vpnTableRefresher.refreshTable(IVP6_VPN_TABLE_KEY, peerImportParameters.getFromPeerId());
             rtMembershipsUpdated = false;
         }
-    }
-
-    @Override
-    public synchronized void close() {
-        if (reg != null) {
-            reg.close();
-            reg = null;
-        }
-        if (submitted != null) {
-            try {
-                submitted.get();
-            } catch (final InterruptedException | ExecutionException throwable) {
-                LOG.error("Write routes failed", throwable);
-            }
-        }
-        if (chain != null) {
-            chain.close();
-            chain = null;
-        }
-        prefixesReceived.values().forEach(LongAdder::reset);
-        prefixesInstalled.values().forEach(LongAdder::reset);
     }
 
     @Override
