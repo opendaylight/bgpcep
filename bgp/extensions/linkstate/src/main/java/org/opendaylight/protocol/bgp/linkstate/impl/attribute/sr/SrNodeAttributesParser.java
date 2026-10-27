@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SidLabelIndexParser.SID_LABEL;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -85,13 +86,20 @@ public final class SrNodeAttributesParser {
     public static Set<Algorithm> parseSrAlgorithms(final ByteBuf buffer) {
         final var algs = ImmutableSet.<Algorithm>builder();
         while (buffer.isReadable()) {
-            algs.add(Algorithm.forValue(buffer.readUnsignedByte()));
+            // read and check that Algorithm is valid:
+            // - 0..1 for standard algorithms
+            // - 128..255 for FlexAlgo
+            // in two's complement representation, the latter maps to -128..-1, so we can use a simple check
+            final var algo = readUint8(buffer);
+            if (algo.byteValue() < 2) {
+                algs.add(new Algorithm(algo));
+            }
         }
         return algs.build();
     }
 
     public static void serializeSrAlgorithms(final Set<Algorithm> algs, final ByteBuf buffer) {
-        algs.forEach(alg -> buffer.writeByte(alg.getIntValue()));
+        algs.forEach(alg -> writeUint8(buffer, alg.getValue()));
     }
 
     public static List<Srlb> parseSrLocalBlock(final ByteBuf buffer) {
