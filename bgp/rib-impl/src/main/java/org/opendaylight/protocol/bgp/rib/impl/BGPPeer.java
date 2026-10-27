@@ -433,7 +433,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         if (!isRestartingGracefully()) {
             final var peerId = RouterIds.createPeerId(session.getBgpId());
-            setPeerId(peerId);
+            final var peerPath = setPeerId(peerId);
 
             peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
             createEffRibInWriter();
@@ -565,8 +565,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
 
-        effRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath, tables, tableTypeRegistry, rtMemberships,
-            rtCache);
+        effRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath(), tables, tableTypeRegistry,
+            rtMemberships, rtCache);
     }
 
     //try to add a support for old-school BGP-4, if peer did not advertise IPv4-Unicast MP capability

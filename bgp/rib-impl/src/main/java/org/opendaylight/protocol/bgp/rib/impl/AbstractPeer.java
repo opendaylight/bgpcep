@@ -96,7 +96,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     @GuardedBy("this")
     private PeerId peerId;
     @GuardedBy("this")
-    YangInstanceIdentifier peerPath;
+    private YangInstanceIdentifier peerPath;
     // FIXME: similar to the two above, but has a distinct lifecycle
     @GuardedBy("this")
     AdjRibInWriter adjRibInWriter;
@@ -135,23 +135,24 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     @GuardedBy("this")
     final FluentFuture<? extends CommitInfo> removePeer() {
-        if (peerPath == null) {
+        final var local = peerPath;
+        if (local == null) {
             return CommitInfo.emptyFluentFuture();
         }
 
-        LOG.info("Closed per Peer {} removed", peerPath);
+        LOG.info("Closed per Peer {} removed", local);
         final var tx = domChain.newWriteOnlyTransaction();
-        tx.delete(LogicalDatastoreType.OPERATIONAL, peerPath);
+        tx.delete(LogicalDatastoreType.OPERATIONAL, local);
         final var future = tx.commit();
         future.addCallback(new FutureCallback<CommitInfo>() {
             @Override
             public void onSuccess(final CommitInfo result) {
-                LOG.debug("Peer {} removed", peerPath);
+                LOG.debug("Peer {} removed", local);
             }
 
             @Override
             public void onFailure(final Throwable throwable) {
-                LOG.error("Failed to remove Peer {}", peerPath, throwable);
+                LOG.error("Failed to remove Peer {}", local, throwable);
             }
         }, MoreExecutors.directExecutor());
         return future;
@@ -175,11 +176,17 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     @GuardedBy("this")
     @NonNullByDefault
-    final NodeIdentifierWithPredicates setPeerId(final PeerId newPeerId) {
-        final var domPeerId = IdentifierUtils.domPeerId(newPeerId);
+    final YangInstanceIdentifier setPeerId(final PeerId newPeerId) {
         peerId = requireNonNull(newPeerId);
-        peerPath = rib.getYangRibId().node(PEER_NID).node(domPeerId);
-        return domPeerId;
+        final var ret = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(newPeerId));
+        peerPath = ret;
+        return ret;
+    }
+
+    @GuardedBy("this")
+    @SuppressWarnings("null")
+    final @NonNull YangInstanceIdentifier peerPath() {
+        return verifyNotNull(peerPath);
     }
 
     @Override
