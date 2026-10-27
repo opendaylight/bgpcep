@@ -100,7 +100,7 @@ module bgp-segment-routing {
 
     // Node Attributes
 
-    typedef algorithm {
+    typedef algorithm-std {
         reference "https://www.rfc-editor.org/info/rfc8665/#section-3.1";
         type enumeration {
             enum shortest-path-first {
@@ -109,6 +109,21 @@ module bgp-segment-routing {
             enum strict-shortest-path-first {
                 value 1;
             }
+        }
+    }
+
+    typedef algorithm-flex {
+        reference "https://www.rfc-editor.org/info/rfc9350/#section-4";
+        type uint8 {
+            range 128..255;
+        }
+    }
+
+    typedef algorithm {
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.1.2";
+        type union {
+            type algorithm-std;
+            type algorithm-flex;
         }
     }
 
