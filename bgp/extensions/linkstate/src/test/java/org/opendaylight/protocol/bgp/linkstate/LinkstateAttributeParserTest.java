@@ -63,6 +63,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlriBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.mp.unreach.nlri.WithdrawnRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.Algorithm;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.AlgorithmStd;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.ExtendedAdminGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.FlexAlgoDefinitionFlag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.FlexMetric;
@@ -460,8 +461,9 @@ class LinkstateAttributeParserTest {
         assertEquals(Uint32.valueOf(16909060L), ((SidCase) srMpls.getSrgb().getFirst().getSidLabelIndex()).getSid());
         // SR Algorithm
         assertNotNull(srMpls.getAlgorithms());
-        assertEquals(Set.of(Algorithm.ShortestPathFirst, Algorithm.StrictShortestPathFirst),
-                srMpls.getAlgorithms());
+        assertEquals(
+            Set.of(new Algorithm(AlgorithmStd.ShortestPathFirst), new Algorithm(AlgorithmStd.StrictShortestPathFirst)),
+            srMpls.getAlgorithms());
         // SRLB
         assertNotNull(srMpls.getSrlb());
         assertEquals(10, srMpls.getSrlb().getFirst().getRangeSize().getValue().intValue());
@@ -471,7 +473,7 @@ class LinkstateAttributeParserTest {
         assertNotNull(srMpls.getPreference());
         assertEquals(221, srMpls.getPreference().getValue().intValue());
         // Node MSD
-        final List<NodeMsd> msds = new ArrayList<NodeMsd>();
+        final var msds = new ArrayList<NodeMsd>();
         msds.add(new NodeMsdBuilder().setType(MsdType.forValue(1)).setValue(Uint8.valueOf(10)).build());
         msds.add(new NodeMsdBuilder().setType(MsdType.forValue(2)).setValue(Uint8.valueOf(8)).build());
         assertEquals(msds, ls.getSegmentRouting().getNodeMsd());
