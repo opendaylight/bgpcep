@@ -293,7 +293,7 @@ module graph {
         }
     }
 
-    typedef algorithm {
+    typedef std-algo {
         type enumeration {
             enum spf {
                 value 0;
@@ -301,6 +301,19 @@ module graph {
             enum strict-spf {
                 value 1;
             }
+        }
+    }
+
+    typedef flex-algo {
+        type uint8 {
+            range "128..255";
+        }
+    }
+
+    typedef algorithm {
+        type union {
+            type std-algo;
+            type flex-algo;
         }
     }
 
@@ -320,9 +333,7 @@ module graph {
 
     grouping node-flex-algo {
         leaf flex-algo {
-            type uint8 {
-                range "128..255";
-            }
+            type flex-algo;
         }
         leaf metric-type {
             type flex-metric;

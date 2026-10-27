@@ -708,7 +708,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             // Algorithms
             if (srMpls.getAlgorithms() != null) {
                 final var algos = ImmutableSet.<Algorithm>builder();
-                srMpls.getAlgorithms().forEach(algo -> algos.add(Algorithm.forValue(algo.getIntValue())));
+                srMpls.getAlgorithms().forEach(algo -> algos.add(new Algorithm(algo.getValue())));
                 sraBuilder.setAlgorithms(algos.build());
             }
             // SRGB
@@ -901,7 +901,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             srpBuilder.setPrefixSid(((LabelCase) pa.getSrPrefix().getSidLabelIndex()).getLabel().getValue());
         }
         // Algo
-        srpBuilder.setPrefixAlgo(Uint8.valueOf(pa.getSrPrefix().getAlgorithm().getIntValue()));
+        srpBuilder.setPrefixAlgo(pa.getSrPrefix().getAlgorithm().getValue());
         // Flag
         final PrefixSrFlagsBuilder pFlagsBuilder = new PrefixSrFlagsBuilder();
         if (pa.getSrPrefix().getFlags() instanceof IsisPrefixFlagsCase) {
