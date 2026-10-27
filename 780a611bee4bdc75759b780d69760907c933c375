@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "133aeadb_d37b5a7d",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2026-10-27T15:35:57Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nCan you review this patch which solved a bug in BGP Link State Parser ?\n\nThanks,\n\nOlivier",
+      "revId": "780a611bee4bdc75759b780d69760907c933c375",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
