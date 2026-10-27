@@ -460,8 +460,7 @@ class LinkstateAttributeParserTest {
         assertEquals(Uint32.valueOf(16909060L), ((SidCase) srMpls.getSrgb().getFirst().getSidLabelIndex()).getSid());
         // SR Algorithm
         assertNotNull(srMpls.getAlgorithms());
-        assertEquals(Set.of(Algorithm.ShortestPathFirst, Algorithm.StrictShortestPathFirst),
-                srMpls.getAlgorithms());
+        assertEquals(Set.of(new Algorithm(Uint8.ZERO), new Algorithm(Uint8.ONE)), srMpls.getAlgorithms());
         // SRLB
         assertNotNull(srMpls.getSrlb());
         assertEquals(10, srMpls.getSrlb().getFirst().getRangeSize().getValue().intValue());

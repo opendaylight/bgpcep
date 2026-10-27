@@ -197,17 +197,18 @@ class SrAttributeParserTest {
     // tools.ietf.org/html/rfc90850#section-2.1.3
     @Test
     void testSrAlgorithm() {
-        final byte[] bytes = { 0, 1 };
+        final byte[] bytes = { 0, 1 , (byte )128, 127};
         final var algos = ImmutableSet.<Algorithm>builder();
-        algos.add(Algorithm.ShortestPathFirst);
-        algos.add(Algorithm.StrictShortestPathFirst);
+        algos.add(new Algorithm(Uint8.ZERO));
+        algos.add(new Algorithm(Uint8.ONE));
+        algos.add(new Algorithm(Uint8.valueOf(128)));
         final Set<Algorithm> alg = algos.build();
         final Set<Algorithm> empty = Set.of();
         assertEquals(alg, SrNodeAttributesParser.parseSrAlgorithms(Unpooled.wrappedBuffer(bytes)));
         final ByteBuf b = Unpooled.buffer();
         assertEquals(empty, SrNodeAttributesParser.parseSrAlgorithms(b));
         SrNodeAttributesParser.serializeSrAlgorithms(alg, b);
-        assertArrayEquals(bytes, ByteArray.readAllBytes(b));
+        assertArrayEquals(new byte [] { 0, 1, (byte ) 128} , ByteArray.readAllBytes(b));
 
         SrNodeAttributesParser.serializeSrAlgorithms(empty, b);
         assertEquals(0, b.readableBytes());
@@ -248,12 +249,12 @@ class SrAttributeParserTest {
         final byte[] bytesOspf = { (byte)0x20, 0, 0, 0, 1, 2, 3, 4 };
         final SrPrefix prefixIsis = new SrPrefixBuilder()
             .setFlags(ISIS_PREFIX_FLAGS)
-            .setAlgorithm(Algorithm.ShortestPathFirst)
+            .setAlgorithm(new Algorithm(Uint8.ZERO))
             .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
             .build();
         final SrPrefix prefixOspf = new SrPrefixBuilder()
             .setFlags(OSPF_PREFIX_FLAGS)
-            .setAlgorithm(Algorithm.ShortestPathFirst)
+            .setAlgorithm(new Algorithm(Uint8.ZERO))
             .setSidLabelIndex(new SidCaseBuilder().setSid(Uint32.valueOf(16909060L)).build())
             .build();
         assertEquals(prefixIsis,
@@ -281,7 +282,7 @@ class SrAttributeParserTest {
                 .setRangeSize(Uint16.valueOf(4))
                 .setPrefixSid(new PrefixSidBuilder()
                         .setFlags(ISIS_PREFIX_RANGE_FLAGS)
-                        .setAlgorithm(Algorithm.StrictShortestPathFirst)
+                        .setAlgorithm(new Algorithm(Uint8.ONE))
                         .setSidLabelIndex(new LabelCaseBuilder()
                                 .setLabel(new MplsLabel(Uint32.valueOf(66048)))
                                 .build())
