@@ -143,8 +143,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private EffectiveRibInWriter effRibInWriter;
     private Registration rpcRegistration;
     private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
-    // FIXME: This should be a constant co-located with ApplicationPeer.peerId
-    private YangInstanceIdentifier peerPath;
     // FIXME: This is for supportsTable() -- a trivial behavior thing, where 'peer-down' type states always return false
     private boolean sessionUp;
     private boolean llgrSupport;
@@ -404,8 +402,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         if (!isRestartingGracefully()) {
             peerId = RouterIds.createPeerId(session.getBgpId());
+            setPeerPath(peerId);
 
-            peerPath = createPeerPath(peerId);
             peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
             createEffRibInWriter();
             registerPrefixesCounters(effRibInWriter, effRibInWriter);
@@ -665,7 +663,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         tables = ImmutableSet.of();
         addPathTableMaps = ImmutableMap.of();
-        final var future = removePeer(peerPath);
+        final var future = removePeer();
         resetState();
 
         return future;

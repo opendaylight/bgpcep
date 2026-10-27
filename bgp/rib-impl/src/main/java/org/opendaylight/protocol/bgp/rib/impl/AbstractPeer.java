@@ -89,12 +89,15 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     //        which needs figuring out.
     @GuardedBy("this")
     private DOMTransactionChain domChain = null;
-    // FIXME: This is an invariant once the peer is 'resolved' -- which happens instantaneously for ApplicationPeer.
+
+    // FIXME: these two are invariant once the peer is 'connected' -- which happens instantaneously for ApplicationPeer.
     //        There are also a number YangInstanceIdentifiers which are tied to it. We want to keep all of them in one
-    //        structure for isolation. This could be a separate DTO (JDK16 record) or isolated into an abstract behavior
-    //        class.
+    //        structure for isolation. This could be a separate DTO or isolated into an abstract behavior class.
     @GuardedBy("this")
     PeerId peerId;
+    @GuardedBy("this")
+    YangInstanceIdentifier peerPath;
+    // FIXME: similar to the two above, but has a distinct lifecycle
     @GuardedBy("this")
     AdjRibInWriter adjRibInWriter;
 
@@ -130,7 +133,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         return this;
     }
 
-    final synchronized FluentFuture<? extends CommitInfo> removePeer(final @Nullable YangInstanceIdentifier peerPath) {
+    @GuardedBy("this")
+    final FluentFuture<? extends CommitInfo> removePeer() {
         if (peerPath == null) {
             return CommitInfo.emptyFluentFuture();
         }
@@ -153,8 +157,9 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         return future;
     }
 
-    final YangInstanceIdentifier createPeerPath(final PeerId newPeerId) {
-        return rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(newPeerId));
+    @GuardedBy("this")
+    final void setPeerPath(final PeerId newPeerId) {
+        peerPath = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(newPeerId));
     }
 
     @Override

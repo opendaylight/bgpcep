@@ -98,7 +98,6 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
     private EffectiveRibInWriter effectiveRibInWriter;
     private Registration registration;
     private Registration trackerRegistration;
-    private YangInstanceIdentifier peerPath;
 
     public ApplicationPeer(final BGPTableTypeRegistryConsumer tableTypeRegistry,
             final ApplicationRibId applicationRibId, final Ipv4AddressNoZone ipAddress, final RIB rib) {
@@ -127,7 +126,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
-        peerPath = createPeerPath(peerId);
+        setPeerPath(peerId);
         final var context = rib.getRibSupportContext();
         adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), peerId, peerPath, context, localTables,
             Map.of(), () -> {
@@ -287,7 +286,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         if (effectiveRibInWriter != null) {
             effectiveRibInWriter.close();
         }
-        final FluentFuture<? extends CommitInfo> future = removePeer(peerPath);
+        final FluentFuture<? extends CommitInfo> future = removePeer();
         closeDomChain();
         if (trackerRegistration != null) {
             trackerRegistration.close();
