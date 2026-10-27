@@ -37,6 +37,8 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
     private PCEPTopologyProvider provider;
     @GuardedBy("this")
     private Registration reg;
+    @GuardedBy("this")
+    private boolean initialReceived;
 
     PCEPTopologyInstance(final TopologyKey topology, final PCEPTopologyProviderDependencies dependencies,
             final InstructionScheduler scheduler) {
@@ -67,7 +69,13 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
     public synchronized void dataChangedTo(final Topology data) {
         if (reg == null) {
             // We have been shut down, do not process any more updates
+            LOG.trace("Topology {} instance is closed, ignoring update", topologyId());
             return;
+        }
+
+        if (!initialReceived) {
+            initialReceived = true;
+            LOG.debug("Topology {} instance received initial notification", topologyId());
         }
 
         if (data != null) {
