@@ -103,8 +103,7 @@ public final class PCEPTopologyTracker
     // In order to achieve that without risking deadlocks, instances are tracked using a concurrent map and each
     // 'create' edge allocates a new PCEPTopologyInstance object.
     private final ConcurrentMap<TopologyKey, PCEPTopologySingleton> instances = new ConcurrentHashMap<>();
-    @GuardedBy("this")
-    private Registration reg;
+    private volatile Registration reg;
     @GuardedBy("this")
     private boolean closed;
 

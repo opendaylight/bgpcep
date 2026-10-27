@@ -44,8 +44,7 @@ final class PCEPTopologySingleton {
         private SettableFuture<Empty> closeFuture;
         @GuardedBy("this")
         private PCEPTopologyInstance instance;
-        @GuardedBy("this")
-        private Registration reg;
+        private volatile Registration reg;
         @GuardedBy("this")
         private boolean closed;
 
