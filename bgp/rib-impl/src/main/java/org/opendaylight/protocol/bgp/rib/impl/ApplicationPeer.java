@@ -130,16 +130,17 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         setAdvertizedGracefulRestartTableTypes(List.of());
 
         createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal, this);
+        adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal);
         final var context = rib.getRibSupportContext();
         peerPath = createPeerPath(peerId);
-        adjRibInWriter = adjRibInWriter.transform(peerId, peerPath, context, localTables, Map.of(), () -> {
-            synchronized (this) {
-                if (getDomChain() != null) {
-                    registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
+        adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), peerId, peerPath, context, localTables,
+            Map.of(), () -> {
+                synchronized (this) {
+                    if (ribInChain() != null) {
+                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
+                    }
                 }
-            }
-        });
+            });
 
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
@@ -171,7 +172,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
      */
     @Override
     public synchronized void onDataTreeChanged(final List<DataTreeCandidate> changes) {
-        final var chain = getDomChain();
+        final var chain = ribInChain();
         if (chain == null) {
             LOG.trace("Skipping data changed called to Application Peer. Change : {}", changes);
             return;

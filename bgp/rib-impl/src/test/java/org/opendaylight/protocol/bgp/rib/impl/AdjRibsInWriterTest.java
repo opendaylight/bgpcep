@@ -29,8 +29,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
@@ -61,8 +59,6 @@ class AdjRibsInWriterTest {
     private final String peerIp = "12.34.56.78";
 
     @Mock
-    private DOMTransactionChain chain;
-    @Mock
     private DOMDataTreeWriteTransaction tx;
     @Mock
     private RIBSupportContextRegistry registry;
@@ -70,21 +66,17 @@ class AdjRibsInWriterTest {
     private RIBSupportContext context;
     @Mock
     private AbstractRIBSupport<?, ?, ?> support;
-    @Mock
-    private PeerTransactionChain ptc;
 
     private AdjRibInWriter writer;
 
     @BeforeEach
     void setUp() {
-        doReturn(tx).when(chain).newWriteOnlyTransaction();
         doReturn(CommitInfo.emptyFluentFuture()).when(tx).commit();
         doNothing().when(tx).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doReturn(context).when(registry).getRIBSupportContext(any(TablesKey.class));
-        doReturn(chain).when(ptc).getDomChain();
         doNothing().when(context).createEmptyTableStructure(eq(tx), any(YangInstanceIdentifier.class));
         doReturn(support).when(context).ribSupport();
         doReturn(DOM_K4).when(support).tablesKey();
@@ -92,12 +84,12 @@ class AdjRibsInWriterTest {
 
     @Test
     void testTransform() {
-        writer = AdjRibInWriter.create(YangInstanceIdentifier.of(RIB_NID), PeerRole.Ebgp, ptc);
+        writer = AdjRibInWriter.create(YangInstanceIdentifier.of(RIB_NID), PeerRole.Ebgp);
         assertNotNull(writer);
         final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(RIB_NID)
                 .node(Peer.QNAME).nodeWithKey(Peer.QNAME,
                         RIBQNames.PEER_ID_QNAME, peerIp).build();
-        writer.transform(new PeerId(peerIp), peerPath, registry, tableTypes, ADD_PATH_TABLE_MAPS, null);
+        writer.transform(tx,new PeerId(peerIp), peerPath, registry, tableTypes, ADD_PATH_TABLE_MAPS, null);
         verifyPeerSkeletonInsertedCorrectly(peerPath);
         // verify supported tables were inserted for ipv4
         verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath.node(SupportedTables.QNAME)
