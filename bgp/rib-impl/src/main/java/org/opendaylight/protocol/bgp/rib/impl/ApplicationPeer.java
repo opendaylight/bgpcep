@@ -128,15 +128,25 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         setAdvertizedGracefulRestartTableTypes(List.of());
 
         peerPath = createPeerPath(peerId);
-        final var context = rib.getRibSupportContext();
-        adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), peerId, peerPath, context, localTables,
-            Map.of(), () -> {
-                synchronized (this) {
-                    if (ribInChain() != null) {
-                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
-                    }
+        final var registry = rib.getRibSupportContext();
+
+        final var ribInTables = AdjRibInTables.of(peerPath, localTables, tableType -> {
+            final var supportContext = registry.getRIBSupportContext(tableType);
+            if (supportContext == null) {
+                LOG.warn("No support for table type {}, skipping it", tableType);
+            }
+            return supportContext;
+        });
+
+        createDomChain();
+        adjRibInWriter = new AdjRibInWriter(PeerRole.Internal, ribInTables);
+        adjRibInWriter.initialize(newRibInTransaction(), peerId, peerPath, Map.of(), () -> {
+            synchronized (this) {
+                if (ribInChain() != null) {
+                    registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
                 }
-            });
+            }
+        });
 
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
