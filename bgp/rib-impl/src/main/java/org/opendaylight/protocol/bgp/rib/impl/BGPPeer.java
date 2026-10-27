@@ -428,8 +428,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
 
         // FIXME: separate methods from this based on this boolean
-        final boolean restartingLocally = localRestarting;
-        if (!restartingLocally) {
+        if (!localRestarting) {
             addBgp4Support();
         }
         if (!isRestartingGracefully()) {
@@ -465,7 +464,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                     .map(table -> new TablesKey(table.getAfi(), table.getSafi()))
                     .collect(Collectors.toSet());
             adjRibInWriter.clearTables(newRibInTransaction(), Sets.difference(tables, forwardingTables));
-            if (restartingLocally) {
+            if (localRestarting) {
                 effRibInWriter.close();
                 peerRestartStopwatch = Stopwatch.createStarted();
                 handleSelectionReferralTimer();
@@ -478,7 +477,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
         peerRestartTime = advertisedGracefulRestartCapability.getRestartTime().toJava();
         peerRestarting = false;
-        localRestarting = restartingLocally;
 
         final Map<TablesKey, Uint24> llTablesReceived;
         if (advertisedLLTables != null) {
