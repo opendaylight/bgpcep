@@ -529,7 +529,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     final void activate() {
         setActive(true);
         createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(role);
+        adjRibInWriter = new AdjRibInWriter(role, AdjRibInTables.EMPTY);
     }
 
     @GuardedBy("this")
