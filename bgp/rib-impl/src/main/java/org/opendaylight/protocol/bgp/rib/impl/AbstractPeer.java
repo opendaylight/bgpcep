@@ -566,7 +566,24 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     final void activate() {
         setActive(true);
         createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(role);
+        adjRibInWriter = new AdjRibInWriter(role, AdjRibInTables.EMPTY);
+    }
+
+    @GuardedBy("this")
+    final @NonNull FluentFuture<? extends @NonNull CommitInfo> initialize() {
+        final var peerPath = peerPath();
+        final var registry = rib.getRibSupportContext();
+
+        final var ribInTables = AdjRibInTables.of(peerPath, localTables, tableType -> {
+            final var supportContext = registry.getRIBSupportContext(tableType);
+            if (supportContext == null) {
+                LOG.warn("No support for table type {}, skipping it", tableType);
+            }
+            return supportContext;
+        });
+
+        adjRibInWriter = new AdjRibInWriter(PeerRole.Internal, ribInTables);
+        return adjRibInWriter.initialize(newRibInTransaction(), requirePeerId(), peerPath, Map.of());
     }
 
     @GuardedBy("this")

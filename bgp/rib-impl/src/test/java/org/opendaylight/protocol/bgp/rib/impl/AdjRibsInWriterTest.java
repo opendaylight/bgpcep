@@ -84,12 +84,13 @@ class AdjRibsInWriterTest {
 
     @Test
     void testTransform() {
-        writer = AdjRibInWriter.create(PeerRole.Ebgp);
+        writer = new AdjRibInWriter(PeerRole.Ebgp, AdjRibInTables.EMPTY);
         assertNotNull(writer);
-        final YangInstanceIdentifier peerPath = YangInstanceIdentifier.builder().node(RIB_NID)
-                .node(Peer.QNAME).nodeWithKey(Peer.QNAME,
-                        RIBQNames.PEER_ID_QNAME, peerIp).build();
-        writer.transform(tx,new PeerId(peerIp), peerPath, registry, tableTypes, ADD_PATH_TABLE_MAPS, null);
+        final var peerPath = YangInstanceIdentifier.builder()
+            .node(RIB_NID)
+            .node(Peer.QNAME).nodeWithKey(Peer.QNAME, RIBQNames.PEER_ID_QNAME, peerIp)
+            .build();
+        writer.initialize(tx, new PeerId(peerIp), peerPath, registry, tableTypes, ADD_PATH_TABLE_MAPS, null);
         verifyPeerSkeletonInsertedCorrectly(peerPath);
         // verify supported tables were inserted for ipv4
         verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath.node(SupportedTables.QNAME)

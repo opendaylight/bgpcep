@@ -125,25 +125,34 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
-        final var peerPath = peerPath();
-        final var context = rib.getRibSupportContext();
-        adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), requirePeerId(), peerPath, context,
-            localTables, Map.of(), () -> {
-                synchronized (this) {
-                    if (ribInChain() != null) {
-                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
-                    }
-                }
-            });
+        initialize().addCallback(new FutureCallback<CommitInfo>() {
+            @Override
+            public void onSuccess(final CommitInfo result) {
+                onAdjRibInitialized(dataTreeChangeService, appPeerDOMId);
+            }
+
+            @Override
+            public void onFailure(final Throwable throwable) {
+                LOG.error("Failed to create Empty Structure, Application Peer Listener won't be registered", throwable);
+            }
+        }, MoreExecutors.directExecutor());
 
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);
 
-        effectiveRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath, localTables, tableTypeRegistry,
+        effectiveRibInWriter = new EffectiveRibInWriter(this, rib, chain, peerPath(), localTables, tableTypeRegistry,
             new ArrayList<>(), rtCache);
         effectiveRibInWriter.init();
         bgpSessionState.registerMessagesCounter(this);
         trackerRegistration = rib.getPeerTracker().registerPeer(this);
+    }
+
+    private synchronized void onAdjRibInitialized(final DataTreeChangeExtension dataTreeChangeService,
+            final DOMDataTreeIdentifier appPeerDOMId) {
+        if (ribInChain() != null) {
+            registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
+            LOG.trace("Application Peer Listener registered");
+        }
     }
 
     @Override
