@@ -214,6 +214,7 @@ public final class PCEPTopologyTracker
     public synchronized void onDataTreeChanged(final List<DataTreeModification<TopologyPcep>> changes) {
         if (reg == null) {
             // Registration has been terminated, do not process any changes
+            LOG.trace("PCEP Topology tracker is closed, ignoring changes");
             return;
         }
 
