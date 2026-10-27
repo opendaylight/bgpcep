@@ -54,9 +54,12 @@ final class PCEPTopologySingleton {
         Active() {
             scheduler = tracker.instructionSchedulerFactory.createInstructionScheduler(
                 topology.getTopologyId().getValue());
-            // Must be the last statement: instantiateServiceInstance() may run before this call returns, on this or
-            // another thread, and it relies on all other fields having been initialized
-            reg = tracker.singletonService.registerClusterSingletonService(this);
+            // Must be the last registration: instantiateServiceInstance() may run before this call returns, on this
+            // or another thread, and it relies on all other fields having been initialized
+            final var singletonReg = tracker.singletonService.registerClusterSingletonService(this);
+            synchronized (this) {
+                reg = singletonReg;
+            }
         }
 
         @Override
