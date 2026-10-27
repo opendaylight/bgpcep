@@ -95,6 +95,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     //        class.
     @GuardedBy("this")
     PeerId peerId;
+    @GuardedBy("this")
+    AdjRibInWriter adjRibInWriter;
 
     // These seem to be separate
     @GuardedBy("this")
@@ -523,7 +525,15 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         chain.close();
     }
 
-    final synchronized @NonNull DOMTransactionChain createDomChain() {
+    @GuardedBy("this")
+    final void activate() {
+        setActive(true);
+        createDomChain();
+        adjRibInWriter = AdjRibInWriter.create(role);
+    }
+
+    @GuardedBy("this")
+    private @NonNull DOMTransactionChain createDomChain() {
         var ret = domChain;
         if (ret == null) {
             LOG.info("Creating DOM peer chain {}", getPeerId());

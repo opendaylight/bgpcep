@@ -14,6 +14,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -145,7 +146,7 @@ public class BgpPeerTest extends AbstractConfig {
             .build();
 
         bgpPeer.start(rib, neighbor, null, peerGroupLoader, tableTypeRegistry);
-        verify(rib).createPeerDOMChain();
+        verify(rib, never()).createPeerDOMChain();
         verify(rib, times(2)).getLocalAs();
         verify(rib).getLocalTables();
 
