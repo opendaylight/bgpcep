@@ -104,7 +104,8 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
             new IpAddressNoZone(ipAddress), rib.getLocalTablesKeys(), Set.of(), Map.of());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
 
-        final var peerRib = rib.getYangRibId().node(PEER_NID).node(setPeerId(RouterIds.createPeerId(ipAddress)));
+        final var peerPath = setPeerId(RouterIds.createPeerId(ipAddress));
+        final var peerRib = rib.getYangRibId().node(PEER_NID).node(peerPath.getLastPathArgument());
         adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
         peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
     }
@@ -124,6 +125,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
+        final var peerPath = peerPath();
         final var context = rib.getRibSupportContext();
         adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), requirePeerId(), peerPath, context,
             localTables, Map.of(), () -> {
