@@ -104,7 +104,7 @@ public final class PCEPTopologyTracker
     // 'create' edge allocates a new PCEPTopologyInstance object.
     private final ConcurrentMap<TopologyKey, PCEPTopologySingleton> instances = new ConcurrentHashMap<>();
     @GuardedBy("this")
-    private Registration reg;
+    private volatile Registration reg;
     @GuardedBy("this")
     private boolean closed;
 

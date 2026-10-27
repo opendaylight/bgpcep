@@ -36,8 +36,7 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
 
     @GuardedBy("this")
     private PCEPTopologyProvider provider;
-    @GuardedBy("this")
-    private Registration reg;
+    private volatile Registration reg;
     @GuardedBy("this")
     private boolean closed;
     @GuardedBy("this")
