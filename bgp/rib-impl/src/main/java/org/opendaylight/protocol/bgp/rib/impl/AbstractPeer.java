@@ -94,7 +94,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     //        There are also a number YangInstanceIdentifiers which are tied to it. We want to keep all of them in one
     //        structure for isolation. This could be a separate DTO or isolated into an abstract behavior class.
     @GuardedBy("this")
-    PeerId peerId;
+    private PeerId peerId;
     @GuardedBy("this")
     YangInstanceIdentifier peerPath;
     // FIXME: similar to the two above, but has a distinct lifecycle
@@ -157,14 +157,29 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         return future;
     }
 
-    @GuardedBy("this")
-    final void setPeerPath(final PeerId newPeerId) {
-        peerPath = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(newPeerId));
-    }
-
     @Override
     public final synchronized PeerId getPeerId() {
+        return requirePeerId();
+    }
+
+    @GuardedBy("this")
+    final PeerId peerId() {
         return peerId;
+    }
+
+    @GuardedBy("this")
+    @SuppressWarnings("null")
+    final @NonNull PeerId requirePeerId() {
+        return verifyNotNull(peerId);
+    }
+
+    @GuardedBy("this")
+    @NonNullByDefault
+    final NodeIdentifierWithPredicates setPeerId(final PeerId newPeerId) {
+        final var domPeerId = IdentifierUtils.domPeerId(newPeerId);
+        peerId = requireNonNull(newPeerId);
+        peerPath = rib.getYangRibId().node(PEER_NID).node(domPeerId);
+        return domPeerId;
     }
 
     @Override
@@ -251,7 +266,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     public final synchronized void initializeRibOut(final RouteEntryDependenciesContainer entryDep,
             final List<ActualBestPathRoutes> routesToStore) {
         if (ribOutChain == null) {
-            LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
+            LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", peerId);
             return;
         }
 
@@ -304,7 +319,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     public final synchronized void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
             final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute> newRoutes) {
         if (ribOutChain == null) {
-            LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
+            LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", peerId);
             return;
         }
 
@@ -367,7 +382,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     public final synchronized void reEvaluateAdvertizement(final RouteEntryDependenciesContainer entryDep,
                 final List<ActualBestPathRoutes> routesToStore) {
         if (ribOutChain == null) {
-            LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", getPeerId());
+            LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", peerId);
             return;
         }
 
@@ -445,7 +460,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     @GuardedBy("this")
     private void storeRoute(final RIBSupport ribSupport, final RouteKeyIdentifier advRoute, final MapEntryNode route,
             final YangInstanceIdentifier routePath, final ContainerNode effAttr, final DOMDataTreeWriteOperations tx) {
-        LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, getPeerId());
+        LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, peerId);
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, ribSupport.createRoute(route,
             (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
     }
@@ -457,7 +472,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         if (addPathSupported) {
             for (var id : staleRoute.getAddPathRouteKeyIdentifiers()) {
                 final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout, id);
-                LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
+                LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, peerId);
                 tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
             }
             return;
@@ -469,7 +484,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
         final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
                 staleRoute.getNonAddPathRouteKeyIdentifier());
-        LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
+        LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, peerId);
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
@@ -480,7 +495,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             final DOMDataTreeWriteOperations tx) {
         final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
             addPathSupported ? advRoute.getAddPathRouteKeyIdentifier() : advRoute.getNonAddPathRouteKeyIdentifier());
-        LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, getPeerId());
+        LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, peerId);
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
@@ -525,6 +540,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         }
     }
 
+    // FIXME: what is the locking contract here?
     private void closeRibOutChain(final DOMTransactionChain chain) {
         LOG.info("Closing peer chain {}", getPeerId());
         chain.close();
@@ -541,7 +557,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     private @NonNull DOMTransactionChain createDomChain() {
         var ret = domChain;
         if (ret == null) {
-            LOG.info("Creating DOM peer chain {}", getPeerId());
+            LOG.info("Creating DOM peer chain {}", peerId);
             domChain = ret = rib.createPeerDOMChain();
             ret.addCallback(this);
         }
@@ -550,7 +566,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     final synchronized void closeDomChain() {
         if (domChain != null) {
-            LOG.info("Closing DOM peer chain {}", getPeerId());
+            LOG.info("Closing DOM peer chain {}", peerId);
             domChain.close();
             domChain = null;
         }

@@ -35,7 +35,6 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPSessionStateImpl;
-import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers;
 import org.opendaylight.protocol.bgp.rib.spi.RouterIds;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
@@ -104,9 +103,8 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         super(rib, applicationRibId.getValue(), APP_PEER_GROUP, PeerRole.Internal, null, null,
             new IpAddressNoZone(ipAddress), rib.getLocalTablesKeys(), Set.of(), Map.of());
         this.tableTypeRegistry = requireNonNull(tableTypeRegistry);
-        peerId = RouterIds.createPeerId(ipAddress);
 
-        final var peerRib = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(peerId));
+        final var peerRib = rib.getYangRibId().node(PEER_NID).node(setPeerId(RouterIds.createPeerId(ipAddress)));
         adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
         peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
     }
@@ -126,10 +124,9 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
-        setPeerPath(peerId);
         final var context = rib.getRibSupportContext();
-        adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), peerId, peerPath, context, localTables,
-            Map.of(), () -> {
+        adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), requirePeerId(), peerPath, context,
+            localTables, Map.of(), () -> {
                 synchronized (this) {
                     if (ribInChain() != null) {
                         registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
