@@ -334,4 +334,25 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
     public BGPTransportState getBGPTransportState() {
         return bgpSessionState;
     }
+
+    @Override
+    boolean supportsLLGR() {
+        return false;
+    }
+
+    // FIXME: these methods should not even be implemented here
+    @Override
+    public boolean isLocalRestarting() {
+        return false;
+    }
+
+    @Override
+    public int getPeerRestartTime() {
+        return 0;
+    }
+
+    @Override
+    public boolean isPeerRestarting() {
+        return false;
+    }
 }

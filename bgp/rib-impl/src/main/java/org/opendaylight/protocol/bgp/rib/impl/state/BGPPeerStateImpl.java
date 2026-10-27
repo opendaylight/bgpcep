@@ -43,9 +43,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.Notification;
 
-public abstract class BGPPeerStateImpl extends DefaultRibReference implements BGPPeerState, BGPAfiSafiState,
-        BGPGracelfulRestartState, BGPLlGracelfulRestartState,BGPErrorHandlingState, BGPPeerMessagesState,
-        BGPMessagesListener {
+public abstract class BGPPeerStateImpl extends DefaultRibReference
+    implements BGPErrorHandlingState, BGPPeerState, BGPPeerMessagesState,
+        // FIXME: make sense of the class hierarchy as BGPAfiSafiState implies BGPLlGracelfulRestartState, which in turn
+        //        implies BGPGracelfulRestartState
+        BGPAfiSafiState, BGPGracelfulRestartState, BGPLlGracelfulRestartState, BGPMessagesListener {
     private final @NonNull IpAddressNoZone neighborAddress;
     private final Set<TablesKey> afiSafisAdvertized;
     private final Set<TablesKey> afiSafisGracefulAdvertized;
@@ -66,12 +68,6 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
     private PrefixesReceivedCounters prefixesReceived;
     @GuardedBy("this")
     private PrefixesInstalledCounters prefixesInstalled;
-    @GuardedBy("this")
-    private boolean localRestarting;
-    @GuardedBy("this")
-    private int peerRestartTime;
-    @GuardedBy("this")
-    private boolean peerRestarting;
 
     public BGPPeerStateImpl(final DataObjectIdentifier.@NonNull WithKey<Rib, RibKey> instanceIdentifier,
             final @Nullable String groupId, final @NonNull IpAddressNoZone neighborAddress,
@@ -163,28 +159,6 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
         return afiSafisGracefulReceived.contains(tablesKey);
     }
 
-    @Override
-    public final synchronized boolean isLocalRestarting() {
-        return localRestarting;
-    }
-
-    @Override
-    public final synchronized int getPeerRestartTime() {
-        return peerRestartTime;
-    }
-
-    @Override
-    public final synchronized boolean isPeerRestarting() {
-        return peerRestarting;
-    }
-
-    public final synchronized void setAfiSafiGracefulRestartState(final int newPeerRestartTime,
-            final boolean newPeerRestarting, final boolean newLocalRestarting) {
-        peerRestartTime = newPeerRestartTime;
-        peerRestarting = newPeerRestarting;
-        localRestarting = newLocalRestarting;
-    }
-
     protected final synchronized void setAdvertizedGracefulRestartTableTypes(final List<TablesKey> receivedGraceful) {
         afiSafisGracefulReceived.clear();
         afiSafisGracefulReceived.addAll(receivedGraceful);
@@ -200,20 +174,6 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference implements BG
             final @NonNull PrefixesInstalledCounters newPrefixesInstalled) {
         prefixesReceived = newPrefixesReceived;
         prefixesInstalled = newPrefixesInstalled;
-    }
-
-    protected final synchronized void resetState() {
-        localRestarting = false;
-        peerRestartTime = 0;
-        peerRestarting = false;
-    }
-
-    protected final synchronized void setRestartingState() {
-        peerRestarting = true;
-    }
-
-    protected final synchronized void setLocalRestartingState(final boolean restarting) {
-        localRestarting = restarting;
     }
 
     @Override

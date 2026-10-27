@@ -556,9 +556,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         }
     }
 
-    boolean supportsLLGR() {
-        return false;
-    }
+    @GuardedBy("this")
+    abstract boolean supportsLLGR();
 
     @NonNullByDefault
     static final MapEntryNode skeletonOf(final NodeIdentifierWithPredicates peerKey, final String peerId,

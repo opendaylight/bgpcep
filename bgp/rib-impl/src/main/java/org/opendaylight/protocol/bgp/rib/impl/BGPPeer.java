@@ -145,10 +145,22 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private ImmutableMap<TablesKey, SendReceive> addPathTableMaps = ImmutableMap.of();
     // FIXME: This is for supportsTable() -- a trivial behavior thing, where 'peer-down' type states always return false
     private boolean sessionUp;
-    private boolean llgrSupport;
+
+    // FIXME: separate BGPGracelfulRestartState state object(s)?
+    @GuardedBy("this")
+    private boolean supportsLLGR;
+    @GuardedBy("this")
+    private boolean localRestarting;
+    @GuardedBy("this")
+    private boolean peerRestarting;
+    @GuardedBy("this")
+    private int peerRestartTime;
+    @GuardedBy("this")
     private Stopwatch peerRestartStopwatch;
+    @GuardedBy("this")
     private long currentSelectionDeferralTimerSeconds;
-    private final List<TablesKey> missingEOT = new ArrayList<>();
+    @GuardedBy("this")
+    private final ArrayList<TablesKey> missingEOT = new ArrayList<>();
 
     public BGPPeer(
             final BGPTableTypeRegistryConsumer tableTypeRegistry,
@@ -170,6 +182,26 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.rpcRegistry = rpcRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
+    }
+
+    @Override
+    public synchronized boolean isLocalRestarting() {
+        return localRestarting;
+    }
+
+    @Override
+    public synchronized boolean isPeerRestarting() {
+        return peerRestarting;
+    }
+
+    @Override
+    public synchronized int getPeerRestartTime() {
+        return peerRestartTime;
+    }
+
+    @Override
+    boolean supportsLLGR() {
+        return supportsLLGR;
     }
 
     private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
@@ -345,17 +377,15 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @GuardedBy("this")
     private void handleGracefulEndOfRib() {
-        if (isLocalRestarting()) {
-            if (missingEOT.isEmpty()) {
-                createEffRibInWriter();
-                effRibInWriter.init();
-                registerPrefixesCounters(effRibInWriter, effRibInWriter);
-                for (var key : getAfiSafisAdvertized()) {
-                    createAdjRibOutListener(key, true);
-                }
-                setLocalRestartingState(false);
-                setGracefulPreferences(false, Collections.emptySet());
+        if (localRestarting && missingEOT.isEmpty()) {
+            createEffRibInWriter();
+            effRibInWriter.init();
+            registerPrefixesCounters(effRibInWriter, effRibInWriter);
+            for (var key : getAfiSafisAdvertized()) {
+                createAdjRibOutListener(key, true);
             }
+            localRestarting = false;
+            setGracefulPreferences(Set.of());
         }
     }
 
@@ -396,7 +426,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         tables = newTables;
 
         addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
-        final boolean restartingLocally = isLocalRestarting();
+
+        // FIXME: separate methods from this based on this boolean
+        final boolean restartingLocally = localRestarting;
         if (!restartingLocally) {
             addBgp4Support();
         }
@@ -443,8 +475,10 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         setAdvertizedGracefulRestartTableTypes(advertisedTables == null ? List.of() : advertisedTables.values().stream()
             .map(table -> new TablesKey(table.getAfi(), table.getSafi()))
             .collect(Collectors.toList()));
-        setAfiSafiGracefulRestartState(advertisedGracefulRestartCapability.getRestartTime().toJava(), false,
-            restartingLocally);
+
+        peerRestartTime = advertisedGracefulRestartCapability.getRestartTime().toJava();
+        peerRestarting = false;
+        localRestarting = restartingLocally;
 
         final Map<TablesKey, Uint24> llTablesReceived;
         if (advertisedLLTables != null) {
@@ -458,11 +492,11 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         setAdvertizedLlGracefulRestartTableTypes(llTablesReceived);
 
         if (!llTablesReceived.isEmpty()) {
-            llgrSupport = true;
+            supportsLLGR = true;
             // FIXME: propagate preserved tables
         } else {
             // FIXME: clear preserved tables
-            llgrSupport = false;
+            supportsLLGR = false;
         }
 
         if (!restartingLocally) {
@@ -522,8 +556,10 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }, MoreExecutors.directExecutor());
     }
 
+    // FIXME: inline this into callers once we have split onSessionUp() based on localRestarting
+    @GuardedBy("this")
     private boolean isRestartingGracefully() {
-        return isLocalRestarting() || isPeerRestarting();
+        return localRestarting || peerRestarting;
     }
 
     @GuardedBy("this")
@@ -611,7 +647,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             }
 
             future = adjRibInWriter.clearTables(tx, Sets.difference(tables, gracefulTables));
-            if (isPeerRestarting()) {
+            if (peerRestarting) {
                 peerRestartStopwatch = Stopwatch.createStarted();
                 handleRestartTimer();
             }
@@ -664,7 +700,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         tables = ImmutableSet.of();
         addPathTableMaps = ImmutableMap.of();
         final var future = removePeer();
-        resetState();
+        localRestarting = false;
+        peerRestartTime = 0;
+        peerRestarting = false;
 
         return future;
     }
@@ -673,14 +711,16 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
      * If Graceful Restart Timer expires, remove all routes advertised by peer.
      */
     private synchronized void handleRestartTimer() {
-        if (!isPeerRestarting()) {
+        if (!peerRestarting) {
             return;
         }
 
-        final long peerRestartTimeNanos = TimeUnit.SECONDS.toNanos(getPeerRestartTime());
+        final long peerRestartTimeNanos = TimeUnit.SECONDS.toNanos(peerRestartTime);
         final long elapsedNanos = peerRestartStopwatch.elapsed(TimeUnit.NANOSECONDS);
         if (elapsedNanos >= peerRestartTimeNanos) {
-            setAfiSafiGracefulRestartState(0, false, false);
+            peerRestartTime = 0;
+            peerRestarting = false;
+            localRestarting = false;
             onSessionTerminated(currentSession, new BGPTerminationReason(BGPError.HOLD_TIMER_EXPIRED));
         }
 
@@ -688,7 +728,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     }
 
     private synchronized void handleSelectionReferralTimer() {
-        if (!isLocalRestarting()) {
+        if (!localRestarting) {
             return;
         }
 
@@ -704,8 +744,8 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     @GuardedBy("this")
     private void releaseConnectionGracefully() {
-        if (getPeerRestartTime() > 0) {
-            setRestartingState();
+        if (peerRestartTime > 0) {
+            peerRestarting = true;
         }
         releaseConnection(true);
     }
@@ -774,19 +814,14 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             return Futures.immediateFailedFuture(
                 new UnsupportedOperationException("Peer is not capable of graceful restart"));
         }
-        setGracefulPreferences(true, tablesToPreserve);
+        localRestarting = true;
+        setGracefulPreferences(tablesToPreserve);
         currentSelectionDeferralTimerSeconds = selectionDeferralTimerSeconds;
-        setLocalRestartingState(true);
         return releaseConnection(true);
     }
 
-    @Override
-    boolean supportsLLGR() {
-        return llgrSupport;
-    }
-
-    private synchronized void setGracefulPreferences(final boolean localRestarting,
-                                                     final Set<TablesKey> preservedTables) {
+    @GuardedBy("this")
+    private void setGracefulPreferences(final Set<TablesKey> preservedTables) {
         final var gracefulTables = tables.stream()
                 .filter(this::isGracefulRestartAdvertized)
                 .collect(Collectors.toSet());
