@@ -55,7 +55,7 @@ module bgp-segment-routing {
     }
 
     typedef extended-admin-group {
-        reference "http://tools.ietf.org/html/rfc7308#section-2.1";
+        reference "https://tools.ietf.org/html/rfc7308#section-2.1";
         type uint32;
     }
 
@@ -98,8 +98,8 @@ module bgp-segment-routing {
 
     // Node Attributes
 
-    typedef algorithm {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.1.2";
+    typedef algorithm-std {
+        reference "https://www.rfc-editor.org/info/rfc8665/#section-3.1";
         type enumeration {
             enum shortest-path-first {
                 value 0;
@@ -107,6 +107,21 @@ module bgp-segment-routing {
             enum strict-shortest-path-first {
                 value 1;
             }
+        }
+    }
+
+    typedef algorithm-flex {
+        reference "https://www.rfc-editor.org/info/rfc9350/#section-4";
+        type uint8 {
+            range 128..255;
+        }
+    }
+
+    typedef algorithm {
+        reference "https://tools.ietf.org/html/rfc9085#section-2.1.2";
+        type union {
+            type algorithm-std;
+            type algorithm-flex;
         }
     }
 
@@ -176,7 +191,7 @@ module bgp-segment-routing {
     // Flex Algo
 
     typedef flex-metric {
-        reference "http://tools.ietf.org/html/rfc9351#section-5.1";
+        reference "https://tools.ietf.org/html/rfc9351#section-5.1";
         type enumeration {
             enum igp {
                 value 0;
@@ -191,7 +206,7 @@ module bgp-segment-routing {
     }
 
     typedef flex-algo-definition-flag {
-        reference "http://tools.ietf.org/html/rfc9351#section-6.4";
+        reference "https://tools.ietf.org/html/rfc9351#section-6.4";
         type bits {
             bit inter-area {
                 position 0;
@@ -200,7 +215,7 @@ module bgp-segment-routing {
     }
 
     typedef flex-algo {
-        reference "http://tools.ietf.org/html/rfc9351";
+        reference "https://tools.ietf.org/html/rfc9351";
         type uint8 {
             range "128..255";
         }
@@ -491,7 +506,7 @@ module bgp-segment-routing {
     }
 
     typedef flex-algo-prefix-flag {
-        reference "http://tools.ietf.org/html/rfc9350#section-9";
+        reference "https://tools.ietf.org/html/rfc9350#section-9";
         type bits {
             bit external-metric {
                 position 0;
@@ -539,7 +554,7 @@ module bgp-segment-routing {
     }
 
     grouping isis-attribute-flags {
-        reference "http://tools.ietf.org/html/rfc7794#section-2.1";
+        reference "https://tools.ietf.org/html/rfc7794#section-2.1";
         leaf external-flag {
             type boolean;
         }
@@ -549,14 +564,14 @@ module bgp-segment-routing {
     }
 
     grouping ospf-attribute-flags {
-        reference "http://tools.ietf.org/html/rfc7684#section-2.1";
+        reference "https://tools.ietf.org/html/rfc7684#section-2.1";
         leaf attach-flag {
             type boolean;
         }
     }
 
     grouping ospfv3-attribute-flags {
-        reference "http://tools.ietf.org/html/rfc8362#section-3.1";
+        reference "https://tools.ietf.org/html/rfc8362#section-3.1";
         leaf dn-flag {
             type boolean;
         }

@@ -96,11 +96,11 @@ module bgp-linkstate {
                 value 4;
             }
             enum sr-policy {
-                reference "http://tools.ietf.org/html/draft-ietf-idr-bgp-ls-sr-policy-02#section-8.1";
+                reference "https://tools.ietf.org/html/rfc9857#section-8.1";
                 value 5;
             }
             enum srv6-sid {
-                reference "http://tools.ietf.org/html/rfc9514#section-6";
+                reference "https://tools.ietf.org/html/rfc9514#section-6";
                 value 6;
             }
         }
@@ -132,7 +132,7 @@ module bgp-linkstate {
                 value 7;
             }
             enum segment-routing {
-                reference "http://tools.ietf.org/html/draft-ietf-idr-bgp-ls-sr-policy-02#section-8.2";
+                reference "https://tools.ietf.org/html/draft-ietf-idr-bgp-ls-sr-policy-02#section-8.2";
                 value 9; // segment-routing protocol-id TBD by IANA
             }
         }
@@ -178,12 +178,12 @@ module bgp-linkstate {
     }
 
     typedef ipv4-interface-identifier {
-        reference "http://tools.ietf.org/html/rfc5305#section-3.2";
+        reference "https://tools.ietf.org/html/rfc5305#section-3.2";
         type inet:ipv4-address-no-zone;
     }
 
     typedef ipv6-interface-identifier {
-        reference "http://tools.ietf.org/html/rfc6119#section-4.2";
+        reference "https://tools.ietf.org/html/rfc6119#section-4.2";
         type inet:ipv6-address-no-zone;
     }
 
@@ -282,7 +282,7 @@ module bgp-linkstate {
     }
 
     grouping link-lr-identifiers {
-        reference "http://tools.ietf.org/html/rfc5307";
+        reference "https://tools.ietf.org/html/rfc5307";
         leaf link-local-identifier {
             type uint32;
         }
@@ -371,6 +371,9 @@ module bgp-linkstate {
                 container prefix-descriptors {
                     uses prefix-identifiers;
                 }
+            }
+            case sr-policy-case {
+                reference "https://tools.ietf.org/html/rfc9857#section-8.1";
             }
             case srv6-sid-case {
                 reference "https://tools.ietf.org/html/rfc9514#section-6";
@@ -499,7 +502,7 @@ module bgp-linkstate {
     // BGP-LS Link Attributes
 
     typedef link-protection-type {
-        reference "http://tools.ietf.org/html/rfc5307#section-1.2";
+        reference "https://tools.ietf.org/html/rfc5307#section-1.2";
         type enumeration {
             enum extra-traffic {
                 value 1;
@@ -523,7 +526,7 @@ module bgp-linkstate {
     }
 
     typedef mpls-protocol-mask {
-        reference "http://tools.ietf.org/html/rfc9552#section-5.3.2.2";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.2.2";
         type bits {
             bit ldp {
                 position 0;
@@ -666,7 +669,7 @@ module bgp-linkstate {
     }
 
     typedef abm-length {
-        reference "http://tools.ietf.org/html/rfc9294#section-2";
+        reference "https://tools.ietf.org/html/rfc9294#section-2";
         type enumeration {
             enum zero {
                 value 0;
@@ -681,7 +684,7 @@ module bgp-linkstate {
     }
 
     grouping asla-bit-mask {
-        reference "http://tools.ietf.org/html/rfc8919#section-4.1";
+        reference "https://tools.ietf.org/html/rfc8919#section-4.1";
         leaf rsvp-te {
             type boolean;
         }
@@ -697,7 +700,7 @@ module bgp-linkstate {
     }
 
     grouping asla-tlv {
-        reference "http://tools.ietf.org/html/rfc9294#section-2";
+        reference "https://tools.ietf.org/html/rfc9294#section-2";
         leaf sabm-length {
             type abm-length;
         }
@@ -711,7 +714,7 @@ module bgp-linkstate {
             type uint64;
         }
         container asla-subtlvs {
-            reference "http://tools.ietf.org/html/rfc9294#section-3";
+            reference "https://tools.ietf.org/html/rfc9294#section-3";
             leaf admin-group {
                 type administrative-group;
             }
@@ -747,7 +750,7 @@ module bgp-linkstate {
     }
 
     grouping linkstate-attribute {
-        reference "http://tools.ietf.org/html/rfc9552#section-5.3.2";
+        reference "https://tools.ietf.org/html/rfc9552#section-5.3.2";
         leaf local-ipv4-router-id {
             type ipv4-router-identifier;
         }
