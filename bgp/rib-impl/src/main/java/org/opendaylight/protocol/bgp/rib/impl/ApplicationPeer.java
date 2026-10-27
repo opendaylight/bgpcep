@@ -130,7 +130,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         setAdvertizedGracefulRestartTableTypes(List.of());
 
         createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(rib.getYangRibId(), PeerRole.Internal);
+        adjRibInWriter = AdjRibInWriter.create(PeerRole.Internal);
         final var context = rib.getRibSupportContext();
         peerPath = createPeerPath(peerId);
         adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), peerId, peerPath, context, localTables,

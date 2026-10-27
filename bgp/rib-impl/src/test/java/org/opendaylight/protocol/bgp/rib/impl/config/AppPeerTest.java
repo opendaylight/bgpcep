@@ -50,7 +50,7 @@ public class AppPeerTest extends AbstractConfig {
         verify(rib, times(1)).getLocalTablesKeys();
 
         appPeer.instantiateServiceInstance();
-        verify(rib, times(3)).getYangRibId();
+        verify(rib, times(2)).getYangRibId();
         verify(rib, times(2)).getRibSupportContext();
         verify(rib, times(2)).getLocalTablesKeys();
         verify(rib, times(2)).createPeerDOMChain();
@@ -62,7 +62,7 @@ public class AppPeerTest extends AbstractConfig {
 
         appPeer.start(rib, appPeer.getCurrentConfiguration(), null, peerGroupLoader, tableTypeRegistry);
         appPeer.instantiateServiceInstance();
-        verify(rib, times(6)).getYangRibId();
+        verify(rib, times(4)).getYangRibId();
         verify(rib, times(4)).getService();
         verify(rib, times(4)).createPeerDOMChain();
         verify(listener, times(2)).close();

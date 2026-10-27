@@ -68,7 +68,6 @@ final class AdjRibInWriter {
     private static final QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
 
     private final @NonNull AdjRibInTables tables;
-    private final @NonNull YangInstanceIdentifier ribPath;
     private final @NonNull PeerRole role;
 
     @GuardedBy("this")
@@ -76,9 +75,8 @@ final class AdjRibInWriter {
     @GuardedBy("this")
     private FluentFuture<? extends CommitInfo> submitted;
 
-    private AdjRibInWriter(final YangInstanceIdentifier ribPath, final PeerRole role,
-            final AdjRibInTables tables) {
-        this.ribPath = requireNonNull(ribPath);
+    @NonNullByDefault
+    private AdjRibInWriter(final PeerRole role, final AdjRibInTables tables) {
         this.tables = requireNonNull(tables);
         this.role = requireNonNull(role);
     }
@@ -87,11 +85,11 @@ final class AdjRibInWriter {
      * Create a new writer using a transaction chain.
      *
      * @param role                peer's role
-     * @param chain               transaction chain
      * @return A fresh writer instance
      */
-    static AdjRibInWriter create(final @NonNull YangInstanceIdentifier ribId, final @NonNull PeerRole role) {
-        return new AdjRibInWriter(ribId, role, AdjRibInTables.EMPTY);
+    @NonNullByDefault
+    static AdjRibInWriter create(final PeerRole role) {
+        return new AdjRibInWriter(role, AdjRibInTables.EMPTY);
     }
 
     /**
@@ -132,7 +130,7 @@ final class AdjRibInWriter {
                 }
             }
         }, MoreExecutors.directExecutor());
-        return new AdjRibInWriter(ribPath, role, newTables);
+        return new AdjRibInWriter(role, newTables);
     }
 
     /**
