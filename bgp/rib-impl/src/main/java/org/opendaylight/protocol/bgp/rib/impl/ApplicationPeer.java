@@ -111,8 +111,6 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         final var peerRib = rib.getYangRibId().node(PEER_NID).node(IdentifierUtils.domPeerId(peerId));
         adjRibsInId = peerRib.node(ADJRIBIN_NID).node(TABLES_NID).toOptimized();
         peerRibOutIId = peerRib.node(ADJRIBOUT_NID).node(TABLES_NID).toOptimized();
-
-        createDomChain();
     }
 
     public synchronized void instantiateServiceInstance(final DataTreeChangeExtension dataTreeChangeService,
@@ -129,18 +127,26 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         }
         setAdvertizedGracefulRestartTableTypes(List.of());
 
-        createDomChain();
-        adjRibInWriter = AdjRibInWriter.create(PeerRole.Internal);
-        final var context = rib.getRibSupportContext();
         peerPath = createPeerPath(peerId);
-        adjRibInWriter = adjRibInWriter.transform(newRibInTransaction(), peerId, peerPath, context, localTables,
-            Map.of(), () -> {
-                synchronized (this) {
-                    if (ribInChain() != null) {
-                        registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
-                    }
+        final var registry = rib.getRibSupportContext();
+
+        final var ribInTables = AdjRibInTables.of(peerPath, localTables, tableType -> {
+            final var supportContext = registry.getRIBSupportContext(tableType);
+            if (supportContext == null) {
+                LOG.warn("No support for table type {}, skipping it", tableType);
+            }
+            return supportContext;
+        });
+
+        createDomChain();
+        adjRibInWriter = new AdjRibInWriter(PeerRole.Internal, ribInTables);
+        adjRibInWriter.initialize(newRibInTransaction(), peerId, peerPath, Map.of(), () -> {
+            synchronized (this) {
+                if (ribInChain() != null) {
+                    registration = dataTreeChangeService.registerTreeChangeListener(appPeerDOMId, this);
                 }
-            });
+            }
+        });
 
         final var chain = rib.createPeerDOMChain();
         chain.addCallback(this);

@@ -174,8 +174,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         this.rpcRegistry = rpcRegistry;
         this.treatAsWithdraw = treatAsWithdraw;
         this.bean = requireNonNull(bean);
-
-        createDomChain();
     }
 
     private static Attributes nextHopToAttribute(final Attributes attrs, final MpReachNlri mpReach) {
@@ -263,7 +261,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
     public synchronized void instantiateServiceInstance() {
         createDomChain();
-        ribWriter = AdjRibInWriter.create(getRole());
+        ribWriter = new AdjRibInWriter(getRole(), AdjRibInTables.EMPTY);
         setActive(true);
     }
 
