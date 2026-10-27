@@ -7,6 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 
@@ -15,6 +16,7 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -24,9 +26,9 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
-import org.opendaylight.protocol.bgp.rib.impl.spi.PeerTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -64,7 +66,7 @@ import org.slf4j.LoggerFactory;
 
 abstract sealed class AbstractPeer extends BGPPeerStateImpl
         implements BGPPeerStateProvider, BGPRouteEntryImportParameters, org.opendaylight.protocol.bgp.rib.spi.Peer,
-                   PeerTransactionChain, FutureCallback<Empty>
+                   FutureCallback<Empty>
         permits ApplicationPeer, BGPPeer {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
     private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
@@ -213,9 +215,22 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         return localAs;
     }
 
-    @Override
-    public synchronized DOMTransactionChain getDomChain() {
+    @GuardedBy("this")
+    @SuppressFBWarnings(value = "IS2_INCONSISTENT_SYNC", justification = "SpotBugs does not grok @GuardedBy")
+    final @Nullable DOMTransactionChain ribInChain() {
         return domChain;
+    }
+
+    @GuardedBy("this")
+    @SuppressWarnings("null")
+    final @NonNull DOMTransactionChain getRibInChain() {
+        return verifyNotNull(ribInChain());
+    }
+
+    @GuardedBy("this")
+    @NonNullByDefault
+    final DOMDataTreeWriteTransaction newRibInTransaction() {
+        return getRibInChain().newWriteOnlyTransaction();
     }
 
     /**
