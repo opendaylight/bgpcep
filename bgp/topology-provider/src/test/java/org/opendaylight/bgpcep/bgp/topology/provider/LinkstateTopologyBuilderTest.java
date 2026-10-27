@@ -541,7 +541,7 @@ public class LinkstateTopologyBuilderTest extends AbstractTopologyBuilderTest {
                                 .setOspfForwardingAddress(new IpAddressNoZone(new Ipv4AddressNoZone(ospfFwdAddress)))
                                 .setPrefixMetric(new IgpMetric(Uint32.valueOf(igpMetric)))
                                 .setSrPrefix(new SrPrefixBuilder()
-                                        .setAlgorithm(Algorithm.ShortestPathFirst)
+                                        .setAlgorithm(new Algorithm(Uint8.ZERO))
                                         .setSidLabelIndex(new SidCaseBuilder()
                                                 .setSid(Uint32.valueOf(NODE_SID_INDEX)).build())
                                         .build())

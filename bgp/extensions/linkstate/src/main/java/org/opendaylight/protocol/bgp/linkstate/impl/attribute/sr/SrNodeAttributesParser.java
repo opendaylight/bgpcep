@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 
 import static org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SidLabelIndexParser.SID_LABEL;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import com.google.common.collect.ImmutableSet;
 import io.netty.buffer.ByteBuf;
@@ -29,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.sr.capabilities.tlv.SrgbBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.sr.local.block.tlv.Srlb;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.sr.local.block.tlv.SrlbBuilder;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class SrNodeAttributesParser {
@@ -85,13 +87,17 @@ public final class SrNodeAttributesParser {
     public static Set<Algorithm> parseSrAlgorithms(final ByteBuf buffer) {
         final var algs = ImmutableSet.<Algorithm>builder();
         while (buffer.isReadable()) {
-            algs.add(Algorithm.forValue(buffer.readUnsignedByte()));
+            // Read and check that Algorithm is valid: 0 or 1 for standard algorithms and > 128 for FlexAlgo
+            final var algo = buffer.readUnsignedByte();
+            if (!(algo > 1 && algo < 128)) {
+                algs.add(new Algorithm(Uint8.valueOf(algo)));
+            }
         }
         return algs.build();
     }
 
     public static void serializeSrAlgorithms(final Set<Algorithm> algs, final ByteBuf buffer) {
-        algs.forEach(alg -> buffer.writeByte(alg.getIntValue()));
+        algs.forEach(alg -> writeUint8(buffer, alg.getValue()));
     }
 
     public static List<Srlb> parseSrLocalBlock(final ByteBuf buffer) {

@@ -294,14 +294,7 @@ module graph {
     }
 
     typedef algorithm {
-        type enumeration {
-            enum spf {
-                value 0;
-            }
-            enum strict-spf {
-                value 1;
-            }
-        }
+        type uint8;
     }
 
     typedef flex-metric {
