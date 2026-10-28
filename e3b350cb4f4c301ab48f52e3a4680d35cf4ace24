@@ -1,0 +1,242 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "05951d61_1e45a937",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "The message describes the process (prompts, which model did what) rather than the change.",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "fc856bcf_135e0052",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "could we maybe not mix together these terms from TE LSP NLRI and the new SR Policy, Type 5? There is not much relation between `Tunnel ID` and from `TE LSP NLRI` and \t`Color` from `SR Policy, Type 5`: \nSR Policy color, a 32-bit value expressing intent such as \"low latency\"",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d9f5d3a3_406f89b5",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "could we maybe not mix together these terms from `TE LSP NLRI` and the new `SR Policy, Type 5`?  `LSP-ID` is not the same as `discriminator`",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be2836bb_5efb47bc",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "Do we need all these alternative names? It is easier to have just one. I am not aware of a case when user would need all these alternative names.",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9a498f88_cc58847d",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "Do we need this? We could just directly use `dest\u003d\"color_step\",` in ArgumentParser. Also the same for the next lines.",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9c465091_ceccfffc",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "Using multiple names for the same parameter makes it a bit confusing. In general it is better to use just one name in code.\n`lsid_step` is the same as `lsidstep`",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "d7019507_13cabc02",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "Does not seem to be used anywhere",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a77dcec1_203bb6c2",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "Does not seem to be used anywhere",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9b9cecfb_b25ce1b2",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "it is already checked on line 401 if `args` has `originator_asn` or if not use  `args.asnumber`\n\n#401\n```\nif arguments.originator_asn is None:\n        arguments.originator_asn \u003d arguments.asnumber\n```",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1c9126c6_bbf40348",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "Do we really want to have it like this? \n\noriginator_ip_step is used as a divisor (how many iterations before the address changes), and the result is also multiplied by a hardcoded 16. With defaults, the address now goes .4 → .20 → .36 instead of .4 → .5 → .6 as before, and --originator-ip-step 1 still jumps by 16.\n\n```\nindex   index / 16      int(...)        * 16    address\n0       0.0             0               0       1.2.3.4\n1       0.0625          0               0       1.2.3.4\n5       0.3125          0               0       1.2.3.4\n15      0.9375          0               0       1.2.3.4\n16      1.0             1               16      1.2.3.20\n17      1.0625          1               16      1.2.3.20\n31      1.9375          1               16      1.2.3.20\n32      2.0             2               32      1.2.3.36\n```\nOne of possible solutions might be to drop multiplication by 16 at the end.",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a852f386_fead754a",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "Probably we do not need to multiply it by `1`",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "f264a760_6fea8164",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "Maybe we could keep these references or is there some reason to be removed?",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c124f759_c5739c9b",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1678,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "What are these `[cite: 3]`",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "90daf4c1_72749a28",
+        "filename": "tests/variables/bgpuser/lsp/effective_rib_in/data.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-10-28T17:30:59Z",
+      "side": 1,
+      "message": "The route-key should be checked if correct\n\n```\nODL (in data.json): AAYAGQQAAAAAAAAAAQEAAAgCAAAEAAD78AIGAAA\u003d, 29 bytes\nCorrect (what play.py sends): AAYAMQQAAAAAAAAAAQEAABACAAAEAAD78AIEAAR/AAEAAgYAECABDbgAAAAAAAAAAAAAAAE\u003d, 53 bytes\n\nField                           play.py sends           ODL key            Status\nNLRI type                       0006 (SRv6 SID)         0006               OK\nNLRI length                     0031 (49)               0019 (25)          Different\nProtocol-ID                     04 (Direct)             04                 OK\nIdentifier                      0000000000000001        same\t           OK\nTLV 256 Local Node Desc.        0100 0010 (len 16)      0100 0008 (len 8)  shortened\n↳ sub-TLV 512 AS                0200 0004 0000fbf0 (64496)  same           OK\n↳ sub-TLV 516 BGP Router-ID     0204 0004 7f000100 (127.0.1.0)             missing\nTLV 518 SRv6 SID Info           0206 0010 + 20010db8…0001 (2001:db8::1)\t0206 0000\tempty: SID missing, and the TLV is malformed\n```\n\nUpdating tests could be done in a separate change, ticket.",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
