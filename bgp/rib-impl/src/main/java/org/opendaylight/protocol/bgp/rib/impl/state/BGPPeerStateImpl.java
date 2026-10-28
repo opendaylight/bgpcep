@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.LongAdder;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
@@ -60,7 +59,6 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference
     private final LongAdder notificationReceivedCounter = new LongAdder();
     private final LongAdder erroneousUpdate = new LongAdder();
     private final String groupId;
-    private final AtomicBoolean active = new AtomicBoolean(false);
 
     @GuardedBy("this")
     private final HashMap<TablesKey, PrefixesSentCounters> prefixesSent = new HashMap<>();
@@ -226,15 +224,6 @@ public abstract class BGPPeerStateImpl extends DefaultRibReference
             }
         }
         counter.increment();
-    }
-
-    @Override
-    public final boolean isActive() {
-        return active.get();
-    }
-
-    protected final void setActive(final boolean active) {
-        this.active.set(active);
     }
 
     @Override

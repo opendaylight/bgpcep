@@ -12,11 +12,15 @@ import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.VerifyException;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.VarHandle;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,10 +73,34 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         implements BGPPeerStateProvider, BGPRouteEntryImportParameters, org.opendaylight.protocol.bgp.rib.spi.Peer,
                    FutureCallback<Empty>
         permits ApplicationPeer, BGPPeer {
+    private sealed interface State {
+        // nothing else
+    }
+
+    @NonNullByDefault
+    private static final class Active implements State {
+        static final Active INSTANCE = new Active();
+    }
+
+    private record Closed(@NonNull FluentFuture<?> future) implements State {
+        Closed {
+            requireNonNull(future);
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPeer.class);
     private static final QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
     private static final NodeIdentifier PEER_ID = NodeIdentifier.create(RIBQNames.PEER_ID_QNAME);
     private static final NodeIdentifier PEER_ROLE = NodeIdentifier.create(PEER_ROLE_QNAME);
+    private static final VarHandle VH;
+
+    static {
+        try {
+            VH = MethodHandles.lookup().findVarHandle(AbstractPeer.class, "state", State.class);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     final @NonNull RTCClientRouteCache rtCache = new RTCClientRouteCache();
     final @NonNull RIB rib;
@@ -81,6 +109,9 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     private final @NonNull PeerRole role;
     private final AsNumber localAs;
     private final @NonNull String name;
+
+    @SuppressWarnings("unused")
+    private volatile @Nullable State state;
 
     // FIXME: Revisit locking here to improve concurrency:
     //        -- identifiers, peerId are a shared resource
@@ -135,7 +166,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     }
 
     @GuardedBy("this")
-    final FluentFuture<? extends CommitInfo> removePeer() {
+    final @NonNull FluentFuture<? extends CommitInfo> removePeer() {
         // captured for callback
         final var removedPeer = peerId;
         if (removedPeer == null) {
@@ -158,6 +189,15 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             }
         }, MoreExecutors.directExecutor());
         return future;
+    }
+
+    @Override
+    public final boolean isActive() {
+        return state() instanceof Active;
+    }
+
+    private @NonNull State state() {
+        return (@NonNull State) VH.getAcquire(this);
     }
 
     @Override
@@ -564,10 +604,48 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
     @GuardedBy("this")
     final void activate() {
-        setActive(true);
+        final var witness = VH.compareAndExchange(this, null, Active.INSTANCE);
+        if (witness != null) {
+            throw new VerifyException("Cannot activate from " + witness);
+        }
+
         createDomChain();
         adjRibInWriter = AdjRibInWriter.create(role);
     }
+
+    @Override
+    public final synchronized FluentFuture<?> close() {
+        // assume we are the first closer, allocating the future to return
+        final var settable = SettableFuture.create();
+        final var closed = new Closed(FluentFuture.from(settable));
+
+        // overly optimistic assumption previous state is initial, but gives us a read of what the state actually is
+        final var witness = (State) VH.compareAndExchangeRelease(this, null, closed);
+        return switch (witness) {
+            case null -> {
+                // ... hey, it worked out
+                settable.set(null);
+                yield closed.future;
+            }
+            case Active prev -> {
+                // observed to be active, re-assert we are the first closer
+                final var retry = (State) VH.compareAndExchange(this, prev, closed);
+                if (retry == prev) {
+                    settable.setFuture(closeImpl());
+                    yield closed.future;
+                }
+
+                if (retry instanceof Closed) {
+                    closed.settable.setFuture(future);
+                }
+                yield closed.fluent;
+            }
+            case Closed(var future) -> future;
+        };
+    }
+
+    @GuardedBy("this")
+    abstract @NonNull FluentFuture<? extends Object> closeImpl();
 
     @GuardedBy("this")
     private @NonNull DOMTransactionChain createDomChain() {

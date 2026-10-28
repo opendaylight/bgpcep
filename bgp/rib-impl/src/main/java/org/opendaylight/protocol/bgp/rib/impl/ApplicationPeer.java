@@ -273,8 +273,7 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
     }
 
     @Override
-    public synchronized FluentFuture<? extends CommitInfo> close() {
-        setActive(false);
+    public synchronized FluentFuture<? extends CommitInfo> closeImpl() {
         if (registration != null) {
             registration.close();
             registration = null;
@@ -285,13 +284,13 @@ public final class ApplicationPeer extends AbstractPeer implements DOMDataTreeCh
         if (effectiveRibInWriter != null) {
             effectiveRibInWriter.close();
         }
-        final FluentFuture<? extends CommitInfo> future = removePeer();
+        final var ret = removePeer();
         closeDomChain();
         if (trackerRegistration != null) {
             trackerRegistration.close();
             trackerRegistration = null;
         }
-        return future;
+        return ret;
     }
 
     @Override
