@@ -91,6 +91,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "f41ae60e_49ce7d2e",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-29T08:53:49Z",
+      "side": 1,
+      "message": "Alright so I looked into this a little more again and here is how I see things, at least right now:\n - original checked all three nodes\n - 1099 has now merged so the fixtures exist\n -But-\u003e both of these suites are marked `standalone` and run a single node\n - means that switching them to the cluster fixture would take 1route out of the smoke selection entirely, because the collection hook skips cluster items whenever `standalone` ones are collected\n - The 23h soak against three members is also a different proposition i think.\n\nSO, would it make sense to track the three-node checking as its own ticket?; as a cluster variant alongside these rather than a change to them? I\u0027d rather not lose the fast single-node gate that 1route currently provides. Or do we not mind losing the fast \"single-node gate\" fomr current 1route?",
+      "parentUuid": "f24dd1a0_00b91bc0",
+      "revId": "0d28378adbdae391175704cdf60b5a4cbd4c9875",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "84fadcd4_2bfb7379",
         "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_1route.py",
         "patchSetId": 1
