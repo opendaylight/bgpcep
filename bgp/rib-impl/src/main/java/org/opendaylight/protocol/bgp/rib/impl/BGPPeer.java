@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 
@@ -24,7 +23,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
@@ -35,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
@@ -95,7 +94,6 @@ import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -393,20 +391,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         currentSession = session;
         sessionUp = true;
 
-        final var chain = rib.createPeerDOMChain();
-        ribOutChain = chain;
-        chain.addCallback(new FutureCallback<>() {
-            @Override
-            public void onSuccess(final Empty result) {
-                LOG.debug("RibOut transaction chain {} successful.", chain);
-            }
-
-            @Override
-            public void onFailure(final Throwable cause) {
-                onRibOutChainFailed(cause);
-            }
-        });
-
         if (currentSession instanceof BGPSessionStateProvider stateProvider) {
             stateProvider.registerMessagesCounter(this);
         }
@@ -436,11 +420,20 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
 
             peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
 
+            // this part is not nice, but we need to allocate ribOut chain (below) only after we have ensured the peer
+            // exists in the datastore
+            final var dsFuture = initializeDatastore(tables, addPathTableMaps);
+            try {
+                dsFuture.get();
+            } catch (ExecutionException e) {
+                throw new IllegalStateException("Failed to initializedatastore", e);
+            } catch (InterruptedException e) {
+                throw new IllegalStateException("Interrupted during datastore initialization");
+            }
+
             createEffRibInWriter();
             registerPrefixesCounters(effRibInWriter, effRibInWriter);
             effRibInWriter.init();
-
-            initializeDatastore(tables, addPathTableMaps);
 
             if (rpcRegistry != null) {
                 final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
@@ -488,6 +481,20 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }
         setAdvertizedLlGracefulRestartTableTypes(llTablesReceived);
 
+        final var newRibOutChain = rib.createPeerDOMChain();
+        ribOutChain = newRibOutChain;
+        newRibOutChain.addCallback(new FutureCallback<>() {
+            @Override
+            public void onSuccess(final Empty result) {
+                LOG.debug("RibOut transaction chain {} successful.", newRibOutChain);
+            }
+
+            @Override
+            public void onFailure(final Throwable cause) {
+                onRibOutChainFailed(cause);
+            }
+        });
+
         if (!llTablesReceived.isEmpty()) {
             supportsLLGR = true;
             // FIXME: propagate preserved tables
@@ -509,7 +516,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         // to enforce execution ordering. The listeners (created just above) must be created before the containers
         // are created and the peer is exposed via registration.
         if (!isRestartingGracefully()) {
-            initializeAdjRibOutTables();
+            trackerRegistration = rib.getPeerTracker().registerPeer(this);
         }
 
         if (treatAsWithdraw) {
@@ -518,39 +525,6 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
                 case Ibgp, Internal, RrClient -> RevisedErrorHandlingSupportImpl.forInternalPeer();
             });
         }
-    }
-
-    @GuardedBy("this")
-    private void initializeAdjRibOutTables() {
-        // Explicitly initialize the adj-rib-out and tables containers for new session.
-        // This prevents a crash if the peer sends an immediate WITHDRAW before any routes are advertised.
-        final var tx = ribOutChain.newWriteOnlyTransaction();
-        tx.merge(OPERATIONAL, peerRibOutIId, ImmutableNodes.newContainerBuilder()
-            .withNodeIdentifier(ADJRIBOUT_NID)
-            .withChild(ImmutableNodes.newSystemMapBuilder().withNodeIdentifier(TABLES_NID).build())
-            .build());
-        // Postpone registration until the containers exist in datastore
-        tx.commit().addCallback(new FutureCallback<CommitInfo>() {
-            @Override
-            public void onSuccess(final CommitInfo result) {
-                synchronized (BGPPeer.this) {
-                    // Prevent registration if the session dropped during write
-                    if (sessionUp) {
-                        trackerRegistration = rib.getPeerTracker().registerPeer(BGPPeer.this);
-                    } else {
-                        LOG.warn("Session for peer {} dropped before datastore initialization completed.", peerId());
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(final Throwable cause) {
-                synchronized (BGPPeer.this) {
-                    LOG.error("Failed to initialize adj-rib-out for peer {}", peerId(), cause);
-                    BGPPeer.this.releaseConnection(false);
-                }
-            }
-        }, MoreExecutors.directExecutor());
     }
 
     // FIXME: inline this into callers once we have split onSessionUp() based on localRestarting
