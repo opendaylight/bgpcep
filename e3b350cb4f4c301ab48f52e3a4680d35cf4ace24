@@ -18,6 +18,41 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ad7829b4_94b034e2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 7
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "That paragraph is important for copyright tracking reasons (for which there is no universally accepted guideline, but for me being more granular feels safer).\nIs is not about process but about attribution of the edits.",
+      "parentUuid": "05951d61_1e45a937",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "c75030d0_5cd3d389",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 7
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "Not ready.",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "fc856bcf_135e0052",
@@ -31,6 +66,24 @@
       "writtenOn": "2026-10-28T17:30:59Z",
       "side": 1,
       "message": "could we maybe not mix together these terms from TE LSP NLRI and the new SR Policy, Type 5? There is not much relation between `Tunnel ID` and from `TE LSP NLRI` and \t`Color` from `SR Policy, Type 5`: \nSR Policy color, a 32-bit value expressing intent such as \"low latency\"",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1dc74adb_b303a745",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "There is only one tests and it uses all defaults, so it is hard for me to decide which customizations to keep and how they should be controlled from command line. Perhaps a work for a separate (less prioritized) improvement, this change is about tool sending what ODL can parse.",
+      "parentUuid": "fc856bcf_135e0052",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -54,6 +107,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "90f827ad_5823a6f6",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "AI had some reasoning why the two quantities have a similar role, so this was an attempt to keep backward compatibility. But that would only be useful for third parties testing ancient ODLs with the newest tool, which I bet never happens. A candidate for cleanup.",
+      "parentUuid": "d9f5d3a3_406f89b5",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "be2836bb_5efb47bc",
         "filename": "tests/tools/fastbgp/play.py",
         "patchSetId": 7
@@ -65,6 +136,24 @@
       "writtenOn": "2026-10-28T17:30:59Z",
       "side": 1,
       "message": "Do we need all these alternative names? It is easier to have just one. I am not aware of a case when user would need all these alternative names.",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "359170b2_79ff046a",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "I agree. I should have informed AI that there is only one relevant call site, it is in the same repository, so keeping old options is not useful.",
+      "parentUuid": "be2836bb_5efb47bc",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -88,6 +177,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "869a7e94_1c315af3",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "I agree, this is an anti-pattern.",
+      "parentUuid": "9a498f88_cc58847d",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "9c465091_ceccfffc",
         "filename": "tests/tools/fastbgp/play.py",
         "patchSetId": 7
@@ -99,6 +206,24 @@
       "writtenOn": "2026-10-28T17:30:59Z",
       "side": 1,
       "message": "Using multiple names for the same parameter makes it a bit confusing. In general it is better to use just one name in code.\n`lsid_step` is the same as `lsidstep`",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "cc7907b1_c958aede",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "Agreed.",
+      "parentUuid": "9c465091_ceccfffc",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -122,6 +247,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "ffd57f8c_21b2d108",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "Oh. Could be a bug in tool logic, should be investigated.",
+      "parentUuid": "d7019507_13cabc02",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "a77dcec1_203bb6c2",
         "filename": "tests/tools/fastbgp/play.py",
         "patchSetId": 7
@@ -133,6 +276,24 @@
       "writtenOn": "2026-10-28T17:30:59Z",
       "side": 1,
       "message": "Does not seem to be used anywhere",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "755580cd_f3a4875f",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "To investigate.",
+      "parentUuid": "a77dcec1_203bb6c2",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -156,6 +317,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "8c1c7d61_9a0621f3",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "I agree, needless duplication.",
+      "parentUuid": "9b9cecfb_b25ce1b2",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "1c9126c6_bbf40348",
         "filename": "tests/tools/fastbgp/play.py",
         "patchSetId": 7
@@ -167,6 +346,24 @@
       "writtenOn": "2026-10-28T17:30:59Z",
       "side": 1,
       "message": "Do we really want to have it like this? \n\noriginator_ip_step is used as a divisor (how many iterations before the address changes), and the result is also multiplied by a hardcoded 16. With defaults, the address now goes .4 → .20 → .36 instead of .4 → .5 → .6 as before, and --originator-ip-step 1 still jumps by 16.\n\n```\nindex   index / 16      int(...)        * 16    address\n0       0.0             0               0       1.2.3.4\n1       0.0625          0               0       1.2.3.4\n5       0.3125          0               0       1.2.3.4\n15      0.9375          0               0       1.2.3.4\n16      1.0             1               16      1.2.3.20\n17      1.0625          1               16      1.2.3.20\n31      1.9375          1               16      1.2.3.20\n32      2.0             2               32      1.2.3.36\n```\nOne of possible solutions might be to drop multiplication by 16 at the end.",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "056abf52_1cf90427",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "I vaguely remember the intention was to simulate small LANs.\nCurrently, I prefer removing any step customization logic and hardcode reasonable values such as 16, and let future people with real customization needs add step options back in a way that suits them.",
+      "parentUuid": "1c9126c6_bbf40348",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -190,6 +387,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "322076b8_a9ffa0f6",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "Agreed. If this is intended as a target for future customization, it should be a comment.",
+      "parentUuid": "a852f386_fead754a",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "f264a760_6fea8164",
         "filename": "tests/tools/fastbgp/play.py",
         "patchSetId": 7
@@ -207,6 +422,24 @@
     {
       "unresolved": true,
       "key": {
+        "uuid": "11cc17ed_c29d7751",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "Agreed.\nProbably a prompting issue on my side (the second AI agent that was supposed to add missing comments either did not have or ignored relevant RFC test).",
+      "parentUuid": "f264a760_6fea8164",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
         "uuid": "c124f759_c5739c9b",
         "filename": "tests/tools/fastbgp/play.py",
         "patchSetId": 7
@@ -218,6 +451,24 @@
       "writtenOn": "2026-10-28T17:30:59Z",
       "side": 1,
       "message": "What are these `[cite: 3]`",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c542069f_a3ea9b2f",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1678,
+      "author": {
+        "id": 2046
+      },
+      "writtenOn": "2026-10-29T12:26:13Z",
+      "side": 1,
+      "message": "AI marking citations in free text but not handling them properly when writing code. To remove.",
+      "parentUuid": "c124f759_c5739c9b",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
