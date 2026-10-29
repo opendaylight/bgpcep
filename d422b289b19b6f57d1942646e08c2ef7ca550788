@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6a05c971_12b14c1a",
+        "filename": "tests/conftest.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-29T11:41:39Z",
+      "side": 1,
+      "message": "Am I right that nothing runs this suite yet? The builder job bgpcep-csit-bgpclustering-longevity still runs the Robot 3-node suite and nothing passes --longevity.",
+      "revId": "d422b289b19b6f57d1942646e08c2ef7ca550788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b0799d83_13147eb8",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-10-29T11:41:39Z",
+      "side": 1,
+      "message": "Over 23 hours this adds a few hundred groups of the same six step names to the Allure report and karaf.log, with no iteration number. So a failure at iteration 405 is hard to locate. Could each call be wrapped in allure_step_with_separate_logging(f\"iteration_{n}\") with a counter in the closure, so the cycle steps nest under a numbered parent?",
+      "revId": "d422b289b19b6f57d1942646e08c2ef7ca550788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
