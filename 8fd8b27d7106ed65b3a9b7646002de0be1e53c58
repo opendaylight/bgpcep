@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "8e6d9794_7c102206",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-29T08:46:07Z",
+      "side": 1,
+      "message": "Rebased onto current master. The conflict was the collection hook - merged into a single hook. Both suites also moved to odl_standalone and @pytest.mark.standalone, since 1099 removed preconditions.",
+      "parentUuid": "1325d586_b451f927",
+      "revId": "8fd8b27d7106ed65b3a9b7646002de0be1e53c58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "3466b053_81b7d095",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "14dc92c8_f30d5a14",
+        "filename": "tests/conftest.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-29T08:46:07Z",
+      "side": 1,
+      "message": "thanks - both are real\n\nReplaced the -m check with a dedicated --longevity flag, so there is no string matching left. That also removes the \"glob hole\", since the \"file named on the command line\" rule is gone; A line is printed when longevity items are deselected, so -m longevity w/o the flag doesn\u0027t look like collection bug.",
+      "parentUuid": "3466b053_81b7d095",
+      "revId": "8fd8b27d7106ed65b3a9b7646002de0be1e53c58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "80c9c6d8_7c76d698",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-10-26T08:54:24Z",
       "side": 1,
       "message": "I would suggest to extract the setup and teardown for the BGP peer to a seperate context manager. While `step_reconfigure_odl_to_accept_connection` would be in the `try` block together with yield, and the `step_delete_bgp_peer_configuration` would be in the `finally` block.",
+      "revId": "8fd8b27d7106ed65b3a9b7646002de0be1e53c58",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "b151b738_97195919",
+        "filename": "tests/suites/base_test_singlepeer_prefixcount_clustering.py",
+        "patchSetId": 4
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-10-29T08:46:07Z",
+      "side": 1,
+      "message": "Done\n\n`_configured_bgp_peer()` holds the configure step in the `try`, with `yield` and `delete` in the `finally`. It also covers a setup failure now (it didn\u0027t before).",
+      "parentUuid": "80c9c6d8_7c76d698",
       "revId": "8fd8b27d7106ed65b3a9b7646002de0be1e53c58",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
