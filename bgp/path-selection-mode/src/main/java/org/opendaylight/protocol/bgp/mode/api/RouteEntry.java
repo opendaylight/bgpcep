@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mode.api;
 import java.util.List;
 import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
@@ -26,13 +27,25 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  */
 public interface RouteEntry {
     /**
-     * Remove route.
+     * Put a route.
      *
      * @param routerId     router ID in unsigned integer format from an Ipv4Address
      * @param remotePathId remote path Id received
-     * @return return true if it was the last route on entry
+     * @param route        route Data change
+     * @return {@code true} if a new route was introduced, {@code false} if a route was replaced
      */
-    boolean removeRoute(@NonNull RouterId routerId, Uint32 remotePathId);
+    @NonNullByDefault
+    boolean putRoute(RouterId routerId, Uint32 remotePathId, MapEntryNode route);
+
+    /**
+     * Remove a route.
+     *
+     * @param routerId     router ID in unsigned integer format from an Ipv4Address
+     * @param remotePathId remote path Id received
+     * @return {@code true} if it was the last route on entry
+     */
+    @NonNullByDefault
+    boolean removeRoute(RouterId routerId, Uint32 remotePathId);
 
     /**
      * Indicates whether best has changed.
@@ -41,16 +54,6 @@ public interface RouteEntry {
      * @return return true if it has changed
      */
     boolean selectBest(RIBSupport ribSupport, long localAs);
-
-    /**
-     * Add Route.
-     *
-     * @param routerId     router ID in unsigned integer format from an Ipv4Address
-     * @param remotePathId remote path Id received
-     * @param route        route Data change
-     * @return returns the offset
-     */
-    int addRoute(@NonNull RouterId routerId, Uint32 remotePathId, @NonNull MapEntryNode route);
 
     /**
      * Returns collections of present selected best path.
