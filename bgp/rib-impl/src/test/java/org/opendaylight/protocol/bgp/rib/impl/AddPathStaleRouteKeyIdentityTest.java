@@ -93,20 +93,20 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
         // its RouteKey instances for the RouterA and RouterB pair. RouterB goes first so the entry under test still
         // creates its own RouteKey for RouterA alone.
         final var keepAlive = new AddPathBestNPathSelection(2).createRouteEntry();
-        keepAlive.addRoute(ROUTER_B, PATH_B, routeB);
-        keepAlive.addRoute(ROUTER_A, PATH_A, routeA);
+        keepAlive.putRoute(ROUTER_B, PATH_B, routeB);
+        keepAlive.putRoute(ROUTER_A, PATH_A, routeA);
         try {
             final var entry = new AddPathBestNPathSelection(2).createRouteEntry();
             // First selection has only RouterA, using the RouteKey instance this entry created.
-            entry.addRoute(ROUTER_A, PATH_A, routeA);
+            entry.putRoute(ROUTER_A, PATH_A, routeA);
             entry.selectBest(support, AS);
             // Add RouterB as a second path. RouterA stays the best path through the second selection.
-            entry.addRoute(ROUTER_B, PATH_B, routeB);
+            entry.putRoute(ROUTER_B, PATH_B, routeB);
             entry.selectBest(support, AS);
             assertEquals(Optional.empty(), entry.removeStalePaths(support, PREFIX),
                 "RouterA path is still best after the second selection and must not be reported stale");
         } finally {
-            // Keep a strong reference until the last addRoute method is called.
+            // Keep a strong reference until the last putRoute method is called.
             Reference.reachabilityFence(keepAlive);
         }
     }
