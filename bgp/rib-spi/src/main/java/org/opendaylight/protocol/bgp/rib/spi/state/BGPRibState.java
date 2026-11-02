@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.rib.spi.state;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.RibReference;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
@@ -28,32 +29,47 @@ public interface BGPRibState extends RibReference {
     boolean isActive();
 
     /**
+     * {@return per-table RIB counters}
+     */
+    Map<TablesKey, BgpRibCounters> tableCounters();
+
+    /**
      * Prefixes count per tablesKey Type.
      *
      * @return Prefixes count
      */
-    @NonNull Map<TablesKey, Long> getTablesPrefixesCount();
+    default @NonNull Map<TablesKey, Long> getTablesPrefixesCount() {
+        return tableCounters().entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().installedPrefixes()));
+    }
 
     /**
      * Mapped Total Paths Count per TableKey.
      *
      * @return Prefixes count
      */
-    @NonNull Map<TablesKey, Long> getPathsCount();
+    default @NonNull Map<TablesKey, Long> getPathsCount() {
+        return tableCounters().entrySet().stream()
+            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().installedPaths()));
+    }
 
     /**
      * Total Paths Installed.
      *
      * @return count
      */
-    long getTotalPathsCount();
+    default long getTotalPathsCount() {
+        return tableCounters().values().stream().mapToLong(BgpRibCounters::installedPaths).sum();
+    }
 
     /**
      * Total Prefixes Installed.
      *
      * @return count
      */
-    long getTotalPrefixesCount();
+    default long getTotalPrefixesCount() {
+        return tableCounters().values().stream().mapToLong(BgpRibCounters::installedPrefixes).sum();
+    }
 
     /**
      * Total Path Installed per specific TableKey.
@@ -61,7 +77,10 @@ public interface BGPRibState extends RibReference {
      * @param tablesKey table key
      * @return count
      */
-    long getPathCount(TablesKey tablesKey);
+    default long getPathCount(final TablesKey tablesKey) {
+        final var counters = tableCounters().get(tablesKey);
+        return counters != null ? counters.installedPaths() : 0;
+    }
 
     /**
      * Total Prefixes Installed per specific TableKey.
@@ -69,7 +88,10 @@ public interface BGPRibState extends RibReference {
      * @param tablesKey table key
      * @return count
      */
-    long getPrefixesCount(TablesKey tablesKey);
+    default long getPrefixesCount(final TablesKey tablesKey) {
+        final var counters = tableCounters().get(tablesKey);
+        return counters != null ? counters.installedPrefixes() : 0;
+    }
 
     /**
      * AS.

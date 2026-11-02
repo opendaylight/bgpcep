@@ -11,15 +11,12 @@ package org.opendaylight.protocol.bgp.rib.impl.state;
 import static java.util.Objects.requireNonNull;
 
 import com.google.errorprone.annotations.concurrent.GuardedBy;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.DefaultRibReference;
-import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
-import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BgpRibCounters;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.Rib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.RibKey;
@@ -32,9 +29,7 @@ public abstract class AbstractBGPRibState extends DefaultRibReference implements
     private final @NonNull AsNumber localAs;
 
     @GuardedBy("this")
-    private final HashMap<TablesKey, TotalPathsCounter> totalPaths = new HashMap<>();
-    @GuardedBy("this")
-    private final HashMap<TablesKey, TotalPrefixesCounter> totalPrefixes = new HashMap<>();
+    private @NonNull Map<TablesKey, BgpRibCounters> tableCounters = Map.of();
     @GuardedBy("this")
     private boolean active;
 
@@ -43,38 +38,6 @@ public abstract class AbstractBGPRibState extends DefaultRibReference implements
         super(instanceIdentifier);
         this.routeId = requireNonNull(routeId);
         this.localAs = requireNonNull(localAs);
-    }
-
-    @Override
-    public final synchronized Map<TablesKey, Long> getTablesPrefixesCount() {
-        return totalPrefixes.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getPrefixesCount()));
-    }
-
-    @Override
-    public final synchronized Map<TablesKey, Long> getPathsCount() {
-        return totalPaths.entrySet().stream()
-            .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getPathsCount()));
-    }
-
-    @Override
-    public final synchronized long getTotalPathsCount() {
-        return totalPaths.values().stream().mapToLong(TotalPathsCounter::getPathsCount).sum();
-    }
-
-    @Override
-    public final synchronized long getTotalPrefixesCount() {
-        return totalPrefixes.values().stream().mapToLong(TotalPrefixesCounter::getPrefixesCount).sum();
-    }
-
-    @Override
-    public final synchronized long getPathCount(final TablesKey tablesKey) {
-        return totalPaths.get(tablesKey).getPathsCount();
-    }
-
-    @Override
-    public final synchronized long getPrefixesCount(final TablesKey tablesKey) {
-        return totalPrefixes.get(tablesKey).getPrefixesCount();
     }
 
     @Override
@@ -87,12 +50,21 @@ public abstract class AbstractBGPRibState extends DefaultRibReference implements
         return routeId;
     }
 
+    @Override
+    public final synchronized @NonNull Map<TablesKey, BgpRibCounters> tableCounters() {
+        return tableCounters;
+    }
+
+    @Override
+    public final long getPrefixesCount(final TablesKey tablesKey) {
+        final var counters = tableCounters().get(tablesKey);
+        return counters != null ? counters.installedPrefixes() : 0;
+    }
+
+    @GuardedBy("this")
     @NonNullByDefault
-    protected final synchronized void setTableCounters(final TablesKey tablesKey,
-            final TotalPathsCounter totalPathsCounter, final TotalPrefixesCounter totalPrefixesCounter) {
-        final var key = requireNonNull(tablesKey);
-        totalPaths.put(key, requireNonNull(totalPathsCounter));
-        totalPrefixes.put(key, requireNonNull(totalPrefixesCounter));
+    protected final void setTableCounters(final Map<TablesKey, BgpRibCounters> tableCounters) {
+        this.tableCounters = Map.copyOf(tableCounters);
     }
 
     @Override

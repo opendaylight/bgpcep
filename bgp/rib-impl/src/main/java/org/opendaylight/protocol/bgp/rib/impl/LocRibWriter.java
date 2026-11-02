@@ -40,8 +40,6 @@ import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
-import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPathsCounter;
-import org.opendaylight.protocol.bgp.rib.impl.state.rib.TotalPrefixesCounter;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
@@ -51,6 +49,7 @@ import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.protocol.bgp.rib.spi.state.BgpRibCounters;
 import org.opendaylight.yang.gen.v1.http.openconfig.net.yang.bgp.types.rev151009.AfiSafiType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
@@ -69,7 +68,7 @@ import org.slf4j.LoggerFactory;
 // This class is NOT thread-safe
 final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeChangeListener {
     // internal state
-    private sealed interface RouteEntries extends TotalPathsCounter, TotalPrefixesCounter permits HashMapRouteEntries {
+    private sealed interface RouteEntries extends BgpRibCounters permits HashMapRouteEntries {
 
         @NonNull RouteEntry putRoute(RouterId routerId, String routeKey, Uint32 pathId, MapEntryNode route);
 
@@ -88,8 +87,8 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         private static final long serialVersionUID = 1L;
 
         // read without any synchronization guarantees
-        private final @NonNull LongAdder totalPrefixesCounter = new LongAdder();
-        private final @NonNull LongAdder totalPathsCounter = new LongAdder();
+        private final @NonNull LongAdder installedPrefixes = new LongAdder();
+        private final @NonNull LongAdder installedPaths = new LongAdder();
         private final @NonNull PathSelectionMode pathSelectionMode;
 
         HashMapRouteEntries(final PathSelectionMode pathSelectionMode) {
@@ -97,13 +96,13 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         }
 
         @Override
-        public long getPathsCount() {
-            return totalPathsCounter.sum();
+        public long installedPaths() {
+            return installedPaths.sum();
         }
 
         @Override
-        public long getPrefixesCount() {
-            return totalPrefixesCounter.sum();
+        public long installedPrefixes() {
+            return installedPrefixes.sum();
         }
 
         @Override
@@ -115,14 +114,14 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
             }
 
             routeEntry.addRoute(routerId, pathId, route);
-            totalPathsCounter.increment();
+            installedPaths.increment();
             return routeEntry;
         }
 
         private @NonNull RouteEntry createEntry(final String routeId) {
             final var ret = pathSelectionMode.createRouteEntry();
             put(routeId, ret);
-            totalPrefixesCounter.increment();
+            installedPrefixes.increment();
             LOG.trace("Created new entry for {}", routeId);
             return ret;
         }
@@ -131,10 +130,10 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         public RouteEntry removeRoute(final RouterId routerId, final String routeKey, final Uint32 pathId) {
             final var routeEntry = get(routeKey);
             if (routeEntry != null) {
-                totalPathsCounter.decrement();
+                installedPaths.decrement();
                 if (routeEntry.removeRoute(routerId, pathId)) {
                     remove(routeKey);
-                    totalPrefixesCounter.decrement();
+                    installedPrefixes.decrement();
                     LOG.trace("Removed route from {}", routerId);
                 }
             }
@@ -222,11 +221,7 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
                 .node(locRibTableIID.getLastPathArgument())), this);
     }
 
-    @NonNull TotalPathsCounter pathsCounter() {
-        return routeEntries;
-    }
-
-    @NonNull TotalPrefixesCounter prefixesCounter() {
+    @NonNull BgpRibCounters asTableCounters() {
         return routeEntries;
     }
 
