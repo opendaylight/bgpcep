@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.EFFRIBIN_NID;
@@ -17,6 +16,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ROUTES_NI
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
+import com.google.common.base.VerifyException;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
@@ -272,13 +272,14 @@ final class LocRibWriter
                 return;
             }
 
+            // split out early for validation
             final var routeKey = ribSupport.extractRouteKey(routeId);
             final var pathId = ribSupport.extractPathId(routeId);
-
-            RouteEntry entry;
-            switch (route.modificationType()) {
+            final var routeEntry = switch (route.modificationType()) {
+                case APPEARED, DISAPPEARED, UNMODIFIED ->
+                    throw new IllegalStateException("Unhandled route modification " + route);
                 case DELETE -> {
-                    entry = routeEntries.get(routeKey);
+                    final var entry = routeEntries.get(routeKey);
                     if (entry != null) {
                         totalPathsCounter.decrement();
                         if (entry.removeRoute(routerId, pathId)) {
@@ -287,24 +288,28 @@ final class LocRibWriter
                             LOG.trace("Removed route from {}", routerId);
                         }
                     }
+                    yield entry;
                 }
                 case SUBTREE_MODIFIED, WRITE -> {
-                    entry = routeEntries.get(routeKey);
+                    final var dataAfter = route.getDataAfter();
+                    if (!(dataAfter instanceof MapEntryNode routeAfter)) {
+                        throw new VerifyException("Unexpected route type " + dataAfter.contract().getCanonicalName());
+                    }
+
+                    var entry = routeEntries.get(routeKey);
                     if (entry == null) {
                         entry = createEntry(routeKey);
                     }
 
-                    final var routeAfter = route.getDataAfter();
-                    verify(routeAfter instanceof MapEntryNode, "Unexpected route %s", routeAfter);
-                    entry.addRoute(routerId, pathId, (MapEntryNode) routeAfter);
+                    entry.addRoute(routerId, pathId, routeAfter);
                     totalPathsCounter.increment();
+                    yield entry;
                 }
-                default -> throw new IllegalStateException("Unhandled route modification " + route);
-            }
+            };
 
             final var routeUpdateKey = new RouteUpdateKey(routerId, routeKey);
-            LOG.debug("Updated route {} entry {}", routeKey, entry);
-            routes.put(routeUpdateKey, entry);
+            LOG.debug("Updated route {} entry {}", routeKey, routeEntry);
+            routes.put(routeUpdateKey, routeEntry);
         }
     }
 
