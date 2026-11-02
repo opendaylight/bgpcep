@@ -33,6 +33,29 @@
       "message": "recheck",
       "revId": "fc5a8cd802d5f4121821fe3ce8ba212729c5933e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4ac99692_735392e1",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/add/AddPathAbstractRouteEntry.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-02T15:05:20Z",
+      "side": 1,
+      "message": "ugh, this is *costly*",
+      "range": {
+        "startLine": 125,
+        "startChar": 30,
+        "endLine": 125,
+        "endChar": 47
+      },
+      "revId": "fc5a8cd802d5f4121821fe3ce8ba212729c5933e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
