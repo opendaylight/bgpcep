@@ -184,7 +184,7 @@ public final class RIBImpl extends AbstractBGPRibState implements RIB, BGPRibSta
                 pathSelectionStrategy);
         vpnTableRefresher.put(key, locRibWriter);
         txChainToLocRibWriter.put(txChain, locRibWriter);
-        setTableCounters(key, locRibWriter, locRibWriter);
+        setTableCounters(key, locRibWriter.pathsCounter(), locRibWriter.prefixesCounter());
     }
 
     @Override

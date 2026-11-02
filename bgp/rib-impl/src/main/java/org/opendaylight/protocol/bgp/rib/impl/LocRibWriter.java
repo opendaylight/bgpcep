@@ -20,6 +20,11 @@ import com.google.common.base.VerifyException;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.ObjectStreamException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,6 +34,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.atomic.LongAdder;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
@@ -66,17 +72,114 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is NOT thread-safe
-final class LocRibWriter
-        implements AutoCloseable, RibOutRefresh, TotalPrefixesCounter, TotalPathsCounter, DOMDataTreeChangeListener {
+final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeChangeListener {
+    // internal state
+    private sealed interface RouteEntries extends TotalPathsCounter, TotalPrefixesCounter permits HashMapRouteEntries {
+
+        @NonNull RouteEntry putRoute(RouterId routerId, String routeKey, Uint32 pathId, MapEntryNode route);
+
+        @Nullable RouteEntry removeRoute(RouterId routerId, String routeKey, Uint32 pathId);
+
+        Set<Entry<String, RouteEntry>> asEntrySet();
+
+        // FIXME: ugly overlay with Map, we should be able to do better
+        boolean isEmpty();
+    }
+
+    // HashMap-based implementation: a subclass to remove the cost of encapsulation.
+    private static final class HashMapRouteEntries extends HashMap<@NonNull String, RouteEntry>
+            implements RouteEntries {
+        @java.io.Serial
+        private static final long serialVersionUID = 1L;
+
+        // read without any synchronization guarantees
+        private final @NonNull LongAdder totalPrefixesCounter = new LongAdder();
+        private final @NonNull LongAdder totalPathsCounter = new LongAdder();
+        private final @NonNull PathSelectionMode pathSelectionMode;
+
+        HashMapRouteEntries(final PathSelectionMode pathSelectionMode) {
+            this.pathSelectionMode = requireNonNull(pathSelectionMode);
+        }
+
+        @Override
+        public long getPathsCount() {
+            return totalPathsCounter.sum();
+        }
+
+        @Override
+        public long getPrefixesCount() {
+            return totalPrefixesCounter.sum();
+        }
+
+        @Override
+        public RouteEntry putRoute(final RouterId routerId, final String routeKey, final Uint32 pathId,
+                final MapEntryNode route) {
+            var routeEntry = get(routeKey);
+            if (routeEntry == null) {
+                routeEntry = createEntry(routeKey);
+            }
+
+            routeEntry.addRoute(routerId, pathId, route);
+            totalPathsCounter.increment();
+            return routeEntry;
+        }
+
+        private @NonNull RouteEntry createEntry(final String routeId) {
+            final var ret = pathSelectionMode.createRouteEntry();
+            put(routeId, ret);
+            totalPrefixesCounter.increment();
+            LOG.trace("Created new entry for {}", routeId);
+            return ret;
+        }
+
+        @Override
+        public RouteEntry removeRoute(final RouterId routerId, final String routeKey, final Uint32 pathId) {
+            final var routeEntry = get(routeKey);
+            if (routeEntry != null) {
+                totalPathsCounter.decrement();
+                if (routeEntry.removeRoute(routerId, pathId)) {
+                    remove(routeKey);
+                    totalPrefixesCounter.decrement();
+                    LOG.trace("Removed route from {}", routerId);
+                }
+            }
+            return routeEntry;
+        }
+
+        @Override
+        public Set<Entry<String, RouteEntry>> asEntrySet() {
+            return entrySet();
+        }
+
+        @java.io.Serial
+        @SuppressWarnings("static-method")
+        private void readObject(final ObjectInputStream stream) throws IOException, ClassNotFoundException {
+            throw nse();
+        }
+
+        @java.io.Serial
+        @SuppressWarnings("static-method")
+        private void readObjectNoData() throws ObjectStreamException {
+            throw nse();
+        }
+
+        @java.io.Serial
+        @SuppressWarnings("static-method")
+        private void writeObject(final ObjectOutputStream stream) throws IOException {
+            throw nse();
+        }
+
+        private static NotSerializableException nse() {
+            return new NotSerializableException(HashMapRouteEntries.class.getName());
+        }
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(LocRibWriter.class);
 
-    private final HashMap<String, RouteEntry> routeEntries = new HashMap<>();
+    private final @NonNull RouteEntries routeEntries;
     private final long ourAs;
     private final @NonNull RIBSupport ribSupport;
     private final @NonNull DataTreeChangeExtension dataBroker;
-    private final PathSelectionMode pathSelectionMode;
-    private final LongAdder totalPathsCounter = new LongAdder();
-    private final LongAdder totalPrefixesCounter = new LongAdder();
     private final @NonNull RouteEntryDependenciesContainerImpl entryDep;
     private final BGPPeerTracker peerTracker;
     private final @NonNull YangInstanceIdentifier ribIId;
@@ -104,8 +207,7 @@ final class LocRibWriter
         this.ourAs = ourAs.toJava();
         this.dataBroker = requireNonNull(dataBroker);
         this.peerTracker = peerTracker;
-        this.pathSelectionMode = pathSelectionMode;
-
+        routeEntries = new HashMapRouteEntries(pathSelectionMode);
         entryDep = new RouteEntryDependenciesContainerImpl(ribSupport, peerTracker, ribPolicies, afiSafiType,
             locRibTableIID);
     }
@@ -147,6 +249,14 @@ final class LocRibWriter
                 .node(locRibTableIID.getLastPathArgument())), this);
     }
 
+    @NonNull TotalPathsCounter pathsCounter() {
+        return routeEntries;
+    }
+
+    @NonNull TotalPrefixesCounter prefixesCounter() {
+        return routeEntries;
+    }
+
     /**
      * Re-initialize this LocRibWriter with new transaction chain.
      *
@@ -169,14 +279,6 @@ final class LocRibWriter
             chain.close();
             chain = null;
         }
-    }
-
-    private @NonNull RouteEntry createEntry(final String routeId) {
-        final var ret = pathSelectionMode.createRouteEntry();
-        routeEntries.put(routeId, ret);
-        totalPrefixesCounter.increment();
-        LOG.trace("Created new entry for {}", routeId);
-        return ret;
     }
 
     @Override
@@ -234,7 +336,7 @@ final class LocRibWriter
                 if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
                     LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
                     final var routesToStore = new ArrayList<ActualBestPathRoutes>();
-                    for (var entry : routeEntries.entrySet()) {
+                    for (var entry : routeEntries.asEntrySet()) {
                         routesToStore.addAll(entry.getValue()
                             .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey())));
                     }
@@ -278,32 +380,13 @@ final class LocRibWriter
             final var routeEntry = switch (route.modificationType()) {
                 case APPEARED, DISAPPEARED, UNMODIFIED ->
                     throw new IllegalStateException("Unhandled route modification " + route);
-                case DELETE -> {
-                    final var entry = routeEntries.get(routeKey);
-                    if (entry != null) {
-                        totalPathsCounter.decrement();
-                        if (entry.removeRoute(routerId, pathId)) {
-                            routeEntries.remove(routeKey);
-                            totalPrefixesCounter.decrement();
-                            LOG.trace("Removed route from {}", routerId);
-                        }
-                    }
-                    yield entry;
-                }
+                case DELETE -> routeEntries.removeRoute(routerId, routeKey, pathId);
                 case SUBTREE_MODIFIED, WRITE -> {
                     final var dataAfter = route.getDataAfter();
-                    if (!(dataAfter instanceof MapEntryNode routeAfter)) {
-                        throw new VerifyException("Unexpected route type " + dataAfter.contract().getCanonicalName());
+                    if (dataAfter instanceof MapEntryNode routeAfter) {
+                        yield routeEntries.putRoute(routerId, routeKey, pathId, routeAfter);
                     }
-
-                    var entry = routeEntries.get(routeKey);
-                    if (entry == null) {
-                        entry = createEntry(routeKey);
-                    }
-
-                    entry.addRoute(routerId, pathId, routeAfter);
-                    totalPathsCounter.increment();
-                    yield entry;
+                    throw new VerifyException("Unexpected route type " + dataAfter.contract().getCanonicalName());
                 }
             };
 
@@ -358,16 +441,6 @@ final class LocRibWriter
         }
     }
 
-    @Override
-    public long getPrefixesCount() {
-        return totalPrefixesCounter.longValue();
-    }
-
-    @Override
-    public long getPathsCount() {
-        return totalPathsCounter.longValue();
-    }
-
     TablesKey getTableKey() {
         return ribSupport.getTablesKey();
     }
@@ -378,7 +451,7 @@ final class LocRibWriter
         if (toPeer != null && toPeer.supportsTable(entryDep.getLocalTablesKey())) {
             LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
             final var routesToStore = new ArrayList<ActualBestPathRoutes>();
-            for (var entry : routeEntries.entrySet()) {
+            for (var entry : routeEntries.asEntrySet()) {
                 routesToStore.addAll(entry.getValue()
                     .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey())));
             }
