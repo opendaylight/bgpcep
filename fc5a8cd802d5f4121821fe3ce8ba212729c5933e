@@ -79,6 +79,53 @@
       },
       "revId": "fc5a8cd802d5f4121821fe3ce8ba212729c5933e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "1da08809_08a5e28a",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/base/BaseRouteEntry.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-02T16:38:43Z",
+      "side": 1,
+      "message": "right, this is superfluous, as noted below",
+      "parentUuid": "18e0e478_9d69d76d",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 37
+      },
+      "revId": "fc5a8cd802d5f4121821fe3ce8ba212729c5933e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ff94b09c_59f2d2e6",
+        "filename": "bgp/path-selection-mode/src/main/java/org/opendaylight/protocol/bgp/mode/impl/base/BaseRouteEntry.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-02T16:38:43Z",
+      "side": 1,
+      "message": "does this mean to just \u0027bestPath \u003d null\u0027?\n\nthis is a state transition, but there is no corresponding LOG.trace() to explain what is being done -- contrary to what we do everywhere else!",
+      "range": {
+        "startLine": 119,
+        "startChar": 12,
+        "endLine": 119,
+        "endChar": 36
+      },
+      "revId": "fc5a8cd802d5f4121821fe3ce8ba212729c5933e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
