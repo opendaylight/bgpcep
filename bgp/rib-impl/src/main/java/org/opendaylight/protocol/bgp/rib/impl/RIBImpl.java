@@ -17,6 +17,7 @@ import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NI
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -41,7 +42,6 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.impl.state.AbstractBGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
@@ -84,7 +84,7 @@ public final class RIBImpl extends AbstractBGPRibState implements RIB, BGPRibSta
     private final @NonNull BGPTableTypeRegistryConsumer tableTypeRegistry;
     private final DataTreeChangeExtension domService;
     private final HashMap<DOMTransactionChain, LocRibWriter> txChainToLocRibWriter = new HashMap<>();
-    private final HashMap<TablesKey, RibOutRefresh> vpnTableRefresher = new HashMap<>();
+    private final HashMap<TablesKey, LocRibWriter> tableToLocRibWriter = new HashMap<>();
     private final Map<TablesKey, PathSelectionMode> bestPathSelectionStrategies;
     private final RibId ribId;
     private final BGPPeerTracker peerTracker = new BGPPeerTrackerImpl();
@@ -157,34 +157,6 @@ public final class RIBImpl extends AbstractBGPRibState implements RIB, BGPRibSta
         } catch (final InterruptedException | ExecutionException e) {
             LOG.error("Failed to initiate LocRIB for key {}", key, e);
         }
-    }
-
-    private synchronized void createLocRibWriter(final TablesKey key) {
-        final var ribSupport = ribContextRegistry.getRIBSupport(key);
-        if (ribSupport == null) {
-            return;
-        }
-        LOG.debug("Creating LocRIB writer for key {}", key);
-        final var txChain = createPeerDOMChain();
-        addCallback(txChain);
-        var pathSelectionStrategy = bestPathSelectionStrategies.get(key);
-        if (pathSelectionStrategy == null) {
-            pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
-        }
-
-        final var locRibWriter = LocRibWriter.create(
-                ribSupport,
-                verifyNotNull(tableTypeRegistry.getAfiSafiType(key)),
-                txChain,
-                yangRibId,
-                localAs,
-                getService(),
-                ribPolicies,
-                peerTracker,
-                pathSelectionStrategy);
-        vpnTableRefresher.put(key, locRibWriter);
-        txChainToLocRibWriter.put(txChain, locRibWriter);
-        setTableCounters(key, locRibWriter.pathsCounter(), locRibWriter.prefixesCounter());
     }
 
     @Override
@@ -265,7 +237,7 @@ public final class RIBImpl extends AbstractBGPRibState implements RIB, BGPRibSta
 
     @Override
     public void refreshTable(final TablesKey tk, final PeerId peerId) {
-        final var table = vpnTableRefresher.get(tk);
+        final var table = tableToLocRibWriter.get(tk);
         if (table != null) {
             table.refreshTable(tk, peerId);
         }
@@ -337,7 +309,35 @@ public final class RIBImpl extends AbstractBGPRibState implements RIB, BGPRibSta
 
         LOG.debug("Effective RIB created.");
         localTablesKeys.forEach(this::startLocRib);
-        localTablesKeys.forEach(this::createLocRibWriter);
+
+        for (var key : localTablesKeys) {
+            final var ribSupport = ribContextRegistry.getRIBSupport(key);
+            if (ribSupport == null) {
+                return;
+            }
+            LOG.debug("Creating LocRIB writer for key {}", key);
+            final var txChain = createPeerDOMChain();
+            addCallback(txChain);
+            var pathSelectionStrategy = bestPathSelectionStrategies.get(key);
+            if (pathSelectionStrategy == null) {
+                pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
+            }
+
+            final var locRibWriter = LocRibWriter.create(
+                    ribSupport,
+                    verifyNotNull(tableTypeRegistry.getAfiSafiType(key)),
+                    txChain,
+                    yangRibId,
+                    localAs,
+                    getService(),
+                    ribPolicies,
+                    peerTracker,
+                    pathSelectionStrategy);
+            tableToLocRibWriter.put(key, locRibWriter);
+            txChainToLocRibWriter.put(txChain, locRibWriter);
+        }
+
+        setTableCounters(Maps.transformValues(tableToLocRibWriter, LocRibWriter::asTableCounters));
     }
 
     public synchronized FluentFuture<? extends CommitInfo> closeServiceInstance() {
