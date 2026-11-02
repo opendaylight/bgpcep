@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -95,19 +96,29 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public int addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
-        int offset = offsets.offsetOf(routerId);
+    public boolean putRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
+        final int offset = offsets.offsetOf(routerId);
         if (offset < 0) {
-            final var newOffsets = offsets.with(routerId);
-            offset = newOffsets.offsetOf(routerId);
-
-            values = newOffsets.expand(offsets, values, offset);
-            offsets = newOffsets;
+            addRoute(routerId, route);
+            return true;
         }
+        setRoute(routerId, route, offset);
+        return false;
+    }
 
+    @NonNullByDefault
+    private void addRoute(final RouterId routerId, final MapEntryNode route) {
+        final var newOffsets = offsets.with(routerId);
+        final var offset = newOffsets.offsetOf(routerId);
+        values = newOffsets.expand(offsets, values, offset);
+        offsets = newOffsets;
+        setRoute(routerId, route, offset);
+    }
+
+    @NonNullByDefault
+    private void setRoute(final RouterId routerId, final MapEntryNode route, final int offset) {
         offsets.setValue(values, offset, route);
         LOG.trace("Added route {} from {}", route, routerId);
-        return offset;
     }
 
     @Override
