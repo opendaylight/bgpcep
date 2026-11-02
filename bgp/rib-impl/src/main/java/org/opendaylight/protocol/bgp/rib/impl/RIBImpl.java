@@ -42,10 +42,12 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContextRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
-import org.opendaylight.protocol.bgp.rib.impl.state.BGPRibStateImpl;
+import org.opendaylight.protocol.bgp.rib.impl.state.AbstractBGPRibState;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
+import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibStateProvider;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.BgpTableType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
@@ -65,7 +67,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // This class is thread-safe
-public final class RIBImpl extends BGPRibStateImpl implements RIB {
+public final class RIBImpl extends AbstractBGPRibState implements RIB, BGPRibStateProvider {
     private static final Logger LOG = LoggerFactory.getLogger(RIBImpl.class);
     private static final QName RIB_ID_QNAME = QName.create(Rib.QNAME, "id").intern();
 
@@ -199,6 +201,11 @@ public final class RIBImpl extends BGPRibStateImpl implements RIB {
     @Override
     public BgpId getBgpIdentifier() {
         return bgpIdentifier;
+    }
+
+    @Override
+    public BGPRibState getRIBState() {
+        return this;
     }
 
     @Override
