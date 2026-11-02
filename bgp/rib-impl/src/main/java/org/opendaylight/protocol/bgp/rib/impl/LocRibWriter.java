@@ -115,26 +115,23 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         @Override
         public RouteEntry putRoute(final RouterId routerId, final String routeKey, final Uint32 pathId,
                 final MapEntryNode route) {
-            var routeEntry = get(routeKey);
-            if (routeEntry == null) {
-                routeEntry = createEntry(routeKey);
+            final var routeEntry = computeIfAbsent(routeKey, this::newRouteEntry);
+            if (routeEntry.putRoute(routerId, pathId, route)) {
+                installedPaths.increment();
             }
-            routeEntry.addRoute(routerId, pathId, route);
-            installedPaths.increment();
             return routeEntry;
         }
 
         @NonNullByDefault
-        private RouteEntry createEntry(final String routeKey) {
+        private RouteEntry newRouteEntry(final String routeKey) {
             final var routeEntry = pathSelectionMode.createRouteEntry();
-            put(routeKey, routeEntry);
             installedPrefixes.increment();
             LOG.trace("Created new entry for {}", routeKey);
             return routeEntry;
         }
 
         @Override
-        public RouteEntry removeRoute(final RouterId routerId, final String routeKey, final Uint32 pathId) {
+        public @Nullable RouteEntry removeRoute(final RouterId routerId, final String routeKey, final Uint32 pathId) {
             final var routeEntry = get(routeKey);
             if (routeEntry != null) {
                 installedPaths.decrement();
@@ -346,7 +343,7 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         return ret;
     }
 
-    private void updateNodes(final DataTreeCandidateNode table, final RouterId peerUuid,
+    private void updateNodes(final DataTreeCandidateNode table, final @NonNull RouterId peerUuid,
             final DOMDataTreeWriteOperations tx, final Map<RouteUpdateKey, RouteEntry> routes) {
         final var modifiedAttrs = table.modifiedChild(ATTRIBUTES_NID);
         if (modifiedAttrs != null) {
@@ -363,7 +360,7 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
     }
 
     private void updateRoutesEntries(final Collection<DataTreeCandidateNode> collection,
-            final RouterId routerId, final Map<RouteUpdateKey, RouteEntry> routes) {
+            final @NonNull RouterId routerId, final Map<RouteUpdateKey, RouteEntry> routes) {
         for (var route : collection) {
             final var routeArg = route.name();
             if (!(routeArg instanceof NodeIdentifierWithPredicates routeId)) {
