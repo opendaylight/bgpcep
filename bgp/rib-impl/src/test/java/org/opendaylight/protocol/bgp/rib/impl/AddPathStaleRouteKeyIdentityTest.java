@@ -7,11 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.lang.ref.Reference;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
@@ -52,14 +55,14 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 
 // FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest {
-    private static final TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE,
+    private static final @NonNull TablesKey TABLES_KEY = new TablesKey(Ipv4AddressFamily.VALUE,
         UnicastSubsequentAddressFamily.VALUE);
-    private static final String PREFIX = "1.1.1.0/24";
+    private static final @NonNull String PREFIX = "1.1.1.0/24";
     // RouterA sorts before RouterB so it holds offset 0 in every key set.
-    private static final RouterId ROUTER_A = RouterId.forAddress("127.1.1.1");
-    private static final RouterId ROUTER_B = RouterId.forAddress("127.1.1.2");
-    private static final Uint32 PATH_A = Uint32.ONE;
-    private static final Uint32 PATH_B = Uint32.TWO;
+    private static final @NonNull RouterId ROUTER_A = RouterId.forAddress("127.1.1.1");
+    private static final @NonNull RouterId ROUTER_B = RouterId.forAddress("127.1.1.2");
+    private static final @NonNull Uint32 PATH_A = Uint32.ONE;
+    private static final @NonNull Uint32 PATH_B = Uint32.TWO;
 
     private RIBExtensionProviderContext ribContext;
     private MapEntryNode routeA;
@@ -84,6 +87,7 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
     @Test
     public void survivingBestPathMustNotBeReportedStale() {
         final var support = ribContext.getRIBSupport(TABLES_KEY);
+        assertNotNull(support);
 
         // A separate entry adds both routers first, so the RouteKeyOffsets cache (shared by all route entries) stores
         // its RouteKey instances for the RouterA and RouterB pair. RouterB goes first so the entry under test still
@@ -91,20 +95,20 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
         final var keepAlive = new AddPathBestNPathSelection(2).createRouteEntry();
         keepAlive.addRoute(ROUTER_B, PATH_B, routeB);
         keepAlive.addRoute(ROUTER_A, PATH_A, routeA);
-
-        final var entry = new AddPathBestNPathSelection(2).createRouteEntry();
-        // First selection has only RouterA, using the RouteKey instance this entry created.
-        entry.addRoute(ROUTER_A, PATH_A, routeA);
-        entry.selectBest(support, AS);
-        // Add RouterB as a second path. RouterA stays the best path through the second selection.
-        entry.addRoute(ROUTER_B, PATH_B, routeB);
-        entry.selectBest(support, AS);
-        final var stale = entry.removeStalePaths(support, PREFIX);
-
-        // Keep a strong reference until the last addRoute method is called.
-        assertNotNull(keepAlive);
-        assertTrue("RouterA path is still best after the second selection and must not be reported stale",
-            stale.isEmpty());
+        try {
+            final var entry = new AddPathBestNPathSelection(2).createRouteEntry();
+            // First selection has only RouterA, using the RouteKey instance this entry created.
+            entry.addRoute(ROUTER_A, PATH_A, routeA);
+            entry.selectBest(support, AS);
+            // Add RouterB as a second path. RouterA stays the best path through the second selection.
+            entry.addRoute(ROUTER_B, PATH_B, routeB);
+            entry.selectBest(support, AS);
+            assertEquals(Optional.empty(), entry.removeStalePaths(support, PREFIX),
+                "RouterA path is still best after the second selection and must not be reported stale");
+        } finally {
+            // Keep a strong reference until the last addRoute method is called.
+            Reference.reachabilityFence(keepAlive);
+        }
     }
 
     private MapEntryNode buildRoute(final Uint32 pathId, final long localPref) {
