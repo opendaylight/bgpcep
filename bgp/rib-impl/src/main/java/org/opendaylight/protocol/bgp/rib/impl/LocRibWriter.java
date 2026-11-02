@@ -110,7 +110,7 @@ final class LocRibWriter
             locRibTableIID);
     }
 
-    public static LocRibWriter create(
+    public static @NonNull LocRibWriter create(
             final @NonNull RIBSupport ribSupport,
             final @NonNull AfiSafiType afiSafiType,
             final @NonNull DOMTransactionChain chain,
