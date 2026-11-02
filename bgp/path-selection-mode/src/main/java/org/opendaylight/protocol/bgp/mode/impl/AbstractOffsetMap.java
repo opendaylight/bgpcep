@@ -34,11 +34,11 @@ public abstract class AbstractOffsetMap<K extends Immutable & Comparable<K>, T e
     protected AbstractOffsetMap(final K[] emptyKeys, final Comparator<K> comparator, final ImmutableSet<K> routerIds) {
         final K[] array = routerIds.toArray(emptyKeys);
         Arrays.sort(array, comparator);
-        this.keys = array;
+        keys = array;
     }
 
     public final K getKey(final int offset) {
-        return this.keys[offset];
+        return keys[offset];
     }
 
     public final int offsetOf(final K key) {
@@ -79,6 +79,13 @@ public abstract class AbstractOffsetMap<K extends Immutable & Comparable<K>, T e
     public final <C> C getValue(final C[] array, final int offset) {
         checkAccessOffest(offset);
         return array[offset];
+    }
+
+    public final <C> C putValue(final C[] array, final int offset, final C value) {
+        checkAccessOffest(offset);
+        final var prev = array[offset];
+        array[offset] = value;
+        return prev;
     }
 
     public final <C> void setValue(final C[] array, final int offset, final C value) {
