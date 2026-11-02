@@ -95,19 +95,24 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public int addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
-        int offset = offsets.offsetOf(routerId);
-        if (offset < 0) {
-            final var newOffsets = offsets.with(routerId);
-            offset = newOffsets.offsetOf(routerId);
-
-            values = newOffsets.expand(offsets, values, offset);
-            offsets = newOffsets;
+    public boolean addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
+        final int offset = offsets.offsetOf(routerId);
+        if (offset >= 0) {
+            setValue(routerId, route, offset);
+            return false;
         }
 
+        final var newOffsets = offsets.with(routerId);
+        final var newOffset = newOffsets.offsetOf(routerId);
+        values = newOffsets.expand(offsets, values, newOffset);
+        offsets = newOffsets;
+        setValue(routerId, route, newOffset);
+        return true;
+    }
+
+    private void setValue(final RouterId routerId, final MapEntryNode route, final int offset) {
         offsets.setValue(values, offset, route);
         LOG.trace("Added route {} from {}", route, routerId);
-        return offset;
     }
 
     @Override

@@ -30,7 +30,7 @@ public interface RouteEntry {
      *
      * @param routerId     router ID in unsigned integer format from an Ipv4Address
      * @param remotePathId remote path Id received
-     * @return return true if it was the last route on entry
+     * @return {@code true} if it was the last route on entry
      */
     boolean removeRoute(@NonNull RouterId routerId, Uint32 remotePathId);
 
@@ -48,9 +48,9 @@ public interface RouteEntry {
      * @param routerId     router ID in unsigned integer format from an Ipv4Address
      * @param remotePathId remote path Id received
      * @param route        route Data change
-     * @return returns the offset
+     * @return {@code true} if a new route was introduced, {@code false} if a route was replaced
      */
-    int addRoute(@NonNull RouterId routerId, Uint32 remotePathId, @NonNull MapEntryNode route);
+    boolean addRoute(@NonNull RouterId routerId, Uint32 remotePathId, @NonNull MapEntryNode route);
 
     /**
      * Returns collections of present selected best path.

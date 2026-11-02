@@ -113,9 +113,9 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
             if (routeEntry == null) {
                 routeEntry = createEntry(routeKey);
             }
-
-            routeEntry.addRoute(routerId, pathId, route);
-            totalPathsCounter.increment();
+            if (routeEntry.addRoute(routerId, pathId, route)) {
+                totalPathsCounter.increment();
+            }
             return routeEntry;
         }
 
@@ -322,7 +322,7 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         return ret;
     }
 
-    private void updateNodes(final DataTreeCandidateNode table, final RouterId peerUuid,
+    private void updateNodes(final DataTreeCandidateNode table, final @NonNull RouterId peerUuid,
             final DOMDataTreeWriteOperations tx, final Map<RouteUpdateKey, RouteEntry> routes) {
         final var modifiedAttrs = table.modifiedChild(ATTRIBUTES_NID);
         if (modifiedAttrs != null) {
@@ -339,7 +339,7 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
     }
 
     private void updateRoutesEntries(final Collection<DataTreeCandidateNode> collection,
-            final RouterId routerId, final Map<RouteUpdateKey, RouteEntry> routes) {
+            final @NonNull RouterId routerId, final Map<RouteUpdateKey, RouteEntry> routes) {
         for (var route : collection) {
             final var routeArg = route.name();
             if (!(routeArg instanceof NodeIdentifierWithPredicates routeId)) {

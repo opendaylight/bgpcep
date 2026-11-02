@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -97,22 +98,29 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final int addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
-        final var key = new RouteKey(routerId, remotePathId);
-        int offset = offsets.offsetOf(key);
-        if (offset < 0) {
-            final var newOffsets = offsets.with(key);
-            offset = newOffsets.offsetOf(key);
-            final var newRoute = newOffsets.expand(offsets, values, offset);
-            final var newPathsId = newOffsets.expand(offsets, pathsId, offset);
-            values = newRoute;
-            offsets = newOffsets;
-            pathsId = newPathsId;
-            offsets.setValue(pathsId, offset, Uint32.valueOf(++pathIdCounter));
-        }
-        offsets.setValue(values, offset, route);
+    public final boolean addRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
+        final var routeKey = new RouteKey(routerId, remotePathId);
+        final int offset = offsets.offsetOf(routeKey);
+        return offset >= 0 ? setValue(routerId, route, offset) : insertRoute(routerId, routeKey, route);
+    }
+
+    @NonNullByDefault
+    private boolean insertRoute(final RouterId routerId, final RouteKey routeKey, final MapEntryNode route) {
+        final var newOffsets = offsets.with(routeKey);
+        final var offset = newOffsets.offsetOf(routeKey);
+        final var newRoute = newOffsets.expand(offsets, values, offset);
+        final var newPathsId = newOffsets.expand(offsets, pathsId, offset);
+        values = newRoute;
+        offsets = newOffsets;
+        pathsId = newPathsId;
+        offsets.setValue(pathsId, offset, Uint32.valueOf(++pathIdCounter));
+        return setValue(routerId, route, offset);
+    }
+
+    private boolean setValue(final RouterId routerId, final MapEntryNode route, final int offset) {
+        final var isNew = offsets.putValue(values, offset, route) != null;
         LOG.trace("Added route {} from {}", route, routerId);
-        return offset;
+        return isNew;
     }
 
     @Override
