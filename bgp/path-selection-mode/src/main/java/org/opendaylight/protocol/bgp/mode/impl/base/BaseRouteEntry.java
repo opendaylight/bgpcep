@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 import java.util.Collections;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -50,8 +51,8 @@ final class BaseRouteEntry implements RouteEntry {
 
     private RouterIdOffsets offsets = RouterIdOffsets.EMPTY;
     private MapEntryNode[] values = EMPTY_VALUES;
-    private BaseBestPath bestPath = null;
-    private BaseBestPath removedBestPath;
+    private @Nullable BaseBestPath bestPath;
+    private @Nullable BaseBestPath removedBestPath;
 
     @Override
     public boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
@@ -59,11 +60,6 @@ final class BaseRouteEntry implements RouteEntry {
         values = offsets.removeValue(values, offset, EMPTY_VALUES);
         offsets = offsets.without(routerId);
         return offsets.isEmpty();
-    }
-
-    private MapEntryNode createRoute(final RIBSupport ribSupport, final String routeKey) {
-        final var route = offsets.getValue(values, offsets.offsetOf(bestPath.getRouterId()));
-        return ribSupport.createRoute(route, ribSupport.createRouteListArgument(routeKey), bestPath.getAttributes());
     }
 
     @Override
@@ -83,12 +79,13 @@ final class BaseRouteEntry implements RouteEntry {
 
         // Get the newly-selected best path.
         final var newBestPath = selector.result();
-        final boolean modified = newBestPath == null || !newBestPath.equals(bestPath);
+        final var oldBestPath = bestPath;
+        final var modified = newBestPath == null || !newBestPath.equals(oldBestPath);
         if (modified) {
             if (offsets.isEmpty()) {
-                removedBestPath = bestPath;
+                removedBestPath = oldBestPath;
             }
-            LOG.trace("Previous best {}, current best {}", bestPath, newBestPath);
+            LOG.trace("Previous best {}, current best {}", oldBestPath, newBestPath);
             bestPath = newBestPath;
         }
         return modified;
@@ -131,23 +128,31 @@ final class BaseRouteEntry implements RouteEntry {
 
     @Override
     public List<AdvertizedRoute> newBestPaths(final RIBSupport ribSupport, final String routeKey) {
-        if (bestPath == null) {
+        final var best = bestPath;
+        if (best == null) {
             return Collections.emptyList();
         }
-        final var route = createRoute(ribSupport, routeKey);
-        final var adv = new AdvertizedRoute(ribSupport, route, bestPath.getAttributes(), bestPath.getPeerId(),
-            bestPath.isDepreferenced());
+        final var route = createRoute(ribSupport, routeKey, best);
+        final var adv = new AdvertizedRoute(ribSupport, route, best.getAttributes(), best.getPeerId(),
+            best.isDepreferenced());
         LOG.trace("Selected best route {}", route);
         return Collections.singletonList(adv);
     }
 
     @Override
     public List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport, final RouteEntryInfo entryInfo) {
-        if (bestPath == null) {
+        final var best = bestPath;
+        if (best == null) {
             return Collections.emptyList();
         }
-        final var route = createRoute(ribSupport, entryInfo.getRouteKey());
-        return Collections.singletonList(new ActualBestPathRoutes(ribSupport, route, bestPath.getPeerId(),
-                bestPath.getAttributes(), bestPath.isDepreferenced()));
+        final var route = createRoute(ribSupport, entryInfo.getRouteKey(), best);
+        return Collections.singletonList(new ActualBestPathRoutes(ribSupport, route, best.getPeerId(),
+            best.getAttributes(), best.isDepreferenced()));
+    }
+
+    @NonNullByDefault
+    private MapEntryNode createRoute(final RIBSupport ribSupport, final String routeKey, final BaseBestPath best) {
+        return ribSupport.createRoute(offsets.getValue(values, offsets.offsetOf(best.getRouterId())),
+            ribSupport.createRouteListArgument(routeKey), best.getAttributes());
     }
 }
