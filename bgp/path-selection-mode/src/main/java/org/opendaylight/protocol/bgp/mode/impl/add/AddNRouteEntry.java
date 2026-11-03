@@ -5,28 +5,24 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
+package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import com.google.common.collect.ImmutableList;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class NPathsRouteEntry extends AddPathAbstractRouteEntry {
-    private static final Logger LOG = LoggerFactory.getLogger(NPathsRouteEntry.class);
+final class AddNRouteEntry extends AddPathRouteEntry {
+    private static final Logger LOG = LoggerFactory.getLogger(AddNRouteEntry.class);
 
-    private final int npaths;
+    private final short npaths;
 
-    NPathsRouteEntry(final int npaths) {
+    AddNRouteEntry(final short npaths) {
         this.npaths = npaths;
     }
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs,
-            final int size) {
+    ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
         final int limit = Math.min(npaths, size);
         return switch (limit) {
             case 0 -> ImmutableList.of();

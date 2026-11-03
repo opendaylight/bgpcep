@@ -49,7 +49,7 @@ import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
+import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
 import org.opendaylight.protocol.bgp.parser.BgpExtendedMessageUtil;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
@@ -215,9 +215,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testHandleMessageAfterException() {
         final RIBImpl ribImpl = new RIBImpl(tableRegistry, new RibId(RIB_ID), AS_NUMBER,  new BgpId(RIB_ID),
-                ribExtension,
-                serverDispatcher, codecsRegistry, domBroker, policies,
-                List.of(ipv4tt), Map.of(TABLES_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
+                ribExtension, serverDispatcher, codecsRegistry, domBroker, policies,
+                List.of(ipv4tt), Map.of(TABLES_KEY, PathSelectionModes.base()));
         ribImpl.instantiateServiceInstance();
 
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(tableRegistry, neighbor.getIpv4AddressNoZone(),
@@ -266,9 +265,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     @Test
     public void testUseCase1() {
         final RIBImpl ribImpl = new RIBImpl(tableRegistry, new RibId(RIB_ID), AS_NUMBER, new BgpId(RIB_ID),
-                ribExtension,
-                serverDispatcher, codecsRegistry, domBroker, policies,
-                List.of(ipv4tt), Map.of(TABLES_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
+                ribExtension, serverDispatcher, codecsRegistry, domBroker, policies,
+                List.of(ipv4tt), Map.of(TABLES_KEY, PathSelectionModes.base()));
         ribImpl.instantiateServiceInstance();
 
         final BGPPeer bgpPeer = AbstractAddPathTest.configurePeer(tableRegistry, neighbor.getIpv4AddressNoZone(),

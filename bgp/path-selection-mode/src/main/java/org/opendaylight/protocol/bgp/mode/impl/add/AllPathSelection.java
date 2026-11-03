@@ -5,28 +5,23 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
+package org.opendaylight.protocol.bgp.mode.impl.add;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 
-public final class AddPathBestNPathSelection implements PathSelectionMode {
-    private final int npaths;
+@NonNullByDefault
+public final class AllPathSelection implements PathSelectionMode {
 
-    public AddPathBestNPathSelection(final int npaths) {
-        checkArgument(npaths > 1);
-        this.npaths = npaths;
-    }
+    public static final PathSelectionMode INSTANCE = new AllPathSelection();
 
-    @Override
-    public void close() {
-        //no-op
+    private AllPathSelection() {
+        // hidden on purpose
     }
 
     @Override
     public RouteEntry createRouteEntry() {
-        return new NPathsRouteEntry(npaths);
+        return new AddAllRouteEntry();
     }
 }

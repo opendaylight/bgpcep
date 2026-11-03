@@ -5,22 +5,18 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
+package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import com.google.common.collect.ImmutableList;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class AllPathsRouteEntry extends AddPathAbstractRouteEntry {
-    private static final Logger LOG = LoggerFactory.getLogger(AllPathsRouteEntry.class);
+final class AddAllRouteEntry extends AddPathRouteEntry {
+    private static final Logger LOG = LoggerFactory.getLogger(AddAllRouteEntry.class);
 
     @Override
-    protected ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs,
-            final int size) {
+    ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
         // Select the best path for the case when AddPath is not supported
         final var selector = new AddPathSelector(localAs);
         for (int offset = 0; offset < size; ++offset) {

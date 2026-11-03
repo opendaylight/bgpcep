@@ -18,7 +18,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
 @NonNullByDefault
-public final class AddPathBestPath extends AbstractBestPath {
+final class AddPathBestPath extends AbstractBestPath {
     private final RouteKey routeKey;
     private final Uint32 pathId;
     // Not part of hashCode/equals since it will change as new path is added, and we want to be able to use List

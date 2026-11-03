@@ -33,7 +33,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
-import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
+import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.parser.spi.BGPExtensionConsumerContext;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
@@ -51,12 +51,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.BgpRib;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.Tables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
-import org.opendaylight.yangtools.concepts.Registration;
 
 @Ignore
 // FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
@@ -103,8 +101,7 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
             new BgpTableTypeImpl(LinkstateAddressFamily.VALUE, LinkstateSubsequentAddressFamily.VALUE));
 
         final var rib = new RIBImpl(tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, ext2, dispatcher,
-            codecsRegistry, getDomBroker(), policies, tables,
-            Map.of(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
+            codecsRegistry, getDomBroker(), policies, tables, Map.of(TABLE_KEY, PathSelectionModes.base()));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
         final var peer = AbstractAddPathTest.configurePeer(tableRegistry, localAddress.getIpv4AddressNoZone(), rib,
@@ -115,17 +112,16 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
 
     @Test
     public void testWithoutLinkstate() throws InterruptedException, ExecutionException {
-        final List<BgpTableType> tables = List.of(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
-                UnicastSubsequentAddressFamily.VALUE));
-        final RIBImpl rib = new RIBImpl(tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, ext1,
-                dispatcher, codecsRegistry, getDomBroker(), policies,
-                tables, Map.of(TABLE_KEY, BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
+        final var tables = List.<BgpTableType>of(
+            new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
+        final var rib = new RIBImpl(tableRegistry, new RibId(TEST_RIB_ID), AS_NUMBER, BGP_ID, ext1, dispatcher,
+            codecsRegistry, getDomBroker(), policies, tables, Map.of(TABLE_KEY, PathSelectionModes.base()));
         rib.instantiateServiceInstance();
         assertTablesExists(tables);
-        final BGPPeer peer = AbstractAddPathTest.configurePeer(tableRegistry,
-            localAddress.getIpv4AddressNoZone(), rib, null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
+        final var peer = AbstractAddPathTest.configurePeer(tableRegistry, localAddress.getIpv4AddressNoZone(), rib,
+            null, PeerRole.Ibgp, new StrictBGPPeerRegistry());
         peer.instantiateServiceInstance();
-        final Registration reg = mock.registerUpdateListener(peer);
+        final var reg = mock.registerUpdateListener(peer);
         reg.close();
     }
 
@@ -145,9 +141,9 @@ public class ParserToSalTest extends DefaultRibPoliciesMockTest {
             final var tables = bgpRib.nonnullRib().values().iterator().next().getLocRib().getTables();
             assertNotNull(tables);
 
-            for (final BgpTableType tableType : expectedTables) {
+            for (var tableType : expectedTables) {
                 boolean found = false;
-                for (final Tables table : tables.values()) {
+                for (var table : tables.values()) {
                     if (table.getAfi().equals(tableType.getAfi()) && table.getSafi().equals(tableType.getSafi())) {
                         found = true;
                         assertEquals(Boolean.TRUE, table.getAttributes().getUptodate());

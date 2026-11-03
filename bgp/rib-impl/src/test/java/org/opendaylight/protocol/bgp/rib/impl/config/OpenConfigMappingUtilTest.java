@@ -34,8 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
-import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
+import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
@@ -126,13 +125,12 @@ class OpenConfigMappingUtilTest {
 
     private static final Uint8 ALL_PATHS = Uint8.ZERO;
     private static final Uint8 N_PATHS = Uint8.TWO;
-    private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION =
-            new AddPathBestNPathSelection(N_PATHS.toJava());
-    private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection();
-    private static final BgpTableType BGP_TABLE_TYPE_IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
-            UnicastSubsequentAddressFamily.VALUE);
-    private static final BgpTableType BGP_TABLE_TYPE_IPV6
-            = new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
+    private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION = PathSelectionModes.addNPaths(N_PATHS);
+    private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = PathSelectionModes.addAllPaths();
+    private static final BgpTableType BGP_TABLE_TYPE_IPV4 =
+        new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
+    private static final BgpTableType BGP_TABLE_TYPE_IPV6 =
+        new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
 
     private static final AsNumber AS = new AsNumber(Uint32.valueOf(72));
     private static final AsNumber GLOBAL_AS = new AsNumber(Uint32.valueOf(73));

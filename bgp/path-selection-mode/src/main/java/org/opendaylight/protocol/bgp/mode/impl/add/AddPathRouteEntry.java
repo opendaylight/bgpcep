@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This class is NOT thread-safe.
  */
-public abstract class AddPathAbstractRouteEntry implements RouteEntry {
+abstract class AddPathRouteEntry implements RouteEntry {
     private static final class Stale extends StaleBestPathRoute {
         @NonNullByDefault
         private final List<NodeIdentifierWithPredicates> addPathRouteKeyIdentifier;
@@ -87,7 +87,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(AddPathAbstractRouteEntry.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AddPathRouteEntry.class);
     private static final Uint32[] EMPTY_PATHS_ID = new Uint32[0];
     private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
 
@@ -217,7 +217,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
         return isBestPathNew((size = offsets.size()) == 0 ? ImmutableList.of() : selectBest(ribSupport, localAs, size));
     }
 
-    protected abstract ImmutableList<AddPathBestPath> selectBest(RIBSupport ribSupport, long localAs, int size);
+    abstract ImmutableList<AddPathBestPath> selectBest(RIBSupport ribSupport, long localAs, int size);
 
     /**
      * Process a specific route offset into specified selector.
@@ -225,7 +225,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
      * @param selector selector to update
      * @param offset offset to process
      */
-    protected final void processOffset(final RIBSupport ribSupport, final AddPathSelector selector,
+    final void processOffset(final RIBSupport ribSupport, final AddPathSelector selector,
             final int offset) {
         final var key = offsets.getKey(offset);
         final var route = offsets.getValue(values, offset);
@@ -234,7 +234,7 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
         selector.processPath(ribSupport.extractAttributes(route), key, offset, pathId);
     }
 
-    protected final AddPathBestPath bestPathAt(final RIBSupport ribSupport, final int offset) {
+    final AddPathBestPath bestPathAt(final RIBSupport ribSupport, final int offset) {
         final var route = verifyNotNull(offsets.getValue(values, offset));
         return new AddPathBestPath(new BestPathStateImpl(ribSupport.extractAttributes(route)), offsets.getKey(offset),
             offsets.getValue(pathsId, offset), offset);

@@ -14,14 +14,14 @@ import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class AddPathSelector extends AbstractBestPathSelector {
+final class AddPathSelector extends AbstractBestPathSelector {
     private static final Logger LOG = LoggerFactory.getLogger(AddPathSelector.class);
 
     private RouteKey bestRouteKey;
     private Uint32 bestPathId;
     private int bestOffset;
 
-    public AddPathSelector(final long ourAs) {
+    AddPathSelector(final long ourAs) {
         super(ourAs);
     }
 
@@ -47,7 +47,7 @@ public final class AddPathSelector extends AbstractBestPathSelector {
         }
     }
 
-    public AddPathBestPath result() {
+    AddPathBestPath result() {
         return bestRouteKey == null ? null : new AddPathBestPath(bestState, bestRouteKey, bestPathId, bestOffset);
     }
 }
