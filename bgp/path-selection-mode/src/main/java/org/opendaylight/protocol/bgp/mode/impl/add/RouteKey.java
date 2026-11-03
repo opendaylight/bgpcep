@@ -19,21 +19,20 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 @NonNullByDefault
 final class RouteKey implements Comparable<RouteKey>, Immutable {
     private final RouterId routerId;
-    // FIXME: consider dropping this down to an int (but then note Compare() needs to treat it as unsigned)
-    private final long remotePathId;
+    private final int remotePathId;
 
     RouteKey(final RouterId routerId, final Uint32 remotePathId) {
         this.routerId = requireNonNull(routerId);
-        this.remotePathId = remotePathId.toJava();
+        this.remotePathId = remotePathId.intValue();
     }
 
-    RouterId getRouterId() {
+    RouterId routerId() {
         return routerId;
     }
 
     @Override
     public int hashCode() {
-        return 31 * 31 + 31 * Long.hashCode(remotePathId) + routerId.hashCode();
+        return 31 * remotePathId + routerId.hashCode();
     }
 
     @Override
@@ -45,14 +44,14 @@ final class RouteKey implements Comparable<RouteKey>, Immutable {
     @Override
     public String toString() {
         return MoreObjects.toStringHelper(this)
-                .add("externalPathId", remotePathId)
-                .add("routerId", routerId)
-                .toString();
+            .add("externalPathId", Integer.toUnsignedLong(remotePathId))
+            .add("routerId", routerId)
+            .toString();
     }
 
     @Override
-    public int compareTo(final RouteKey otherRouteKey) {
-        final int cmp = routerId.compareTo(otherRouteKey.routerId);
-        return cmp != 0 ? cmp : Long.compare(remotePathId, otherRouteKey.remotePathId);
+    public int compareTo(final RouteKey other) {
+        final int cmp = routerId.compareTo(other.routerId);
+        return cmp != 0 ? cmp : Integer.compareUnsigned(remotePathId, other.remotePathId);
     }
 }
