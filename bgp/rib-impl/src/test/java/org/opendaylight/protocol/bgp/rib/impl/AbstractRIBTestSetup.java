@@ -16,16 +16,15 @@ import static org.mockito.Mockito.mock;
 
 import com.google.common.util.concurrent.FluentFuture;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.Before;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.opendaylight.mdsal.binding.dom.adapter.CurrentAdapterSerializer;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker;
@@ -37,10 +36,9 @@ import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonServiceProvider;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
-import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
+import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
 import org.opendaylight.protocol.bgp.parser.BgpTableTypeImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
-import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -58,7 +56,6 @@ import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.opendaylight.yangtools.yang.data.tree.api.DataTreeCandidate;
@@ -101,12 +98,12 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     }
 
     public void mockRib() throws Exception {
-        final RIBExtensionProviderContext context = new SimpleRIBExtensionProviderContext();
-        final List<BgpTableType> localTables = new ArrayList<>();
+        final var context = new SimpleRIBExtensionProviderContext();
+        final var localTables = new ArrayList<BgpTableType>();
         localTables.add(new BgpTableTypeImpl(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
         localTables.add(new BgpTableTypeImpl(Ipv6AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE));
 
-        final CurrentAdapterSerializer serializer = mappingService.currentSerializer();
+        final var serializer = mappingService.currentSerializer();
         a1.startRIBExtensionProvider(context, serializer);
 
         mockedMethods();
@@ -115,7 +112,7 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         rib = new RIBImpl(tableRegistry, new RibId("test"), new AsNumber(Uint32.valueOf(5)), RIB_ID, context,
             dispatcher, new ConstantCodecsRegistry(serializer), dom, policies, localTables,
             Map.of(new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE),
-                BasePathSelectionModeFactory.createBestPathSelectionStrategy()));
+                PathSelectionModes.base()));
     }
 
     private void mockedMethods() throws Exception {
@@ -143,26 +140,24 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
     }
 
     public List<DataTreeCandidate> ipv4Input(final YangInstanceIdentifier target,
-            final ModificationType type, final Ipv4Prefix... prefix) {
-        final List<DataTreeCandidate> col = new ArrayList<>();
-        final DataTreeCandidate candidate = mock(DataTreeCandidate.class);
-        final DataTreeCandidateNode rootNode = mock(DataTreeCandidateNode.class);
+            final ModificationType type, final Ipv4Prefix... prefixes) {
+        final var col = new ArrayList<DataTreeCandidate>();
+        final var candidate = mock(DataTreeCandidate.class);
+        final var rootNode = mock(DataTreeCandidateNode.class);
         doReturn(rootNode).when(candidate).getRootNode();
         doReturn(type).when(rootNode).modificationType();
         doCallRealMethod().when(rootNode).toString();
         doReturn(target).when(candidate).getRootPath();
         doCallRealMethod().when(candidate).toString();
-        final Collection<DataTreeCandidateNode> children = new HashSet<>();
-        for (final Ipv4Prefix p : prefix) {
-            final NodeIdentifierWithPredicates routekey =
-                    NodeIdentifierWithPredicates.of(Ipv4Route.QNAME, PREFIX_QNAME, p);
-            final var b = ImmutableNodes.newMapEntryBuilder()
+        final var children = new HashSet<DataTreeCandidateNode>();
+        for (var prefix : prefixes) {
+            final var child = mock(DataTreeCandidateNode.class);
+            final var routekey = NodeIdentifierWithPredicates.of(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
+            doReturn(createIdentifier(prefix)).when(child).name();
+            doReturn(ImmutableNodes.newMapEntryBuilder()
                 .withNodeIdentifier(routekey)
-                .addChild(ImmutableNodes.leafNode(PREFIX_QNAME, p));
-
-            final DataTreeCandidateNode child = mock(DataTreeCandidateNode.class);
-            doReturn(createIdentifier(p)).when(child).name();
-            doReturn(b.build()).when(child).dataAfter();
+                .addChild(ImmutableNodes.leafNode(PREFIX_QNAME, prefix))
+                .build()).when(child).dataAfter();
             doReturn(type).when(child).modificationType();
             children.add(child);
         }
@@ -171,10 +166,9 @@ public class AbstractRIBTestSetup extends DefaultRibPoliciesMockTest {
         return col;
     }
 
-    public PathArgument createIdentifier(final Ipv4Prefix prefix) {
-        final NodeIdentifierWithPredicates routekey =
-                NodeIdentifierWithPredicates.of(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
-        return YangInstanceIdentifier.of(PREFIX_QNAME).node(routekey).getLastPathArgument();
+    @NonNullByDefault
+    public NodeIdentifierWithPredicates createIdentifier(final Ipv4Prefix prefix) {
+        return NodeIdentifierWithPredicates.of(Ipv4Route.QNAME, PREFIX_QNAME, prefix);
     }
 
     public RIBImpl getRib() {

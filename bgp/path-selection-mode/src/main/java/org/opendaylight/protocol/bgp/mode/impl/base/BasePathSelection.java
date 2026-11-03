@@ -12,8 +12,11 @@ import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 
 @NonNullByDefault
-final class BasePathSelection implements PathSelectionMode {
-    static final BasePathSelection INSTANCE = new BasePathSelection();
+public final class BasePathSelection implements PathSelectionMode {
+    /**
+     * Singleton instance.
+     */
+    public static final PathSelectionMode INSTANCE = new BasePathSelection();
 
     private BasePathSelection() {
         // hidden on purpose
