@@ -16,6 +16,24 @@
       "message": "This will need a rebase as the parent patch was updated and this change is not current.",
       "revId": "1389ed1cd818f9b79f95660a87947ca6c9e06d4e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f996d858_aa95f7dc",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 2
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-11-03T07:36:58Z",
+      "side": 1,
+      "message": "Rebased, it also needed a fixture update that came with 1099 so preconditions is gone. Now uses odl_standalone and @pytest.mark.standalone",
+      "parentUuid": "63200877_4348e44c",
+      "revId": "1389ed1cd818f9b79f95660a87947ca6c9e06d4e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
