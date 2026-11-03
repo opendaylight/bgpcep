@@ -7,20 +7,23 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 
-final class BasePathSelection implements PathSelectionMode {
-    BasePathSelection() {
+@NonNullByDefault
+public final class BasePathSelection implements PathSelectionMode {
+    /**
+     * Singleton instance.
+     */
+    public static final PathSelectionMode INSTANCE = new BasePathSelection();
+
+    private BasePathSelection() {
+        // hidden on purpose
     }
 
     @Override
     public RouteEntry createRouteEntry() {
         return new BaseRouteEntry();
-    }
-
-    @Override
-    public void close() {
-        //no-op
     }
 }

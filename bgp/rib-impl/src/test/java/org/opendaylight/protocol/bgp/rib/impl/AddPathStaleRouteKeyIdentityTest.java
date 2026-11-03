@@ -20,7 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
-import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
+import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
@@ -95,12 +95,13 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
         // A separate entry adds both routers first, so the RouteKeyOffsets cache (shared by all route entries) stores
         // its RouteKey instances for the RouterA and RouterB pair. RouterB goes first so the entry under test still
         // creates its own RouteKey for RouterA alone.
-        final var keepAlive = new AddPathBestNPathSelection(2).createRouteEntry();
+        final var npaths = PathSelectionModes.addNPaths(2);
+        final var keepAlive = npaths.createRouteEntry();
         try {
             assertTrue(keepAlive.putRoute(ROUTER_B, PATH_B, routeB));
             assertTrue(keepAlive.putRoute(ROUTER_A, PATH_A, routeA));
 
-            final var entry = new AddPathBestNPathSelection(2).createRouteEntry();
+            final var entry = npaths.createRouteEntry();
             // First selection has only RouterA, using the RouteKey instance this entry created.
             assertTrue(entry.putRoute(ROUTER_A, PATH_A, routeA));
             assertTrue(entry.selectBest(support, AS));

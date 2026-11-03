@@ -37,7 +37,7 @@ import org.opendaylight.mdsal.dom.api.DOMDataBroker;
 import org.opendaylight.mdsal.dom.api.DOMDataBroker.DataTreeChangeExtension;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.mode.impl.base.BasePathSelectionModeFactory;
+import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
 import org.opendaylight.protocol.bgp.openconfig.spi.BGPTableTypeRegistryConsumer;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPDispatcher;
 import org.opendaylight.protocol.bgp.rib.impl.spi.CodecsRegistry;
@@ -331,7 +331,7 @@ public final class RIBImpl extends AbstractBGPRibState implements RIB, BGPRibSta
             addCallback(txChain);
             var pathSelectionStrategy = bestPathSelectionStrategies.get(key);
             if (pathSelectionStrategy == null) {
-                pathSelectionStrategy = BasePathSelectionModeFactory.createBestPathSelectionStrategy();
+                pathSelectionStrategy = PathSelectionModes.base();
             }
 
             final var locRibWriter = LocRibWriter.create(
