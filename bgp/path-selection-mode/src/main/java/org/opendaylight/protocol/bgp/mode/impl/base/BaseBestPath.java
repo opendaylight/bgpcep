@@ -10,22 +10,24 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPath;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 
+@NonNullByDefault
 final class BaseBestPath extends AbstractBestPath {
-    private final @NonNull RouterId routerId;
+    private final RouterId routerId;
 
-    BaseBestPath(final @NonNull RouterId routerId, final @NonNull BestPathState state) {
+    BaseBestPath(final RouterId routerId, final BestPathState state) {
         super(state);
         this.routerId = requireNonNull(routerId);
     }
 
     @Override
     public RouterId getRouterId() {
-        return this.routerId;
+        return routerId;
     }
 
     @Override
@@ -35,28 +37,18 @@ final class BaseBestPath extends AbstractBestPath {
     }
 
     @Override
-    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        return super.addToStringAttributes(toStringHelper.add("routerId", this.routerId));
-    }
-
-    @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + this.routerId.hashCode();
-        result = prime * result + this.state.hashCode();
-        return result;
+        return 31 * routerId.hashCode() + state.hashCode();
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof BaseBestPath)) {
-            return false;
-        }
-        final BaseBestPath other = (BaseBestPath) obj;
-        return this.routerId.equals(other.routerId) && this.state.equals(other.state);
+    public boolean equals(final @Nullable Object obj) {
+        return this == obj || obj instanceof BaseBestPath other
+            && routerId.equals(other.routerId) && state.equals(other.state);
+    }
+
+    @Override
+    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+        return super.addToStringAttributes(toStringHelper.add("routerId", routerId));
     }
 }
