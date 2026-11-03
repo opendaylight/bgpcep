@@ -18,9 +18,9 @@ import org.slf4j.LoggerFactory;
 final class NPathsRouteEntry extends AddPathAbstractRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(NPathsRouteEntry.class);
 
-    private final int npaths;
+    private final short npaths;
 
-    NPathsRouteEntry(final int npaths) {
+    NPathsRouteEntry(final short npaths) {
         this.npaths = npaths;
     }
 

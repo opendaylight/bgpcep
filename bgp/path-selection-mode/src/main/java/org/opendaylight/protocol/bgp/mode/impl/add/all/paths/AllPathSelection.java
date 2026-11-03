@@ -7,20 +7,21 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 
+@NonNullByDefault
 public final class AllPathSelection implements PathSelectionMode {
-    public AllPathSelection() {
+
+    public static final PathSelectionMode INSTANCE = new AllPathSelection();
+
+    private AllPathSelection() {
+        // hidden on purpose
     }
 
     @Override
     public RouteEntry createRouteEntry() {
         return new AllPathsRouteEntry();
-    }
-
-    @Override
-    public void close() {
-        //no-op
     }
 }

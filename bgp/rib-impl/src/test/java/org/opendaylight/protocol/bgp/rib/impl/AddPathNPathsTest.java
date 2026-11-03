@@ -12,15 +12,12 @@ import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.mode.impl.add.n.paths.AddPathBestNPathSelection;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
+import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
@@ -37,15 +34,13 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        final TablesKey tk = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
-        final Map<TablesKey, PathSelectionMode> pathTables = Map.of(tk, new AddPathBestNPathSelection(2));
-
         ribImpl = new RIBImpl(tableRegistry, new RibId("test-rib"), AS_NUMBER, new BgpId(RIB_ID), ribExtension,
-                serverDispatcher, codecsRegistry, getDomBroker(), policies, TABLES_TYPE, pathTables);
+            serverDispatcher, codecsRegistry, getDomBroker(), policies, TABLES_TYPE,
+            Map.of(new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE),
+                PathSelectionModes.addNPaths(2)));
 
         ribImpl.instantiateServiceInstance();
-        final ChannelFuture channelFuture = serverDispatcher.createServer(
-            new InetSocketAddress(RIB_ID, PORT.toJava()));
+        final var channelFuture = serverDispatcher.createServer(new InetSocketAddress(RIB_ID, PORT.toJava()));
         waitFutureSuccess(channelFuture);
         serverChannel = channelFuture.channel();
     }
@@ -69,26 +64,25 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
      */
     @Test
     public void testUseCase1() throws Exception {
-        final BgpParameters nonAddPathParams = createParameter(false);
-        final BgpParameters addPathParams = createParameter(true);
+        final var nonAddPathParams = createParameter(false);
+        final var addPathParams = createParameter(true);
 
         configurePeer(tableRegistry, PEER1, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
-        final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
+        final var session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
 
         configurePeer(tableRegistry, PEER2, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
-        final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
+        final var session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
 
         configurePeer(tableRegistry, PEER3, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
-        final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
+        final var session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
 
-        final SimpleSessionListener listener4 = new SimpleSessionListener();
-        configurePeer(tableRegistry, PEER4, ribImpl, nonAddPathParams, PeerRole.RrClient,
-                serverRegistry);
-        final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
+        final var listener4 = new SimpleSessionListener();
+        configurePeer(tableRegistry, PEER4, ribImpl, nonAddPathParams, PeerRole.RrClient, serverRegistry);
+        final var session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
 
-        final SimpleSessionListener listener5 = new SimpleSessionListener();
+        final var listener5 = new SimpleSessionListener();
         configurePeer(tableRegistry, PEER5, ribImpl, addPathParams, PeerRole.RrClient, serverRegistry);
-        final BGPSessionImpl session5 = createPeerSession(PEER5, addPathParams, listener5);
+        final var session5 = createPeerSession(PEER5, addPathParams, listener5);
         checkPeersPresentOnDataStore(5);
 
         //new best route so far
@@ -97,10 +91,9 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener5, 2);
         assertEquals(UPD_100, listener5.getListMsg().get(1));
 
-        final SimpleSessionListener listener6 = new SimpleSessionListener();
-        configurePeer(tableRegistry, PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient,
-                serverRegistry);
-        final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
+        final var listener6 = new SimpleSessionListener();
+        configurePeer(tableRegistry, PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient, serverRegistry);
+        final var session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 2);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(1));
