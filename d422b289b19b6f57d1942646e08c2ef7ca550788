@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "ecd4afb8_86bf4f7f",
+        "filename": "tests/conftest.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-11-03T08:04:13Z",
+      "side": 1,
+      "message": "Youre right, no job passed --longevity yet. That needs a releng/builder change, which I think it\u0027d be better to do in it\u0027s own change, once I know that this is done and working. \n(a short note just in case: the flag didn\u0027t reduce coverage; before it the only thing that *would* have picked the soak up was an accidental plain `tox -e`.. which is the kind of problem it was added to prevent.)",
+      "parentUuid": "6a05c971_12b14c1a",
+      "revId": "d422b289b19b6f57d1942646e08c2ef7ca550788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "b0799d83_13147eb8",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-10-29T11:41:39Z",
       "side": 1,
       "message": "Over 23 hours this adds a few hundred groups of the same six step names to the Allure report and karaf.log, with no iteration number. So a failure at iteration 405 is hard to locate. Could each call be wrapped in allure_step_with_separate_logging(f\"iteration_{n}\") with a counter in the closure, so the cycle steps nest under a numbered parent?",
+      "revId": "d422b289b19b6f57d1942646e08c2ef7ca550788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "20d7771e_6f4c0471",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_pc_shm_300Kroutes_longevity.py",
+        "patchSetId": 5
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-11-03T08:04:13Z",
+      "side": 1,
+      "message": "Done.\n\n*One deviation*, the parent is a plain allure.step, not allure_step_with_separate_logging. As far as I can see, that would result in a duplication of the whole iteration [bout 90KB per iteration measured - so approx. 150MB extra over 23h soak]",
+      "parentUuid": "b0799d83_13147eb8",
       "revId": "d422b289b19b6f57d1942646e08c2ef7ca550788",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
