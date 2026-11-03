@@ -12,8 +12,6 @@ import static com.google.common.base.Verify.verifyNotNull;
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
@@ -38,25 +36,39 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     private static final class Stale extends StaleBestPathRoute {
+        @NonNullByDefault
         private final List<NodeIdentifierWithPredicates> addPathRouteKeyIdentifier;
+        @NonNullByDefault
         private final List<NodeIdentifierWithPredicates> staleRouteKeyIdentifier;
         private final boolean isNonAddPathBestPathNew;
 
+        @NonNullByDefault
         Stale(final RIBSupport ribSupport, final String routeKey, final List<Uint32> staleRoutesPathIds,
                 final List<Uint32> withdrawalRoutePathIds, final boolean isNonAddPathBestPathNew) {
             super(ribSupport.createRouteListArgument(routeKey));
             this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
+            staleRouteKeyIdentifier = createIdentifier(ribSupport, routeKey, staleRoutesPathIds);
+            addPathRouteKeyIdentifier = createIdentifier(ribSupport, routeKey, withdrawalRoutePathIds);
+        }
 
-            staleRouteKeyIdentifier = staleRoutesPathIds.stream()
-                .map(pathId -> ribSupport.createRouteListArgument(pathId, routeKey))
-                .collect(Collectors.toUnmodifiableList());
-            if (withdrawalRoutePathIds != null) {
-                addPathRouteKeyIdentifier = withdrawalRoutePathIds.stream()
-                    .map(pathId -> ribSupport.createRouteListArgument(pathId, routeKey))
-                    .collect(Collectors.toUnmodifiableList());
-            } else {
-                addPathRouteKeyIdentifier = List.of();
-            }
+        @NonNullByDefault
+        private static List<NodeIdentifierWithPredicates> createIdentifier(final RIBSupport ribSupport,
+                final String routeKey, final List<Uint32> pathIds) {
+            final var size = pathIds.size();
+            return switch (size) {
+                case 0 -> List.of();
+                case 1 -> List.of(ribSupport.createRouteListArgument(pathIds.getFirst(), routeKey));
+                case 2 -> List.of(
+                    ribSupport.createRouteListArgument(pathIds.getFirst(), routeKey),
+                    ribSupport.createRouteListArgument(pathIds.getLast(), routeKey));
+                default -> {
+                    final var tmp = new ArrayList<NodeIdentifierWithPredicates>(size);
+                    for (var pathId : pathIds) {
+                        tmp.add(ribSupport.createRouteListArgument(pathId, routeKey));
+                    }
+                    yield List.copyOf(tmp);
+                }
+            };
         }
 
         @Override
@@ -143,17 +155,16 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
+    public final StaleBestPathRoute removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
         final List<Uint32> stalePaths;
         if (bestPathRemoved != null && !bestPathRemoved.isEmpty()) {
-            stalePaths = bestPathRemoved.stream().map(AddPathBestPath::getPathIdLong)
-                .collect(Collectors.toUnmodifiableList());
+            stalePaths = bestPathRemoved.stream().map(AddPathBestPath::getPathIdLong).toList();
             bestPathRemoved = null;
         } else {
             stalePaths = List.of();
         }
 
-        List<Uint32> removedPaths;
+        final List<Uint32> removedPaths;
         if (removedPathsId != null) {
             removedPaths = removedPathsId;
             removedPathsId = null;
@@ -161,8 +172,8 @@ public abstract class AddPathAbstractRouteEntry implements RouteEntry {
             removedPaths = List.of();
         }
 
-        return stalePaths.isEmpty() && removedPaths.isEmpty() ? Optional.empty()
-            : Optional.of(new Stale(ribSupport, routeKey, stalePaths, removedPaths, isNonAddPathBestPathNew));
+        return stalePaths.isEmpty() && removedPaths.isEmpty() ? null
+            : new Stale(ribSupport, routeKey, stalePaths, removedPaths, isNonAddPathBestPathNew);
     }
 
     @Override
