@@ -7,10 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
-import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPathSelector;
-import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.slf4j.Logger;
@@ -29,28 +27,27 @@ public final class AddPathSelector extends AbstractBestPathSelector {
 
     void processPath(final ContainerNode attrs, final RouteKey key, final int offsetPosition, final Uint32 pathId) {
         // Consider only non-null attributes
-        if (attrs != null) {
-            final RouterId routerId = key.getRouterId();
-            final RouterId originatorId = replaceOriginator(routerId, attrs);
+        if (attrs == null) {
+            return;
+        }
 
-            /*
-             * Store the new details if we have nothing stored or when the selection algorithm indicates new details
-             * are better.
-             */
-            final BestPathState state = new BestPathStateImpl(attrs);
-            if (this.bestOriginatorId == null || !isExistingPathBetter(state)) {
-                LOG.trace("Selecting path from router {}", routerId);
-                this.bestOriginatorId = originatorId;
-                this.bestState = state;
-                this.bestRouteKey = key;
-                this.bestOffset = offsetPosition;
-                this.bestPathId = pathId;
-            }
+        final var routerId = key.routerId();
+        final var originatorId = replaceOriginator(routerId, attrs);
+
+        // store the new details if we have nothing stored or when the selection algorithm indicates new details are
+        // better
+        final var state = new BestPathStateImpl(attrs);
+        if (bestOriginatorId == null || !isExistingPathBetter(state)) {
+            LOG.trace("Selecting path from router {}", routerId);
+            bestOriginatorId = originatorId;
+            bestState = state;
+            bestOffset = offsetPosition;
+            bestPathId = pathId;
+            bestRouteKey = key;
         }
     }
 
     public AddPathBestPath result() {
-        return this.bestRouteKey == null ? null : new AddPathBestPath(this.bestState, this.bestRouteKey,
-            this.bestPathId, this.bestOffset);
+        return bestRouteKey == null ? null : new AddPathBestPath(bestState, bestRouteKey, bestPathId, bestOffset);
     }
 }
