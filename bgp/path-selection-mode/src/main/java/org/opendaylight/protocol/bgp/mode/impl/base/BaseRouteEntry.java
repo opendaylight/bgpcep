@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
@@ -64,31 +65,53 @@ final class BaseRouteEntry implements RouteEntry {
 
     @Override
     public boolean selectBest(final RIBSupport ribSupport, final long localAs) {
+        final var size = offsets.size();
+        return size != 0 ? selectBest(ribSupport, localAs, size) : selectNone();
+    }
+
+    @NonNullByDefault
+    private boolean selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
         final var selector = new BasePathSelector(localAs);
 
         // Select the best route.
-        for (int i = 0; i < offsets.size(); ++i) {
+        for (int i = 0; i < size; ++i) {
             final var routerId = offsets.getKey(i);
             final var attributes = ribSupport.extractAttributes(offsets.getValue(values, i));
             LOG.trace("Processing router id {} attributes {}", routerId, attributes);
             selector.processPath(routerId, attributes);
         }
 
-        // Get the newly-selected best path.
-        final var newBestPath = selector.result();
+        // Get the newly-selected best path and apply it to state
+        return selectBest(selector.result());
+    }
+
+    private boolean selectBest(final @Nullable BaseBestPath newBestPath) {
         final var oldBestPath = bestPath;
-        final var modified = newBestPath == null || !newBestPath.equals(oldBestPath);
-        if (modified) {
-            if (offsets.isEmpty()) {
-                removedBestPath = oldBestPath;
-            }
-            LOG.trace("Previous best {}, current best {}", oldBestPath, newBestPath);
-            bestPath = newBestPath;
+        if (Objects.equals(oldBestPath, newBestPath)) {
+            return false;
         }
-        return modified;
+        setBestPath(oldBestPath, newBestPath);
+        return true;
+    }
+
+    private boolean selectNone() {
+        // there are no candidates, so not bother with selection: there is no best path and if there was one, it is
+        // now removed
+        final var oldBestPath = bestPath;
+        removedBestPath = oldBestPath;
+        if (oldBestPath == null) {
+            return false;
+        }
+        setBestPath(oldBestPath, null);
+        return true;
+    }
+
+    private void setBestPath(final @Nullable BaseBestPath oldBestPath, final @Nullable BaseBestPath newBestPath) {
+        LOG.trace("Previous best {}, current best {}", oldBestPath, newBestPath);
+        bestPath = newBestPath;
     }
 
     @Override
