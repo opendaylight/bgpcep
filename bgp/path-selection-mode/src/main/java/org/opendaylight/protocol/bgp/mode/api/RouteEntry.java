@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.mode.api;
 
+import static java.util.Objects.requireNonNull;
+
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -26,6 +28,36 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  */
 @NonNullByDefault
 public interface RouteEntry {
+    /**
+     * The result of {@link RouteEntry#selectBest(RIBSupport, long, String)}.
+     */
+    public sealed interface Update {
+        // nothing else
+    }
+
+    /**
+     * An {@link Update} indicating the route should re-advertized.
+     *
+     * @param routes a set of {@link AdvertizedRoute}
+     */
+    record Adverize(List<AdvertizedRoute> routes) implements Update {
+        public Adverize {
+            // FIXME: require non-empty
+            routes = List.copyOf(routes);
+        }
+    }
+
+    /**
+     * An {@link Update} indicating the route should be withdrawn.
+     *
+     * @param route a {@link StaleBestPathRoute}
+     */
+    record Withdraw(StaleBestPathRoute route) implements Update {
+        public Withdraw {
+            requireNonNull(route);
+        }
+    }
+
     /**
      * Put a route.
      *
@@ -49,9 +81,10 @@ public interface RouteEntry {
      * Indicates whether best has changed.
      *
      * @param localAs The local autonomous system number
-     * @return return true if it has changed
+     * @param routeKey the route key
+     * @return a new {@link Update}, or {@code null} if the selection remains unchanged
      */
-    boolean selectBest(RIBSupport ribSupport, long localAs);
+    @Nullable Update selectBest(RIBSupport ribSupport, long localAs, String routeKey);
 
     /**
      * {@return collections of present selected best path}
@@ -60,20 +93,4 @@ public interface RouteEntry {
      * @param entryInfo  Route Entry Info wrapper
      */
     List<ActualBestPathRoutes> actualBestPaths(RIBSupport ribSupport, RouteEntryInfo entryInfo);
-
-    /**
-     * {@return list of stale best paths}
-     *
-     * @param ribSupport RIB Support
-     * @param routeKey   of stale route
-     */
-    @Nullable StaleBestPathRoute removeStalePaths(RIBSupport ribSupport, String routeKey);
-
-    /**
-     * {@return collection of best path routes after processing update of stale and new advertisement of routes}
-     *
-     * @param ribSupport RIB Support
-     * @param routeKey   route key
-     */
-    List<AdvertizedRoute> newBestPaths(RIBSupport ribSupport, String routeKey);
 }

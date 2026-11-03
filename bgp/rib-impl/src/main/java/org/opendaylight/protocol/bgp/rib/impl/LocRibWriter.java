@@ -42,6 +42,7 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeChangeListener;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
+import org.opendaylight.protocol.bgp.mode.api.PathSelection;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
@@ -296,9 +297,9 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         LOG.trace("Received data change {} to LocRib {}", changes, this);
         final var tx = chain.newWriteOnlyTransaction();
         try {
-            final var toUpdate = update(tx, changes);
-            if (!toUpdate.isEmpty()) {
-                walkThrough(tx, toUpdate.entrySet());
+            final var updateMap = update(tx, changes);
+            if (!updateMap.isEmpty()) {
+                walkThrough(tx, updateMap);
             }
         } catch (final Exception e) {
             LOG.error("Failed to completely propagate updates {}, state is undefined", changes, e);
@@ -390,24 +391,23 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         }
     }
 
-    private void walkThrough(final DOMDataTreeWriteOperations tx,
-            final Set<Map.Entry<RouteUpdateKey, RouteEntry>> toUpdate) {
+    private void walkThrough(final DOMDataTreeWriteOperations tx, final Map<RouteUpdateKey, RouteEntry> updateMap) {
         final var staleRoutes = new ArrayList<StaleBestPathRoute>();
         final var newRoutes = new ArrayList<AdvertizedRoute>();
-        for (var e : toUpdate) {
-            LOG.trace("Walking through {}", e);
-            final var entry = e.getValue();
-            if (!entry.selectBest(ribSupport, ourAs)) {
-                LOG.trace("Best path has not changed, continuing");
-                continue;
+        for (var update : updateMap.entrySet()) {
+            LOG.trace("Walking through {}", update);
+            final var routeKey = update.getKey().routeKey();
+            final var routeEntry = update.getValue();
+            switch (routeEntry.selectBest(ribSupport, ourAs, routeKey)) {
+                case null -> {
+                    LOG.trace("Best path has not changed, continuing");
+                    continue;
+                }
+                case Withdraw.Removed(var stale) -> staleRoutes.add(stale);
             }
 
-            final var routeKey = e.getKey().routeKey();
-            final var stateRoute = entry.removeStalePaths(ribSupport, routeKey);
-            if (stateRoute != null) {
-                staleRoutes.add(stateRoute);
-            }
-            newRoutes.addAll(entry.newBestPaths(ribSupport, routeKey));
+
+            newRoutes.addAll(routeEntry.newBestPaths(ribSupport, routeKey));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
         peerTracker.getNonInternalPeers().parallelStream()

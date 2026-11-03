@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
+import org.opendaylight.protocol.bgp.mode.api.PathSelection;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -64,13 +65,13 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public boolean selectBest(final RIBSupport ribSupport, final long localAs) {
+    public Update selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey) {
         final var size = offsets.size();
         return size != 0 ? selectBest(ribSupport, localAs, size) : selectNone();
     }
 
     @NonNullByDefault
-    private boolean selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
+    private Update selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -88,7 +89,8 @@ final class BaseRouteEntry implements RouteEntry {
         return selectBest(selector.result());
     }
 
-    private boolean selectBest(final @Nullable BaseBestPath newBestPath) {
+    @NonNullByDefault
+    private Update selectBest(final @Nullable BaseBestPath newBestPath) {
         final var oldBestPath = bestPath;
         if (Objects.equals(oldBestPath, newBestPath)) {
             return false;
@@ -97,7 +99,8 @@ final class BaseRouteEntry implements RouteEntry {
         return true;
     }
 
-    private boolean selectNone() {
+    @NonNullByDefault
+    private Update selectNone() {
         // there are no candidates, so not bother with selection: there is no best path and if there was one, it is
         // now removed
         final var oldBestPath = bestPath;
@@ -139,15 +142,15 @@ final class BaseRouteEntry implements RouteEntry {
         offsets.setValue(values, offset, route);
         LOG.trace("Added route {} from {}", route, routerId);
     }
-
-    @Override
-    public StaleBestPathRoute removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
-        if (removedBestPath == null) {
-            return null;
-        }
-        removedBestPath = null;
-        return new Stale(ribSupport.createRouteListArgument(routeKey));
-    }
+//
+//    @Override
+//    public StaleBestPathRoute removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
+//        if (removedBestPath == null) {
+//            return null;
+//        }
+//        removedBestPath = null;
+//        return new Stale(ribSupport.createRouteListArgument(routeKey));
+//    }
 
     @Override
     public List<AdvertizedRoute> newBestPaths(final RIBSupport ribSupport, final String routeKey) {
