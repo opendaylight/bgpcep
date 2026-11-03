@@ -42,7 +42,7 @@ public final class AddPathBestPath extends AbstractBestPath {
 
     @Override
     public RouterId getRouterId() {
-        return routeKey.getRouterId();
+        return routeKey.routerId();
     }
 
     @Override
