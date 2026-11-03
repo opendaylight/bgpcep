@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -23,12 +22,12 @@ class RouteUpdateKeyTest {
 
     @Test
     void testRouteUpdateKey() {
-        final RouteUpdateKey rk = new RouteUpdateKey(PEER_ID, PREFIX);
-        assertEquals(PEER_ID, rk.getPeerId());
-        assertEquals(PREFIX, rk.getRouteId());
-        assertEquals(rk, new RouteUpdateKey(PEER_ID, PREFIX));
-        assertEquals(rk, rk);
-        assertNotEquals(rk, new RouteUpdateKey(PEER_ID_2, PREFIX));
-        assertNotEquals(rk, new RouteUpdateKey(PEER_ID_2, PREFIX_2));
+        final var ruk = new RouteUpdateKey(PEER_ID, PREFIX);
+        assertEquals(PEER_ID, ruk.peerId());
+        assertEquals(PREFIX, ruk.routeKey());
+        assertEquals(ruk, new RouteUpdateKey(PEER_ID, PREFIX));
+        assertEquals(ruk, ruk);
+        assertNotEquals(ruk, new RouteUpdateKey(PEER_ID_2, PREFIX));
+        assertNotEquals(ruk, new RouteUpdateKey(PEER_ID_2, PREFIX_2));
     }
 }

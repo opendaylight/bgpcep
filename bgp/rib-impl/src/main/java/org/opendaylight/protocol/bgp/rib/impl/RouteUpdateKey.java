@@ -9,47 +9,30 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
+import org.opendaylight.yangtools.concepts.Immutable;
 
 /**
- * Combined key formed as a concatenation of source peer and route identifiers.
- * This is used to internally track updates which need to be processed.
+ * Combined key formed as a concatenation of source peer and route identifiers. This is used to internally track updates
+ * which need to be processed.
  */
-final class RouteUpdateKey {
-    private final RouterId peerId;
-    private final String routeId;
-
-    RouteUpdateKey(final RouterId peerId, final String routeKey) {
-        this.peerId = requireNonNull(peerId);
-        this.routeId = requireNonNull(routeKey);
-    }
-
-    RouterId getPeerId() {
-        return this.peerId;
-    }
-
-    String getRouteId() {
-        return this.routeId;
+@NonNullByDefault
+record RouteUpdateKey(RouterId peerId, String routeKey) implements Immutable {
+    RouteUpdateKey {
+        requireNonNull(peerId);
+        requireNonNull(routeKey);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + this.peerId.hashCode();
-        result = prime * result + this.routeId.hashCode();
-        return result;
+        return 31 * peerId.hashCode() + routeKey.hashCode();
     }
 
     @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof RouteUpdateKey)) {
-            return false;
-        }
-        RouteUpdateKey other = (RouteUpdateKey) obj;
-        return peerId.equals(other.peerId) && routeId.equals(other.routeId);
+    public boolean equals(final @Nullable Object obj) {
+        return this == obj || obj instanceof RouteUpdateKey other
+            && peerId.equals(other.peerId) && routeKey.equals(other.routeKey);
     }
 }
