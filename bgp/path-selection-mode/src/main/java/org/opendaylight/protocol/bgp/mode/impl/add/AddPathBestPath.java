@@ -10,27 +10,30 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects.ToStringHelper;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPath;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yangtools.yang.common.Uint32;
 
+@NonNullByDefault
 public final class AddPathBestPath extends AbstractBestPath {
-    private final @NonNull RouteKey routeKey;
-    private final @NonNull Uint32 pathId;
+    private final RouteKey routeKey;
+    private final Uint32 pathId;
+    // Not part of hashCode/equals since it will change as new path is added, and we want to be able to use List
+    // comparison between old best path list and new best path list.
     private final int offset;
 
-    AddPathBestPath(final @NonNull BestPathState state, final @NonNull RouteKey key, final @NonNull Uint32 pathId,
-            final int offset) {
+    AddPathBestPath(final BestPathState state, final RouteKey routeKey, final Uint32 pathId, final int offset) {
         super(state);
-        this.routeKey = requireNonNull(key);
+        this.routeKey = requireNonNull(routeKey);
         this.pathId = requireNonNull(pathId);
         this.offset = offset;
     }
 
     RouteKey getRouteKey() {
-        return this.routeKey;
+        return routeKey;
     }
 
     public int getOffset() {
@@ -38,53 +41,14 @@ public final class AddPathBestPath extends AbstractBestPath {
     }
 
     @Override
-    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        return super.addToStringAttributes(toStringHelper.add("routeKey", this.routeKey)
-            .add("pathId", this.pathId)
-            .add("offset", offset));
-    }
-
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + this.routeKey.hashCode();
-        result = prime * result + this.state.hashCode();
-        return result;
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof AddPathBestPath)) {
-            return false;
-        }
-        final AddPathBestPath other = (AddPathBestPath) obj;
-        if (!this.routeKey.equals(other.routeKey)) {
-            return false;
-        }
-        /*
-        We don't check offset position since it will change as new path is added, and we want to be able
-        to use List comparison between old bestpath list and new best path list.
-        */
-        if (!this.state.equals(other.state)) {
-            return false;
-        }
-
-        return this.pathId.equals(other.pathId);
-    }
-
-    @Override
     public RouterId getRouterId() {
-        return this.routeKey.getRouterId();
+        return routeKey.getRouterId();
     }
 
     @Override
     public long getPathId() {
         // FIXME: this should return int bits...
-        return this.pathId.longValue();
+        return pathId.longValue();
     }
 
     /**
@@ -93,7 +57,25 @@ public final class AddPathBestPath extends AbstractBestPath {
      *
      * @return Path Id as a {@link Long}
      */
-    @NonNull Uint32 getPathIdLong() {
-        return this.pathId;
+    Uint32 getPathIdLong() {
+        return pathId;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * routeKey.hashCode() + state.hashCode();
+    }
+
+    @Override
+    public boolean equals(final @Nullable Object obj) {
+        return this == obj || obj instanceof AddPathBestPath other
+            && routeKey.equals(other.routeKey) && state.equals(other.state) && pathId.equals(other.pathId);
+    }
+
+    @Override
+    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+        return super.addToStringAttributes(toStringHelper.add("routeKey", routeKey)
+            .add("pathId", pathId)
+            .add("offset", offset));
     }
 }

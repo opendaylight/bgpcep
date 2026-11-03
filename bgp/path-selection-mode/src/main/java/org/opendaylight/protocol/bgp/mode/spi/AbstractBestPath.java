@@ -12,10 +12,13 @@ import static java.util.Objects.requireNonNull;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
+@NonNullByDefault
 public abstract class AbstractBestPath implements BestPath {
     protected final BestPathState state;
 
@@ -23,27 +26,33 @@ public abstract class AbstractBestPath implements BestPath {
         this.state = requireNonNull(state);
     }
 
-    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        return toStringHelper.add("state", state);
-    }
-
     @VisibleForTesting
     public final BestPathState getState() {
-        return this.state;
+        return state;
     }
 
     @Override
     public final ContainerNode getAttributes() {
-        return this.state.getAttributes();
+        return state.getAttributes();
     }
 
     @Override
     public final boolean isDepreferenced() {
-        return this.state.isDepreferenced();
+        return state.isDepreferenced();
     }
+
+    @Override
+    public abstract int hashCode();
+
+    @Override
+    public abstract boolean equals(@Nullable Object obj);
 
     @Override
     public final String toString() {
         return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
+    }
+
+    protected ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
+        return toStringHelper.add("state", state);
     }
 }
