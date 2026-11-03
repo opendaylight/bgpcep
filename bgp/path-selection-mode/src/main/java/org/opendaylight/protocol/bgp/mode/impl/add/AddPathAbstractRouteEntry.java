@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This class is NOT thread-safe.
  */
-public abstract class AddPathAbstractRouteEntry implements RouteEntry {
+abstract class AddPathAbstractRouteEntry implements RouteEntry {
     private static final class Stale extends StaleBestPathRoute {
         @NonNullByDefault
         private final List<NodeIdentifierWithPredicates> addPathRouteKeyIdentifier;

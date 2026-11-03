@@ -5,12 +5,9 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.impl.add.all.paths;
+package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import com.google.common.collect.ImmutableList;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathAbstractRouteEntry;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathBestPath;
-import org.opendaylight.protocol.bgp.mode.impl.add.AddPathSelector;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

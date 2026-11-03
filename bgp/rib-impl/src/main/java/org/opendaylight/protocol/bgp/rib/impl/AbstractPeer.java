@@ -133,7 +133,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     }
 
     @Override
-    public final BGPPeerState getPeerState() {
+    public final @NonNull BGPPeerState getPeerState() {
         return this;
     }
 
