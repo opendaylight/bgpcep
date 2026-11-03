@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c0bb2687_a9b6df46",
+        "filename": "bgp/rib-impl/src/main/java/org/opendaylight/protocol/bgp/rib/impl/LocRibWriter.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-03T01:59:06Z",
+      "side": 1,
+      "message": "the counter accuracy part is done in https://git.opendaylight.org/gerrit/c/bgpcep/+/127411",
+      "range": {
+        "startLine": 304,
+        "startChar": 24,
+        "endLine": 304,
+        "endChar": 50
+      },
+      "revId": "5a54b4c25d47834c170ef8ba54f89d2efdb249bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
