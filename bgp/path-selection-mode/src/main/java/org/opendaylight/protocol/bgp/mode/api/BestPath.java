@@ -7,47 +7,37 @@
  */
 package org.opendaylight.protocol.bgp.mode.api;
 
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
+@NonNullByDefault
 public interface BestPath {
-
     /**
-     * RouterId.
-     *
-     * @return the routerId
+     * {@return the {@link RouterId}}
      */
     RouterId getRouterId();
 
     /**
-     * PeerId.
-     *
-     * @return the routerId converted to a PeerId
+     * {@return {@link #getRouterId()} converted to a {@link PeerId}}
      */
-    default @NonNull PeerId getPeerId() {
+    default PeerId getPeerId() {
         return getRouterId().getPeerId();
     }
 
     /**
-     * Attributes.
-     *
-     * @return the path attributes
+     * {@return the path attributes}
      */
-    @NonNull ContainerNode getAttributes();
+    ContainerNode getAttributes();
 
     /**
-     * PathId.
-     *
-     * @return pathId
+     * {@return pathId}
      */
     long getPathId();
 
     /**
-     * Return true if this path is depreferenced.
-     *
-     * @return True if this path is depreferenced.
+     * {@return True if this path is depreferenced}
      */
     boolean isDepreferenced();
 }
