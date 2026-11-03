@@ -7,13 +7,16 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.lang.ref.Reference;
 import java.util.List;
-import java.util.Map;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
@@ -46,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.type
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer;
 import org.opendaylight.yangtools.binding.data.codec.api.BindingNormalizedNodeSerializer.NodeResult;
+import org.opendaylight.yangtools.binding.util.BindingMap;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -92,16 +96,18 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
         // its RouteKey instances for the RouterA and RouterB pair. RouterB goes first so the entry under test still
         // creates its own RouteKey for RouterA alone.
         final var keepAlive = new AddPathBestNPathSelection(2).createRouteEntry();
-        keepAlive.putRoute(ROUTER_B, PATH_B, routeB);
-        keepAlive.putRoute(ROUTER_A, PATH_A, routeA);
         try {
+            assertTrue(keepAlive.putRoute(ROUTER_B, PATH_B, routeB));
+            assertTrue(keepAlive.putRoute(ROUTER_A, PATH_A, routeA));
+
             final var entry = new AddPathBestNPathSelection(2).createRouteEntry();
             // First selection has only RouterA, using the RouteKey instance this entry created.
-            entry.putRoute(ROUTER_A, PATH_A, routeA);
-            entry.selectBest(support, AS);
+            assertTrue(entry.putRoute(ROUTER_A, PATH_A, routeA));
+            assertTrue(entry.selectBest(support, AS));
+
             // Add RouterB as a second path. RouterA stays the best path through the second selection.
-            entry.putRoute(ROUTER_B, PATH_B, routeB);
-            entry.selectBest(support, AS);
+            assertTrue(entry.putRoute(ROUTER_B, PATH_B, routeB));
+            assertTrue(entry.selectBest(support, AS));
             assertNull(entry.removeStalePaths(support, PREFIX),
                 "RouterA path is still best after the second selection and must not be reported stale");
         } finally {
@@ -110,30 +116,33 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
         }
     }
 
+    @NonNullByDefault
     private MapEntryNode buildRoute(final Uint32 pathId, final long localPref) {
-        final var attributes = new AttributesBuilder()
-            .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(localPref)).build())
-            .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
-            .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build())
-            .setAsPath(new AsPathBuilder().setSegments(List.of()).build())
-            .build();
-        final var route = new Ipv4RouteBuilder()
-            .setRouteKey(PREFIX)
-            .setPathId(new PathId(pathId))
-            .setPrefix(new Ipv4Prefix(PREFIX))
-            .setAttributes(attributes)
-            .build();
-        final var routes = new Ipv4RoutesBuilder().setIpv4Route(Map.of(route.key(), route)).build();
-
-        final var routesId = DataObjectIdentifier.builder(BgpRib.class)
-            .child(Rib.class, new RibKey(new RibId("rib")))
-            .child(LocRib.class)
-            .child(Tables.class, TABLES_KEY)
-            .child(Ipv4RoutesCase.class, Ipv4Routes.class)
-            .build();
-        final var serializer = (BindingNormalizedNodeSerializer) mappingService.currentSerializer();
-        final var routesNode = (ContainerNode) ((NodeResult) serializer.toNormalizedNode(routesId, routes)).node();
-        final var routeMap = (MapNode) routesNode.getChildByArg(new NodeIdentifier(Ipv4Route.QNAME));
-        return routeMap.body().iterator().next();
+        final var serializer = assertInstanceOf(BindingNormalizedNodeSerializer.class,
+            mappingService.currentSerializer());
+        final var result = assertInstanceOf(NodeResult.class, serializer.toNormalizedNode(
+            DataObjectIdentifier.builder(BgpRib.class)
+                .child(Rib.class, new RibKey(new RibId("rib")))
+                .child(LocRib.class)
+                .child(Tables.class, TABLES_KEY)
+                .child(Ipv4RoutesCase.class, Ipv4Routes.class)
+                .build(),
+            new Ipv4RoutesBuilder()
+                .setIpv4Route(BindingMap.of(new Ipv4RouteBuilder()
+                    .setRouteKey(PREFIX)
+                    .setPathId(new PathId(pathId))
+                    .setPrefix(new Ipv4Prefix(PREFIX))
+                    .setAttributes(new AttributesBuilder()
+                        .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(localPref)).build())
+                        .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
+                        .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build())
+                        .setAsPath(new AsPathBuilder().setSegments(List.of()).build())
+                        .build())
+                    .build()))
+                .build()));
+        final var routes = assertInstanceOf(ContainerNode.class, result.node());
+        final var ipv4 = assertInstanceOf(MapNode.class, routes.getChildByArg(new NodeIdentifier(Ipv4Route.QNAME)));
+        assertEquals(1, ipv4.size());
+        return ipv4.body().iterator().next();
     }
 }
