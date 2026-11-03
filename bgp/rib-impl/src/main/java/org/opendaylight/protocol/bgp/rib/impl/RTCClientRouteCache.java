@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.rib.spi.policy.RTCCache;
 import org.opendaylight.protocol.bgp.route.targetcontrain.spi.ClientRouteTargetContrainCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
@@ -35,7 +36,7 @@ public final class RTCClientRouteCache implements ClientRouteTargetContrainCache
     }
 
     @Override
-    public synchronized List<Route> getClientRouteTargetContrainCache() {
+    public synchronized List<@NonNull Route> getClientRouteTargetContrainCache() {
         return ImmutableList.copyOf(rtCache);
     }
 }

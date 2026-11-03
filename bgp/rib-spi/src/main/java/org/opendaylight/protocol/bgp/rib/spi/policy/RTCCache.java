@@ -8,14 +8,14 @@
 package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import java.util.List;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.Route;
 
+@NonNullByDefault
 public interface RTCCache {
     /**
-     * Cache of RTC routes advertized per clients peers.
-     *
-     * @return rtc cache
+     * {@return the cache of RTC routes advertized per clients peers}
      */
-    @NonNull List<Route> getClientRouteTargetContrainCache();
+    // FIXME: much better documentation
+    List<Route> getClientRouteTargetContrainCache();
 }
