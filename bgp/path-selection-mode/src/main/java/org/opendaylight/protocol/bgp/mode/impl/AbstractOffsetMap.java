@@ -11,7 +11,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 
 import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.ImmutableSet.Builder;
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -32,13 +31,13 @@ public abstract class AbstractOffsetMap<K extends Immutable & Comparable<K>, T e
     private final K[] keys;
 
     protected AbstractOffsetMap(final K[] emptyKeys, final Comparator<K> comparator, final ImmutableSet<K> routerIds) {
-        final K[] array = routerIds.toArray(emptyKeys);
+        final var array = routerIds.toArray(emptyKeys);
         Arrays.sort(array, comparator);
-        this.keys = array;
+        keys = array;
     }
 
     public final K getKey(final int offset) {
-        return this.keys[offset];
+        return keys[offset];
     }
 
     public final int offsetOf(final K key) {
@@ -58,7 +57,7 @@ public abstract class AbstractOffsetMap<K extends Immutable & Comparable<K>, T e
         //       the caller to give us the result of offsetOf() -- as that indicates
         //       where to insert the new routerId while maintaining the sorted nature
         //       of the array
-        final Builder<K> builder = ImmutableSet.builderWithExpectedSize(size() + 1);
+        final var builder = ImmutableSet.<K>builderWithExpectedSize(size() + 1);
         builder.add(keys);
         builder.add(key);
         return instanceForKeys(builder.build());
