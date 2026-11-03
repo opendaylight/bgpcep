@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Verify.verify;
 import static java.util.Objects.requireNonNull;
 
@@ -16,7 +15,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.net.InetAddresses;
 import java.net.Inet4Address;
-import java.net.InetAddress;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
@@ -36,22 +34,23 @@ public final class RouterId implements Comparable<RouterId>, Immutable {
         verify(PEER_ID_PREFIX.length() == PEER_ID_PREFIX_LENGTH);
     }
 
-    private static final LoadingCache<PeerId, RouterId> BY_PEER_ID = CacheBuilder.newBuilder().weakValues()
-            .build(new CacheLoader<PeerId, RouterId>() {
-                @Override
-                public RouterId load(final PeerId key) {
-                    return new RouterId(key);
-                }
-            });
-    private static final LoadingCache<String, RouterId> BY_DOTTED_QUAD =
-            CacheBuilder.newBuilder().weakValues().build(new CacheLoader<String, RouterId>() {
-                @Override
-                public RouterId load(final String key) {
-                    final InetAddress addr = InetAddresses.forString(key);
-                    checkArgument(addr instanceof Inet4Address, "Invalid address %s", key);
+    private static final LoadingCache<PeerId, @NonNull RouterId> BY_PEER_ID = CacheBuilder.newBuilder().weakValues()
+        .build(new CacheLoader<>() {
+            @Override
+            public RouterId load(final PeerId key) {
+                return new RouterId(key);
+            }
+        });
+    private static final LoadingCache<String, @NonNull RouterId> BY_DOTTED_QUAD = CacheBuilder.newBuilder().weakValues()
+        .build(new CacheLoader<>() {
+            @Override
+            public RouterId load(final String key) {
+                if (InetAddresses.forString(key) instanceof Inet4Address) {
                     return BY_PEER_ID.getUnchecked(new PeerId(RouterId.PEER_ID_PREFIX.concat(key)));
                 }
-            });
+                throw new IllegalArgumentException("Invalid address " + key);
+            }
+        });
 
     private final @NonNull PeerId peerId;
     private final int intBits;
@@ -59,7 +58,7 @@ public final class RouterId implements Comparable<RouterId>, Immutable {
     RouterId(final PeerId peerId) {
         this.peerId = requireNonNull(peerId);
         // This relies on peedId being initialized
-        this.intBits = InetAddresses.coerceToInteger(InetAddresses.forString(toString()));
+        intBits = InetAddresses.coerceToInteger(InetAddresses.forString(toString()));
     }
 
     /**
@@ -84,9 +83,11 @@ public final class RouterId implements Comparable<RouterId>, Immutable {
         return forAddress(address.getValue());
     }
 
-    public static RouterId forPeerId(final PeerId peerId) {
-        checkArgument(peerId.getValue().startsWith(PEER_ID_PREFIX), "Unhandled peer ID %s", peerId);
-        return BY_PEER_ID.getUnchecked(peerId);
+    public static @NonNull RouterId forPeerId(final PeerId peerId) {
+        if (peerId.getValue().startsWith(PEER_ID_PREFIX)) {
+            return BY_PEER_ID.getUnchecked(peerId);
+        }
+        throw new IllegalArgumentException("Unhandled peer ID " + peerId);
     }
 
     public @NonNull PeerId getPeerId() {
