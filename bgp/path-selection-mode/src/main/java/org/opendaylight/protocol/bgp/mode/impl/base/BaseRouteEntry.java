@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -122,12 +121,12 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public Optional<StaleBestPathRoute> removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
+    public StaleBestPathRoute removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
         if (removedBestPath == null) {
-            return Optional.empty();
+            return null;
         }
         removedBestPath = null;
-        return Optional.of(new Stale(ribSupport.createRouteListArgument(routeKey)));
+        return new Stale(ribSupport.createRouteListArgument(routeKey));
     }
 
     @Override
