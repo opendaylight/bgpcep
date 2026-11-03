@@ -81,6 +81,10 @@
 
         <!-- test scope dependencies -->
         <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-testlib</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>bgp-inet</artifactId>
             <scope>test</scope>

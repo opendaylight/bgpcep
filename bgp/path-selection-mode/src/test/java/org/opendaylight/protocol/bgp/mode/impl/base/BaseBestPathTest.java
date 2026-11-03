@@ -8,9 +8,9 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.opendaylight.protocol.bgp.parser.spi.PathIdUtil.NON_PATH_ID_VALUE;
 
+import com.google.common.testing.EqualsTester;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -19,42 +19,42 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.
 class BaseBestPathTest {
     private static final RouterId ROUTER_ID = RouterId.forAddress("127.0.0.1");
     private static final PeerId PEER_ID = new PeerId("bgp://127.0.0.1");
+
     private BaseBestPath baseBestPath;
     private BaseBestPath baseBestPathCopy;
 
     @BeforeEach
     void setUp() {
-        final BasePathSelector selector = new BasePathSelector(20L);
+        final var selector = new BasePathSelector(20L);
         selector.processPath(BasePathSelectorTest.ROUTER_ID2,
             BasePathSelectorTest.createStateFromPrefMedOriginASPath().build());
-        this.baseBestPath = selector.result();
-        this.baseBestPathCopy = selector.result();
+        baseBestPath = selector.result();
+        baseBestPathCopy = selector.result();
     }
 
     @Test
     void testGetRouterId() {
-        assertEquals(ROUTER_ID, this.baseBestPath.getRouterId());
+        assertEquals(ROUTER_ID, baseBestPath.getRouterId());
     }
 
     @Test
     void testGetPeerId() {
-        assertEquals(PEER_ID, this.baseBestPath.getPeerId());
+        assertEquals(PEER_ID, baseBestPath.getPeerId());
     }
 
     @Test
     void testGetPathId() {
-        assertEquals(NON_PATH_ID_VALUE.toJava(), this.baseBestPath.getPathId());
+        assertEquals(NON_PATH_ID_VALUE.toJava(), baseBestPath.getPathId());
     }
 
     @Test
     void testHashCodeAndEqual() {
-        assertTrue(this.baseBestPath.equals(this.baseBestPathCopy)
-                && this.baseBestPathCopy.equals(this.baseBestPath));
-        assertEquals(this.baseBestPath.hashCode(), this.baseBestPathCopy.hashCode());
+        new EqualsTester().addEqualityGroup(baseBestPath, baseBestPathCopy).testEquals();
+        assertEquals(baseBestPath.hashCode(), baseBestPathCopy.hashCode());
     }
 
     @Test
     void testToString() {
-        assertEquals(this.baseBestPath.toString(), this.baseBestPathCopy.toString());
+        assertEquals(baseBestPath.toString(), baseBestPathCopy.toString());
     }
 }
