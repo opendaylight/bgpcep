@@ -7,13 +7,12 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.lang.ref.Reference;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
 import org.junit.Before;
 import org.junit.Test;
@@ -103,7 +102,7 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
             // Add RouterB as a second path. RouterA stays the best path through the second selection.
             entry.putRoute(ROUTER_B, PATH_B, routeB);
             entry.selectBest(support, AS);
-            assertEquals(Optional.empty(), entry.removeStalePaths(support, PREFIX),
+            assertNull(entry.removeStalePaths(support, PREFIX),
                 "RouterA path is still best after the second selection and must not be reported stale");
         } finally {
             // Keep a strong reference until the last putRoute method is called.
