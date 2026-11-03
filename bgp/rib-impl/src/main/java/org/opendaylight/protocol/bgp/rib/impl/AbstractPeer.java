@@ -27,7 +27,6 @@ import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.mode.impl.BGPRouteEntryExportParametersImpl;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
@@ -440,12 +439,11 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
             final ContainerNode attrs) {
         final var fromPeer = entryDep.getPeerTracker().getPeer(fromPeerId);
         final var ribSupport = entryDep.getRIBSupport();
-        final var routeEntry = new BGPRouteEntryExportParametersImpl(fromPeer, this,
-            ribSupport.extractRouteKey(route.name()), rtCache);
 
         final var bindingAttrs = ribSupport.attributeFromContainerNode(attrs);
-        final var exportAttrs = entryDep.getRoutingPolicies().applyExportPolicies(routeEntry, bindingAttrs,
-            entryDep.getAfiSafType());
+        final var exportAttrs = entryDep.getRoutingPolicies()
+            .applyExportPolicies(new ToPeerExportParameters(fromPeer, this, ribSupport.extractRouteKey(route.name())),
+                bindingAttrs, entryDep.getAfiSafType());
         if (exportAttrs == null) {
             // Discards route
             return null;

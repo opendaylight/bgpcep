@@ -8,15 +8,16 @@
 package org.opendaylight.protocol.bgp.rib.spi.policy;
 
 import java.util.List;
-import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.RouteTarget;
 
 /**
  * Peer VPN Memberships.
  */
+@NonNullByDefault
 public interface RouteTargetMembershipConsumer {
     /**
-     * Returns list of Route target advertized per Peer.
+     * {@return the list of {@link RouteTarget}s advertized per Peer}
      */
-    @NonNull List<RouteTarget> getMemberships();
+    List<RouteTarget> getMemberships();
 }
