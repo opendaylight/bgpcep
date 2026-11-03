@@ -402,8 +402,9 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
                 continue;
             }
 
-            entry.removeStalePaths(ribSupport, e.getKey().getRouteId()).ifPresent(staleRoutes::add);
-            newRoutes.addAll(entry.newBestPaths(ribSupport, e.getKey().getRouteId()));
+            final var routeKey = e.getKey().routeKey();
+            entry.removeStalePaths(ribSupport, routeKey).ifPresent(staleRoutes::add);
+            newRoutes.addAll(entry.newBestPaths(ribSupport, routeKey));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
         peerTracker.getNonInternalPeers().parallelStream()
