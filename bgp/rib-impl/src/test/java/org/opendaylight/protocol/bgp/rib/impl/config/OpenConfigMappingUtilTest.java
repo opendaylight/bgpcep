@@ -128,7 +128,7 @@ class OpenConfigMappingUtilTest {
     private static final Uint8 N_PATHS = Uint8.TWO;
     private static final PathSelectionMode ADD_PATH_BEST_N_PATH_SELECTION =
             new AddPathBestNPathSelection(N_PATHS.toJava());
-    private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = new AllPathSelection();
+    private static final PathSelectionMode ADD_PATH_BEST_ALL_PATH_SELECTION = AllPathSelection.INSTANCE;
     private static final BgpTableType BGP_TABLE_TYPE_IPV4 = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
             UnicastSubsequentAddressFamily.VALUE);
     private static final BgpTableType BGP_TABLE_TYPE_IPV6

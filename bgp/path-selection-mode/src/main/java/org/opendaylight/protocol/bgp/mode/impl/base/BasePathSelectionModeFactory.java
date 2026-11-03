@@ -9,12 +9,13 @@ package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 
+// FIXME: what is the point of this class?
 public final class BasePathSelectionModeFactory {
     private BasePathSelectionModeFactory() {
         // Hidden on purpose
     }
 
     public static PathSelectionMode createBestPathSelectionStrategy() {
-        return new BasePathSelection();
+        return BasePathSelection.INSTANCE;
     }
 }

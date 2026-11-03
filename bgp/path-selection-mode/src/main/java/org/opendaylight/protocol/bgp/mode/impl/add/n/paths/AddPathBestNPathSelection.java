@@ -7,22 +7,14 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add.n.paths;
 
-import static com.google.common.base.Preconditions.checkArgument;
-
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 
-public final class AddPathBestNPathSelection implements PathSelectionMode {
-    private final int npaths;
-
-    public AddPathBestNPathSelection(final int npaths) {
-        checkArgument(npaths > 1);
-        this.npaths = npaths;
-    }
-
-    @Override
-    public void close() {
-        //no-op
+public record AddPathBestNPathSelection(int npaths) implements PathSelectionMode {
+    public AddPathBestNPathSelection {
+        if (npaths < 2) {
+            throw new IllegalArgumentException("npaths < 2");
+        }
     }
 
     @Override

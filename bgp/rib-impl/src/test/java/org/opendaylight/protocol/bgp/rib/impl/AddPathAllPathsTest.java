@@ -15,34 +15,20 @@ import static org.opendaylight.protocol.util.CheckUtil.checkEquals;
 import static org.opendaylight.protocol.util.CheckUtil.checkReceivedMessages;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
-import com.google.common.collect.ImmutableMap;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
 import org.opendaylight.protocol.bgp.mode.impl.add.all.paths.AllPathSelection;
 import org.opendaylight.protocol.bgp.rib.spi.State;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPAfiSafiState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPErrorHandlingState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPGracelfulRestartState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerMessagesState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPPeerState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPRibState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPSessionState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPTimersState;
-import org.opendaylight.protocol.bgp.rib.spi.state.BGPTransportState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.Update;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.open.message.BgpParameters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 
 // FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AddPathAllPathsTest extends AbstractAddPathTest {
@@ -53,24 +39,21 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        final Map<TablesKey, PathSelectionMode> pathTables
-                = ImmutableMap.of(TABLES_KEY, new AllPathSelection());
 
-        this.ribImpl = new RIBImpl(this.tableRegistry, new RibId("test-rib"), AS_NUMBER, BGP_ID,
-                this.ribExtension, this.serverDispatcher, this.codecsRegistry,
-            getDomBroker(), this.policies, TABLES_TYPE, pathTables);
+        ribImpl = new RIBImpl(tableRegistry, new RibId("test-rib"), AS_NUMBER, BGP_ID,
+                ribExtension, serverDispatcher, codecsRegistry,
+            getDomBroker(), policies, TABLES_TYPE, Map.of(TABLES_KEY, AllPathSelection.INSTANCE));
 
-        this.ribImpl.instantiateServiceInstance();
-        final ChannelFuture channelFuture = this.serverDispatcher.createServer(
-            new InetSocketAddress(RIB_ID, PORT.toJava()));
+        ribImpl.instantiateServiceInstance();
+        final var channelFuture = serverDispatcher.createServer(new InetSocketAddress(RIB_ID, PORT.toJava()));
         waitFutureSuccess(channelFuture);
-        this.serverChannel = channelFuture.channel();
+        serverChannel = channelFuture.channel();
     }
 
     @Override
     @After
     public void tearDown() throws Exception {
-        waitFutureSuccess(this.serverChannel.close());
+        waitFutureSuccess(serverChannel.close());
         super.tearDown();
     }
 
@@ -87,24 +70,23 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
      */
     @Test
     public void testUseCase1() throws Exception {
-        final BgpParameters nonAddPathParams = createParameter(false);
-        final BgpParameters addPathParams = createParameter(true);
+        final var nonAddPathParams = createParameter(false);
+        final var addPathParams = createParameter(true);
 
-        final BGPPeer peer1 = configurePeer(this.tableRegistry, PEER1, this.ribImpl, nonAddPathParams, PeerRole.Ibgp,
-                this.serverRegistry);
-        final BGPSessionImpl session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
+        final var peer1 = configurePeer(tableRegistry, PEER1, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
+        final var session1 = createPeerSession(PEER1, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(this.tableRegistry, PEER2, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
-        final BGPSessionImpl session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
+        configurePeer(tableRegistry, PEER2, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
+        final var session2 = createPeerSession(PEER2, nonAddPathParams, new SimpleSessionListener());
 
-        configurePeer(this.tableRegistry, PEER3, this.ribImpl, nonAddPathParams, PeerRole.Ibgp, this.serverRegistry);
-        final BGPSessionImpl session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
+        configurePeer(tableRegistry, PEER3, ribImpl, nonAddPathParams, PeerRole.Ibgp, serverRegistry);
+        final var session3 = createPeerSession(PEER3, nonAddPathParams, new SimpleSessionListener());
 
-        final SimpleSessionListener listener4 = new SimpleSessionListener();
-        final BGPPeer peer4 = configurePeer(this.tableRegistry, PEER4, this.ribImpl, nonAddPathParams,
-                PeerRole.RrClient, this.serverRegistry);
+        final var listener4 = new SimpleSessionListener();
+        final var peer4 = configurePeer(tableRegistry, PEER4, ribImpl, nonAddPathParams, PeerRole.RrClient,
+            serverRegistry);
 
-        BGPPeerState peer4State = peer4.getPeerState();
+        var peer4State = peer4.getPeerState();
         assertNull(peer4State.getGroupId());
         assertEquals(new IpAddressNoZone(PEER4), peer4State.getNeighborAddress());
         assertEquals(0L, peer4State.getTotalPathsCount());
@@ -115,16 +97,16 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertNull(peer4State.getBGPSessionState());
         assertEquals(0L, peer4State.getBGPErrorHandlingState().getErroneousUpdateReceivedCount());
 
-        BGPGracelfulRestartState gracefulRestart = peer4State.getBGPGracelfulRestart();
+        var gracefulRestart = peer4State.getBGPGracelfulRestart();
         assertFalse(gracefulRestart.isGracefulRestartAdvertized(TABLES_KEY));
         assertFalse(gracefulRestart.isGracefulRestartReceived(TABLES_KEY));
         assertFalse(gracefulRestart.isLocalRestarting());
         assertFalse(gracefulRestart.isPeerRestarting());
         assertEquals(0L, gracefulRestart.getPeerRestartTime());
 
-        BGPAfiSafiState afiSafiState = peer4State.getBGPAfiSafiState();
+        var afiSafiState = peer4State.getBGPAfiSafiState();
         assertEquals(AFI_SAFIS_ADVERTIZED, afiSafiState.getAfiSafisAdvertized());
-        assertEquals(Collections.emptySet(), afiSafiState.getAfiSafisReceived());
+        assertEquals(Set.of(), afiSafiState.getAfiSafisReceived());
         assertEquals(0L, afiSafiState.getPrefixesSentCount(TABLES_KEY));
         assertEquals(0L, afiSafiState.getPrefixesReceivedCount(TABLES_KEY));
         assertEquals(0L, afiSafiState.getPrefixesInstalledCount(TABLES_KEY));
@@ -135,11 +117,11 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertFalse(afiSafiState.isPeerRestarting());
         assertFalse(afiSafiState.isAfiSafiSupported(TABLES_KEY));
 
-        final BGPSessionImpl session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
+        final var session4 = createPeerSession(PEER4, nonAddPathParams, listener4);
 
-        final SimpleSessionListener listener5 = new SimpleSessionListener();
-        configurePeer(this.tableRegistry, PEER5, this.ribImpl, addPathParams, PeerRole.RrClient, this.serverRegistry);
-        final BGPSessionImpl session5 = createPeerSession(PEER5, addPathParams, listener5);
+        final var listener5 = new SimpleSessionListener();
+        configurePeer(tableRegistry, PEER5, ribImpl, addPathParams, PeerRole.RrClient, serverRegistry);
+        final var session5 = createPeerSession(PEER5, addPathParams, listener5);
         checkPeersPresentOnDataStore(5);
 
         //the best route
@@ -148,17 +130,17 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkReceivedMessages(listener5, 2);
         assertEquals(UPD_100, listener5.getListMsg().get(1));
 
-        final BGPPeerState peer1State = peer1.getPeerState();
+        final var peer1State = peer1.getPeerState();
         assertNull(peer1State.getGroupId());
         assertEquals(new IpAddressNoZone(PEER1), peer1State.getNeighborAddress());
         assertEquals(1L, peer1State.getTotalPathsCount());
         assertEquals(1L, peer1State.getTotalPrefixes());
 
-        final BGPTimersState timerStatePeer1 = peer1State.getBGPTimersState();
+        final var timerStatePeer1 = peer1State.getBGPTimersState();
         assertEquals(HOLDTIMER, timerStatePeer1.getNegotiatedHoldTime());
         assertTrue(timerStatePeer1.getUpTime() > 0L);
 
-        final BGPTransportState transportStatePeer1 = peer1State.getBGPTransportState();
+        final var transportStatePeer1 = peer1State.getBGPTransportState();
         assertEquals(new PortNumber(PORT), transportStatePeer1.getLocalPort());
         assertEquals(new IpAddressNoZone(PEER1), transportStatePeer1.getRemoteAddress());
 
@@ -166,14 +148,14 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         checkEquals(() -> assertEquals(1L, peer1State.getBGPPeerMessagesState().getUpdateMessagesReceivedCount()));
         checkEquals(() -> assertEquals(1L, peer1State.getBGPPeerMessagesState().getUpdateMessagesSentCount()));
 
-        final BGPSessionState sessionStatePeer1 = peer1State.getBGPSessionState();
+        final var sessionStatePeer1 = peer1State.getBGPSessionState();
         assertFalse(sessionStatePeer1.isAddPathCapabilitySupported());
         assertFalse(sessionStatePeer1.isAsn32CapabilitySupported());
         assertFalse(sessionStatePeer1.isGracefulRestartCapabilitySupported());
         assertTrue(sessionStatePeer1.isMultiProtocolCapabilitySupported());
         assertFalse(sessionStatePeer1.isRouterRefreshCapabilitySupported());
 
-        final BGPAfiSafiState afiSafiStatePeer1 = peer1State.getBGPAfiSafiState();
+        final var afiSafiStatePeer1 = peer1State.getBGPAfiSafiState();
         assertEquals(AFI_SAFIS_ADVERTIZED, afiSafiStatePeer1.getAfiSafisAdvertized());
         assertEquals(AFI_SAFIS_ADVERTIZED, afiSafiStatePeer1.getAfiSafisReceived());
         assertEquals(0L, afiSafiStatePeer1.getPrefixesSentCount(TABLES_KEY));
@@ -186,7 +168,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertFalse(afiSafiStatePeer1.isPeerRestarting());
         assertTrue(afiSafiStatePeer1.isAfiSafiSupported(TABLES_KEY));
 
-        final BGPRibState ribState = this.ribImpl.getRIBState();
+        final var ribState = ribImpl.getRIBState();
         assertEquals(1, ribState.getPathsCount().size());
         assertEquals(1L,  ribState.getTablesPrefixesCount().size());
         assertEquals(BGP_ID, ribState.getRouteId());
@@ -196,10 +178,10 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(1L, ribState.getTotalPathsCount());
         assertEquals(1L, ribState.getTotalPrefixesCount());
 
-        final SimpleSessionListener listener6 = new SimpleSessionListener();
-        final BGPPeer peer6 = configurePeer(this.tableRegistry, PEER6, this.ribImpl, nonAddPathParams,
-                PeerRole.RrClient, this.serverRegistry);
-        final BGPSessionImpl session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
+        final var listener6 = new SimpleSessionListener();
+        final var peer6 = configurePeer(tableRegistry, PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient,
+            serverRegistry);
+        final var session6 = createPeerSession(PEER6, nonAddPathParams, listener6);
         checkPeersPresentOnDataStore(6);
         checkReceivedMessages(listener6, 2);
         assertEquals(UPD_NA_100, listener6.getListMsg().get(1));
@@ -227,21 +209,21 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertEquals(0L, peer4State.getTotalPathsCount());
         assertEquals(0L, peer4State.getTotalPrefixes());
 
-        final BGPTimersState timerState = peer4State.getBGPTimersState();
+        final var timerState = peer4State.getBGPTimersState();
         assertEquals(HOLDTIMER, timerState.getNegotiatedHoldTime());
         assertTrue(timerState.getUpTime() > 0L);
 
-        final BGPTransportState transportState = peer4State.getBGPTransportState();
+        final var transportState = peer4State.getBGPTransportState();
         assertEquals(new PortNumber(PORT), transportState.getLocalPort());
         assertEquals(new IpAddressNoZone(PEER4), transportState.getRemoteAddress());
 
-        final BGPPeerMessagesState peerMessagesState = peer4State.getBGPPeerMessagesState();
+        final var peerMessagesState = peer4State.getBGPPeerMessagesState();
         assertEquals(0L, peerMessagesState.getNotificationMessagesReceivedCount());
         assertEquals(0L, peerMessagesState.getNotificationMessagesSentCount());
         assertEquals(0L, peerMessagesState.getUpdateMessagesReceivedCount());
         assertEquals(3L, peerMessagesState.getUpdateMessagesSentCount());
 
-        final BGPSessionState bgpSessionState = peer4State.getBGPSessionState();
+        final var bgpSessionState = peer4State.getBGPSessionState();
         assertEquals(State.UP, bgpSessionState.getSessionState());
         assertFalse(bgpSessionState.isAddPathCapabilitySupported());
         assertFalse(bgpSessionState.isAsn32CapabilitySupported());
@@ -249,7 +231,7 @@ public class AddPathAllPathsTest extends AbstractAddPathTest {
         assertTrue(bgpSessionState.isMultiProtocolCapabilitySupported());
         assertFalse(bgpSessionState.isRouterRefreshCapabilitySupported());
 
-        final BGPErrorHandlingState errorHandling = peer4State.getBGPErrorHandlingState();
+        final var errorHandling = peer4State.getBGPErrorHandlingState();
         assertEquals(0L, errorHandling.getErroneousUpdateReceivedCount());
 
         gracefulRestart = peer4State.getBGPGracelfulRestart();
