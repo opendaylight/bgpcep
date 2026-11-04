@@ -51,6 +51,7 @@ public interface RouteEntry {
      * @param localAs The local autonomous system number
      * @return return true if it has changed
      */
+    // FIXME: BGPCEP-879: return a contract including removeStalePaths() and newBestPaths()
     boolean selectBest(RIBSupport ribSupport, long localAs);
 
     /**
