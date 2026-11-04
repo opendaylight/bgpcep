@@ -18,7 +18,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.opendaylight.mdsal.common.api.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBIN_NID;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.BGPRIB_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
@@ -120,7 +119,6 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
     private static final YangInstanceIdentifier ADJ_RIB_UPTODATE_PATH = PEER_PATH.node(ADJRIBIN_NID).node(TABLES_NID)
             .node(requireNonNull(requireNonNull(TABLE_PATH.getParent()).getParent()).getLastPathArgument())
             .node(ATTRIBUTES_NID).node(UPTODATE_NID);
-    private static final YangInstanceIdentifier PEER_RIB_OUT_PATH = PEER_PATH.node(ADJRIBOUT_NID);
 
     private final IpAddressNoZone neighbor = new IpAddressNoZone(new Ipv4AddressNoZone(LOCAL_IP));
     private final BgpTableType ipv4tt = new BgpTableTypeImpl(Ipv4AddressFamily.VALUE,
@@ -246,17 +244,14 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         bgpSession.handleMessage(correct.build());
         verify(tx).merge(eq(OPERATIONAL), eq(BGP_RIB_PATH), any(NormalizedNode.class));
         verify(tx).merge(eq(OPERATIONAL), eq(ADJ_RIB_UPTODATE_PATH), any(NormalizedNode.class));
-        verify(tx).merge(eq(OPERATIONAL), eq(PEER_RIB_OUT_PATH), any(NormalizedNode.class));
 
         bgpSession.handleMessage(wrongMessage.build());
         verify(tx).merge(eq(OPERATIONAL), eq(BGP_RIB_PATH), any(NormalizedNode.class));
         verify(tx).merge(eq(OPERATIONAL), eq(ADJ_RIB_UPTODATE_PATH), any(NormalizedNode.class));
-        verify(tx).merge(eq(OPERATIONAL), eq(PEER_RIB_OUT_PATH), any(NormalizedNode.class));
 
         bgpSession.handleMessage(new UpdateBuilder().build());
         verify(tx).merge(eq(OPERATIONAL), eq(BGP_RIB_PATH), any(NormalizedNode.class));
         verify(tx).merge(eq(OPERATIONAL), eq(ADJ_RIB_UPTODATE_PATH), any(NormalizedNode.class));
-        verify(tx).merge(eq(OPERATIONAL), eq(PEER_RIB_OUT_PATH), any(NormalizedNode.class));
 
         verify(tx).delete(eq(LogicalDatastoreType.OPERATIONAL), eq(PEER_PATH));
         verify(tx, never()).merge(eq(OPERATIONAL), eq(TABLE_PATH),
@@ -296,13 +291,11 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
 
         bgpSession.handleMessage(correct.build());
         verify(tx).merge(eq(OPERATIONAL), eq(BGP_RIB_PATH), any(NormalizedNode.class));
-        verify(tx).merge(eq(OPERATIONAL), eq(PEER_RIB_OUT_PATH), any(NormalizedNode.class));
         verify(tx).merge(eq(OPERATIONAL), eq(ADJ_RIB_UPTODATE_PATH),
                 eq(ImmutableNodes.leafNode(UPTODATE_NID, Boolean.FALSE)));
 
         bgpSession.handleMessage(new UpdateBuilder().build());
         verify(tx).merge(eq(OPERATIONAL), eq(BGP_RIB_PATH), any(NormalizedNode.class));
-        verify(tx).merge(eq(OPERATIONAL), eq(PEER_RIB_OUT_PATH), any(NormalizedNode.class));
         verify(tx).merge(eq(OPERATIONAL), eq(ADJ_RIB_UPTODATE_PATH),
                 eq(ImmutableNodes.leafNode(UPTODATE_NID, Boolean.FALSE)));
         verify(tx).merge(eq(OPERATIONAL), eq(TABLE_PATH), eq(ImmutableNodes.leafNode(UPTODATE_NID, Boolean.TRUE)));
