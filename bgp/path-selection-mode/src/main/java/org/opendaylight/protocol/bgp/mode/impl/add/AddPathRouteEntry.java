@@ -9,7 +9,6 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import static com.google.common.base.Verify.verifyNotNull;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -213,11 +212,46 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
     @Override
     public final boolean selectBest(final RIBSupport ribSupport, final long localAs) {
-        final int size;
-        return isBestPathNew((size = offsets.size()) == 0 ? ImmutableList.of() : selectBest(ribSupport, localAs, size));
+        final var size = offsets.size();
+        return size == 0 ? selectNone() : selectBest(ribSupport, localAs, size);
     }
 
-    abstract ImmutableList<AddPathBestPath> selectBest(RIBSupport ribSupport, long localAs, int size);
+    @NonNullByDefault
+    private boolean selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
+        return isBestPathNew(selectPaths(ribSupport, localAs, size));
+    }
+
+    private boolean selectNone() {
+        return isBestPathNew(List.of());
+    }
+
+    @NonNullByDefault
+    abstract List<AddPathBestPath> selectPaths(RIBSupport ribSupport, long localAs, int size);
+
+    @NonNullByDefault
+    private boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
+        // FIXME: Err.. what?
+        isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
+        filterRemovedPaths(newBestPathList);
+        if (bestPathRemoved != null && !bestPathRemoved.isEmpty() || !newBestPathList.equals(bestPath)) {
+            if (bestPath != null) {
+                newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
+                newBestPathToBeAdvertised.removeAll(bestPath);
+            } else {
+                newBestPathToBeAdvertised = newBestPathList;
+            }
+            bestPath = newBestPathList;
+            LOG.trace("Actual Best {}, removed best {}", bestPath, bestPathRemoved);
+            return true;
+        }
+        return false;
+    }
+
+    @NonNullByDefault
+    private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
+        return !isEmptyOrNull(bestPath) && !isEmptyOrNull(newBestPathList)
+            && bestPath.getFirst().equals(newBestPathList.getFirst());
+    }
 
     /**
      * Process a specific route offset into specified selector.
@@ -238,30 +272,6 @@ abstract class AddPathRouteEntry implements RouteEntry {
         final var route = verifyNotNull(offsets.getValue(values, offset));
         return new AddPathBestPath(new BaseBestPathState(ribSupport.extractAttributes(route)), offsets.getKey(offset),
             offsets.getValue(pathsId, offset), offset);
-    }
-
-    private boolean isBestPathNew(final ImmutableList<AddPathBestPath> newBestPathList) {
-        isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
-        filterRemovedPaths(newBestPathList);
-        if (bestPathRemoved != null && !bestPathRemoved.isEmpty()
-                || newBestPathList != null
-                && !newBestPathList.equals(bestPath)) {
-            if (bestPath != null) {
-                newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
-                newBestPathToBeAdvertised.removeAll(bestPath);
-            } else {
-                newBestPathToBeAdvertised = newBestPathList;
-            }
-            bestPath = newBestPathList;
-            LOG.trace("Actual Best {}, removed best {}", bestPath, bestPathRemoved);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
-        return !isEmptyOrNull(bestPath) && !isEmptyOrNull(newBestPathList)
-                && bestPath.get(0).equals(newBestPathList.get(0));
     }
 
     private static boolean isEmptyOrNull(final List<AddPathBestPath> pathList) {

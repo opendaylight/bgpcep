@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,7 @@ final class AddAllRouteEntry extends AddPathRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(AddAllRouteEntry.class);
 
     @Override
-    ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
+    List<AddPathBestPath> selectPaths(final RIBSupport ribSupport, final long localAs, final int size) {
         // Select the best path for the case when AddPath is not supported
         final var selector = new AddPathSelector(localAs);
         for (int offset = 0; offset < size; ++offset) {
@@ -26,18 +28,23 @@ final class AddAllRouteEntry extends AddPathRouteEntry {
         final var newBest = selector.result();
         LOG.trace("Best path selected {}", newBest);
 
-        final var builder = ImmutableList.<AddPathBestPath>builderWithExpectedSize(size)
-            .add(newBest);
+        final var paths = new ArrayList<AddPathBestPath>(size);
+        paths.add(newBest);
 
         // Since we are selecting all paths, add all the other paths, do that in two steps, skipping the selected
         // route.
         for (int offset = 0; offset < newBest.getOffset(); ++offset) {
-            builder.add(bestPathAt(ribSupport, offset));
+            paths.add(bestPathAt(ribSupport, offset));
         }
         for (int offset = newBest.getOffset() + 1; offset < size; ++offset) {
-            builder.add(bestPathAt(ribSupport, offset));
+            paths.add(bestPathAt(ribSupport, offset));
         }
 
-        return builder.build();
+        return switch (paths.size()) {
+            case 0 -> List.of();
+            case 1 -> ImmutableList.of(paths.getFirst());
+            case 2 -> List.of(paths.getFirst(), paths.getLast());
+            default -> List.copyOf(paths);
+        };
     }
 }
