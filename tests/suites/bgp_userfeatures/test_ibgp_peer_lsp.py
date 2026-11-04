@@ -40,13 +40,13 @@ BGP_PEER_COMMAND = (
     f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
     f"--{BGP_PEER_LOG_LEVEL} --logfile {BGP_PEER_LOG_FILE} --bgpls True"
 )
-BGP_PEER_OPTIONS = f"2>&1 >tmp/{BGP_PEER_LOG_FILE}"
+BGP_PEER_OPTIONS = f"2>&1 >{BGP_PEER_LOG_FILE}"
 JSONKEYSTR = "linkstate-route"
 BGP_PEER_NAME = "example-bgp-peer"
 SKIP_PARAMS = "--skipattr"
 RIB_INSTANCE = "example-bgp-rib"
 PROTOCOL_OPENCONFIG = RIB_INSTANCE
-ROUTE_KEY = "AAUAFQcAAAAAAAAAAQECAwQAAQABBQYHCA=="
+ROUTE_KEY = "AAYAMQQAAAAAAAAAAQEAABACAAAEAAD78AIDAAR/AAEAAgYAECABDbgAAAAAAAAAAAAAAAE="
 
 log = logging.getLogger(__name__)
 
@@ -68,9 +68,9 @@ class TestIbgpPeerLsp:
             """
             **Basic tests for iBGP peers.**
 
-            Test suite performs basic iBGP functional test case for carrying LSP State \
-            Information in BGP as described in \
-            *http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03*
+            Test suite performs basic iBGP functional test case for carrying SRv6 SID \
+            information in BGP-LS as described in \
+            *https://www.rfc-editor.org/rfc/rfc9514*
         """
         )
     )
