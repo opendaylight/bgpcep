@@ -53,7 +53,8 @@ final class BaseRouteEntry implements RouteEntry {
     private RouterIdOffsets offsets = RouterIdOffsets.EMPTY;
     private MapEntryNode[] values = EMPTY_VALUES;
     private @Nullable BaseBestPath bestPath;
-    private @Nullable BaseBestPath removedBestPath;
+    // FIXNE: BGPCEP-879: this just a hand-off from selectBest() == true to removeStalePaths()
+    private boolean removedBestPath;
 
     @Override
     public boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
@@ -101,10 +102,11 @@ final class BaseRouteEntry implements RouteEntry {
         // there are no candidates, so not bother with selection: there is no best path and if there was one, it is
         // now removed
         final var oldBestPath = bestPath;
-        removedBestPath = oldBestPath;
         if (oldBestPath == null) {
+            removedBestPath = false;
             return false;
         }
+        removedBestPath = true;
         setBestPath(oldBestPath, null);
         return true;
     }
@@ -142,11 +144,11 @@ final class BaseRouteEntry implements RouteEntry {
 
     @Override
     public StaleBestPathRoute removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
-        if (removedBestPath == null) {
-            return null;
+        if (removedBestPath) {
+            removedBestPath = false;
+            return new Stale(ribSupport.createRouteListArgument(routeKey));
         }
-        removedBestPath = null;
-        return new Stale(ribSupport.createRouteListArgument(routeKey));
+        return null;
     }
 
     @Override
