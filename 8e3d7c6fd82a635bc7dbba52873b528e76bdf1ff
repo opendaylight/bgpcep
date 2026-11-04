@@ -16,6 +16,24 @@
       "message": "This is trying to address same/simillar issue as:\nhttps://git.opendaylight.org/gerrit/c/bgpcep/+/127284\nand https://lf-opendaylight.atlassian.net/browse/BGPCEP-1094\n\nSo this will probably won\u0027t be needed and in that case can be abandoned.",
       "revId": "8e3d7c6fd82a635bc7dbba52873b528e76bdf1ff",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "26c3b971_e59a6eab",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9229
+      },
+      "writtenOn": "2026-11-04T11:59:22Z",
+      "side": 1,
+      "message": ".",
+      "parentUuid": "e4a7026c_570ea75e",
+      "revId": "8e3d7c6fd82a635bc7dbba52873b528e76bdf1ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
