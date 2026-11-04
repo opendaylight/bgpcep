@@ -88,6 +88,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "d2b3a007_e585d606",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1dc74adb_b303a745",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d9f5d3a3_406f89b5",
@@ -119,6 +137,24 @@
       "side": 1,
       "message": "AI had some reasoning why the two quantities have a similar role, so this was an attempt to keep backward compatibility. But that would only be useful for third parties testing ancient ODLs with the newest tool, which I bet never happens. A candidate for cleanup.",
       "parentUuid": "d9f5d3a3_406f89b5",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "aa10e443_1303da95",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "90f827ad_5823a6f6",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -158,6 +194,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "09c69230_e3491cad",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "359170b2_79ff046a",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9a498f88_cc58847d",
@@ -189,6 +243,24 @@
       "side": 1,
       "message": "I agree, this is an anti-pattern.",
       "parentUuid": "9a498f88_cc58847d",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e8f2b673_5922d91a",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "869a7e94_1c315af3",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -228,6 +300,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "06141031_7d06ec9c",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 648,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cc7907b1_c958aede",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "d7019507_13cabc02",
@@ -259,6 +349,24 @@
       "side": 1,
       "message": "Oh. Could be a bug in tool logic, should be investigated.",
       "parentUuid": "d7019507_13cabc02",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "35778679_50454678",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 653,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ffd57f8c_21b2d108",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -298,6 +406,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "072f1c9a_118a53e4",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 655,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "755580cd_f3a4875f",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "9b9cecfb_b25ce1b2",
@@ -329,6 +455,24 @@
       "side": 1,
       "message": "I agree, needless duplication.",
       "parentUuid": "9b9cecfb_b25ce1b2",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "2992a7c3_010580ba",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c1c7d61_9a0621f3",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -368,6 +512,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "e408e9ca_621a7d93",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 986,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "056abf52_1cf90427",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "a852f386_fead754a",
@@ -399,6 +561,24 @@
       "side": 1,
       "message": "Agreed. If this is intended as a target for future customization, it should be a comment.",
       "parentUuid": "a852f386_fead754a",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "7b5f6513_6df4c81e",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 989,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "322076b8_a9ffa0f6",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
@@ -438,6 +618,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "17b6ffb9_25d0c645",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1229,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "11cc17ed_c29d7751",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "c124f759_c5739c9b",
@@ -469,6 +667,24 @@
       "side": 1,
       "message": "AI marking citations in free text but not handling them properly when writing code. To remove.",
       "parentUuid": "c124f759_c5739c9b",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "f5bf04b9_c8da1029",
+        "filename": "tests/tools/fastbgp/play.py",
+        "patchSetId": 7
+      },
+      "lineNbr": 1678,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-04T07:39:35Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c542069f_a3ea9b2f",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
