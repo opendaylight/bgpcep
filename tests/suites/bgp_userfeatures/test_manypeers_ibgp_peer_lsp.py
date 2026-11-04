@@ -9,10 +9,8 @@
 # https://github.com/opendaylight/integration-test/blob/901c7e139945b436d95a44b3b592904c3d7a4f9f/csit/suites/bgpcep/bgpuser/ibgp_peer_lsp.robot
 #
 
-import base64
 import ipaddress
 import logging
-import struct
 import textwrap
 
 import allure
@@ -44,41 +42,6 @@ RIB_INSTANCE = "example-bgp-rib"
 PROTOCOL_OPENCONFIG = RIB_INSTANCE
 
 log = logging.getLogger(__name__)
-
-
-def srv6_sid_route_key(
-    identifier: int, router_id: str, sid: str = "2001:db8::1"
-) -> str:
-    """Route key ODL stores for the SRv6 SID NLRI sent by one peer.
-
-    The key is ODL's own serialization of the NLRI: Protocol-ID Direct,
-    the identifier, Local Node Descriptors with the AS number (512) and
-    the IGP Router-ID (515), and an SRv6 SID Information TLV (518)
-    carrying the SID.
-
-    Args:
-        identifier (int): Link-State NLRI identifier sent by the peer.
-        router_id (str): IPv4 address the peer sends as IGP Router-ID.
-        sid (str): SRv6 SID the peer sends. Defaults to play.py's default
-            --srv6-sid.
-
-    Returns:
-        str: Base64 encoded route key.
-    """
-    node_descriptors = (
-        struct.pack(">HHI", 512, 4, 64496)
-        + struct.pack(">HH", 515, 4)
-        + ipaddress.IPv4Address(router_id).packed
-    )
-    sid_bytes = ipaddress.IPv6Address(sid).packed
-    nlri = (
-        struct.pack(">BQ", 4, identifier)
-        + struct.pack(">HH", 256, len(node_descriptors))
-        + node_descriptors
-        + struct.pack(">HH", 518, len(sid_bytes))
-        + sid_bytes
-    )
-    return base64.b64encode(struct.pack(">HH", 6, len(nlri)) + nlri).decode()
 
 
 @pytest.mark.bgp
@@ -237,13 +200,13 @@ class TestIbgpPeerLsp:
                     "IP": f"127.0.1.{i}",
                     "IDENTIFIER": i + 1,
                     "ROUTER_ID": int(ipaddress.IPv4Address(f"127.0.1.{i}")),
-                    "ROUTE_KEY": srv6_sid_route_key(i + 1, f"127.0.1.{i}"),
+                    "ROUTE_KEY": bgp.srv6_sid_route_key(i + 1, f"127.0.1.{i}"),
                 }
                 utils.wait_until_function_pass(
                     DEFAULT_RIB_CHECK_COUNTS,
                     DEFAULT_RIB_CHECK_PERIOD,
                     templated_requests.get_templated_request,
-                    "variables/bgpuser/lsp/manypeers_effective_rib_in",
+                    "variables/bgpuser/lsp/effective_rib_in",
                     mapping,
                     verify=True,
                 )

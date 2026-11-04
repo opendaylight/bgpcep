@@ -34,14 +34,14 @@
                         }
                     }
                 },
-                "identifier": "1",
+                "identifier": "$IDENTIFIER",
                 "path-id": 0,
                 "protocol-id": "direct",
                 "route-key": "$ROUTE_KEY",
                 "srv6-node-descriptors": {
                     "as-number": 64496,
                     "ospf-node": {
-                        "ospf-router-id": 2130706688
+                        "ospf-router-id": $ROUTER_ID
                     }
                 },
                 "srv6-sid-descriptors": {
