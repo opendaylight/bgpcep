@@ -8,6 +8,8 @@
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import com.google.common.collect.ImmutableList;
+import java.util.ArrayList;
+import java.util.List;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,20 +24,20 @@ final class AddNRouteEntry extends AddPathRouteEntry {
     }
 
     @Override
-    ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
+    List<AddPathBestPath> selectPaths(final RIBSupport ribSupport, final long localAs, final int size) {
         final int limit = Math.min(npaths, size);
         return switch (limit) {
-            case 0 -> ImmutableList.of();
+            case 0 -> List.of();
             case 1 -> ImmutableList.of(bestPathAt(ribSupport, 0));
-            default -> selectBest(ribSupport, localAs, size, limit);
+            default -> selectPaths(ribSupport, localAs, size, limit);
         };
     }
 
-    private ImmutableList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size,
+    private List<AddPathBestPath> selectPaths(final RIBSupport ribSupport, final long localAs, final int size,
             final int limit) {
         // Scratch pool of offsets, we set them to true as we use them up.
         final var offsets = new boolean[size];
-        final var builder = ImmutableList.<AddPathBestPath>builderWithExpectedSize(limit);
+        final var paths = new ArrayList<AddPathBestPath>(limit);
 
         // This ends up being (limit * size) traversals of offsets[], but that should be fine, as it is a dense array.
         // If this ever becomes a problem, we can optimize by having a AddPathSelector which remembers previous state,
@@ -50,11 +52,16 @@ final class AddNRouteEntry extends AddPathRouteEntry {
             }
             final var result = selector.result();
             LOG.trace("Path {} selected {}", search, result);
-            builder.add(result);
+            paths.add(result);
 
             offsets[result.getOffset()] = true;
         }
 
-        return builder.build();
+        return switch (paths.size()) {
+            case 0 -> List.of();
+            case 1 -> ImmutableList.of(paths.getFirst());
+            case 2 -> List.of(paths.getFirst(), paths.getLast());
+            default -> List.copyOf(paths);
+        };
     }
 }
