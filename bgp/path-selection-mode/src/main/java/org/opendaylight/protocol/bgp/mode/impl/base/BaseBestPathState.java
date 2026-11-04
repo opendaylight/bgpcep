@@ -5,12 +5,11 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.MoreObjects.ToStringHelper;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -19,7 +18,6 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.protocol.bgp.mode.BesthPathStateUtil;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
@@ -40,14 +38,13 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.PathArgument;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
-import org.opendaylight.yangtools.yang.data.api.schema.LeafSetEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.LeafSetNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNodes;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.UnkeyedListNode;
 
-public final class BestPathStateImpl implements BestPathState {
+public final class BaseBestPathState implements BestPathState {
     private static final class NamespaceSpecificIds {
         final List<PathArgument> asPath;
         final List<PathArgument> locPref;
@@ -97,7 +94,7 @@ public final class BestPathStateImpl implements BestPathState {
     private boolean depreferenced;
     private boolean resolved;
 
-    public BestPathStateImpl(final ContainerNode attributes) {
+    public BaseBestPathState(final ContainerNode attributes) {
         this.attributes = requireNonNull(attributes);
         resolveValues();
     }
@@ -107,21 +104,21 @@ public final class BestPathStateImpl implements BestPathState {
             return;
         }
 
-        final NamespaceSpecificIds ids = PATH_CACHE.getUnchecked(attributes.name().getNodeType().getModule());
+        final var ids = PATH_CACHE.getUnchecked(attributes.name().getNodeType().getModule());
         localPref = (Uint32) NormalizedNodes.findNode(attributes, ids.locPref)
             .map(NormalizedNode::body)
             .orElse(null);
 
-        final Optional<NormalizedNode> maybeMultiExitDisc = NormalizedNodes.findNode(attributes, ids.med);
+        final var maybeMultiExitDisc = NormalizedNodes.findNode(attributes, ids.med);
         if (maybeMultiExitDisc.isPresent()) {
             multiExitDisc = ((Uint32) maybeMultiExitDisc.orElseThrow().body()).toJava();
         } else {
             multiExitDisc = 0L;
         }
 
-        final Optional<NormalizedNode> maybeOrigin = NormalizedNodes.findNode(attributes, ids.orig);
+        final var maybeOrigin = NormalizedNodes.findNode(attributes, ids.orig);
         if (maybeOrigin.isPresent()) {
-            final String originStr = (String) maybeOrigin.orElseThrow().body();
+            final var originStr = (String) maybeOrigin.orElseThrow().body();
             origin = BgpOrigin.forName(originStr);
             if (origin == null) {
                 throw new IllegalArgumentException("Unhandled origin value " + originStr);
@@ -130,17 +127,17 @@ public final class BestPathStateImpl implements BestPathState {
             origin = null;
         }
 
-        final Optional<NormalizedNode> maybeSegments = NormalizedNodes.findNode(attributes, ids.asPath);
+        final var maybeSegments = NormalizedNodes.findNode(attributes, ids.asPath);
         if (maybeSegments.isPresent()) {
-            final UnkeyedListNode segments = (UnkeyedListNode) maybeSegments.orElseThrow();
-            final List<Segments> segs = extractSegments(segments, ids);
-            if (!segs.isEmpty()) {
-                peerAs = BesthPathStateUtil.getPeerAs(segs);
-                asPathLength = countAsPath(segs);
+            final var segmentsNode = (UnkeyedListNode) maybeSegments.orElseThrow();
+            final var segments = extractSegments(segmentsNode, ids);
+            if (!segments.isEmpty()) {
+                peerAs = BesthPathStateUtil.getPeerAs(segments);
+                asPathLength = countAsPath(segments);
             }
         }
 
-        final Optional<NormalizedNode> maybeCommunities = NormalizedNodes.findNode(attributes, ids.communities);
+        final var maybeCommunities = NormalizedNodes.findNode(attributes, ids.communities);
         if (maybeCommunities.isPresent()) {
             depreferenced = ((UnkeyedListNode) maybeCommunities.orElseThrow()).body().stream()
                 .anyMatch(community -> isStale(ids, community));
@@ -197,61 +194,40 @@ public final class BestPathStateImpl implements BestPathState {
         return depreferenced;
     }
 
-    private ToStringHelper addToStringAttributes(final ToStringHelper toStringHelper) {
-        toStringHelper.add("attributes", attributes);
-        toStringHelper.add("localPref", localPref);
-        toStringHelper.add("multiExitDisc", multiExitDisc);
-        toStringHelper.add("origin", origin);
-        toStringHelper.add("resolved", resolved);
-        toStringHelper.add("depreferenced", depreferenced);
-        return toStringHelper;
-    }
-
-    @Override
-    public String toString() {
-        return addToStringAttributes(MoreObjects.toStringHelper(this)).toString();
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
-        int result = 1;
-        result = prime * result + attributes.hashCode();
+        int result = attributes.hashCode();
         result = prime * result + (localPref == null ? 0 : localPref.hashCode());
         result = prime * result + Long.hashCode(multiExitDisc);
         result = prime * result + (origin == null ? 0 : origin.hashCode());
-        result = prime * result + Boolean.hashCode(depreferenced);
-        return result;
+        return prime * result + Boolean.hashCode(depreferenced);
     }
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof BestPathStateImpl other)) {
-            return false;
-        }
-        if (!attributes.equals(other.attributes)) {
-            return false;
-        }
-        if (!Objects.equals(localPref, other.localPref)) {
-            return false;
-        }
-        if (multiExitDisc != other.multiExitDisc) {
-            return false;
-        }
-        if (origin != other.origin) {
-            return false;
-        }
-        return depreferenced == other.depreferenced;
+        return this == obj || obj instanceof BaseBestPathState other
+            && attributes.equals(other.attributes) && Objects.equals(localPref, other.localPref)
+            && multiExitDisc == other.multiExitDisc && origin == other.origin && depreferenced == other.depreferenced;
+    }
+
+    @Override
+    public String toString() {
+        return MoreObjects.toStringHelper(this)
+            .add("attributes", attributes)
+            .add("localPref", localPref)
+            .add("multiExitDisc", multiExitDisc)
+            .add("origin", origin)
+            .add("resolved", resolved)
+            .add("depreferenced", depreferenced)
+            .toString();
     }
 
     private static List<Segments> extractSegments(final UnkeyedListNode segments, final NamespaceSpecificIds ids) {
         // list segments
-        final List<Segments> extracted = new ArrayList<>();
-        for (final UnkeyedListEntryNode segment : segments.body()) {
-            final SegmentsBuilder sb = new SegmentsBuilder();
+        final var extracted = new ArrayList<Segments>();
+        for (var segment : segments.body()) {
+            final var sb = new SegmentsBuilder();
             // We are expecting that segment contains either as-sequence or as-set,
             // so just one of them will be set, other would be null
             sb.setAsSequence(extractAsList(new ArrayList<>(), segment, ids.asSeqNid))
@@ -263,10 +239,10 @@ public final class BestPathStateImpl implements BestPathState {
 
     private static <T extends Collection<AsNumber>> T extractAsList(final T ases,
             final UnkeyedListEntryNode segment, final NodeIdentifier nid) {
-        final Optional<NormalizedNode> maybeAsList = NormalizedNodes.findNode(segment, nid);
+        final var maybeAsList = NormalizedNodes.findNode(segment, nid);
         if (maybeAsList.isPresent()) {
-            final LeafSetNode<?> list = (LeafSetNode<?>)maybeAsList.orElseThrow();
-            for (final LeafSetEntryNode<?> as : list.body())  {
+            final var list = (LeafSetNode<?>) maybeAsList.orElseThrow();
+            for (var as : list.body())  {
                 ases.add(new AsNumber((Uint32) as.body()));
             }
             return ases;
@@ -278,12 +254,12 @@ public final class BestPathStateImpl implements BestPathState {
         // an AS_SET counts as 1, no matter how many ASs are in the set.
         int count = 0;
         boolean setPresent = false;
-        for (final Segments s : segments) {
-            if (s.getAsSet() != null && !setPresent) {
+        for (var segment : segments) {
+            if (segment.getAsSet() != null && !setPresent) {
                 setPresent = true;
                 count++;
             } else {
-                final List<AsNumber> seq = s.getAsSequence();
+                final var seq = segment.getAsSequence();
                 if (seq != null) {
                     count += seq.size();
                 }

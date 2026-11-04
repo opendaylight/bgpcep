@@ -5,11 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.impl;
+package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableSet;
 import java.lang.reflect.Array;
 import java.util.Arrays;
@@ -23,14 +22,13 @@ import org.slf4j.LoggerFactory;
  * used as a template, i.e. users subclass it to a concrete map and use exclusively that class to access the
  * functionality.
  */
-@Beta
-public abstract class AbstractOffsetMap<K extends Immutable & Comparable<K>, T extends AbstractOffsetMap<K, T>> {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractOffsetMap.class);
+public abstract class AbstractOffsets<K extends Immutable & Comparable<K>, T extends AbstractOffsets<K, T>> {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractOffsets.class);
     private static final String INVALIDOFFSET = "Invalid offset %s for %s router IDs";
 
     private final K[] keys;
 
-    protected AbstractOffsetMap(final K[] emptyKeys, final Comparator<K> comparator, final ImmutableSet<K> routerIds) {
+    protected AbstractOffsets(final K[] emptyKeys, final Comparator<K> comparator, final ImmutableSet<K> routerIds) {
         final var array = routerIds.toArray(emptyKeys);
         Arrays.sort(array, comparator);
         keys = array;
@@ -87,8 +85,7 @@ public abstract class AbstractOffsetMap<K extends Immutable & Comparable<K>, T e
 
     public final <C> C[] expand(final T oldOffsets, final C[] oldArray, final int offset) {
         @SuppressWarnings("unchecked")
-        final C[] ret = (C[]) Array.newInstance(oldArray.getClass().getComponentType(), keys.length);
-
+        final var ret = (C[]) Array.newInstance(oldArray.getClass().getComponentType(), keys.length);
         System.arraycopy(oldArray, 0, ret, 0, offset);
         System.arraycopy(oldArray, offset, ret, offset + 1, oldOffsets.size() - offset);
         return ret;
@@ -106,12 +103,11 @@ public abstract class AbstractOffsetMap<K extends Immutable & Comparable<K>, T e
         }
 
         @SuppressWarnings("unchecked")
-        final C[] ret = (C[]) Array.newInstance(oldArray.getClass().getComponentType(), newLength);
+        final var ret = (C[]) Array.newInstance(oldArray.getClass().getComponentType(), newLength);
         System.arraycopy(oldArray, 0, ret, 0, offset);
         if (offset < newLength) {
             System.arraycopy(oldArray, offset + 1, ret, offset, newLength - offset);
         }
-
         return ret;
     }
 

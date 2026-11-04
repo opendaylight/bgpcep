@@ -7,7 +7,7 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
-import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
+import org.opendaylight.protocol.bgp.mode.impl.base.BaseBestPathState;
 import org.opendaylight.protocol.bgp.mode.spi.AbstractBestPathSelector;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
@@ -36,7 +36,7 @@ final class AddPathSelector extends AbstractBestPathSelector {
 
         // store the new details if we have nothing stored or when the selection algorithm indicates new details are
         // better
-        final var state = new BestPathStateImpl(attrs);
+        final var state = new BaseBestPathState(attrs);
         if (bestOriginatorId == null || !isExistingPathBetter(state)) {
             LOG.trace("Selecting path from router {}", routerId);
             bestOriginatorId = originatorId;
