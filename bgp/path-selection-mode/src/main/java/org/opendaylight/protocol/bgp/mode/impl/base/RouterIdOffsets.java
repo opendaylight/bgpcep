@@ -12,15 +12,14 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableSet;
 import java.util.Comparator;
-import org.opendaylight.protocol.bgp.mode.impl.AbstractOffsetMap;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 
 /**
  * A map of {@link RouterId} to an offset.
  *
- * @see AbstractOffsetMap
+ * @see AbstractOffsets
  */
-final class RouterIdOffsets extends AbstractOffsetMap<RouterId, RouterIdOffsets> {
+final class RouterIdOffsets extends AbstractOffsets<RouterId, RouterIdOffsets> {
     private static final LoadingCache<ImmutableSet<RouterId>, RouterIdOffsets> OFFSETMAPS = CacheBuilder.newBuilder()
             .weakValues().build(new CacheLoader<ImmutableSet<RouterId>, RouterIdOffsets>() {
                 @Override

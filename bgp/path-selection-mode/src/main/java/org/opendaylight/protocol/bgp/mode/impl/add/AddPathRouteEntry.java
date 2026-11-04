@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
-import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
+import org.opendaylight.protocol.bgp.mode.impl.base.BaseBestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
@@ -236,7 +236,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
     final AddPathBestPath bestPathAt(final RIBSupport ribSupport, final int offset) {
         final var route = verifyNotNull(offsets.getValue(values, offset));
-        return new AddPathBestPath(new BestPathStateImpl(ribSupport.extractAttributes(route)), offsets.getKey(offset),
+        return new AddPathBestPath(new BaseBestPathState(ribSupport.extractAttributes(route)), offsets.getKey(offset),
             offsets.getValue(pathsId, offset), offset);
     }
 

@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import org.opendaylight.protocol.bgp.mode.impl.BestPathStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.Attributes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPath;
@@ -40,7 +39,7 @@ class BasePathSelectorTest {
     private static final RouterId ROUTER_ID = RouterId.forAddress("127.0.0.1");
     private static final RouterId ROUTER_ID3 = RouterId.forPeerId(new PeerId("bgp://127.0.0.2"));
     private final BasePathSelector selector = new BasePathSelector(20L);
-    private final BestPathStateImpl state = new BestPathStateImpl(createStateFromPrefMedOriginASPath().build());
+    private final BaseBestPathState state = new BaseBestPathState(createStateFromPrefMedOriginASPath().build());
     private final BaseBestPath originBestPath = new BaseBestPath(ROUTER_ID, state);
 
     private static ContainerNode createStateFromPrefMedOrigin() {

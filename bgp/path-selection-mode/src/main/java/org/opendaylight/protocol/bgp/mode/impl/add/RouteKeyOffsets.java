@@ -12,14 +12,14 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableSet;
 import java.util.Comparator;
-import org.opendaylight.protocol.bgp.mode.impl.AbstractOffsetMap;
+import org.opendaylight.protocol.bgp.mode.impl.base.AbstractOffsets;
 
 /**
  * A map of {@link RouteKey} to an offset.
  *
- * @see AbstractOffsetMap
+ * @see AbstractOffsets
  */
-final class RouteKeyOffsets extends AbstractOffsetMap<RouteKey, RouteKeyOffsets> {
+final class RouteKeyOffsets extends AbstractOffsets<RouteKey, RouteKeyOffsets> {
     private static final LoadingCache<ImmutableSet<RouteKey>, RouteKeyOffsets> OFFSETMAPS = CacheBuilder.newBuilder()
             .weakValues().build(new CacheLoader<ImmutableSet<RouteKey>, RouteKeyOffsets>() {
                 @Override
