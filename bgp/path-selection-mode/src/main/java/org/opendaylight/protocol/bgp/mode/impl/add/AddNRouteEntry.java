@@ -7,9 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +28,13 @@ final class AddNRouteEntry extends AddPathRouteEntry {
         final int limit = Math.min(npaths, size);
         return switch (limit) {
             case 0 -> List.of();
-            case 1 -> ImmutableList.of(bestPathAt(ribSupport, 0));
+            case 1 -> List.of(bestPathAt(ribSupport, 0));
             default -> selectPaths(ribSupport, localAs, size, limit);
         };
     }
 
-    private List<AddPathBestPath> selectPaths(final RIBSupport ribSupport, final long localAs, final int size,
+    @NonNullByDefault
+    private ArrayList<AddPathBestPath> selectPaths(final RIBSupport ribSupport, final long localAs, final int size,
             final int limit) {
         // Scratch pool of offsets, we set them to true as we use them up.
         final var offsets = new boolean[size];
@@ -57,11 +58,6 @@ final class AddNRouteEntry extends AddPathRouteEntry {
             offsets[result.getOffset()] = true;
         }
 
-        return switch (paths.size()) {
-            case 0 -> List.of();
-            case 1 -> ImmutableList.of(paths.getFirst());
-            case 2 -> List.of(paths.getFirst(), paths.getLast());
-            default -> List.copyOf(paths);
-        };
+        return paths;
     }
 }

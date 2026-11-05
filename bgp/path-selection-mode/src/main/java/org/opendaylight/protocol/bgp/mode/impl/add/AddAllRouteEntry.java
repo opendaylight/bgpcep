@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -39,12 +38,6 @@ final class AddAllRouteEntry extends AddPathRouteEntry {
         for (int offset = newBest.getOffset() + 1; offset < size; ++offset) {
             paths.add(bestPathAt(ribSupport, offset));
         }
-
-        return switch (paths.size()) {
-            case 0 -> List.of();
-            case 1 -> ImmutableList.of(paths.getFirst());
-            case 2 -> List.of(paths.getFirst(), paths.getLast());
-            default -> List.copyOf(paths);
-        };
+        return paths;
     }
 }
