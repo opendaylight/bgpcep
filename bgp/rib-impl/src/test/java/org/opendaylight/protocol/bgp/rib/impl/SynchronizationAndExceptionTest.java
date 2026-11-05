@@ -170,10 +170,8 @@ public class SynchronizationAndExceptionTest extends AbstractAddPathTest {
         doReturn(eventLoop).when(speakerListener).eventLoop();
         doReturn(true).when(speakerListener).isActive();
         doAnswer(invocation -> {
-            final Runnable command = invocation.getArgument(0);
-            final long delay = (long) invocation.getArgument(1);
-            final TimeUnit unit = invocation.getArgument(2);
-            GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
+            GlobalEventExecutor.INSTANCE.schedule(invocation.getArgument(0, Runnable.class),
+                invocation.getArgument(1, Long.class), invocation.getArgument(2, TimeUnit.class));
             return null;
         }).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
         doReturn("TestingChannel").when(speakerListener).toString();
