@@ -57,6 +57,32 @@ final class BaseRouteEntry implements RouteEntry {
     private boolean removedBestPath;
 
     @Override
+    public boolean putRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
+        final int offset = offsets.offsetOf(routerId);
+        if (offset < 0) {
+            addRoute(routerId, route);
+            return true;
+        }
+        setRoute(routerId, route, offset);
+        return false;
+    }
+
+    @NonNullByDefault
+    private void addRoute(final RouterId routerId, final MapEntryNode route) {
+        final var newOffsets = offsets.with(routerId);
+        final var offset = newOffsets.offsetOf(routerId);
+        values = newOffsets.expand(offsets, values, offset);
+        offsets = newOffsets;
+        setRoute(routerId, route, offset);
+    }
+
+    @NonNullByDefault
+    private void setRoute(final RouterId routerId, final MapEntryNode route, final int offset) {
+        offsets.setValue(values, offset, route);
+        LOG.trace("Added route {} from {}", route, routerId);
+    }
+
+    @Override
     public boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
         final int offset = offsets.offsetOf(routerId);
         values = offsets.removeValue(values, offset, EMPTY_VALUES);
@@ -114,32 +140,6 @@ final class BaseRouteEntry implements RouteEntry {
     private void setBestPath(final @Nullable BaseBestPath oldBestPath, final @Nullable BaseBestPath newBestPath) {
         LOG.trace("Previous best {}, current best {}", oldBestPath, newBestPath);
         bestPath = newBestPath;
-    }
-
-    @Override
-    public boolean putRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
-        final int offset = offsets.offsetOf(routerId);
-        if (offset < 0) {
-            addRoute(routerId, route);
-            return true;
-        }
-        setRoute(routerId, route, offset);
-        return false;
-    }
-
-    @NonNullByDefault
-    private void addRoute(final RouterId routerId, final MapEntryNode route) {
-        final var newOffsets = offsets.with(routerId);
-        final var offset = newOffsets.offsetOf(routerId);
-        values = newOffsets.expand(offsets, values, offset);
-        offsets = newOffsets;
-        setRoute(routerId, route, offset);
-    }
-
-    @NonNullByDefault
-    private void setRoute(final RouterId routerId, final MapEntryNode route, final int offset) {
-        offsets.setValue(values, offset, route);
-        LOG.trace("Added route {} from {}", route, routerId);
     }
 
     @Override
