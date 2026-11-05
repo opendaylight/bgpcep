@@ -224,7 +224,8 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @NonNullByDefault
     private boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
         // FIXME: Err.. what?
-        isNonAddPathBestPathNew = !isNonAddPathBestPathTheSame(newBestPathList);
+        isNonAddPathBestPathNew = isEmptyOrNull(bestPath) || isEmptyOrNull(newBestPathList)
+            || !bestPath.getFirst().equals(newBestPathList.getFirst());
         filterRemovedPaths(newBestPathList);
         if (bestPathRemoved != null && !bestPathRemoved.isEmpty() || !newBestPathList.equals(bestPath)) {
             if (bestPath != null) {
@@ -240,18 +241,13 @@ abstract class AddPathRouteEntry implements RouteEntry {
         return false;
     }
 
-    @NonNullByDefault
-    private boolean isNonAddPathBestPathTheSame(final List<AddPathBestPath> newBestPathList) {
-        return !isEmptyOrNull(bestPath) && !isEmptyOrNull(newBestPathList)
-            && bestPath.getFirst().equals(newBestPathList.getFirst());
-    }
-
     /**
      * Process a specific route offset into specified selector.
      *
      * @param selector selector to update
      * @param offset offset to process
      */
+    @NonNullByDefault
     final void processOffset(final RIBSupport ribSupport, final AddPathSelector selector,
             final int offset) {
         final var key = offsets.getKey(offset);
@@ -261,6 +257,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
         selector.processPath(ribSupport.extractAttributes(route), key, offset, pathId);
     }
 
+    @NonNullByDefault
     final AddPathBestPath bestPathAt(final RIBSupport ribSupport, final int offset) {
         final var route = verifyNotNull(offsets.getValue(values, offset));
         return new AddPathBestPath(new BaseBestPathState(ribSupport.extractAttributes(route)), offsets.getKey(offset),
