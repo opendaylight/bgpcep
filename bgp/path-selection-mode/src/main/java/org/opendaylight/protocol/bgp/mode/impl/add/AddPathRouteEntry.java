@@ -12,6 +12,7 @@ import static com.google.common.base.Verify.verifyNotNull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.base.BaseBestPathState;
@@ -171,21 +172,48 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
     @Override
     public final List<AdvertizedRoute> newBestPaths(final RIBSupport ribSupport, final String routeKey) {
-        if (newBestPathToBeAdvertised == null || newBestPathToBeAdvertised.isEmpty()) {
+        final var paths = newBestPathToBeAdvertised;
+        if (paths == null) {
             return List.of();
         }
-        final var advertized = new ArrayList<AdvertizedRoute>(newBestPathToBeAdvertised.size());
-        final var firstBestPath = bestPath.isEmpty() ? null : bestPath.getFirst();
-        for (var path : newBestPathToBeAdvertised) {
-            final var routeAddPath = createRoute(ribSupport, routeKey, path);
-            // FIXME: can we use identity check here?
-            final boolean isFirstBestPath = firstBestPath != null && firstBestPath.equals(path);
-            final var adv = new AdvertizedRoute(ribSupport, isFirstBestPath, routeAddPath, path.getAttributes(),
-                path.getPeerId(), path.isDepreferenced());
-            advertized.add(adv);
-        }
+
         newBestPathToBeAdvertised = null;
-        return advertized;
+        final var size = paths.size();
+        return switch (size) {
+            case 0 -> List.of();
+            case 1 -> Collections.singletonList(
+                advertizedRoute(ribSupport, routeKey, isFirst(), paths.getFirst()));
+            case 2 -> {
+                final var isFirst = isFirst();
+                yield List.of(
+                    advertizedRoute(ribSupport, routeKey, isFirst, paths.getFirst()),
+                    advertizedRoute(ribSupport, routeKey, isFirst, paths.getLast()));
+            }
+            default -> {
+                final var isFirst = isFirst();
+                final var ret = new ArrayList<AdvertizedRoute>(size);
+                for (var path : paths) {
+                    ret.add(advertizedRoute(ribSupport, routeKey, isFirst, path));
+                }
+                yield ret;
+            }
+        };
+    }
+
+    @NonNullByDefault
+    private AdvertizedRoute advertizedRoute(final RIBSupport ribSupport, final String routeKey,
+            final Predicate<AddPathBestPath> isFirst, final AddPathBestPath path) {
+        return new AdvertizedRoute(ribSupport, isFirst.test(path), createRoute(ribSupport, routeKey, path),
+            path.getAttributes(), path.getPeerId(), path.isDepreferenced());
+    }
+
+    @NonNullByDefault
+    private Predicate<AddPathBestPath> isFirst() {
+        if (bestPath != null && !bestPath.isEmpty()) {
+            final var firstBest = bestPath.getFirst();
+            return path -> firstBest == path || firstBest.equals(path);
+        }
+        return path -> false;
     }
 
     @Override
