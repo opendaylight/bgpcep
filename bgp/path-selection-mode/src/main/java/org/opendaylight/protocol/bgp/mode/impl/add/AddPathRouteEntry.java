@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.base.BaseBestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -257,7 +258,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @NonNullByDefault
     private boolean selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
         final var paths = selectPaths(ribSupport, localAs, size);
-        return isBestPathNew(switch (paths.size()) {
+        return setBestPath(bestPath, switch (paths.size()) {
             case 0 -> List.of();
             case 1 -> Collections.singletonList(paths.getFirst());
             case 2 -> List.of(paths.getFirst(), paths.getLast());
@@ -266,36 +267,37 @@ abstract class AddPathRouteEntry implements RouteEntry {
     }
 
     private boolean selectNone() {
-        return isBestPathNew(List.of());
+        return setBestPath(bestPath, List.of());
     }
 
     @NonNullByDefault
     abstract List<AddPathBestPath> selectPaths(RIBSupport ribSupport, long localAs, int size);
 
     @NonNullByDefault
-    private boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
+    private boolean setBestPath(final @Nullable List<AddPathBestPath> oldBestPath,
+            final List<AddPathBestPath> newBestPath) {
         // FIXME: Err.. what?
-        isNonAddPathBestPathNew = bestPath == null || bestPath.isEmpty() || newBestPathList.isEmpty()
-            || !bestPath.getFirst().equals(newBestPathList.getFirst());
+        isNonAddPathBestPathNew = oldBestPath == null || oldBestPath.isEmpty() || newBestPath.isEmpty()
+            || !oldBestPath.getFirst().equals(newBestPath.getFirst());
 
-        if (bestPath != null) {
-            bestPathRemoved = new ArrayList<>(bestPath);
-            bestPath.forEach(oldBest -> newBestPathList.stream()
+        if (oldBestPath != null) {
+            bestPathRemoved = new ArrayList<>(oldBestPath);
+            oldBestPath.forEach(oldBest -> newBestPath.stream()
                 .filter(newBest -> newBest.getPathId() == oldBest.getPathId()
                         && newBest.getRouteKey().equals(oldBest.getRouteKey()))
                 .findAny()
                 .ifPresent(addPathBestPath -> bestPathRemoved.remove(oldBest)));
         }
 
-        if (bestPathRemoved != null && !bestPathRemoved.isEmpty() || !newBestPathList.equals(bestPath)) {
-            if (bestPath != null) {
-                newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
-                newBestPathToBeAdvertised.removeAll(bestPath);
+        if (bestPathRemoved != null && !bestPathRemoved.isEmpty() || !newBestPath.equals(oldBestPath)) {
+            if (oldBestPath != null) {
+                newBestPathToBeAdvertised = new ArrayList<>(newBestPath);
+                newBestPathToBeAdvertised.removeAll(oldBestPath);
             } else {
-                newBestPathToBeAdvertised = newBestPathList;
+                newBestPathToBeAdvertised = newBestPath;
             }
-            bestPath = newBestPathList;
-            LOG.trace("Actual Best {}, removed best {}", bestPath, bestPathRemoved);
+            bestPath = newBestPath;
+            LOG.trace("Actual Best {}, removed best {}", newBestPath, bestPathRemoved);
             return true;
         }
         return false;
