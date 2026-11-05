@@ -155,13 +155,12 @@ final class BaseRouteEntry implements RouteEntry {
     public List<AdvertizedRoute> newBestPaths(final RIBSupport ribSupport, final String routeKey) {
         final var best = bestPath;
         if (best == null) {
-            return Collections.emptyList();
+            return List.of();
         }
         final var route = createRoute(ribSupport, routeKey, best);
-        final var adv = new AdvertizedRoute(ribSupport, route, best.getAttributes(), best.getPeerId(),
-            best.isDepreferenced());
         LOG.trace("Selected best route {}", route);
-        return Collections.singletonList(adv);
+        return Collections.singletonList(new AdvertizedRoute(ribSupport, route, best.getAttributes(), best.getPeerId(),
+            best.isDepreferenced()));
     }
 
     @Override
