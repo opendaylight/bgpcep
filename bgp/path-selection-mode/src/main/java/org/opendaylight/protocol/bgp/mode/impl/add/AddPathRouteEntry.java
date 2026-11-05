@@ -101,13 +101,6 @@ abstract class AddPathRouteEntry implements RouteEntry {
     private long pathIdCounter = 0L;
     private boolean isNonAddPathBestPathNew;
 
-    private MapEntryNode createRoute(final RIBSupport ribSupport, final String routeKey, final AddPathBestPath path) {
-        final var map = offsets;
-        final var route = map.getValue(values, map.offsetOf(path.getRouteKey()));
-        return ribSupport.createRoute(route, ribSupport.createRouteListArgument(path.getPathIdLong(), routeKey),
-            path.getAttributes());
-    }
-
     @Override
     public final boolean putRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
         final var routeKey = new RouteKey(routerId, remotePathId);
@@ -290,5 +283,13 @@ abstract class AddPathRouteEntry implements RouteEntry {
                 .findAny()
                 .ifPresent(addPathBestPath -> bestPathRemoved.remove(oldBest));
         });
+    }
+
+    @NonNullByDefault
+    private MapEntryNode createRoute(final RIBSupport ribSupport, final String routeKey, final AddPathBestPath path) {
+        final var map = offsets;
+        final var route = map.getValue(values, map.offsetOf(path.getRouteKey()));
+        return ribSupport.createRoute(route, ribSupport.createRouteListArgument(path.getPathIdLong(), routeKey),
+            path.getAttributes());
     }
 }
