@@ -252,25 +252,23 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @Override
     public final boolean selectBest(final RIBSupport ribSupport, final long localAs) {
         final var size = offsets.size();
-        return size == 0 ? selectNone() : selectBest(selectBest(ribSupport, localAs, size));
+        return size == 0 ? select0() : selectBest(selectBest(ribSupport, localAs, size));
     }
 
     @NonNullByDefault
     abstract List<AddPathBestPath> selectBest(RIBSupport ribSupport, long localAs, int size);
 
     @NonNullByDefault
-    private boolean selectBest(final List<AddPathBestPath> selectedPaths) {
-        final var newBestPath = switch (selectedPaths.size()) {
-            case 0 -> List.<AddPathBestPath>of();
-            case 1 -> Collections.singletonList(selectedPaths.getFirst());
-            case 2 -> List.of(selectedPaths.getFirst(), selectedPaths.getLast());
-            default -> List.copyOf(selectedPaths);
+    private boolean selectBest(final List<AddPathBestPath> newBestPath) {
+        return switch (newBestPath.size()) {
+            case 0 -> select0();
+            case 1 -> selectN(Collections.singletonList(newBestPath.getFirst()));
+            case 2 -> selectN(List.of(newBestPath.getFirst(), newBestPath.getLast()));
+            default -> selectN(List.copyOf(newBestPath));
         };
-
-        return setBestPath(bestPath, newBestPath);
     }
 
-    private boolean selectNone() {
+    private boolean select0() {
         final var oldBestPath = bestPath;
         if (oldBestPath == null || oldBestPath.isEmpty()) {
             return false;
@@ -280,6 +278,13 @@ abstract class AddPathRouteEntry implements RouteEntry {
         isNonAddPathBestPathNew = true;
         setBestPath(List.of());
         return true;
+    }
+
+    @NonNullByDefault
+    private boolean selectN(final List<AddPathBestPath> newBestPath) {
+        final var oldBestPath = bestPath;
+        // FIXME: inline the bestPath.isEmpty() case
+        return setBestPath(oldBestPath, newBestPath);
     }
 
     @NonNullByDefault
