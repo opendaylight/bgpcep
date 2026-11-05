@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -33,12 +32,12 @@ final class BaseRouteEntry implements RouteEntry {
 
         @Override
         public List<NodeIdentifierWithPredicates> getStaleRouteKeyIdentifiers() {
-            return Collections.singletonList(getNonAddPathRouteKeyIdentifier());
+            return List.of(getNonAddPathRouteKeyIdentifier());
         }
 
         @Override
         public List<NodeIdentifierWithPredicates> getAddPathRouteKeyIdentifiers() {
-            return Collections.emptyList();
+            return List.of();
         }
 
         @Override
@@ -159,17 +158,16 @@ final class BaseRouteEntry implements RouteEntry {
         }
         final var route = createRoute(ribSupport, routeKey, best);
         LOG.trace("Selected best route {}", route);
-        return Collections.singletonList(new AdvertizedRoute(ribSupport, route, best.getAttributes(), best.getPeerId(),
+        return List.of(new AdvertizedRoute(ribSupport, route, best.getAttributes(), best.getPeerId(),
             best.isDepreferenced()));
     }
 
     @Override
     public List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport, final RouteEntryInfo entryInfo) {
         final var best = bestPath;
-        return best == null ? List.of()
-            : Collections.singletonList(new ActualBestPathRoutes(ribSupport,
-                createRoute(ribSupport, entryInfo.getRouteKey(), best), best.getPeerId(), best.getAttributes(),
-                best.isDepreferenced()));
+        return best == null ? List.of() : List.of(new ActualBestPathRoutes(ribSupport,
+            createRoute(ribSupport, entryInfo.getRouteKey(), best), best.getPeerId(), best.getAttributes(),
+            best.isDepreferenced()));
     }
 
     @NonNullByDefault

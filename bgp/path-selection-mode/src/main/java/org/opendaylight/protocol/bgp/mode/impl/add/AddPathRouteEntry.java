@@ -9,8 +9,8 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import static com.google.common.base.Verify.verifyNotNull;
 
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 import org.eclipse.jdt.annotation.NonNullByDefault;
@@ -182,8 +182,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
         final var size = paths.size();
         return switch (size) {
             case 0 -> List.of();
-            case 1 -> Collections.singletonList(
-                advertizedRoute(ribSupport, routeKey, isFirst(), paths.getFirst()));
+            case 1 -> List.of(advertizedRoute(ribSupport, routeKey, isFirst(), paths.getFirst()));
             case 2 -> {
                 final var isFirst = isFirst();
                 yield List.of(
@@ -228,7 +227,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
         final var size = paths.size();
         return switch (size) {
             case 0 -> List.of();
-            case 1 -> Collections.singletonList(actualBestPath(ribSupport, entryInfo, paths.getFirst()));
+            case 1 -> List.of(actualBestPath(ribSupport, entryInfo, paths.getFirst()));
             case 2 -> List.of(
                 actualBestPath(ribSupport, entryInfo, paths.getFirst()),
                 actualBestPath(ribSupport, entryInfo, paths.getLast()));
@@ -262,7 +261,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
     private boolean selectBest(final List<AddPathBestPath> newBestPath) {
         return switch (newBestPath.size()) {
             case 0 -> select0();
-            case 1 -> selectN(Collections.singletonList(newBestPath.getFirst()));
+            case 1 -> selectN(ImmutableList.of(newBestPath.getFirst()));
             case 2 -> selectN(List.of(newBestPath.getFirst(), newBestPath.getLast()));
             default -> selectN(List.copyOf(newBestPath));
         };
