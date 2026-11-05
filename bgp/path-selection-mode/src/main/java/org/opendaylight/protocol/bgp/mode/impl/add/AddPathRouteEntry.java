@@ -226,7 +226,16 @@ abstract class AddPathRouteEntry implements RouteEntry {
         // FIXME: Err.. what?
         isNonAddPathBestPathNew = isEmptyOrNull(bestPath) || isEmptyOrNull(newBestPathList)
             || !bestPath.getFirst().equals(newBestPathList.getFirst());
-        filterRemovedPaths(newBestPathList);
+
+        if (bestPath != null) {
+            bestPathRemoved = new ArrayList<>(bestPath);
+            bestPath.forEach(oldBest -> newBestPathList.stream()
+                .filter(newBest -> newBest.getPathId() == oldBest.getPathId()
+                        && newBest.getRouteKey().equals(oldBest.getRouteKey()))
+                .findAny()
+                .ifPresent(addPathBestPath -> bestPathRemoved.remove(oldBest)));
+        }
+
         if (bestPathRemoved != null && !bestPathRemoved.isEmpty() || !newBestPathList.equals(bestPath)) {
             if (bestPath != null) {
                 newBestPathToBeAdvertised = new ArrayList<>(newBestPathList);
@@ -266,20 +275,6 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
     private static boolean isEmptyOrNull(final List<AddPathBestPath> pathList) {
         return pathList == null || pathList.isEmpty();
-    }
-
-    private void filterRemovedPaths(final List<AddPathBestPath> newBestPathList) {
-        if (bestPath == null) {
-            return;
-        }
-        bestPathRemoved = new ArrayList<>(bestPath);
-        bestPath.forEach(oldBest -> {
-            newBestPathList.stream()
-                .filter(newBest -> newBest.getPathId() == oldBest.getPathId()
-                        && newBest.getRouteKey().equals(oldBest.getRouteKey()))
-                .findAny()
-                .ifPresent(addPathBestPath -> bestPathRemoved.remove(oldBest));
-        });
     }
 
     @NonNullByDefault
