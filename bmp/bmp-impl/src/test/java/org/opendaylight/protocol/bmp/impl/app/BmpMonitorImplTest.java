@@ -141,7 +141,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
         super.setup();
 
         doAnswer(invocationOnMock -> {
-            BmpMonitorImplTest.this.singletonService = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            BmpMonitorImplTest.this.singletonService = invocationOnMock.getArgument(0, ClusterSingletonService.class);
             singletonService.instantiateServiceInstance();
             return BmpMonitorImplTest.this.singletonServiceRegistration;
         }).when(clusterSSProv).registerClusterSingletonService(any(ClusterSingletonService.class));
@@ -150,7 +150,7 @@ public class BmpMonitorImplTest extends AbstractConcurrentDataBrokerTest {
             .when(singletonServiceRegistration).close();
 
         doAnswer(invocationOnMock -> {
-            singletonService2 = (ClusterSingletonService) invocationOnMock.getArguments()[0];
+            singletonService2 = invocationOnMock.getArgument(0, ClusterSingletonService.class);
             singletonService2.instantiateServiceInstance();
             return BmpMonitorImplTest.this.singletonServiceRegistration2;
         }).when(clusterSSProv2).registerClusterSingletonService(any(ClusterSingletonService.class));
