@@ -17,7 +17,7 @@ final class AddAllRouteEntry extends AddPathRouteEntry {
     private static final Logger LOG = LoggerFactory.getLogger(AddAllRouteEntry.class);
 
     @Override
-    List<AddPathBestPath> selectPaths(final RIBSupport ribSupport, final long localAs, final int size) {
+    List<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
         // Select the best path for the case when AddPath is not supported
         final var selector = new AddPathSelector(localAs);
         for (int offset = 0; offset < size; ++offset) {

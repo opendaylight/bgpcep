@@ -252,26 +252,35 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @Override
     public final boolean selectBest(final RIBSupport ribSupport, final long localAs) {
         final var size = offsets.size();
-        return size == 0 ? selectNone() : selectBest(ribSupport, localAs, size);
+        return size == 0 ? selectNone() : selectBest(selectBest(ribSupport, localAs, size));
     }
 
     @NonNullByDefault
-    private boolean selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
-        final var paths = selectPaths(ribSupport, localAs, size);
-        return setBestPath(bestPath, switch (paths.size()) {
-            case 0 -> List.of();
-            case 1 -> Collections.singletonList(paths.getFirst());
-            case 2 -> List.of(paths.getFirst(), paths.getLast());
-            default -> List.copyOf(paths);
-        });
+    abstract List<AddPathBestPath> selectBest(RIBSupport ribSupport, long localAs, int size);
+
+    @NonNullByDefault
+    private boolean selectBest(final List<AddPathBestPath> selectedPaths) {
+        final var newBestPath = switch (selectedPaths.size()) {
+            case 0 -> List.<AddPathBestPath>of();
+            case 1 -> Collections.singletonList(selectedPaths.getFirst());
+            case 2 -> List.of(selectedPaths.getFirst(), selectedPaths.getLast());
+            default -> List.copyOf(selectedPaths);
+        };
+
+        return setBestPath(bestPath, newBestPath);
     }
 
     private boolean selectNone() {
-        return setBestPath(bestPath, List.of());
+        final var oldBestPath = bestPath;
+        if (oldBestPath == null || oldBestPath.isEmpty()) {
+            return false;
+        }
+        bestPathRemoved = oldBestPath;
+        newBestPathToBeAdvertised = null;
+        isNonAddPathBestPathNew = true;
+        setBestPath(List.of());
+        return true;
     }
-
-    @NonNullByDefault
-    abstract List<AddPathBestPath> selectPaths(RIBSupport ribSupport, long localAs, int size);
 
     @NonNullByDefault
     private boolean setBestPath(final @Nullable List<AddPathBestPath> oldBestPath,
@@ -296,11 +305,16 @@ abstract class AddPathRouteEntry implements RouteEntry {
             } else {
                 newBestPathToBeAdvertised = newBestPath;
             }
-            bestPath = newBestPath;
-            LOG.trace("Actual Best {}, removed best {}", newBestPath, bestPathRemoved);
+            setBestPath(newBestPath);
             return true;
         }
         return false;
+    }
+
+    @NonNullByDefault
+    private void setBestPath(final List<AddPathBestPath> newBestPath) {
+        bestPath = newBestPath;
+        LOG.trace("Actual Best {}, removed best {}", newBestPath, bestPathRemoved);
     }
 
     /**

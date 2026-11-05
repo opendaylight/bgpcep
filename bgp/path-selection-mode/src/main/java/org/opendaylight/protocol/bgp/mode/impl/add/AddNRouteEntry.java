@@ -24,17 +24,17 @@ final class AddNRouteEntry extends AddPathRouteEntry {
     }
 
     @Override
-    List<AddPathBestPath> selectPaths(final RIBSupport ribSupport, final long localAs, final int size) {
+    List<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
         final int limit = Math.min(npaths, size);
         return switch (limit) {
             case 0 -> List.of();
             case 1 -> List.of(bestPathAt(ribSupport, 0));
-            default -> selectPaths(ribSupport, localAs, size, limit);
+            default -> selectBest(ribSupport, localAs, size, limit);
         };
     }
 
     @NonNullByDefault
-    private ArrayList<AddPathBestPath> selectPaths(final RIBSupport ribSupport, final long localAs, final int size,
+    private ArrayList<AddPathBestPath> selectBest(final RIBSupport ribSupport, final long localAs, final int size,
             final int limit) {
         // Scratch pool of offsets, we set them to true as we use them up.
         final var offsets = new boolean[size];
