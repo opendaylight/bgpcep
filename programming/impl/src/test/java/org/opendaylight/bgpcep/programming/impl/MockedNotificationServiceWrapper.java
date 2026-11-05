@@ -8,7 +8,6 @@
 package org.opendaylight.bgpcep.programming.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -30,9 +29,7 @@ final class MockedNotificationServiceWrapper {
         final NotificationPublishService mockedNotificationService = mock(NotificationPublishService.class);
 
         doAnswer(invocation -> {
-            final Object notif = invocation.getArguments()[0];
-            assertInstanceOf(Notification.class, notif);
-            MockedNotificationServiceWrapper.this.publishedNotifications.add((Notification<?>) notif);
+            publishedNotifications.add(invocation.getArgument(0, Notification.class));
             return null;
         }).when(mockedNotificationService).putNotification(any(Notification.class));
         return mockedNotificationService;
