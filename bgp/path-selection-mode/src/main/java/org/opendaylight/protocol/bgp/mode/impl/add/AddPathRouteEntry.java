@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 import static com.google.common.base.Verify.verifyNotNull;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
@@ -190,17 +191,32 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @Override
     public final List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport,
             final RouteEntryInfo entryInfo) {
-        if (bestPath == null || bestPath.isEmpty()) {
+        final var paths = bestPath;
+        if (paths == null) {
             return List.of();
         }
-        final var preexistentRoutes = new ArrayList<ActualBestPathRoutes>();
-        for (var path : bestPath) {
-            final var route = createRoute(ribSupport, entryInfo.getRouteKey(), path);
-            final var adv = new ActualBestPathRoutes(ribSupport, route, path.getPeerId(), path.getAttributes(),
-                path.isDepreferenced());
-            preexistentRoutes.add(adv);
-        }
-        return preexistentRoutes;
+        final var size = paths.size();
+        return switch (size) {
+            case 0 -> List.of();
+            case 1 -> Collections.singletonList(actualBestPath(ribSupport, entryInfo, paths.getFirst()));
+            case 2 -> List.of(
+                actualBestPath(ribSupport, entryInfo, paths.getFirst()),
+                actualBestPath(ribSupport, entryInfo, paths.getLast()));
+            default -> {
+                final var ret = new ArrayList<ActualBestPathRoutes>(size);
+                for (var path : paths) {
+                    ret.add(actualBestPath(ribSupport, entryInfo, path));
+                }
+                yield ret;
+            }
+        };
+    }
+
+    @NonNullByDefault
+    private ActualBestPathRoutes actualBestPath(final RIBSupport ribSupport, final RouteEntryInfo entryInfo,
+            final AddPathBestPath path) {
+        return new ActualBestPathRoutes(ribSupport, createRoute(ribSupport, entryInfo.getRouteKey(), path),
+            path.getPeerId(), path.getAttributes(), path.isDepreferenced());
     }
 
     @Override

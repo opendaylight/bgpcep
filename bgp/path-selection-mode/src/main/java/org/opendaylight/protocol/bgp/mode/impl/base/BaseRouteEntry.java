@@ -167,12 +167,10 @@ final class BaseRouteEntry implements RouteEntry {
     @Override
     public List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport, final RouteEntryInfo entryInfo) {
         final var best = bestPath;
-        if (best == null) {
-            return Collections.emptyList();
-        }
-        final var route = createRoute(ribSupport, entryInfo.getRouteKey(), best);
-        return Collections.singletonList(new ActualBestPathRoutes(ribSupport, route, best.getPeerId(),
-            best.getAttributes(), best.isDepreferenced()));
+        return best == null ? List.of()
+            : Collections.singletonList(new ActualBestPathRoutes(ribSupport,
+                createRoute(ribSupport, entryInfo.getRouteKey(), best), best.getPeerId(), best.getAttributes(),
+                best.isDepreferenced()));
     }
 
     @NonNullByDefault
