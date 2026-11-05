@@ -143,8 +143,7 @@ class FSMTest {
 
             final InetAddress peerAddress = InetAddress.getByName("1.1.1.2");
             doAnswer(invocation -> {
-                final Object[] args = invocation.getArguments();
-                FSMTest.this.receivedMsgs.add((Notification<?>) args[0]);
+                FSMTest.this.receivedMsgs.add(invocation.getArgument(0, Notification.class));
                 return f;
             }).when(speakerListener).writeAndFlush(any(Notification.class));
             doReturn(eventLoop).when(speakerListener).eventLoop();

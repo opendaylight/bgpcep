@@ -129,17 +129,14 @@ class BGPSessionImplTest {
             doReturn(null).when(f).addListener(any());
 
             doAnswer(invocation -> {
-                final Object[] args = invocation.getArguments();
-                BGPSessionImplTest.this.receivedMsgs.add((Notification<?>) args[0]);
+                BGPSessionImplTest.this.receivedMsgs.add(invocation.getArgument(0, Notification.class));
                 return f;
             }).when(speakerListener).writeAndFlush(any(Notification.class));
             doReturn(eventLoop).when(speakerListener).eventLoop();
             doReturn(true).when(speakerListener).isActive();
             doAnswer(invocation -> {
-                final Runnable command = (Runnable) invocation.getArguments()[0];
-                final long delay = (long) invocation.getArguments()[1];
-                final TimeUnit unit = (TimeUnit) invocation.getArguments()[2];
-                GlobalEventExecutor.INSTANCE.schedule(command, delay, unit);
+                GlobalEventExecutor.INSTANCE.schedule(invocation.getArgument(0, Runnable.class),
+                    invocation.getArgument(1, Long.class), invocation.getArgument(2, TimeUnit.class));
                 return null;
             }).when(eventLoop).schedule(any(Runnable.class), any(long.class), any(TimeUnit.class));
             doReturn("TestingChannel").when(speakerListener).toString();

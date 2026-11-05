@@ -134,10 +134,9 @@ public class RIBSupportTest extends AbstractConcurrentDataBrokerTest {
                 return arg;
             }).when(tx).delete(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class));
             doAnswer(invocation -> {
-                final Object[] args = invocation.getArguments();
-                final NormalizedNode node1 = (NormalizedNode) args[2];
-                routesMap.put((YangInstanceIdentifier) args[1], node1);
-                return args[1];
+                final var path = invocation.getArgument(1, YangInstanceIdentifier.class);
+                routesMap.put(path, invocation.getArgument(2, NormalizedNode.class));
+                return path;
             }).when(tx).put(Mockito.eq(LogicalDatastoreType.OPERATIONAL), any(YangInstanceIdentifier.class),
                     any(NormalizedNode.class));
 

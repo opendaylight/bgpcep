@@ -85,8 +85,7 @@ class AbstractPCEPSessionTest {
     public final void setUp() {
         final ChannelFuture cfuture = new DefaultChannelPromise(channel);
         doAnswer(invocation -> {
-            final Object[] args = invocation.getArguments();
-            AbstractPCEPSessionTest.this.msgsSend.add((Notification<?>) args[0]);
+            AbstractPCEPSessionTest.this.msgsSend.add(invocation.getArgument(0, Notification.class));
             return cfuture;
         }).when(channel).writeAndFlush(any(Notification.class));
         doReturn(channelFuture).when(channel).closeFuture();

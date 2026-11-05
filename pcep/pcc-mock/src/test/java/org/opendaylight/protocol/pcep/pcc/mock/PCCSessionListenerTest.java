@@ -70,7 +70,7 @@ class PCCSessionListenerTest {
 
     private void stubSendMessage() {
         doAnswer(invocation -> {
-            PCCSessionListenerTest.this.sendMessages.add((Message) invocation.getArguments()[0]);
+            PCCSessionListenerTest.this.sendMessages.add(invocation.getArgument(0, Message.class));
             return null;
         }).when(mockedSession).sendMessage(any());
     }

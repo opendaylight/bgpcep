@@ -93,14 +93,14 @@ class PCCTunnelManagerImplTest {
 
     private void stubSendError1() {
         doAnswer(invocation -> {
-            PCCTunnelManagerImplTest.this.errorsSession1.add(getError((Pcerr) invocation.getArguments()[0]));
+            PCCTunnelManagerImplTest.this.errorsSession1.add(getError(invocation.getArgument(0, Pcerr.class)));
             return null;
         }).when(session1).sendError(any(Pcerr.class));
     }
 
     private void stubSendError2() {
         doAnswer(invocation -> {
-            PCCTunnelManagerImplTest.this.errorsSession2.add(getError((Pcerr) invocation.getArguments()[0]));
+            PCCTunnelManagerImplTest.this.errorsSession2.add(getError(invocation.getArgument(0, Pcerr.class)));
             return null;
         }).when(session2).sendError(any(Pcerr.class));
     }
