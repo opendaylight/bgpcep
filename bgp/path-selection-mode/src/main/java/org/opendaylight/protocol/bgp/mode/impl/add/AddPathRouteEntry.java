@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.mode.impl.add;
 
 import static com.google.common.base.Verify.verifyNotNull;
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
@@ -101,7 +102,9 @@ abstract class AddPathRouteEntry implements RouteEntry {
     private List<AddPathBestPath> newBestPathToBeAdvertised;
     private List<Uint32> removedPathsId;
 
+    // FIXME: overflow handling and better Uint32.valueOf() integration
     private long pathIdCounter = 0L;
+    // FIXME: err.. what is this??
     private boolean isNonAddPathBestPathNew;
 
     @Override
@@ -272,10 +275,9 @@ abstract class AddPathRouteEntry implements RouteEntry {
         if (oldBestPath == null || oldBestPath.isEmpty()) {
             return false;
         }
-        bestPathRemoved = oldBestPath;
-        newBestPathToBeAdvertised = null;
         isNonAddPathBestPathNew = true;
-        setBestPath(List.of());
+        newBestPathToBeAdvertised = null;
+        setBestPath(List.of(), oldBestPath);
         return true;
     }
 
@@ -285,49 +287,41 @@ abstract class AddPathRouteEntry implements RouteEntry {
         if (oldBestPath != null && !oldBestPath.isEmpty()) {
             return selectN(newBestPath, oldBestPath);
         }
-        // FIXME: inline the bestPath.isEmpty() case
-        return setBestPath(oldBestPath, newBestPath);
+        isNonAddPathBestPathNew = true;
+        newBestPathToBeAdvertised = newBestPath;
+        setBestPath(newBestPath, null);
+        return true;
     }
 
     @NonNullByDefault
     private boolean selectN(final List<AddPathBestPath> newBestPath, final List<AddPathBestPath> oldBestPath) {
-        // FIXME: inline the non-empty case
-        return setBestPath(oldBestPath, newBestPath);
-    }
+        isNonAddPathBestPathNew = !oldBestPath.getFirst().equals(newBestPath.getFirst());
 
-    @NonNullByDefault
-    private boolean setBestPath(final @Nullable List<AddPathBestPath> oldBestPath,
-            final List<AddPathBestPath> newBestPath) {
-        // FIXME: Err.. what?
-        isNonAddPathBestPathNew = oldBestPath == null || oldBestPath.isEmpty() || newBestPath.isEmpty()
-            || !oldBestPath.getFirst().equals(newBestPath.getFirst());
+        // FIXME: clean this up: we are computing a delta between two lists and there just has to be a more efficient
+        //        way to do this
+        final var newRemoved = new ArrayList<>(oldBestPath);
+        oldBestPath.forEach(oldBest -> newBestPath.stream()
+            .filter(newBest -> newBest.getPathId() == oldBest.getPathId()
+                    && newBest.getRouteKey().equals(oldBest.getRouteKey()))
+            .findAny()
+            .ifPresent(addPathBestPath -> newRemoved.remove(oldBest)));
 
-        if (oldBestPath != null) {
-            bestPathRemoved = new ArrayList<>(oldBestPath);
-            oldBestPath.forEach(oldBest -> newBestPath.stream()
-                .filter(newBest -> newBest.getPathId() == oldBest.getPathId()
-                        && newBest.getRouteKey().equals(oldBest.getRouteKey()))
-                .findAny()
-                .ifPresent(addPathBestPath -> bestPathRemoved.remove(oldBest)));
-        }
-
-        if (bestPathRemoved != null && !bestPathRemoved.isEmpty() || !newBestPath.equals(oldBestPath)) {
-            if (oldBestPath != null) {
-                newBestPathToBeAdvertised = new ArrayList<>(newBestPath);
-                newBestPathToBeAdvertised.removeAll(oldBestPath);
-            } else {
-                newBestPathToBeAdvertised = newBestPath;
-            }
-            setBestPath(newBestPath);
+        if (!newRemoved.isEmpty() || !newBestPath.equals(oldBestPath)) {
+            final var newAdvertized = new ArrayList<>(newBestPath);
+            newAdvertized.removeAll(oldBestPath);
+            newBestPathToBeAdvertised = List.copyOf(newAdvertized);
+            setBestPath(newBestPath, List.copyOf(newRemoved));
             return true;
         }
         return false;
     }
 
     @NonNullByDefault
-    private void setBestPath(final List<AddPathBestPath> newBestPath) {
-        bestPath = newBestPath;
-        LOG.trace("Actual Best {}, removed best {}", newBestPath, bestPathRemoved);
+    private void setBestPath(final List<AddPathBestPath> newBestPath,
+            final @Nullable List<AddPathBestPath> newBestPathRemoved) {
+        bestPath = requireNonNull(newBestPath);
+        bestPathRemoved = newBestPathRemoved;
+        LOG.trace("Actual Best {}, removed best {}", newBestPath, newBestPathRemoved);
     }
 
     /**
