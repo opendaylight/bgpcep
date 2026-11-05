@@ -159,9 +159,8 @@ class ParserTest {
         ParserTest.reg.serializeMessage(keepAlive, buffer);
         assertArrayEquals(KEEPALIVE_BMSG, ByteArray.getAllBytes(buffer));
 
-        final Notification<?> m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)),
-            null);
-        assertInstanceOf(Keepalive.class, m);
+        assertInstanceOf(Keepalive.class,
+            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)), null));
     }
 
     @Test
@@ -190,8 +189,7 @@ class ParserTest {
         ParserTest.reg.serializeMessage(open, bytes);
         assertArrayEquals(OPEN_BMSG, ByteArray.getAllBytes(bytes));
 
-        final Notification<?> m = ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null);
-        final Open mo = assertInstanceOf(Open.class, m);
+        final var mo = assertInstanceOf(Open.class, ParserTest.reg.parseMessage(Unpooled.copiedBuffer(bytes), null));
         assertEquals(100, mo.getMyAsNumber().intValue());
         assertEquals(180, mo.getHoldTimer().intValue());
         assertEquals(new Ipv4Address("20.20.20.20"), mo.getBgpIdentifier());
@@ -308,9 +306,8 @@ class ParserTest {
 
     @Test
     void testParseUpdMsgWithMandatoryAttributesPresent() throws BGPDocumentedException, BGPParsingException {
-        final Notification<?> msg = reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MANDATORY_ATTRIBUTES_PRESENT),
-            null);
-        assertInstanceOf(Update.class, msg);
+        assertInstanceOf(Update.class,
+            reg.parseMessage(Unpooled.copiedBuffer(UPD_MSG_WITH_MANDATORY_ATTRIBUTES_PRESENT), null));
     }
 
     @Test
@@ -340,9 +337,7 @@ class ParserTest {
         ParserTest.reg.serializeMessage(rrMsg, buffer);
         assertArrayEquals(RR_MSG, ByteArray.getAllBytes(buffer));
 
-        final Notification<?> m = ParserTest.reg.parseMessage(
-            Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)), null);
-
-        assertInstanceOf(RouteRefresh.class, m);
+        assertInstanceOf(RouteRefresh.class,
+            ParserTest.reg.parseMessage(Unpooled.copiedBuffer(ByteArray.getAllBytes(buffer)), null));
     }
 }

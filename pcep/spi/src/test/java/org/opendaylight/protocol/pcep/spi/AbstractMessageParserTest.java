@@ -97,9 +97,8 @@ class AbstractMessageParserTest {
 
         verify(registry, only()).serializeObject(any(Object.class), any(ByteBuf.class));
 
-        final var parsed = a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }),
-            List.of());
-        final var msg = assertInstanceOf(Pcerr.class, parsed);
+        final var msg = assertInstanceOf(Pcerr.class,
+            a.parseMessage(Unpooled.wrappedBuffer(new byte[] {0x0D, 0x13, 0, 0x08, 0, 0, 1, 1 }), List.of()));
         assertEquals(object, msg.getPcerrMessage().nonnullErrors().getFirst().getErrorObject());
     }
 
@@ -117,9 +116,8 @@ class AbstractMessageParserTest {
         verify(registry, only()).serializeVendorInformationObject(any(VendorInformationObject.class),
             any(ByteBuf.class));
 
-        final var parsed = parser.parseMessage(
-            Unpooled.wrappedBuffer(new byte[] { 0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), List.of());
-        final var msg = assertInstanceOf(Pcrep.class, parsed);
+        final var msg = assertInstanceOf(Pcrep.class,
+            parser.parseMessage(Unpooled.wrappedBuffer(new byte[] { 0x22, 0x13, 0x00, 0x08, 0, 0, 0, 0 }), List.of()));
 
         assertEquals(viObject,
             msg.getPcrepMessage().nonnullReplies().getFirst().nonnullVendorInformationObject().getFirst());
