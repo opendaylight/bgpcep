@@ -52,8 +52,7 @@ class AbstractMessageRegistryTest {
         registry.serializeMessage(keepAlive, buffer);
         assertArrayEquals(KEEPALIVE_BMSG, ByteArray.getAllBytes(buffer));
 
-        final Notification<?> not = registry.parseMessage(Unpooled.copiedBuffer(KEEPALIVE_BMSG), null);
-        assertInstanceOf(Keepalive.class, not);
+        assertInstanceOf(Keepalive.class, registry.parseMessage(Unpooled.copiedBuffer(KEEPALIVE_BMSG), null));
     }
 
     @Test
