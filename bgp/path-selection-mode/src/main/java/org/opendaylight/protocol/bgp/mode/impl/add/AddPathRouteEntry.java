@@ -210,11 +210,11 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @NonNullByDefault
     private Predicate<AddPathBestPath> isFirst() {
         final var paths = bestPath;
-        if (paths != null && !paths.isEmpty()) {
-            final var firstBest = paths.getFirst();
-            return path -> firstBest == path || firstBest.equals(path);
+        if (paths == null || paths.isEmpty()) {
+            return path -> false;
         }
-        return path -> false;
+        final var firstBest = paths.getFirst();
+        return path -> firstBest == path || firstBest.equals(path);
     }
 
     @Override
@@ -256,7 +256,13 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
     @NonNullByDefault
     private boolean selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
-        return isBestPathNew(selectPaths(ribSupport, localAs, size));
+        final var paths = selectPaths(ribSupport, localAs, size);
+        return isBestPathNew(switch (paths.size()) {
+            case 0 -> List.of();
+            case 1 -> Collections.singletonList(paths.getFirst());
+            case 2 -> List.of(paths.getFirst(), paths.getLast());
+            default -> List.copyOf(paths);
+        });
     }
 
     private boolean selectNone() {
@@ -269,7 +275,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @NonNullByDefault
     private boolean isBestPathNew(final List<AddPathBestPath> newBestPathList) {
         // FIXME: Err.. what?
-        isNonAddPathBestPathNew = isEmptyOrNull(bestPath) || isEmptyOrNull(newBestPathList)
+        isNonAddPathBestPathNew = bestPath == null || bestPath.isEmpty() || newBestPathList.isEmpty()
             || !bestPath.getFirst().equals(newBestPathList.getFirst());
 
         if (bestPath != null) {
@@ -316,10 +322,6 @@ abstract class AddPathRouteEntry implements RouteEntry {
         final var route = verifyNotNull(offsets.getValue(values, offset));
         return new AddPathBestPath(new BaseBestPathState(ribSupport.extractAttributes(route)), offsets.getKey(offset),
             offsets.getValue(pathsId, offset), offset);
-    }
-
-    private static boolean isEmptyOrNull(final List<AddPathBestPath> pathList) {
-        return pathList == null || pathList.isEmpty();
     }
 
     @NonNullByDefault
