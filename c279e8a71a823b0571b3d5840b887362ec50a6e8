@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "439bcbda_7ec9e405",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-06T13:23:08Z",
+      "side": 1,
+      "message": "For me OK, but parent change still has unresolved comment.",
+      "revId": "c279e8a71a823b0571b3d5840b887362ec50a6e8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
