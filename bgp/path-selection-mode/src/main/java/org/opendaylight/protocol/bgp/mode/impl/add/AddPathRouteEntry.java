@@ -10,11 +10,12 @@ package org.opendaylight.protocol.bgp.mode.impl.add;
 import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
-import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.base.BaseBestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -48,9 +49,9 @@ abstract class AddPathRouteEntry implements RouteEntry {
         Stale(final RIBSupport ribSupport, final String routeKey, final List<Uint32> staleRoutesPathIds,
                 final List<Uint32> withdrawalRoutePathIds, final boolean isNonAddPathBestPathNew) {
             super(ribSupport.createRouteListArgument(routeKey));
-            this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
             staleRouteKeyIdentifier = createIdentifier(ribSupport, routeKey, staleRoutesPathIds);
             addPathRouteKeyIdentifier = createIdentifier(ribSupport, routeKey, withdrawalRoutePathIds);
+            this.isNonAddPathBestPathNew = isNonAddPathBestPathNew;
         }
 
         @NonNullByDefault
@@ -99,14 +100,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @NonNullByDefault
     private List<AddPathBestPath> bestPath = List.of();
     @NonNullByDefault
-    private List<AddPathBestPath> bestPathRemoved = List.of();
-    @NonNullByDefault
-    private List<AddPathBestPath> newBestPathToBeAdvertised = List.of();
-    @NonNullByDefault
     private List<Uint32> removedPathsId = List.of();
-    // FIXME: err.. what is this??
-    private boolean isNonAddPathBestPathNew;
-
     // FIXME: overflow handling and better Uint32.valueOf() integration
     private long pathIdCounter = 0L;
 
@@ -156,61 +150,6 @@ abstract class AddPathRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final StaleBestPathRoute removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
-        final var removedPaths = bestPathRemoved;
-        bestPathRemoved = List.of();
-        final var removedIds = removedPathsId;
-        removedPathsId = List.of();
-
-        return removedPaths.isEmpty() && removedIds.isEmpty() ? null
-            : new Stale(ribSupport, routeKey, removedPaths.stream().map(AddPathBestPath::getPathIdLong).toList(),
-                removedIds, isNonAddPathBestPathNew);
-    }
-
-    @Override
-    public final List<AdvertizedRoute> newBestPaths(final RIBSupport ribSupport, final String routeKey) {
-        final var advertizedPaths = newBestPathToBeAdvertised;
-        newBestPathToBeAdvertised = List.of();
-
-        final var size = advertizedPaths.size();
-        return switch (size) {
-            case 0 -> List.of();
-            case 1 -> List.of(advertizedRoute(ribSupport, routeKey, isFirst(), advertizedPaths.getFirst()));
-            case 2 -> {
-                final var isFirst = isFirst();
-                yield List.of(
-                    advertizedRoute(ribSupport, routeKey, isFirst, advertizedPaths.getFirst()),
-                    advertizedRoute(ribSupport, routeKey, isFirst, advertizedPaths.getLast()));
-            }
-            default -> {
-                final var isFirst = isFirst();
-                final var ret = new ArrayList<AdvertizedRoute>(size);
-                for (var path : advertizedPaths) {
-                    ret.add(advertizedRoute(ribSupport, routeKey, isFirst, path));
-                }
-                yield ret;
-            }
-        };
-    }
-
-    @NonNullByDefault
-    private AdvertizedRoute advertizedRoute(final RIBSupport ribSupport, final String routeKey,
-            final Predicate<AddPathBestPath> isFirst, final AddPathBestPath path) {
-        return new AdvertizedRoute(ribSupport, isFirst.test(path), createRoute(ribSupport, routeKey, path),
-            path.getAttributes(), path.getPeerId(), path.isDepreferenced());
-    }
-
-    @NonNullByDefault
-    private Predicate<AddPathBestPath> isFirst() {
-        final var paths = bestPath;
-        if (paths.isEmpty()) {
-            return path -> false;
-        }
-        final var first = paths.getFirst();
-        return path -> first == path || first.equals(path);
-    }
-
-    @Override
     public final List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport,
             final RouteEntryInfo entryInfo) {
         final var paths = bestPath;
@@ -239,75 +178,131 @@ abstract class AddPathRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final boolean selectBest(final RIBSupport ribSupport, final long localAs) {
+    public final @Nullable Delta selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey) {
         final var size = offsets.size();
-        return size == 0 ? select0() : selectBest(selectBest(ribSupport, localAs, size));
+        return size == 0 ? select0(ribSupport, routeKey)
+            : selectBest(ribSupport, routeKey, selectBest(ribSupport, localAs, size));
     }
 
     @NonNullByDefault
     abstract List<AddPathBestPath> selectBest(RIBSupport ribSupport, long localAs, int size);
 
     @NonNullByDefault
-    private boolean selectBest(final List<AddPathBestPath> newBestPath) {
-        return switch (newBestPath.size()) {
-            case 0 -> select0();
-            case 1 -> selectN(ImmutableList.of(newBestPath.getFirst()));
-            case 2 -> selectN(List.of(newBestPath.getFirst(), newBestPath.getLast()));
-            default -> selectN(List.copyOf(newBestPath));
-        };
+    private @Nullable Delta selectBest(final RIBSupport ribSupport, final String routeKey,
+            final List<AddPathBestPath> newBestPath) {
+        return newBestPath.isEmpty() ? select0(ribSupport, routeKey)
+            : selectN(ribSupport, routeKey, List.copyOf(newBestPath));
     }
 
-    private boolean select0() {
+    private @Nullable Withdraw select0(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey) {
         final var oldBestPath = bestPath;
         if (oldBestPath.isEmpty()) {
-            return false;
+            return null;
         }
-        isNonAddPathBestPathNew = true;
-        newBestPathToBeAdvertised = List.of();
+
         setBestPath(List.of(), oldBestPath);
-        return true;
+        final var removedIds = removedPathsId;
+        removedPathsId = List.of();
+        return new Withdraw(new Stale(ribSupport, routeKey,
+            oldBestPath.stream().map(AddPathBestPath::getPathIdLong).toList(), removedIds, true));
     }
 
     @NonNullByDefault
-    private boolean selectN(final List<AddPathBestPath> newBestPath) {
+    private @Nullable Delta selectN(final RIBSupport ribSupport, final String routeKey,
+            final List<AddPathBestPath> newBestPath) {
         final var oldBestPath = bestPath;
         if (!oldBestPath.isEmpty()) {
-            return selectN(newBestPath, oldBestPath);
+            return selectN(ribSupport, routeKey, newBestPath, oldBestPath);
         }
-        isNonAddPathBestPathNew = true;
-        newBestPathToBeAdvertised = newBestPath;
+
         setBestPath(newBestPath, List.of());
-        return true;
+        return new Advertize(
+            advertizedRoutes(ribSupport, routeKey, newBestPath),
+            staleRoute(ribSupport, routeKey, List.of(), true));
     }
 
-    @NonNullByDefault
-    private boolean selectN(final List<AddPathBestPath> newBestPath, final List<AddPathBestPath> oldBestPath) {
-        isNonAddPathBestPathNew = !oldBestPath.getFirst().equals(newBestPath.getFirst());
-
+    private @Nullable Delta selectN(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey,
+            final @NonNull List<AddPathBestPath> newBestPath, final @NonNull List<AddPathBestPath> oldBestPath) {
         // FIXME: clean this up: we are computing a delta between two lists and there just has to be a more efficient
         //        way to do this
-        final var newRemoved = new ArrayList<>(oldBestPath);
+        final var removedPaths = new ArrayList<>(oldBestPath);
         oldBestPath.forEach(oldBest -> newBestPath.stream()
             .filter(newBest -> newBest.getPathId() == oldBest.getPathId()
                     && newBest.getRouteKey().equals(oldBest.getRouteKey()))
             .findAny()
-            .ifPresent(addPathBestPath -> newRemoved.remove(oldBest)));
+            .ifPresent(addPathBestPath -> removedPaths.remove(oldBest)));
 
-        if (!newRemoved.isEmpty() || !newBestPath.equals(oldBestPath)) {
-            final var newAdvertized = new ArrayList<>(newBestPath);
-            newAdvertized.removeAll(oldBestPath);
-            newBestPathToBeAdvertised = List.copyOf(newAdvertized);
-            setBestPath(newBestPath, List.copyOf(newRemoved));
-            return true;
+        final var stale = staleRoute(ribSupport, routeKey, removedPaths,
+            !newBestPath.getFirst().equals(oldBestPath.getFirst()));
+
+        final var advertizedPaths = new ArrayList<>(newBestPath);
+        advertizedPaths.removeAll(oldBestPath);
+
+        if (!advertizedPaths.isEmpty()) {
+            setBestPath(newBestPath, removedPaths);
+            return new Advertize(advertizedRoutes(ribSupport, routeKey, advertizedPaths), stale);
         }
-        return false;
+        if (stale != null) {
+            setBestPath(newBestPath, removedPaths);
+            return new Withdraw(stale);
+        }
+        return null;
     }
 
     @NonNullByDefault
-    private void setBestPath(final List<AddPathBestPath> newBestPath, final List<AddPathBestPath> newBestPathRemoved) {
+    private AdvertizedRoute advertizedRoute(final RIBSupport ribSupport, final String routeKey,
+            final Predicate<AddPathBestPath> isFirst, final AddPathBestPath path) {
+        return new AdvertizedRoute(ribSupport, isFirst.test(path), createRoute(ribSupport, routeKey, path),
+            path.getAttributes(), path.getPeerId(), path.isDepreferenced());
+    }
+
+    @NonNullByDefault
+    private List<AdvertizedRoute> advertizedRoutes(final RIBSupport ribSupport, final String routeKey,
+            final List<AddPathBestPath> paths) {
+        final var size = paths.size();
+        return switch (size) {
+            case 0 -> List.of();
+            case 1 -> List.of(advertizedRoute(ribSupport, routeKey, isFirst(), paths.getFirst()));
+            case 2 -> {
+                final var isFirst = isFirst();
+                yield List.of(
+                    advertizedRoute(ribSupport, routeKey, isFirst, paths.getFirst()),
+                    advertizedRoute(ribSupport, routeKey, isFirst, paths.getLast()));
+            }
+            default -> {
+                final var ret = new ArrayList<AdvertizedRoute>(size);
+                final var isFirst = isFirst();
+                for (var path : paths) {
+                    ret.add(advertizedRoute(ribSupport, routeKey, isFirst, path));
+                }
+                yield ret;
+            }
+        };
+    }
+
+    @NonNullByDefault
+    private Predicate<AddPathBestPath> isFirst() {
+        final var paths = bestPath;
+        if (paths.isEmpty()) {
+            return path -> false;
+        }
+        final var first = paths.getFirst();
+        return path -> first == path || first.equals(path);
+    }
+
+    private @Nullable Stale staleRoute(final @NonNull RIBSupport ribSupport, final String routeKey,
+            final @NonNull List<AddPathBestPath> removedPaths, final boolean isNonAddPathBestPathNew) {
+        final var removedIds = removedPathsId;
+        removedPathsId = List.of();
+        return removedIds.isEmpty() && removedPaths.isEmpty() ? null
+            : new Stale(ribSupport, routeKey, removedPaths.stream().map(AddPathBestPath::getPathIdLong).toList(),
+                removedIds, isNonAddPathBestPathNew);
+    }
+
+    @NonNullByDefault
+    private void setBestPath(final List<AddPathBestPath> newBestPath, final List<AddPathBestPath> bestPathRemoved) {
         bestPath = requireNonNull(newBestPath);
-        bestPathRemoved = requireNonNull(newBestPathRemoved);
-        LOG.trace("Actual Best {}, removed best {}", newBestPath, newBestPathRemoved);
+        LOG.trace("Actual Best {}, removed best {}", newBestPath, bestPathRemoved);
     }
 
     /**
