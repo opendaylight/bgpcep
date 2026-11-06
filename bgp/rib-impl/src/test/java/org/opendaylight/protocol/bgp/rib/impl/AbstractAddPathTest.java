@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.dontCatchUncaughtExceptions;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -14,11 +16,13 @@ import static org.opendaylight.protocol.util.CheckUtil.readDataOperational;
 import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import java.net.InetSocketAddress;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mock;
@@ -37,6 +41,7 @@ import org.opendaylight.protocol.bgp.rib.impl.spi.BGPPeerRegistry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.BGPSessionPreferences;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.SimpleRIBExtensionProviderContext;
+import org.opendaylight.protocol.util.CheckUtil.ListenerCheck;
 import org.opendaylight.protocol.util.InetSocketAddressUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.AsNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressNoZone;
@@ -102,9 +107,9 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
     static final AsNumber AS_NUMBER = new AsNumber(Uint32.valueOf(AS));
     static final Uint16 PORT = Uint16.valueOf(InetSocketAddressUtil.getRandomPort());
     static final Ipv4Prefix PREFIX1 = new Ipv4Prefix("1.1.1.1/32");
-    private static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
+    static final ClusterIdentifier CLUSTER_ID = new ClusterIdentifier(RIB_ID);
     static final int HOLDTIMER = 2180;
-    private static final Ipv4AddressNoZone NH1 = new Ipv4AddressNoZone("2.2.2.2");
+    static final Ipv4AddressNoZone NH1 = new Ipv4AddressNoZone("2.2.2.2");
     static final Update UPD_100 = createSimpleUpdate(PREFIX1, new PathId(Uint32.ONE), CLUSTER_ID, 100);
     static final Update UPD_50 = createSimpleUpdate(PREFIX1, new PathId(Uint32.TWO), CLUSTER_ID, 50);
     static final Update UPD_200 = createSimpleUpdate(PREFIX1, new PathId(Uint32.valueOf(3)), CLUSTER_ID, 200);
@@ -358,5 +363,18 @@ public abstract class AbstractAddPathTest extends DefaultRibPoliciesMockTest {
         return new UpdateBuilder()
                 .setWithdrawnRoutes(List.of(new WithdrawnRoutesBuilder().setPrefix(prefix).build()))
                 .build();
+    }
+
+    @NonNullByDefault
+    static final List<?> awaitReceived(final ListenerCheck listener, final int expectedMessages) {
+        dontCatchUncaughtExceptions()
+            .pollInSameThread()
+            .atMost(Duration.ofSeconds(30))
+            .pollInterval(Duration.ofMillis(200))
+            .pollDelay(Duration.ZERO)
+            .during(Duration.ZERO)
+            .untilAsserted(listener::getListMessageSize,
+                size -> assertThat(size).isGreaterThanOrEqualTo(expectedMessages));
+        return listener.getListMsg();
     }
 }

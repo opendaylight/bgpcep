@@ -13,17 +13,36 @@ import static org.opendaylight.protocol.util.CheckUtil.waitFutureSuccess;
 
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
+import java.util.List;
 import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.DestinationIpv4Builder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.ipv4.prefixes.destination.ipv4.Ipv4PrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.inet.rev180329.update.attributes.mp.reach.nlri.advertized.routes.destination.type.DestinationIpv4CaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.UpdateBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.AsPathBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.ClusterIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.LocalPrefBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.MultiExitDiscBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.attributes.OriginatorIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReachBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlriBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.mp.reach.nlri.AdvertizedRoutesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.RibId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.BgpOrigin;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.Ipv4AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.UnicastSubsequentAddressFamily;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.Ipv4NextHopCaseBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.next.hop.c.next.hop.ipv4.next.hop._case.Ipv4NextHopBuilder;
+import org.opendaylight.yangtools.yang.common.Uint32;
 
 // FIXME: Migrate to JUnit5 when MDSAL is migrated or rework the test
 public class AddPathNPathsTest extends AbstractAddPathTest {
@@ -87,9 +106,38 @@ public class AddPathNPathsTest extends AbstractAddPathTest {
 
         //new best route so far
         sendRouteAndCheckIsOnLocRib(session1, PREFIX1, 100, 1);
-        checkReceivedMessages(listener4, 2);
-        checkReceivedMessages(listener5, 2);
-        assertEquals(UPD_100, listener5.getListMsg().get(1));
+
+        final var eot = new UpdateBuilder().build();
+        assertEquals(eot, awaitReceived(listener4, 1).getFirst());
+        assertEquals(new UpdateBuilder()
+            .setAttributes(new AttributesBuilder()
+                .setAsPath(new AsPathBuilder().build())
+                .setClusterId(new ClusterIdBuilder().setCluster(List.of(CLUSTER_ID)).build())
+                .setLocalPref(new LocalPrefBuilder().setPref(Uint32.valueOf(100)).build())
+                .setMultiExitDisc(new MultiExitDiscBuilder().setMed(Uint32.ZERO).build())
+                .setOrigin(new OriginBuilder().setValue(BgpOrigin.Igp).build())
+                .setOriginatorId(new OriginatorIdBuilder().setOriginator(CLUSTER_ID).build())
+                .addAugmentation(new AttributesReachBuilder()
+                    .setMpReachNlri(new MpReachNlriBuilder()
+                        .setAfi(Ipv4AddressFamily.VALUE)
+                        .setSafi(UnicastSubsequentAddressFamily.VALUE)
+                        .setCNextHop(new Ipv4NextHopCaseBuilder()
+                            .setIpv4NextHop(new Ipv4NextHopBuilder().setGlobal(NH1).build())
+                            .build())
+                        .setAdvertizedRoutes(new AdvertizedRoutesBuilder()
+                            .setDestinationType(new DestinationIpv4CaseBuilder()
+                                .setDestinationIpv4(new DestinationIpv4Builder()
+                                    .setIpv4Prefixes(List.of(new Ipv4PrefixesBuilder().setPrefix(PREFIX1).build()))
+                                    .build())
+                                .build())
+                            .build())
+                        .build())
+                    .build())
+                .build())
+            .build(), awaitReceived(listener4, 2).getLast());
+
+        assertEquals(eot, awaitReceived(listener5, 1).getFirst());
+        assertEquals(UPD_100, awaitReceived(listener5, 2).getLast());
 
         final var listener6 = new SimpleSessionListener();
         configurePeer(tableRegistry, PEER6, ribImpl, nonAddPathParams, PeerRole.RrClient, serverRegistry);
