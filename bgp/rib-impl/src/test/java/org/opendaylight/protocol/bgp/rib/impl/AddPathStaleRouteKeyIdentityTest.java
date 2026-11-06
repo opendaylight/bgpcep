@@ -20,6 +20,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.junit.Before;
 import org.junit.Test;
 import org.opendaylight.protocol.bgp.inet.RIBActivator;
+import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.spi.PathSelectionModes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBExtensionProviderContext;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -104,12 +105,16 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
             final var entry = npaths.createRouteEntry();
             // First selection has only RouterA, using the RouteKey instance this entry created.
             assertTrue(entry.putRoute(ROUTER_A, PATH_A, routeA));
-            assertTrue(entry.selectBest(support, AS));
+            final var firstDelta = assertInstanceOf(RouteEntry.Advertize.class, entry.selectBest(support, AS, PREFIX));
+            assertEquals(1, firstDelta.adverized().size());
+            assertNull(firstDelta.stale());
 
             // Add RouterB as a second path. RouterA stays the best path through the second selection.
             assertTrue(entry.putRoute(ROUTER_B, PATH_B, routeB));
-            assertTrue(entry.selectBest(support, AS));
-            assertNull(entry.removeStalePaths(support, PREFIX),
+
+            final var secondDelta = assertInstanceOf(RouteEntry.Advertize.class, entry.selectBest(support, AS, PREFIX));
+            assertEquals(1, firstDelta.adverized().size());
+            assertNull(secondDelta.stale(),
                 "RouterA path is still best after the second selection and must not be reported stale");
         } finally {
             // Keep a strong reference until the last putRoute method is called.

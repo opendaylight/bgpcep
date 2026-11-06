@@ -396,18 +396,18 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         final var newRoutes = new ArrayList<AdvertizedRoute>();
         for (var e : toUpdate) {
             LOG.trace("Walking through {}", e);
-            final var entry = e.getValue();
-            if (!entry.selectBest(ribSupport, ourAs)) {
-                LOG.trace("Best path has not changed, continuing");
-                continue;
-            }
-
             final var routeKey = e.getKey().routeKey();
-            final var stateRoute = entry.removeStalePaths(ribSupport, routeKey);
-            if (stateRoute != null) {
-                staleRoutes.add(stateRoute);
+            final var routeEntry = e.getValue();
+            switch (routeEntry.selectBest(ribSupport, ourAs, routeKey)) {
+                case null -> LOG.trace("Best path has not changed, continuing");
+                case RouteEntry.Advertize(var adverized, var stale) -> {
+                    newRoutes.addAll(adverized);
+                    if (stale != null) {
+                        staleRoutes.add(stale);
+                    }
+                }
+                case RouteEntry.Withdraw(var stale) -> staleRoutes.add(stale);
             }
-            newRoutes.addAll(entry.newBestPaths(ribSupport, routeKey));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
         peerTracker.getNonInternalPeers().parallelStream()
