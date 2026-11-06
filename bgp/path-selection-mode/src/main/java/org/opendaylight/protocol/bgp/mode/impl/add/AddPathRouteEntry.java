@@ -217,7 +217,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
         setBestPath(newBestPath, List.of());
         return new Advertize(
-            advertizedRoutes(ribSupport, routeKey, unused -> false, newBestPath),
+            advertizedRoutes(ribSupport, routeKey, newBestPath),
             staleRoute(ribSupport, routeKey, List.of(), true));
     }
 
@@ -236,14 +236,16 @@ abstract class AddPathRouteEntry implements RouteEntry {
             return null;
         }
 
+        // FIXME: the above check may end up reporting false and this can end up being empty
+        //        when order of advertized paths changes
         final var advertizedPaths = new ArrayList<>(newBestPath);
         advertizedPaths.removeAll(oldBestPath);
 
         setBestPath(newBestPath, removedPaths);
-        final var oldFirst = oldBestPath.getFirst();
+        final var firstNew = newBestPath.getFirst();
         return new Advertize(
-            advertizedRoutes(ribSupport, routeKey, path -> oldFirst == path || oldFirst.equals(path), advertizedPaths),
-            staleRoute(ribSupport, routeKey, removedPaths, !oldFirst.equals(newBestPath.getFirst())));
+            advertizedRoutes(ribSupport, routeKey, advertizedPaths),
+            staleRoute(ribSupport, routeKey, removedPaths, !firstNew.equals(oldBestPath.getFirst())));
     }
 
     @NonNullByDefault
@@ -255,22 +257,36 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
     @NonNullByDefault
     private List<AdvertizedRoute> advertizedRoutes(final RIBSupport ribSupport, final String routeKey,
-            final Predicate<AddPathBestPath> isFirst, final List<AddPathBestPath> paths) {
+            final List<AddPathBestPath> paths) {
         final var size = paths.size();
         return switch (size) {
             case 0 -> List.of();
-            case 1 -> List.of(advertizedRoute(ribSupport, routeKey, isFirst, paths.getFirst()));
-            case 2 -> List.of(
-                advertizedRoute(ribSupport, routeKey, isFirst, paths.getFirst()),
-                advertizedRoute(ribSupport, routeKey, isFirst, paths.getLast()));
+            case 1 -> List.of(advertizedRoute(ribSupport, routeKey, isFirst(), paths.getFirst()));
+            case 2 -> {
+                final var isFirst = isFirst();
+                yield List.of(
+                    advertizedRoute(ribSupport, routeKey, isFirst, paths.getFirst()),
+                    advertizedRoute(ribSupport, routeKey, isFirst, paths.getLast()));
+            }
             default -> {
                 final var ret = new ArrayList<AdvertizedRoute>(size);
+                final var isFirst = isFirst();
                 for (var path : paths) {
                     ret.add(advertizedRoute(ribSupport, routeKey, isFirst, path));
                 }
                 yield ret;
             }
         };
+    }
+
+    @NonNullByDefault
+    private Predicate<AddPathBestPath> isFirst() {
+        final var paths = bestPath;
+        if (paths.isEmpty()) {
+            return path -> false;
+        }
+        final var first = paths.getFirst();
+        return path -> first == path || first.equals(path);
     }
 
     private @Nullable Stale staleRoute(final @NonNull RIBSupport ribSupport, final String routeKey,
