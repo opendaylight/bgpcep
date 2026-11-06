@@ -395,10 +395,10 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         final var staleRoutes = new ArrayList<StaleBestPathRoute>();
         final var newRoutes = new ArrayList<AdvertizedRoute>();
         for (var e : toUpdate) {
-            LOG.trace("Walking through {}", e);
+            LOG.info("Walking through {}", e);
             final var entry = e.getValue();
             if (!entry.selectBest(ribSupport, ourAs)) {
-                LOG.trace("Best path has not changed, continuing");
+                LOG.info("Best path has not changed, continuing");
                 continue;
             }
 
@@ -422,7 +422,7 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         for (var staleContainer : staleRoutes) {
             for (var routeId : staleContainer.getStaleRouteKeyIdentifiers()) {
                 final var routeTarget = ribSupport.createRouteIdentifier(locRibTarget, routeId);
-                LOG.debug("Delete route from LocRib {}", routeTarget);
+                LOG.info("Delete route from LocRib {}", routeTarget);
                 tx.delete(LogicalDatastoreType.OPERATIONAL, routeTarget);
             }
         }
@@ -431,10 +431,10 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
             final var route = advRoute.getRoute();
             final var iid = advRoute.getAddPathRouteKeyIdentifier();
             final var locRibRouteTarget = ribSupport.createRouteIdentifier(locRibTarget, iid);
-            LOG.debug("Write LocRib route {}", locRibRouteTarget);
-            if (LOG.isTraceEnabled()) {
-                LOG.trace("Write route to LocRib {}", NormalizedNodes.toStringTree(route));
-            }
+            LOG.info("Write LocRib route {}", locRibRouteTarget);
+//            if (LOG.isTraceEnabled()) {
+            LOG.info("Write route to LocRib {}", NormalizedNodes.toStringTree(route));
+//            }
             tx.put(LogicalDatastoreType.OPERATIONAL, locRibRouteTarget, route);
         }
     }

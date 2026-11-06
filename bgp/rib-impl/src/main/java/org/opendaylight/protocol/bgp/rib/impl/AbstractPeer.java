@@ -325,7 +325,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     public final synchronized void refreshRibOut(final RouteEntryDependenciesContainer entryDep,
             final List<StaleBestPathRoute> staleRoutes, final List<AdvertizedRoute> newRoutes) {
         if (ribOutChain == null) {
-            LOG.debug("Session closed, skip changes to peer AdjRibsOut {}", peerId);
+            LOG.info("Session closed, skip changes to peer AdjRibsOut {}", peerId);
             return;
         }
 
@@ -343,6 +343,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         for (var newRoute : newRoutes) {
             final var fromPeerId = newRoute.getFromPeerId();
             if (!filterRoutes(fromPeerId, tk) || !newRoute.isFirstBestPath() && !addPathSupported) {
+                LOG.info("Skipping route {}", newRoute);
                 continue;
             }
             if (!supportsLLGR() && newRoute.isDepreferenced()) {
@@ -465,7 +466,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     @GuardedBy("this")
     private void storeRoute(final RIBSupport ribSupport, final RouteKeyIdentifier advRoute, final MapEntryNode route,
             final YangInstanceIdentifier routePath, final ContainerNode effAttr, final DOMDataTreeWriteOperations tx) {
-        LOG.debug("Write advRoute {} to peer AdjRibsOut {}", advRoute, peerId);
+        LOG.info("Write advRoute {} to peer AdjRibsOut {}", advRoute, peerId);
         tx.put(LogicalDatastoreType.OPERATIONAL, routePath, ribSupport.createRoute(route,
             (NodeIdentifierWithPredicates) routePath.getLastPathArgument(), effAttr));
     }
@@ -477,7 +478,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
         if (addPathSupported) {
             for (var id : staleRoute.getAddPathRouteKeyIdentifiers()) {
                 final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout, id);
-                LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, peerId);
+                LOG.info("Removing {} from transaction for peer {}", ribOutTarget, peerId);
                 tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
             }
             return;
@@ -489,7 +490,7 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
 
         final var ribOutTarget = ribSupport.createRouteIdentifier(tableRibout,
                 staleRoute.getNonAddPathRouteKeyIdentifier());
-        LOG.trace("Removing {} from transaction for peer {}", ribOutTarget, peerId);
+        LOG.info("Removing {} from transaction for peer {}", ribOutTarget, peerId);
         tx.delete(LogicalDatastoreType.OPERATIONAL, ribOutTarget);
     }
 
