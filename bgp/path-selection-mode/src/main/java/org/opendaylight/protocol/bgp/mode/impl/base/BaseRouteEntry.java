@@ -8,7 +8,7 @@
 package org.opendaylight.protocol.bgp.mode.impl.base;
 
 import java.util.List;
-import java.util.Objects;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
@@ -52,8 +52,6 @@ final class BaseRouteEntry implements RouteEntry {
     private RouterIdOffsets offsets = RouterIdOffsets.EMPTY;
     private MapEntryNode[] values = EMPTY_VALUES;
     private @Nullable BaseBestPath bestPath;
-    // FIXNE: BGPCEP-879: this just a hand-off from selectBest() == true to removeStalePaths()
-    private boolean removedBestPath;
 
     @Override
     public boolean putRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
@@ -90,13 +88,14 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public boolean selectBest(final RIBSupport ribSupport, final long localAs) {
+    public @Nullable Update selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey) {
         final var size = offsets.size();
-        return size != 0 ? selectBest(ribSupport, localAs, size) : selectNone();
+        return size != 0 ? selectBest(ribSupport, localAs, routeKey, size) : selectNone(ribSupport, routeKey);
     }
 
     @NonNullByDefault
-    private boolean selectBest(final RIBSupport ribSupport, final long localAs, final int size) {
+    private @Nullable Update selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey,
+            final int size) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
          */
@@ -111,55 +110,42 @@ final class BaseRouteEntry implements RouteEntry {
         }
 
         // Get the newly-selected best path and apply it to state
-        return selectBest(selector.result());
+        return selectBest(ribSupport, routeKey, selector.result());
     }
 
-    private boolean selectBest(final @Nullable BaseBestPath newBestPath) {
-        final var oldBestPath = bestPath;
-        if (Objects.equals(oldBestPath, newBestPath)) {
-            return false;
+    private @Nullable Update selectBest(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey,
+            final @Nullable BaseBestPath newBestPath) {
+        if (newBestPath == null) {
+            return selectNone(ribSupport, routeKey);
         }
+        final var oldBestPath = bestPath;
+        if (newBestPath.equals(oldBestPath)) {
+            return null;
+        }
+
+        final var route = createRoute(ribSupport, routeKey, newBestPath);
+        LOG.trace("Selected best route {}", route);
         setBestPath(oldBestPath, newBestPath);
-        return true;
+        return new Update(
+            List.of(new AdvertizedRoute(ribSupport, route, newBestPath.getAttributes(), newBestPath.getPeerId(),
+                newBestPath.isDepreferenced())),
+            oldBestPath == null ? null : new Stale(ribSupport.createRouteListArgument(routeKey)));
     }
 
-    private boolean selectNone() {
+    private @Nullable Update selectNone(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey) {
         // there are no candidates, so not bother with selection: there is no best path and if there was one, it is
         // now removed
         final var oldBestPath = bestPath;
         if (oldBestPath == null) {
-            removedBestPath = false;
-            return false;
+            return null;
         }
-        removedBestPath = true;
         setBestPath(oldBestPath, null);
-        return true;
+        return new Update(List.of(), new Stale(ribSupport.createRouteListArgument(routeKey)));
     }
 
     private void setBestPath(final @Nullable BaseBestPath oldBestPath, final @Nullable BaseBestPath newBestPath) {
         LOG.trace("Previous best {}, current best {}", oldBestPath, newBestPath);
         bestPath = newBestPath;
-    }
-
-    @Override
-    public StaleBestPathRoute removeStalePaths(final RIBSupport ribSupport, final String routeKey) {
-        if (removedBestPath) {
-            removedBestPath = false;
-            return new Stale(ribSupport.createRouteListArgument(routeKey));
-        }
-        return null;
-    }
-
-    @Override
-    public List<AdvertizedRoute> newBestPaths(final RIBSupport ribSupport, final String routeKey) {
-        final var best = bestPath;
-        if (best == null) {
-            return List.of();
-        }
-        final var route = createRoute(ribSupport, routeKey, best);
-        LOG.trace("Selected best route {}", route);
-        return List.of(new AdvertizedRoute(ribSupport, route, best.getAttributes(), best.getPeerId(),
-            best.isDepreferenced()));
     }
 
     @Override

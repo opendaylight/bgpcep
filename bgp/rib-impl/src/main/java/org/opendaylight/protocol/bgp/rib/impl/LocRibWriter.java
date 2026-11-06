@@ -296,9 +296,9 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
         LOG.trace("Received data change {} to LocRib {}", changes, this);
         final var tx = chain.newWriteOnlyTransaction();
         try {
-            final var toUpdate = update(tx, changes);
-            if (!toUpdate.isEmpty()) {
-                walkThrough(tx, toUpdate.entrySet());
+            final var updateMap = update(tx, changes);
+            if (!updateMap.isEmpty()) {
+                walkThrough(tx, updateMap);
             }
         } catch (final Exception e) {
             LOG.error("Failed to completely propagate updates {}, state is undefined", changes, e);
@@ -391,23 +391,22 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
     }
 
     private void walkThrough(final DOMDataTreeWriteOperations tx,
-            final Set<Map.Entry<RouteUpdateKey, RouteEntry>> toUpdate) {
+            final Map<RouteUpdateKey, RouteEntry> updateMap) {
         final var staleRoutes = new ArrayList<StaleBestPathRoute>();
         final var newRoutes = new ArrayList<AdvertizedRoute>();
-        for (var e : toUpdate) {
-            LOG.trace("Walking through {}", e);
-            final var entry = e.getValue();
-            if (!entry.selectBest(ribSupport, ourAs)) {
+        for (var entry : updateMap.entrySet()) {
+            LOG.trace("Walking through {}", entry);
+            final var update = entry.getValue().selectBest(ribSupport, ourAs, entry.getKey().routeKey());
+            if (update == null) {
                 LOG.trace("Best path has not changed, continuing");
                 continue;
             }
 
-            final var routeKey = e.getKey().routeKey();
-            final var stateRoute = entry.removeStalePaths(ribSupport, routeKey);
-            if (stateRoute != null) {
-                staleRoutes.add(stateRoute);
+            newRoutes.addAll(update.adverized());
+            final var stale = update.stale();
+            if (stale != null) {
+                staleRoutes.add(stale);
             }
-            newRoutes.addAll(entry.newBestPaths(ribSupport, routeKey));
         }
         updateLocRib(newRoutes, staleRoutes, tx);
         peerTracker.getNonInternalPeers().parallelStream()
