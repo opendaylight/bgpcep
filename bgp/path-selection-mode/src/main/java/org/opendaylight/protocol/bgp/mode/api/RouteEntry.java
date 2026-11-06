@@ -7,7 +7,11 @@
  */
 package org.opendaylight.protocol.bgp.mode.api;
 
+import static java.util.Objects.requireNonNull;
+
+import com.google.errorprone.annotations.CheckReturnValue;
 import java.util.List;
+import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
@@ -26,6 +30,51 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  */
 @NonNullByDefault
 public interface RouteEntry {
+    /**
+     * The result of {@link RouteEntry#selectBest(RIBSupport, long)}.
+     */
+    sealed interface Delta permits Advertize, Withdraw {
+        /**
+         * {@return the {@link StaleBestPathRoute} to withdraw, or {@code null} if there is nothing to withdraw}
+         */
+        @Nullable StaleBestPathRoute staleRoute();
+    }
+
+    /**
+     * A {@link Delta} indicating there is at least one selected path.
+     *
+     * @param adverizedRoutes collection of best path routes after processing update of stale and new advertisement
+     *                        of routes
+     * @param staleRoute the {@link StaleBestPathRoute} to withdraw, or {@code null} if there is nothing to withdraw
+     */
+    record Advertize(List<AdvertizedRoute> adverizedRoutes, @Nullable StaleBestPathRoute staleRoute) implements Delta {
+        public Advertize {
+            adverizedRoutes = List.copyOf(adverizedRoutes);
+            if (adverizedRoutes.isEmpty()) {
+                throw new IllegalArgumentException("empty adverizedRoutes");
+            }
+        }
+    }
+
+    /**
+     * A {@link Delta} indicating last selected path has disappeared.
+     */
+    record Withdraw(StaleBestPathRoute staleRoute) implements Delta {
+        public Withdraw {
+            requireNonNull(staleRoute);
+        }
+
+        /**
+         * {@inheritDoc}
+         *
+         * @param staleRoute the {@link StaleBestPathRoute} to withdraw
+         */
+        @Override
+        public @NonNull StaleBestPathRoute staleRoute() {
+            return staleRoute;
+        }
+    }
+
     /**
      * Put a route.
      *
@@ -46,13 +95,15 @@ public interface RouteEntry {
     boolean removeRoute(RouterId routerId, Uint32 remotePathId);
 
     /**
-     * Indicates whether best has changed.
+     * Run best path selection and indicate its impact on propagation of this entry.
      *
+     * @param ribSupport RIB Support
      * @param localAs The local autonomous system number
-     * @return return true if it has changed
+     * @param routeKey route key
+     * @return a {@link Delta} if  true if it has changed
      */
-    // FIXME: BGPCEP-879: return a contract including removeStalePaths() and newBestPaths()
-    boolean selectBest(RIBSupport ribSupport, long localAs);
+    @CheckReturnValue
+    @Nullable Delta selectBest(RIBSupport ribSupport, long localAs, String routeKey);
 
     /**
      * {@return collections of present selected best path}
@@ -61,20 +112,4 @@ public interface RouteEntry {
      * @param entryInfo  Route Entry Info wrapper
      */
     List<ActualBestPathRoutes> actualBestPaths(RIBSupport ribSupport, RouteEntryInfo entryInfo);
-
-    /**
-     * {@return list of stale best paths}
-     *
-     * @param ribSupport RIB Support
-     * @param routeKey   of stale route
-     */
-    @Nullable StaleBestPathRoute removeStalePaths(RIBSupport ribSupport, String routeKey);
-
-    /**
-     * {@return collection of best path routes after processing update of stale and new advertisement of routes}
-     *
-     * @param ribSupport RIB Support
-     * @param routeKey   route key
-     */
-    List<AdvertizedRoute> newBestPaths(RIBSupport ribSupport, String routeKey);
 }
