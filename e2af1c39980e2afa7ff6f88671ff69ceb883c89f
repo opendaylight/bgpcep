@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "31de7d8a_1bc377af",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-06T13:20:57Z",
+      "side": 1,
+      "message": "The same as parent commit. If it would be possible to keep the cluster setup as in the original robot test, it would be preferable.",
+      "revId": "e2af1c39980e2afa7ff6f88671ff69ceb883c89f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
