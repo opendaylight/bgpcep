@@ -104,12 +104,18 @@ public class AddPathStaleRouteKeyIdentityTest extends DefaultRibPoliciesMockTest
             final var entry = npaths.createRouteEntry();
             // First selection has only RouterA, using the RouteKey instance this entry created.
             assertTrue(entry.putRoute(ROUTER_A, PATH_A, routeA));
-            assertTrue(entry.selectBest(support, AS));
+            final var firstUpdate = entry.selectBest(support, AS, PREFIX);
+            assertNotNull(firstUpdate);
+            assertEquals(1, firstUpdate.adverized().size());
+            assertNull(firstUpdate.stale());
 
             // Add RouterB as a second path. RouterA stays the best path through the second selection.
             assertTrue(entry.putRoute(ROUTER_B, PATH_B, routeB));
-            assertTrue(entry.selectBest(support, AS));
-            assertNull(entry.removeStalePaths(support, PREFIX),
+
+            final var secondUpdate = entry.selectBest(support, AS, PREFIX);
+            assertNotNull(secondUpdate);
+            assertEquals(1, firstUpdate.adverized().size());
+            assertNull(secondUpdate.stale(),
                 "RouterA path is still best after the second selection and must not be reported stale");
         } finally {
             // Keep a strong reference until the last putRoute method is called.
