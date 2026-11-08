@@ -91,25 +91,48 @@ abstract class AddPathRouteEntry implements RouteEntry {
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(AddPathRouteEntry.class);
-    private static final Uint32[] EMPTY_PATHS_ID = new Uint32[0];
+    private static final Uint32[] EMPTY_PATH_IDS = new Uint32[0];
     private static final MapEntryNode[] EMPTY_VALUES = new MapEntryNode[0];
 
     private RouteKeyOffsets offsets = RouteKeyOffsets.EMPTY;
     private MapEntryNode[] values = EMPTY_VALUES;
-    private Uint32[] pathsId = EMPTY_PATHS_ID;
+    private Uint32[] pathIds = EMPTY_PATH_IDS;
     @NonNullByDefault
     private List<AddPathBestPath> bestPath = List.of();
     @NonNullByDefault
-    private List<Uint32> removedPathsId = List.of();
-    // FIXME: overflow handling and better Uint32.valueOf() integration
-    private long pathIdCounter = 0L;
+    private List<Uint32> removedPathIds = List.of();
+    private int lastPathId = 0;
+    private boolean fastPathId = true;
+
+    @NonNullByDefault
+    private Uint32 nextPathId() {
+        return fastPathId ? nextPathIdFast() : nextPathIdSlow();
+    }
+
+    @NonNullByDefault
+    private Uint32 nextPathIdFast() {
+        final var nextPathId = ++lastPathId;
+        return nextPathId != 0 ? Uint32.fromIntBits(nextPathId) : nextPathIdFastOverflow();
+    }
+
+    @NonNullByDefault
+    private Uint32 nextPathIdFastOverflow() {
+        fastPathId = false;
+        return nextPathIdSlow();
+    }
+
+    @NonNullByDefault
+    private static Uint32 nextPathIdSlow() {
+        // FIXME: overflow handling: we can no longer be certain that next allocated path id is unused
+        throw new IllegalStateException("path id overflown");
+    }
 
     @Override
     public final boolean putRoute(final RouterId routerId, final Uint32 remotePathId, final MapEntryNode route) {
         final var routeKey = new RouteKey(routerId, remotePathId);
         final int offset = offsets.offsetOf(routeKey);
         if (offset < 0) {
-            addRoute(routerId, routeKey, route);
+            addRoute(routerId, route, routeKey, nextPathId());
             return true;
         }
         setRoute(routerId, route, offset);
@@ -117,15 +140,16 @@ abstract class AddPathRouteEntry implements RouteEntry {
     }
 
     @NonNullByDefault
-    private void addRoute(final RouterId routerId, final RouteKey routeKey, final MapEntryNode route) {
+    private void addRoute(final RouterId routerId, final MapEntryNode route, final RouteKey routeKey,
+            final Uint32 pathId) {
         final var newOffsets = offsets.with(routeKey);
         final var offset = newOffsets.offsetOf(routeKey);
         final var newRoute = newOffsets.expand(offsets, values, offset);
-        final var newPathsId = newOffsets.expand(offsets, pathsId, offset);
+        final var newPathsId = newOffsets.expand(offsets, pathIds, offset);
         values = newRoute;
         offsets = newOffsets;
-        pathsId = newPathsId;
-        offsets.setValue(pathsId, offset, Uint32.valueOf(++pathIdCounter));
+        pathIds = newPathsId;
+        offsets.setValue(pathIds, offset, pathId);
         setRoute(routerId, route, offset);
     }
 
@@ -138,14 +162,14 @@ abstract class AddPathRouteEntry implements RouteEntry {
     public final boolean removeRoute(final RouterId routerId, final Uint32 remotePathId) {
         final var key = new RouteKey(routerId, remotePathId);
         final int offset = offsets.offsetOf(key);
-        final var pathId = offsets.getValue(pathsId, offset);
+        final var pathId = offsets.getValue(pathIds, offset);
         values = offsets.removeValue(values, offset, EMPTY_VALUES);
-        pathsId = offsets.removeValue(pathsId, offset, EMPTY_PATHS_ID);
+        pathIds = offsets.removeValue(pathIds, offset, EMPTY_PATH_IDS);
         offsets = offsets.without(key);
-        if (removedPathsId.isEmpty()) {
-            removedPathsId = new ArrayList<>();
+        if (removedPathIds.isEmpty()) {
+            removedPathIds = new ArrayList<>();
         }
-        removedPathsId.add(pathId);
+        removedPathIds.add(pathId);
         return offsets.isEmpty();
     }
 
@@ -296,7 +320,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
             final int offset) {
         final var key = offsets.getKey(offset);
         final var route = offsets.getValue(values, offset);
-        final var pathId = offsets.getValue(pathsId, offset);
+        final var pathId = offsets.getValue(pathIds, offset);
         LOG.trace("Processing router key {} route {}", key, route);
         selector.processPath(ribSupport.extractAttributes(route), key, offset, pathId);
     }
@@ -305,7 +329,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
     final AddPathBestPath bestPathAt(final RIBSupport ribSupport, final int offset) {
         final var route = verifyNotNull(offsets.getValue(values, offset));
         return new AddPathBestPath(new BaseBestPathState(ribSupport.extractAttributes(route)), offsets.getKey(offset),
-            offsets.getValue(pathsId, offset), offset);
+            offsets.getValue(pathIds, offset), offset);
     }
 
     @NonNullByDefault
