@@ -7,7 +7,9 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
-import org.eclipse.jdt.annotation.NonNull;
+import static java.util.Objects.requireNonNull;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -19,22 +21,24 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  *
  * @author Claudio D. Gasparini
  */
-public abstract class AbstractAdvertizedRoute implements RouteKeyIdentifier {
-    private final PeerId fromPeerId;
-    private final MapEntryNode route;
+@NonNullByDefault
+public abstract sealed class AbstractAdvertizedRoute implements RouteKeyIdentifier
+        permits ActualBestPathRoutes, AdvertizedRoute {
+    private final NodeIdentifierWithPredicates addPathRouteKeyIdentifier;
+    private final NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier;
     private final ContainerNode attributes;
-    private final @NonNull NodeIdentifierWithPredicates addPathRouteKeyIdentifier;
-    private final @NonNull NodeIdentifierWithPredicates nonAddPathRouteKeyIdentifier;
+    private final MapEntryNode route;
+    private final PeerId fromPeerId;
     private final boolean depreferenced;
 
-    AbstractAdvertizedRoute(final RIBSupport ribSupport, final MapEntryNode route, final PeerId fromPeerId,
-            final ContainerNode attributes, final boolean depreferenced) {
-        this.fromPeerId = fromPeerId;
-        this.route = route;
-        this.attributes = attributes;
-        this.depreferenced = depreferenced;
+    AbstractAdvertizedRoute(final RIBSupport ribSupport, final MapEntryNode route, final BestPath bestPath) {
+        this.route = requireNonNull(route);
         addPathRouteKeyIdentifier = ribSupport.toAddPathListArgument(route.name());
         nonAddPathRouteKeyIdentifier = ribSupport.toNonPathListArgument(addPathRouteKeyIdentifier);
+        // do not retaim reference
+        fromPeerId = bestPath.getPeerId();
+        attributes = bestPath.getAttributes();
+        depreferenced = bestPath.isDepreferenced();
     }
 
     public final PeerId getFromPeerId() {
