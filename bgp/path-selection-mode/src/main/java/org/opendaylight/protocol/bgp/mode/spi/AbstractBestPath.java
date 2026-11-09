@@ -14,8 +14,8 @@ import com.google.common.base.MoreObjects;
 import com.google.common.base.MoreObjects.ToStringHelper;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.protocol.bgp.mode.api.BestPath;
 import org.opendaylight.protocol.bgp.mode.api.BestPathState;
+import org.opendaylight.protocol.bgp.rib.spi.entry.BestPath;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 
 @NonNullByDefault

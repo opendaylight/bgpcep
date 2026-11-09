@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.protocol.bgp.mode.api;
+package org.opendaylight.protocol.bgp.rib.spi.entry;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
@@ -17,11 +17,13 @@ public interface BestPath {
     /**
      * {@return the {@link RouterId}}
      */
+    // FIXME: rename to routerId()
     RouterId getRouterId();
 
     /**
      * {@return {@link #getRouterId()} converted to a {@link PeerId}}
      */
+    // FIXME: rename to peerId()
     default PeerId getPeerId() {
         return getRouterId().getPeerId();
     }
@@ -29,15 +31,18 @@ public interface BestPath {
     /**
      * {@return the path attributes}
      */
+    // FIXNE: rename to attributes()
     ContainerNode getAttributes();
 
     /**
      * {@return pathId}
      */
+    // FIXME: change to 'int pathIdBits()'
     long getPathId();
 
     /**
-     * {@return True if this path is depreferenced}
+     * {@return {@code true} if this path is depreferenced, {@code false} otherwise}
      */
+    // FIXME: rename to depreferenced()
     boolean isDepreferenced();
 }

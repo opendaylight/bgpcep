@@ -16,6 +16,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.BestPathUpdate;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -88,13 +89,13 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public @Nullable Update selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey) {
+    public @Nullable BestPathUpdate selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey) {
         final var size = offsets.size();
         return size != 0 ? selectBest(ribSupport, localAs, routeKey, size) : selectNone(ribSupport, routeKey);
     }
 
     @NonNullByDefault
-    private @Nullable Update selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey,
+    private @Nullable BestPathUpdate selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey,
             final int size) {
         /*
          * FIXME: optimize flaps by making sure we consider stability of currently-selected route.
@@ -113,7 +114,7 @@ final class BaseRouteEntry implements RouteEntry {
         return selectBest(ribSupport, routeKey, selector.result());
     }
 
-    private @Nullable Update selectBest(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey,
+    private @Nullable BestPathUpdate selectBest(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey,
             final @Nullable BaseBestPath newBestPath) {
         if (newBestPath == null) {
             return selectNone(ribSupport, routeKey);
@@ -126,13 +127,13 @@ final class BaseRouteEntry implements RouteEntry {
         final var route = createRoute(ribSupport, routeKey, newBestPath);
         LOG.trace("Selected best route {}", route);
         setBestPath(oldBestPath, newBestPath);
-        return new Update(
+        return new BestPathUpdate(
             List.of(new AdvertizedRoute(ribSupport, route, newBestPath.getAttributes(), newBestPath.getPeerId(),
                 newBestPath.isDepreferenced())),
             oldBestPath == null ? null : new Stale(ribSupport.createRouteListArgument(routeKey)));
     }
 
-    private @Nullable Update selectNone(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey) {
+    private @Nullable BestPathUpdate selectNone(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey) {
         // there are no candidates, so not bother with selection: there is no best path and if there was one, it is
         // now removed
         final var oldBestPath = bestPath;
@@ -140,7 +141,7 @@ final class BaseRouteEntry implements RouteEntry {
             return null;
         }
         setBestPath(oldBestPath, null);
-        return new Update(List.of(), new Stale(ribSupport.createRouteListArgument(routeKey)));
+        return new BestPathUpdate(List.of(), new Stale(ribSupport.createRouteListArgument(routeKey)));
     }
 
     private void setBestPath(final @Nullable BaseBestPath oldBestPath, final @Nullable BaseBestPath newBestPath) {

@@ -22,6 +22,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.BestPathUpdate;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.yangtools.yang.common.Uint32;
@@ -202,7 +203,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final @Nullable Update selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey) {
+    public final @Nullable BestPathUpdate selectBest(final RIBSupport ribSupport, final long localAs, final String routeKey) {
         final var size = offsets.size();
         return size == 0 ? select0(ribSupport, routeKey)
             : selectBest(ribSupport, routeKey, selectBest(ribSupport, localAs, size));
@@ -212,13 +213,13 @@ abstract class AddPathRouteEntry implements RouteEntry {
     abstract List<AddPathBestPath> selectBest(RIBSupport ribSupport, long localAs, int size);
 
     @NonNullByDefault
-    private @Nullable Update selectBest(final RIBSupport ribSupport, final String routeKey,
+    private @Nullable BestPathUpdate selectBest(final RIBSupport ribSupport, final String routeKey,
             final List<AddPathBestPath> newBestPath) {
         return newBestPath.isEmpty() ? select0(ribSupport, routeKey)
             : selectN(ribSupport, routeKey, List.copyOf(newBestPath));
     }
 
-    private @Nullable Update select0(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey) {
+    private @Nullable BestPathUpdate select0(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey) {
         final var oldBestPath = bestPath;
         final var staleRoute = staleRoute(ribSupport, routeKey, oldBestPath, true);
         if (staleRoute == null) {
@@ -226,11 +227,11 @@ abstract class AddPathRouteEntry implements RouteEntry {
         }
 
         setBestPath(List.of(), oldBestPath);
-        return new Update(List.of(), staleRoute);
+        return new BestPathUpdate(List.of(), staleRoute);
     }
 
     @NonNullByDefault
-    private @Nullable Update selectN(final RIBSupport ribSupport, final String routeKey,
+    private @Nullable BestPathUpdate selectN(final RIBSupport ribSupport, final String routeKey,
             final List<AddPathBestPath> newBestPath) {
         final var oldBestPath = bestPath;
         if (!oldBestPath.isEmpty()) {
@@ -238,12 +239,12 @@ abstract class AddPathRouteEntry implements RouteEntry {
         }
 
         setBestPath(newBestPath, List.of());
-        return new Update(
+        return new BestPathUpdate(
             advertizedRoutes(ribSupport, routeKey, newBestPath),
             staleRoute(ribSupport, routeKey, List.of(), true));
     }
 
-    private @Nullable Update selectN(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey,
+    private @Nullable BestPathUpdate selectN(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey,
             final @NonNull List<AddPathBestPath> newBestPath, final @NonNull List<AddPathBestPath> oldBestPath) {
         // FIXME: clean this up: we are computing a delta between two lists and there just has to be a more efficient
         //        way to do this
@@ -262,7 +263,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
         }
 
         setBestPath(newBestPath, removedPaths);
-        return new Update(advertizedRoutes(ribSupport, routeKey, advertizedPaths), staleRoute);
+        return new BestPathUpdate(advertizedRoutes(ribSupport, routeKey, advertizedPaths), staleRoute);
     }
 
     @NonNullByDefault

@@ -14,9 +14,8 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
-import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.BestPathUpdate;
 import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
-import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
@@ -27,18 +26,6 @@ import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
  */
 @NonNullByDefault
 public interface RouteEntry {
-    /**
-     * The result of {@link RouteEntry#selectBest(RIBSupport, long, String)}.
-     *
-     * @param adverized collection of best path routes after processing update of stale and new advertisement of routes
-     * @param stale the {@link StaleBestPathRoute} to withdraw, or {@code null} if there is nothing to withdraw
-     */
-    record Update(List<AdvertizedRoute> adverized, @Nullable StaleBestPathRoute stale) {
-        public Update {
-            adverized = List.copyOf(adverized);
-        }
-    }
-
     /**
      * Put a route.
      *
@@ -64,10 +51,10 @@ public interface RouteEntry {
      * @param ribSupport RIB Support
      * @param localAs The local autonomous system number
      * @param routeKey route key
-     * @return an {@link Update} if selection results in a change in how this entry should be adverized
+     * @return an {@link BestPathUpdate} if selection results in a change in how this entry should be adverized
      */
     @CheckReturnValue
-    @Nullable Update selectBest(RIBSupport ribSupport, long localAs, String routeKey);
+    @Nullable BestPathUpdate selectBest(RIBSupport ribSupport, long localAs, String routeKey);
 
     /**
      * {@return collections of present selected best path}
