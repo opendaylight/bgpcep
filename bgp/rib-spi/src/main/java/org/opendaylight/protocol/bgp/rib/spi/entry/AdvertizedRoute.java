@@ -7,28 +7,23 @@
  */
 package org.opendaylight.protocol.bgp.rib.spi.entry;
 
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
-import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 /**
  * new Routes to be advertized.
  *
+ * @see BestPath#toAdvertized(RIBSupport, MapEntryNode, boolean)
  * @author Claudio D. Gasparini
  */
+@NonNullByDefault
 public final class AdvertizedRoute extends AbstractAdvertizedRoute {
     private final boolean isFirstBestPath;
 
-    public AdvertizedRoute(final RIBSupport ribSupport, final MapEntryNode route, final ContainerNode attributes,
-            final PeerId fromPeerId, final boolean depreferenced) {
-        super(ribSupport, route, fromPeerId, attributes, depreferenced);
-        isFirstBestPath = true;
-    }
-
-    public AdvertizedRoute(final RIBSupport ribSupport, final boolean isFirstBestPath, final MapEntryNode route,
-            final ContainerNode attributes, final PeerId fromPeerId, final boolean depreferenced) {
-        super(ribSupport, route, fromPeerId, attributes, depreferenced);
+    AdvertizedRoute(final RIBSupport ribSupport, final MapEntryNode route, final BestPath path,
+            final boolean isFirstBestPath) {
+        super(ribSupport, route, path);
         this.isFirstBestPath = isFirstBestPath;
     }
 
