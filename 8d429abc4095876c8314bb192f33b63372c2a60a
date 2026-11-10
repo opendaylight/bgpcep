@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "be5209d7_4e01d2c3",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-10T23:16:12Z",
+      "side": 1,
+      "message": "do not package iana-igp-algo types and model the union on the BGP models",
+      "revId": "8d429abc4095876c8314bb192f33b63372c2a60a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
