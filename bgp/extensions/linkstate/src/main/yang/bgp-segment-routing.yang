@@ -39,7 +39,7 @@ module bgp-segment-routing {
     // Common Definitions
 
     grouping sid-label-index {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.1.1";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.1.1";
         choice sid-label-index {
             case label-case {
                 leaf label {
@@ -55,7 +55,7 @@ module bgp-segment-routing {
     }
 
     typedef extended-admin-group {
-        reference "http://tools.ietf.org/html/rfc7308#section-2.1";
+        reference "https://www.rfc-editor.org/info/rfc7308/#section-2.1";
         type uint32;
     }
 
@@ -87,7 +87,9 @@ module bgp-segment-routing {
     }
 
     grouping msd-tlv {
-        reference "https://tools.ietf.org/html/rfc8814#section-3 and section-4";
+        reference
+            "https://www.rfc-editor.org/info/rfc8814/#section-3 and
+             https://www.rfc-editor.org/info/rfc8814/#section-4";
         leaf type {
             type msd-type;
         }
@@ -99,7 +101,7 @@ module bgp-segment-routing {
     // Node Attributes
 
     typedef algorithm {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.1.2";
+        reference "https://www.rfc-editor.org/info/rfc8665/#section-3.1";
         type enumeration {
             enum shortest-path-first {
                 value 0;
@@ -111,17 +113,17 @@ module bgp-segment-routing {
     }
 
     typedef srms {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.1.5";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.1.5";
         type uint8;
     }
 
     typedef weight {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.2.1";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.2.1";
         type uint8;
     }
 
     grouping sr-capabilities-tlv {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.1.2";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.1.2";
         leaf mpls-ipv4 {
             type boolean;
         }
@@ -143,7 +145,7 @@ module bgp-segment-routing {
     }
 
     grouping sr-local-block-tlv {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.1.4";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.1.4";
         list srlb {
             leaf range-size {
                 type rt-types:uint24;
@@ -153,7 +155,7 @@ module bgp-segment-routing {
     }
 
     grouping srms-tlv {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.1.5";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.1.5";
         leaf preference {
             type srms;
         }
@@ -167,7 +169,7 @@ module bgp-segment-routing {
     }
 
     grouping srv6-capabilities-tlv {
-        reference "https://tools.ietf.org/html/rfc9514#section3.1";
+        reference "https://www.rfc-editor.org/info/rfc9514/#section3.1";
         leaf o-flag {
             type boolean;
         }
@@ -176,7 +178,7 @@ module bgp-segment-routing {
     // Flex Algo
 
     typedef flex-metric {
-        reference "http://tools.ietf.org/html/rfc9351#section-5.1";
+        reference "https://www.rfc-editor.org/info/rfc9351/#section-5.1";
         type enumeration {
             enum igp {
                 value 0;
@@ -191,7 +193,7 @@ module bgp-segment-routing {
     }
 
     typedef flex-algo-definition-flag {
-        reference "http://tools.ietf.org/html/rfc9351#section-6.4";
+        reference "https://www.rfc-editor.org/info/rfc9351/#section-6.4";
         type bits {
             bit inter-area {
                 position 0;
@@ -200,14 +202,14 @@ module bgp-segment-routing {
     }
 
     typedef flex-algo {
-        reference "http://tools.ietf.org/html/rfc9351";
+        reference "https://www.rfc-editor.org/info/rfc9351";
         type uint8 {
             range "128..255";
         }
     }
 
     grouping unsupported-tlvs {
-        reference "https://tools.ietf.org/html/rfc9351#section-3.6";
+        reference "https://www.rfc-editor.org/info/rfc9351/#section-3.6";
         leaf protocol-id {
             type uint8;
         }
@@ -217,7 +219,9 @@ module bgp-segment-routing {
     }
 
     grouping flex-algo-subtlv {
-        reference "https://tools.ietf.org/html/rfc9351#section-3.1 to 3.6";
+        reference
+            "https://www.rfc-editor.org/info/rfc9351/#section-3.1 to
+             https://www.rfc-editor.org/info/rfc9351/#section-3.6";
         leaf-list exclude-any {
             type extended-admin-group;
         }
@@ -239,7 +243,7 @@ module bgp-segment-routing {
     }
 
     grouping flex-algo-definitions {
-        reference "https://tools.ietf.org/html/rfc9351#section-3";
+        reference "https://www.rfc-editor.org/info/rfc9351/#section-3";
         list flex-algo-definition-tlv {
             leaf flex-algo {
                 type flex-algo;
@@ -264,7 +268,9 @@ module bgp-segment-routing {
     // Link Attributes
 
     grouping common-adj-flags {
-        reference "https://tools.ietf.org/html/rfc9085#section-2 and https://tools.ietf.org/html/rfc9086#section-5";
+        reference
+            "https://www.rfc-editor.org/info/rfc9085/#section-2 and
+             https://www.rfc-editor.org/info/rfc9086/#section-5";
         leaf backup {
             type boolean;
         }
@@ -282,8 +288,9 @@ module bgp-segment-routing {
     grouping adj-flags {
         choice flags {
             case ospf-adj-flags-case {
-                reference "https://tools.ietf.org/html/rfc8665#section-6
-                    and https://tools.ietf.org/html/rfc8667#section-6";
+                reference
+                    "https://www.rfc-editor.org/info/rfc8665/#section-6 and
+                     https://www.rfc-editor.org/info/rfc8667/#section-6";
                 container ospf-adj-flags {
                     uses common-adj-flags;
                     leaf set {
@@ -292,7 +299,7 @@ module bgp-segment-routing {
                 }
             }
             case isis-adj-flags-case {
-                reference "https://tools.ietf.org/html/rfc8667#section-2.2.1";
+                reference "https://www.rfc-editor.org/info/rfc8667/#section-2.2.1";
                 container isis-adj-flags {
                     leaf address-family {
                         type boolean;
@@ -304,7 +311,7 @@ module bgp-segment-routing {
                 }
             }
             case epe-adj-flags-case {
-                reference "https://tools.ietf.org/html/rfc9086#section-5";
+                reference "https://www.rfc-editor.org/info/rfc9086/#section-5";
                 container epe-adj-flags {
                     uses common-adj-flags;
                 }
@@ -313,7 +320,7 @@ module bgp-segment-routing {
     }
 
     grouping adj-sid-tlv {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.2.1";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.2.1";
         uses adj-flags;
         leaf weight {
             type weight;
@@ -322,7 +329,7 @@ module bgp-segment-routing {
     }
 
     grouping lan-adj-sid-tlv {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.2.2";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.2.2";
         uses adj-flags;
         leaf weight {
             type weight;
@@ -343,7 +350,7 @@ module bgp-segment-routing {
     }
 
     grouping epe-sid-tlv {
-        reference "https://tools.ietf.org/html/rfc9086#section-5";
+        reference "https://www.rfc-editor.org/info/rfc9086/#section-5";
         uses adj-flags;
         leaf weight {
             type weight;
@@ -354,14 +361,16 @@ module bgp-segment-routing {
     // SRv6
 
     typedef srv6-sid {
-        reference "https://www.rfc-editor.org/rfc/rfc8986#section-3";
+        reference "https://www.rfc-editor.org/rfc/rfc8986/#section-3";
         type binary {
             length 16;
         }
     }
 
     grouping srv6-flags {
-        reference "https://tools.ietf.org/html/rfc9352#section-8.1 and rfc9513#section-9.1";
+        reference
+            "https://www.rfc-editor.org/info/rfc9352/#section-8.1 and
+             https://www.rfc-editor.org/info/rfc9513/#section-9.1";
         container flags {
             leaf backup {
                 type boolean;
@@ -376,7 +385,7 @@ module bgp-segment-routing {
     }
 
     grouping srv6-sid-structure {
-        reference "https://tools.ietf.org/html/rfc9514#section-8";
+        reference "https://www.rfc-editor.org/info/rfc9514/#section-8";
         container srv6-sid-structure {
             leaf locator-block-length {
                 type uint8;
@@ -394,7 +403,7 @@ module bgp-segment-routing {
     }
 
     grouping srv6-end-x-sid {
-        reference "https://tools.ietf.org/html/rfc9514#section-4.1";
+        reference "https://www.rfc-editor.org/info/rfc9514/#section-4.1";
         leaf endpoint-behavior {
             type uint16;
         }
@@ -412,7 +421,7 @@ module bgp-segment-routing {
     }
 
     grouping srv6-lan-end-x-sid {
-        reference "https://tools.ietf.org/html/rfc9514#section-4.2";
+        reference "https://www.rfc-editor.org/info/rfc9514/#section-4.2";
         leaf endpoint-behavior {
             type uint16;
         }
@@ -444,7 +453,7 @@ module bgp-segment-routing {
     // Prefix Attributes
 
     grouping prefix-flags {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.3.1";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.3.1";
         leaf no-php {
             type boolean;
         }
@@ -460,11 +469,11 @@ module bgp-segment-routing {
     }
 
     grouping prefix-sid-tlv {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.3.1";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.3.1";
         choice flags {
             case isis-prefix-flags-case {
                 container isis-prefix-flags {
-                    reference "https://tools.ietf.org/html/rfc8667#section-2.2.1";
+                    reference "https://www.rfc-editor.org/info/rfc8667/#section-2.2.1";
                     leaf re-advertisement {
                         type boolean;
                     }
@@ -476,7 +485,7 @@ module bgp-segment-routing {
             }
             case ospf-prefix-flags-case {
                 container ospf-prefix-flags {
-                    reference "https://tools.ietf.org/html/rfc8665#section-5";
+                    reference "https://www.rfc-editor.org/info/rfc8665/#section-5";
                     leaf mapping-server {
                         type boolean;
                     }
@@ -491,7 +500,7 @@ module bgp-segment-routing {
     }
 
     typedef flex-algo-prefix-flag {
-        reference "http://tools.ietf.org/html/rfc9350#section-9";
+        reference "https://www.rfc-editor.org/info/rfc9350/#section-9";
         type bits {
             bit external-metric {
                 position 0;
@@ -500,7 +509,7 @@ module bgp-segment-routing {
     }
 
     grouping flex-algo-prefix-metric {
-        reference "https://tools.ietf.org/html/rfc9351#section-4";
+        reference "https://www.rfc-editor.org/info/rfc9351/#section-4";
         leaf flex-algo {
             type flex-algo;
         }
@@ -513,7 +522,7 @@ module bgp-segment-routing {
     }
 
     grouping isis-range-flags {
-        reference "https://tools.ietf.org/html/rfc8667#section-2.4.1";
+        reference "https://www.rfc-editor.org/info/rfc8667/#section-2.4.1";
         leaf address-family {
             type boolean;
         }
@@ -532,14 +541,14 @@ module bgp-segment-routing {
     }
 
     grouping ospf-range-flags {
-        reference "https://tools.ietf.org/html/rfc8665#section-4";
+        reference "https://www.rfc-editor.org/info/rfc8665/#section-4";
         leaf inter-area {
             type boolean;
         }
     }
 
     grouping isis-attribute-flags {
-        reference "http://tools.ietf.org/html/rfc7794#section-2.1";
+        reference "https://www.rfc-editor.org/info/rfc7794/#section-2.1";
         leaf external-flag {
             type boolean;
         }
@@ -549,14 +558,14 @@ module bgp-segment-routing {
     }
 
     grouping ospf-attribute-flags {
-        reference "http://tools.ietf.org/html/rfc7684#section-2.1";
+        reference "https://www.rfc-editor.org/info/rfc7684/#section-2.1";
         leaf attach-flag {
             type boolean;
         }
     }
 
     grouping ospfv3-attribute-flags {
-        reference "http://tools.ietf.org/html/rfc8362#section-3.1";
+        reference "https://www.rfc-editor.org/info/rfc8362/#section-3.1";
         leaf dn-flag {
             type boolean;
         }
@@ -572,7 +581,7 @@ module bgp-segment-routing {
     }
 
     grouping prefix-attribute-flags {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.3.2";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.3.2";
         leaf node-flag {
             type boolean;
         }
@@ -590,7 +599,7 @@ module bgp-segment-routing {
     }
 
     grouping range-tlv {
-        reference "https://tools.ietf.org/html/rfc9085#section-2.3.5";
+        reference "https://www.rfc-editor.org/info/rfc9085/#section-2.3.5";
         choice range-flags {
             case isis-range-flags-case {
                 uses isis-range-flags;
@@ -608,7 +617,7 @@ module bgp-segment-routing {
     }
 
     grouping srv6-locator {
-        reference "https://tools.ietf.org/html/rfc9514#section-5.1";
+        reference "https://www.rfc-editor.org/info/rfc9514/#section-5.1";
         container flags {
             leaf up-down {
                 type boolean;
@@ -625,7 +634,7 @@ module bgp-segment-routing {
     // NLRI
 
     grouping srv6-endpoint-behavior {
-        reference "https://tools.ietf.org/html/rfc9514#section-7.1";
+        reference "https://www.rfc-editor.org/info/rfc9514/#section-7.1";
         leaf endpoint-behavior {
             type uint16;
         }
@@ -638,7 +647,7 @@ module bgp-segment-routing {
     }
 
     grouping srv6-bgp-peer-node {
-        reference "https://tools.ietf.org/html/rfc9514#section-7.2";
+        reference "https://www.rfc-editor.org/info/rfc9514/#section-7.2";
         uses srv6-flags;
         leaf weight {
             type uint8;
@@ -654,7 +663,7 @@ module bgp-segment-routing {
     }
 
     grouping srv6-attributes {
-        reference "https://tools.ietf.org/html/rfc9514#section-7";
+        reference "https://www.rfc-editor.org/info/rfc9514/#section-7";
         container srv6-endpoint-behavior {
             uses srv6-endpoint-behavior;
         }
@@ -663,5 +672,4 @@ module bgp-segment-routing {
         }
         uses srv6-sid-structure;
     }
-
 }
