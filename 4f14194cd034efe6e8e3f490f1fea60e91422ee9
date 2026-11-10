@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e6cc3c24_98a7ca8a",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 50
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-10T11:54:24Z",
+      "side": 1,
+      "message": "So the bulk of tests are not actually valid, simply because they are using a fixed NodeIdentifierWithPredicates -- whereas its route-key should be reflecting the NLRI.",
+      "revId": "4f14194cd034efe6e8e3f490f1fea60e91422ee9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
