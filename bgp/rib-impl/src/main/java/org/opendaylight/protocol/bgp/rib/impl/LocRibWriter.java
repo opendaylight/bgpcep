@@ -43,7 +43,6 @@ import org.opendaylight.mdsal.dom.api.DOMDataTreeIdentifier;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RibOutRefresh;
 import org.opendaylight.protocol.bgp.rib.spi.BGPPeerTracker;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -52,6 +51,7 @@ import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.protocol.bgp.rib.spi.policy.BGPRibRoutingPolicy;
 import org.opendaylight.protocol.bgp.rib.spi.state.BGPTableState;
@@ -331,8 +331,7 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
                     LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
                     final var routesToStore = new ArrayList<ActualBestPathRoutes>();
                     for (var entry : routeEntries.asEntrySet()) {
-                        routesToStore.addAll(entry.getValue()
-                            .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey())));
+                        routesToStore.addAll(entry.getValue().actualBestPaths(ribSupport, entry.getKey()));
                     }
                     toPeer.initializeRibOut(entryDep, routesToStore);
                 }
@@ -449,8 +448,7 @@ final class LocRibWriter implements AutoCloseable, RibOutRefresh, DOMDataTreeCha
             LOG.debug("Peer {} table has been created, inserting existent routes", toPeer.getPeerId());
             final var routesToStore = new ArrayList<ActualBestPathRoutes>();
             for (var entry : routeEntries.asEntrySet()) {
-                routesToStore.addAll(entry.getValue()
-                    .actualBestPaths(ribSupport, new RouteEntryInfoImpl(toPeer, entry.getKey())));
+                routesToStore.addAll(entry.getValue().actualBestPaths(ribSupport, entry.getKey()));
             }
             toPeer.reEvaluateAdvertizement(entryDep, routesToStore);
         }

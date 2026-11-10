@@ -8,6 +8,7 @@
 package org.opendaylight.protocol.bgp.mode.api;
 
 import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntry;
 
 @NonNullByDefault
 public interface PathSelectionMode {

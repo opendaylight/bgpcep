@@ -16,14 +16,13 @@ import java.util.function.Predicate;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.mode.impl.base.BaseBestPathState;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AdvertizedRoute;
 import org.opendaylight.protocol.bgp.rib.spi.entry.BestPathUpdate;
-import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -175,20 +174,19 @@ abstract class AddPathRouteEntry implements RouteEntry {
     }
 
     @Override
-    public final List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport,
-            final RouteEntryInfo entryInfo) {
+    public final List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport, final String routeKey) {
         final var paths = bestPath;
         final var size = paths.size();
         return switch (size) {
             case 0 -> List.of();
-            case 1 -> List.of(actualBestPath(ribSupport, entryInfo, paths.getFirst()));
+            case 1 -> List.of(actualBestPath(ribSupport, routeKey, paths.getFirst()));
             case 2 -> List.of(
-                actualBestPath(ribSupport, entryInfo, paths.getFirst()),
-                actualBestPath(ribSupport, entryInfo, paths.getLast()));
+                actualBestPath(ribSupport, routeKey, paths.getFirst()),
+                actualBestPath(ribSupport, routeKey, paths.getLast()));
             default -> {
                 final var ret = new ArrayList<ActualBestPathRoutes>(size);
                 for (var path : paths) {
-                    ret.add(actualBestPath(ribSupport, entryInfo, path));
+                    ret.add(actualBestPath(ribSupport, routeKey, path));
                 }
                 yield ret;
             }
@@ -196,9 +194,9 @@ abstract class AddPathRouteEntry implements RouteEntry {
     }
 
     @NonNullByDefault
-    private ActualBestPathRoutes actualBestPath(final RIBSupport ribSupport, final RouteEntryInfo entryInfo,
+    private ActualBestPathRoutes actualBestPath(final RIBSupport ribSupport, final String routeKey,
             final AddPathBestPath path) {
-        return path.toActual(ribSupport, createRoute(ribSupport, entryInfo.getRouteKey(), path));
+        return path.toActual(ribSupport, createRoute(ribSupport, routeKey, path));
     }
 
     @Override
