@@ -249,7 +249,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
         advertizedPaths.removeAll(oldBestPath);
         final var removedPaths = new ArrayList<>(oldBestPath);
         oldBestPath.forEach(oldBest -> newBestPath.stream()
-            .filter(newBest -> newBest.getPathId() == oldBest.getPathId()
+            .filter(newBest -> newBest.pathIdBits() == oldBest.pathIdBits()
                     && newBest.getRouteKey().equals(oldBest.getRouteKey()))
             .findAny()
             .ifPresent(addPathBestPath -> removedPaths.remove(oldBest)));
@@ -334,6 +334,6 @@ abstract class AddPathRouteEntry implements RouteEntry {
         final var map = offsets;
         final var route = map.getValue(values, map.offsetOf(path.getRouteKey()));
         return ribSupport.createRoute(route, ribSupport.createRouteListArgument(path.getPathIdLong(), routeKey),
-            path.getAttributes());
+            path.attributes());
     }
 }

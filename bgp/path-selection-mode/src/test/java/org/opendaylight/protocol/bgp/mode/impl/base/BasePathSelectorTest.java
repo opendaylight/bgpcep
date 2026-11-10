@@ -150,7 +150,7 @@ class BasePathSelectorTest {
         selector.processPath(ROUTER_ID2, createStateFromPrefMedOriginASPath().build());
         final BaseBestPath processedPath = selector.result();
 
-        assertEquals(originBestPath.getPeerId(), processedPath.getPeerId());
+        assertEquals(originBestPath.peerId(), processedPath.peerId());
         assertEquals(originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
         assertEquals(originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
         assertEquals(originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());
@@ -203,7 +203,7 @@ class BasePathSelectorTest {
         selector.processPath(ROUTER_ID3, createStateFromPrefMedOrigin());
         final BaseBestPath processedPath = selector.result();
 
-        assertNotEquals(originBestPath.getPeerId(), processedPath.getPeerId());
+        assertNotEquals(originBestPath.peerId(), processedPath.peerId());
         assertNotEquals(originBestPath.getState().getLocalPref(), processedPath.getState().getLocalPref());
         assertNotEquals(originBestPath.getState().getMultiExitDisc(), processedPath.getState().getMultiExitDisc());
         assertNotEquals(originBestPath.getState().getOrigin(), processedPath.getState().getOrigin());

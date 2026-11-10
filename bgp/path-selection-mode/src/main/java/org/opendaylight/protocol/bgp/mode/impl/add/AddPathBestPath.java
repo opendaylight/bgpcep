@@ -41,18 +41,17 @@ final class AddPathBestPath extends AbstractBestPath {
     }
 
     @Override
-    public RouterId getRouterId() {
+    public RouterId routerId() {
         return routeKey.routerId();
     }
 
     @Override
-    public long getPathId() {
-        // FIXME: this should return int bits...
-        return pathId.longValue();
+    public int pathIdBits() {
+        return pathId.intValue();
     }
 
     /**
-     * Return the boxed value equivalent of {@link #getPathId()}. This class uses boxed instances internally, hence
+     * Return the boxed value equivalent of {@link #pathIdBits()}. This class uses boxed instances internally, hence
      * this method exposes it.
      *
      * @return Path Id as a {@link Long}

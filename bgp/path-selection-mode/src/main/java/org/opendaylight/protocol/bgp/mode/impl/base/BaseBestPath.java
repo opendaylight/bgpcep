@@ -26,12 +26,12 @@ final class BaseBestPath extends AbstractBestPath {
     }
 
     @Override
-    public RouterId getRouterId() {
+    public RouterId routerId() {
         return routerId;
     }
 
     @Override
-    public long getPathId() {
+    public int pathIdBits() {
         // PathIdUtil.NON_PATH_ID_VALUE
         return 0;
     }

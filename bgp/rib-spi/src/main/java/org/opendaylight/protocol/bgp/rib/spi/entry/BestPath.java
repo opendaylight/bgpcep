@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
+ * Copyright (c) 2026 PANTHEON.tech, s.r.o.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,6 +12,7 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
+import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.ContainerNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
@@ -19,34 +21,31 @@ public interface BestPath {
     /**
      * {@return the {@link RouterId}}
      */
-    // FIXME: rename to routerId()
-    RouterId getRouterId();
+    RouterId routerId();
 
     /**
-     * {@return {@link #getRouterId()} converted to a {@link PeerId}}
+     * {@return {@link #routerId()} converted to a {@link PeerId}}
      */
-    // FIXME: rename to peerId()
-    default PeerId getPeerId() {
-        return getRouterId().getPeerId();
+    default PeerId peerId() {
+        return routerId().getPeerId();
     }
 
     /**
      * {@return the path attributes}
      */
-    // FIXNE: rename to attributes()
-    ContainerNode getAttributes();
+    ContainerNode attributes();
 
     /**
-     * {@return pathId}
+     * {@return the raw path id}
+     *
+     * @see Uint32#fromIntBits(int)
      */
-    // FIXME: change to 'int pathIdBits()'
-    long getPathId();
+    int pathIdBits();
 
     /**
      * {@return {@code true} if this path is depreferenced, {@code false} otherwise}
      */
-    // FIXME: rename to depreferenced()
-    boolean isDepreferenced();
+    boolean depreferenced();
 
     /**
      * {@return {@link ActualBestPathRoutes} of this path}
