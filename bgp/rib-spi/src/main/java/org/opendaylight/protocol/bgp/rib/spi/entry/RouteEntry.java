@@ -18,10 +18,10 @@ import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 
 /**
- * A single route entry, identified by a {@link RouteEntryInfo#getRouteKey()}, inside a route table, supported by
- * a {@link RIBSupport}. Maintains the attributes of from all contributing peers. The information is stored in arrays
- * with a shared map of offsets for peers to allow lookups. This is needed to maintain low memory overhead in face
- * of large number of routes and peers, where individual object overhead becomes the dominating factor.
+ * A single route entry, identified by a {@code route key}, inside a route table, supported by a {@link RIBSupport}.
+ * Maintains the attributes of from all contributing peers. The information is stored in arrays with a shared map
+ * of offsets for peers to allow lookups. This is needed to maintain low memory overhead in face of large number
+ * of routes and peers, where individual object overhead becomes the dominating factor.
  *
  * <p>{@link RouteEntry} objects are inherently mutable with no inter-thread synchronization guarantees. The intended
  * contract is that a controller can either:
