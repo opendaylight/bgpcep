@@ -32,12 +32,12 @@ public abstract class AbstractBestPath implements BestPath {
     }
 
     @Override
-    public final ContainerNode getAttributes() {
+    public final ContainerNode attributes() {
         return state.getAttributes();
     }
 
     @Override
-    public final boolean isDepreferenced() {
+    public final boolean depreferenced() {
         return state.isDepreferenced();
     }
 

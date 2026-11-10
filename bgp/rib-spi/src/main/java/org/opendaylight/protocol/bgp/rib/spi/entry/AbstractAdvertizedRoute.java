@@ -36,9 +36,9 @@ public abstract sealed class AbstractAdvertizedRoute implements RouteKeyIdentifi
         addPathRouteKeyIdentifier = ribSupport.toAddPathListArgument(route.name());
         nonAddPathRouteKeyIdentifier = ribSupport.toNonPathListArgument(addPathRouteKeyIdentifier);
         // do not retaim reference
-        fromPeerId = bestPath.getPeerId();
-        attributes = bestPath.getAttributes();
-        depreferenced = bestPath.isDepreferenced();
+        fromPeerId = bestPath.peerId();
+        attributes = bestPath.attributes();
+        depreferenced = bestPath.depreferenced();
     }
 
     public final PeerId getFromPeerId() {

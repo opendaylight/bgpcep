@@ -34,17 +34,17 @@ class BaseBestPathTest {
 
     @Test
     void testGetRouterId() {
-        assertEquals(ROUTER_ID, baseBestPath.getRouterId());
+        assertEquals(ROUTER_ID, baseBestPath.routerId());
     }
 
     @Test
     void testGetPeerId() {
-        assertEquals(PEER_ID, baseBestPath.getPeerId());
+        assertEquals(PEER_ID, baseBestPath.peerId());
     }
 
     @Test
     void testGetPathId() {
-        assertEquals(NON_PATH_ID_VALUE.toJava(), baseBestPath.getPathId());
+        assertEquals(NON_PATH_ID_VALUE.intValue(), baseBestPath.pathIdBits());
     }
 
     @Test

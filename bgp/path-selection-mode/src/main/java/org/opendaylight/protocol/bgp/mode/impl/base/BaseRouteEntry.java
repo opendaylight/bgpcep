@@ -153,7 +153,7 @@ final class BaseRouteEntry implements RouteEntry {
 
     @NonNullByDefault
     private MapEntryNode createRoute(final RIBSupport ribSupport, final String routeKey, final BaseBestPath best) {
-        return ribSupport.createRoute(offsets.getValue(values, offsets.offsetOf(best.getRouterId())),
-            ribSupport.createRouteListArgument(routeKey), best.getAttributes());
+        return ribSupport.createRoute(offsets.getValue(values, offsets.offsetOf(best.routerId())),
+            ribSupport.createRouteListArgument(routeKey), best.attributes());
     }
 }
