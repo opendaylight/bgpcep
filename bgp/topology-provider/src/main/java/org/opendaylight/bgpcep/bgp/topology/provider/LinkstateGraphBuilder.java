@@ -781,7 +781,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
             final FlexAlgoBuilder fab = new FlexAlgoBuilder();
 
             fab.setCalcType(fad.getCalcType());
-            fab.setFlexAlgo(fad.getFlexAlgo().getValue());
+            fab.setFlexAlgo(fad.getFlexAlgo());
             fab.setMetricType(FlexMetric.forValue(fad.getMetricType().getIntValue()));
             fab.setPriority(fad.getPriority());
 
@@ -927,7 +927,7 @@ public class LinkstateGraphBuilder extends AbstractTopologyBuilder<LinkstateRout
         // Flex Algo
         if (pa.getFlexAlgoPrefixMetric() != null) {
             final PrefixFlexAlgoBuilder pfaBuilder = new PrefixFlexAlgoBuilder();
-            pfaBuilder.setFlexAlgo(pa.getFlexAlgoPrefixMetric().getFlexAlgo().getValue());
+            pfaBuilder.setFlexAlgo(pa.getFlexAlgoPrefixMetric().getFlexAlgo());
             pfaBuilder.setMetric(pa.getFlexAlgoPrefixMetric().getMetric());
             srpBuilder.setPrefixFlexAlgo(pfaBuilder.build());
         }

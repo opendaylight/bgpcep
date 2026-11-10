@@ -28,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.FlexAlgoPrefixMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.prefix.state.FlexAlgoPrefixMetricBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.ExtendedAdminGroup;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.FlexAlgo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.FlexAlgoDefinitionFlag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.FlexAlgoPrefixFlag;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.FlexMetric;
@@ -39,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.flex.algo.subtlv.UnsupportedTlv;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.flex.algo.subtlv.UnsupportedTlvBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.yang.igp.algo.types.rev261110.OdlIgpAlgoUtil;
 import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
@@ -65,7 +65,7 @@ public final class SrFlexAlgoParser {
         final var fadTlvs = new ArrayList<FlexAlgoDefinitionTlv>();
         while (buffer.isReadable()) {
             fadTlvs.add(new FlexAlgoDefinitionTlvBuilder()
-                .setFlexAlgo(new FlexAlgo(readUint8(buffer)))
+                .setFlexAlgo(OdlIgpAlgoUtil.flexAlgoOf(readUint8(buffer)))
                 .setMetricType(FlexMetric.forValue(buffer.readByte()))
                 .setCalcType(readUint8(buffer))
                 .setPriority(readUint8(buffer))
@@ -208,7 +208,8 @@ public final class SrFlexAlgoParser {
     }
 
     public static FlexAlgoPrefixMetric parseFlexAlgoPrefixMetric(final ByteBuf buffer, final ProtocolId protocolId) {
-        final var fapmBuilder = new FlexAlgoPrefixMetricBuilder().setFlexAlgo(new FlexAlgo(readUint8(buffer)));
+        final var fapmBuilder = new FlexAlgoPrefixMetricBuilder()
+            .setFlexAlgo(OdlIgpAlgoUtil.flexAlgoOf(readUint8(buffer)));
 
         if (protocolId == ProtocolId.Ospf || protocolId == ProtocolId.OspfV3) {
             final BitArray flags = BitArray.valueOf(buffer, PREFIX_FLAGS_SIZE);

@@ -5,6 +5,7 @@ module graph {
 
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-routing-types { prefix rt-types; }
+    import odl-igp-algo-types { prefix oiat; }
 
     organization "Orange";
     contact "Philippe Niger <philippe.niger@orange.com>
@@ -320,9 +321,7 @@ module graph {
 
     grouping node-flex-algo {
         leaf flex-algo {
-            type uint8 {
-                range "128..255";
-            }
+            type oiat:flex-algo;
         }
         leaf metric-type {
             type flex-metric;
@@ -479,9 +478,7 @@ module graph {
         container prefix-flex-algo {
             description "Flexible Algorithm";
             leaf flex-algo {
-                type uint8 {
-                    range "128..255";
-                }
+                type oiat:flex-algo;
             }
             leaf metric {
                 type uint32;
