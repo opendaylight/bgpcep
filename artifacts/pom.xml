@@ -23,6 +23,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Shared models -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>odl-igp-algo-types</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Algorithm artifacts -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
