@@ -243,16 +243,10 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
     private @Nullable BestPathUpdate selectN(final @NonNull RIBSupport ribSupport, final @NonNull String routeKey,
             final @NonNull List<AddPathBestPath> newBestPath, final @NonNull List<AddPathBestPath> oldBestPath) {
-        // FIXME: clean this up: we are computing a delta between two lists and there just has to be a more efficient
-        //        way to do this
-        final var advertizedPaths = new ArrayList<>(newBestPath);
-        advertizedPaths.removeAll(oldBestPath);
-        final var removedPaths = new ArrayList<>(oldBestPath);
-        oldBestPath.forEach(oldBest -> newBestPath.stream()
-            .filter(newBest -> newBest.pathIdBits() == oldBest.pathIdBits()
-                    && newBest.getRouteKey().equals(oldBest.getRouteKey()))
-            .findAny()
-            .ifPresent(addPathBestPath -> removedPaths.remove(oldBest)));
+        final var advertizedPaths = new ArrayList<AddPathBestPath>();
+        final var removedPaths = new ArrayList<AddPathBestPath>();
+        deltaPaths(advertizedPaths, removedPaths, oldBestPath, newBestPath);
+
         final var staleRoute = staleRoute(ribSupport, routeKey, removedPaths,
             !newBestPath.getFirst().equals(oldBestPath.getFirst()));
         if (advertizedPaths.isEmpty() && staleRoute == null) {
@@ -261,6 +255,35 @@ abstract class AddPathRouteEntry implements RouteEntry {
 
         setBestPath(newBestPath, removedPaths);
         return new BestPathUpdate(advertizedRoutes(ribSupport, routeKey, advertizedPaths), staleRoute);
+    }
+
+    @NonNullByDefault
+    private static void deltaPaths(final ArrayList<AddPathBestPath> advertizedPaths,
+            final ArrayList<AddPathBestPath> removedPaths, final List<AddPathBestPath> oldBestPath,
+            final List<AddPathBestPath> newBestPath) {
+        // FIXME: we are computing a delta between two lists and there just has to be a more efficient way to do this:
+        //        here we are doing 2xNxM interations with NxM equals() invocations
+        for (var newBest : newBestPath) {
+            if (!oldBestPath.contains(newBest)) {
+                advertizedPaths.add(newBest);
+            }
+        }
+        for (var oldBest : oldBestPath) {
+            if (!containsPath(newBestPath, oldBest.getRouteKey(), oldBest.pathIdBits())) {
+                removedPaths.add(oldBest);
+            }
+        }
+    }
+
+    @NonNullByDefault
+    private static boolean containsPath(final List<AddPathBestPath> bestPath, final RouteKey routeKey,
+            final int pathIdBits) {
+        for (var best : bestPath) {
+            if (pathIdBits == best.pathIdBits() && routeKey.equals(best.getRouteKey())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @NonNullByDefault
