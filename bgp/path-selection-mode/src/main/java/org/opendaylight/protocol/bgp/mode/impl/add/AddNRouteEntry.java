@@ -55,7 +55,7 @@ final class AddNRouteEntry extends AddPathRouteEntry {
             LOG.trace("Path {} selected {}", search, result);
             paths.add(result);
 
-            offsets[result.getOffset()] = true;
+            offsets[result.offset()] = true;
         }
 
         return paths;

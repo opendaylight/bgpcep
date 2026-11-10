@@ -269,7 +269,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
             }
         }
         for (var oldBest : oldBestPath) {
-            if (!containsPath(newBestPath, oldBest.getRouteKey(), oldBest.pathIdBits())) {
+            if (!containsPath(newBestPath, oldBest.routeKey(), oldBest.pathIdBits())) {
                 removedPaths.add(oldBest);
             }
         }
@@ -279,7 +279,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
     private static boolean containsPath(final List<AddPathBestPath> bestPath, final RouteKey routeKey,
             final int pathIdBits) {
         for (var best : bestPath) {
-            if (pathIdBits == best.pathIdBits() && routeKey.equals(best.getRouteKey())) {
+            if (pathIdBits == best.pathIdBits() && routeKey.equals(best.routeKey())) {
                 return true;
             }
         }
@@ -319,8 +319,8 @@ abstract class AddPathRouteEntry implements RouteEntry {
         removedPathIds = List.of();
 
         return removedIds.isEmpty() && removedPaths.isEmpty() ? null
-            : new Stale(ribSupport, routeKey, removedPaths.stream().map(AddPathBestPath::getPathIdLong).toList(),
-                removedIds, isNonAddPathBestPathNew);
+            : new Stale(ribSupport, routeKey, removedPaths.stream().map(AddPathBestPath::pathId).toList(), removedIds,
+                isNonAddPathBestPathNew);
     }
 
     @NonNullByDefault
@@ -355,8 +355,7 @@ abstract class AddPathRouteEntry implements RouteEntry {
     @NonNullByDefault
     private MapEntryNode createRoute(final RIBSupport ribSupport, final String routeKey, final AddPathBestPath path) {
         final var map = offsets;
-        final var route = map.getValue(values, map.offsetOf(path.getRouteKey()));
-        return ribSupport.createRoute(route, ribSupport.createRouteListArgument(path.getPathIdLong(), routeKey),
-            path.attributes());
+        return ribSupport.createRoute(map.getValue(values, map.offsetOf(path.routeKey())),
+            ribSupport.createRouteListArgument(path.pathId(), routeKey), path.attributes());
     }
 }
