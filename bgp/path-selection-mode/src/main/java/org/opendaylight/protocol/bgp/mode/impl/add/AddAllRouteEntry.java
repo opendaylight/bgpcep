@@ -32,10 +32,10 @@ final class AddAllRouteEntry extends AddPathRouteEntry {
 
         // Since we are selecting all paths, add all the other paths, do that in two steps, skipping the selected
         // route.
-        for (int offset = 0; offset < newBest.getOffset(); ++offset) {
+        for (int offset = 0; offset < newBest.offset(); ++offset) {
             paths.add(bestPathAt(ribSupport, offset));
         }
-        for (int offset = newBest.getOffset() + 1; offset < size; ++offset) {
+        for (int offset = newBest.offset() + 1; offset < size; ++offset) {
             paths.add(bestPathAt(ribSupport, offset));
         }
         return paths;

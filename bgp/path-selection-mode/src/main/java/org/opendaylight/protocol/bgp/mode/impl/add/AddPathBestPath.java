@@ -32,11 +32,18 @@ final class AddPathBestPath extends AbstractBestPath {
         this.offset = offset;
     }
 
-    RouteKey getRouteKey() {
+    RouteKey routeKey() {
         return routeKey;
     }
 
-    public int getOffset() {
+    /**
+     * {@return the equivalent of {@code Uint32.fromIntBits(pathIdBits())}}
+     */
+    Uint32 pathId() {
+        return pathId;
+    }
+
+    int offset() {
         return offset;
     }
 
@@ -48,16 +55,6 @@ final class AddPathBestPath extends AbstractBestPath {
     @Override
     public int pathIdBits() {
         return pathId.intValue();
-    }
-
-    /**
-     * Return the boxed value equivalent of {@link #pathIdBits()}. This class uses boxed instances internally, hence
-     * this method exposes it.
-     *
-     * @return Path Id as a {@link Long}
-     */
-    Uint32 getPathIdLong() {
-        return pathId;
     }
 
     @Override
