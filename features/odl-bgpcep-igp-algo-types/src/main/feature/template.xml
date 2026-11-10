@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.6.0" name="odl-bgpcep-igp-algo-types">
+    <repository>mvn:org.opendaylight.yangtools/odl-yangtools-binding-spec/{{versionAsInProject}}/xml/features</repository>
+    <feature name="odl-bgpcep-igp-algo-types">
+        <feature version="{{semVerRange}}">odl-yangtools-binding-spec</feature>
+        <bundle>mvn:org.opendaylight.bgpcep/odl-igp-algo-types/{{versionAsInProject}}</bundle>
+    </feature>
+</features>

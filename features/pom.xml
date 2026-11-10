@@ -28,6 +28,7 @@
     <modules>
         <module>features-bgpcep</module>
         <module>features-bgpcep-testing</module>
+        <module>parent</module>
 
         <module>odl-bgpcep-algo-api</module>
         <module>odl-bgpcep-algo</module>
@@ -67,6 +68,7 @@
         <module>odl-bgpcep-extras-dependencies</module>
         <module>odl-bgpcep-graph-api</module>
         <module>odl-bgpcep-graph</module>
+        <module>odl-bgpcep-igp-algo-types</module>
         <module>odl-bgpcep-pcep-api</module>
         <module>odl-bgpcep-pcep-parser</module>
         <module>odl-bgpcep-pcep-cli</module>

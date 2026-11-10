@@ -21,8 +21,10 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>graph-api</artifactId>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>odl-bgpcep-igp-algo-types</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.ietf</groupId>
@@ -41,6 +43,11 @@
             <artifactId>odl-mdsal-model-draft-clemm-netmod-yang-network-topo-01-minimal</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>graph-api</artifactId>
         </dependency>
    </dependencies>
 </project>
