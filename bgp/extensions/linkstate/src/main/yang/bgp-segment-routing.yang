@@ -6,6 +6,7 @@ module bgp-segment-routing {
     import network-concepts { prefix netc; revision-date 2013-11-25; }
     import ietf-inet-types { prefix inet; revision-date 2013-07-15; }
     import ietf-routing-types { prefix rt-types; }
+    import odl-igp-algo-types { prefix oiat; }
     import rsvp { prefix rsvp; revision-date 2015-08-20; }
 
     organization "Cisco Systems, Inc.";
@@ -201,13 +202,6 @@ module bgp-segment-routing {
         }
     }
 
-    typedef flex-algo {
-        reference "https://www.rfc-editor.org/info/rfc9351";
-        type uint8 {
-            range "128..255";
-        }
-    }
-
     grouping unsupported-tlvs {
         reference "https://www.rfc-editor.org/info/rfc9351/#section-3.6";
         leaf protocol-id {
@@ -246,7 +240,7 @@ module bgp-segment-routing {
         reference "https://www.rfc-editor.org/info/rfc9351/#section-3";
         list flex-algo-definition-tlv {
             leaf flex-algo {
-                type flex-algo;
+                type oiat:flex-algo;
             }
             leaf metric-type {
                 type flex-metric;
@@ -511,7 +505,7 @@ module bgp-segment-routing {
     grouping flex-algo-prefix-metric {
         reference "https://www.rfc-editor.org/info/rfc9351/#section-4";
         leaf flex-algo {
-            type flex-algo;
+            type oiat:flex-algo;
         }
         leaf flags {
             type flex-algo-prefix-flag;
