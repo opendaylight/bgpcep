@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "e9a392d4_c31d299d",
+        "filename": "graph/graph-api/src/main/yang/graph.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-10T12:22:25Z",
+      "side": 0,
+      "message": "this will cause compatibility issues\nI think a union would work better",
+      "range": {
+        "startLine": 297,
+        "startChar": 8,
+        "endLine": 297,
+        "endChar": 24
+      },
+      "revId": "84c6413a7ba51b71cc52bae6c24475f890c30c51",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}

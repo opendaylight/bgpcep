@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a19021ec_618e2a60",
+        "filename": "bgp/extensions/linkstate/src/main/java/org/opendaylight/protocol/bgp/linkstate/impl/attribute/sr/SrNodeAttributesParser.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-10T12:22:25Z",
+      "side": 1,
+      "message": "I think this can be improved a bit",
+      "range": {
+        "startLine": 91,
+        "startChar": 36,
+        "endLine": 91,
+        "endChar": 52
+      },
+      "revId": "e2d5939d9d6404b5f61903dd9eb00b363ec2005e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "6875958f_87e283c1",
+        "filename": "bgp/extensions/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-10T12:22:25Z",
+      "side": 1,
+      "message": "a case without content can be expressed at binding level, but cannot be expressed in JSON/XML, as it lacks a data node",
+      "range": {
+        "startLine": 375,
+        "startChar": 17,
+        "endLine": 375,
+        "endChar": 31
+      },
+      "revId": "e2d5939d9d6404b5f61903dd9eb00b363ec2005e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
