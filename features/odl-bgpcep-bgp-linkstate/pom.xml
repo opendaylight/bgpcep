@@ -22,18 +22,26 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>bgp-linkstate</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>odl-bgpcep-bgp-extensions-api</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>odl-bgpcep-igp-algo-types</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.bgpcep</groupId>
             <artifactId>odl-bgpcep-rsvp</artifactId>
+            <type>xml</type>
+            <classifier>features</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>odl-mdsal-broker</artifactId>
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
@@ -43,11 +51,10 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+
         <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>odl-mdsal-broker</artifactId>
-            <type>xml</type>
-            <classifier>features</classifier>
+            <groupId>org.opendaylight.bgpcep</groupId>
+            <artifactId>bgp-linkstate</artifactId>
         </dependency>
     </dependencies>
 </project>

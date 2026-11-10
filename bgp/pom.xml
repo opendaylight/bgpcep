@@ -52,7 +52,8 @@
         <module>openconfig-rp-spi</module>
         <module>openconfig-rp-impl</module>
         <module>openconfig-rp-statement</module>
-        <!--Extensions-->
+        <!-- Extensions -->
         <module>extensions</module>
+        <module>odl-igp-algo-types</module>
     </modules>
 </project>
