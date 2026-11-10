@@ -11,12 +11,11 @@ import java.util.List;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
-import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.RouterId;
 import org.opendaylight.protocol.bgp.rib.spi.entry.ActualBestPathRoutes;
 import org.opendaylight.protocol.bgp.rib.spi.entry.BestPathUpdate;
-import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntryInfo;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntry;
 import org.opendaylight.protocol.bgp.rib.spi.entry.StaleBestPathRoute;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
@@ -147,10 +146,9 @@ final class BaseRouteEntry implements RouteEntry {
     }
 
     @Override
-    public List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport, final RouteEntryInfo entryInfo) {
+    public List<ActualBestPathRoutes> actualBestPaths(final RIBSupport ribSupport, final String routeKey) {
         final var best = bestPath;
-        return best == null ? List.of()
-            : List.of(best.toActual(ribSupport, createRoute(ribSupport, entryInfo.getRouteKey(), best)));
+        return best == null ? List.of() : List.of(best.toActual(ribSupport, createRoute(ribSupport, routeKey, best)));
     }
 
     @NonNullByDefault

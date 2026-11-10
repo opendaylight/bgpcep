@@ -11,7 +11,7 @@ import java.util.stream.IntStream;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.mode.api.PathSelectionMode;
-import org.opendaylight.protocol.bgp.mode.api.RouteEntry;
+import org.opendaylight.protocol.bgp.rib.spi.entry.RouteEntry;
 import org.opendaylight.yangtools.yang.common.Uint8;
 
 @NonNullByDefault
