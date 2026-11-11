@@ -22,6 +22,30 @@
       },
       "revId": "b85fe095e0cbb46b7bf67993d3159fcf63e19b07",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fa0bbcca_4aeb9502",
+        "filename": "bgp/extensions/linkstate/src/main/yang/bgp-segment-routing.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2026-11-11T14:53:06Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "5fcc2b72_8a791ff7",
+      "range": {
+        "startLine": 101,
+        "startChar": 4,
+        "endLine": 101,
+        "endChar": 25
+      },
+      "revId": "b85fe095e0cbb46b7bf67993d3159fcf63e19b07",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }

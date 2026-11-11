@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "21b7afc8_febe6cc6",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 12
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2026-11-11T14:53:06Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nThanks to provide a better solution based on union type. It is exactly what I\u0027m looking for.\n\nI answered you different comments. Let me know how do you want to proceed to finish this work.\n\nRegards\n\nOlivier",
+      "revId": "35f12d359851cc944a72b55e75dffdabbbc96d8b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
