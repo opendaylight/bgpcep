@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d6cc493d_10004ea7",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2026-11-11T14:43:39Z",
+      "side": 1,
+      "message": "Hi Robert,\n\nPatch is great, in particular the union between both algo types (It is exactly what I\u0027m looking for).\n\nHowever, is it the right place to store this new yang model? Perhaps it could be added within bgp/concepts/src/main/yang/bgp-types.yang or store in the bgp/concepts/src/main/yang directory\n\nRegards\n\nOlivier",
+      "revId": "4b6d0085b073e10c176ed37f8ec36c0eaf4f504b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
