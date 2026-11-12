@@ -127,49 +127,10 @@ jobs:
       ENV_VARS: ${{ toJSON(vars) }}
       PUSH_NEXUS: true
 
-  javadoc-publish:
-    # Replaces the Jenkins maven-javadoc-publish job, which ran on merge
-    # only, so the daily rebuild skips it.
-    if: github.event_name != 'schedule'
-    needs: prepare
-    runs-on: ubuntu-24.04
-    timeout-minutes: 90
-    steps:
-      # yamllint disable-line rule:line-length
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ inputs.GERRIT_BRANCH }}
-          persist-credentials: false
-      - name: Build javadoc
-        # yamllint disable-line rule:line-length
-        uses: lfreleng-actions/maven-build-action@1de87fd734620335eeae65933795f226c0d8a24e # v0.5.6
-        with:
-          java-version: "21"
-          mvn-version: "3.9.6"
-          mvn-phases: "clean install javadoc:aggregate"
-          mvn-profiles: "q"
-          mvn-params: >-
-            -e -Dmaven.javadoc.skip=false -DskipTests=true
-            -Dcheckstyle.skip=true -Dfindbugs.skip=true
-          run-jacoco: "false"
-          env-vars: ${{ toJSON(vars) }}
-      - name: Publish javadoc
-        # yamllint disable-line rule:line-length
-        uses: lfreleng-actions/nexus-publish-action@c178e9293ae0f62244f33e70c689d2a8df739c16 # v1.4.1
-        with:
-          nexus_server: ${{ vars.NEXUS_SERVER }}
-          nexus_username: ${{ secrets.NEXUS_USERNAME }}
-          nexus_password: ${{ secrets.NEXUS_PASSWORD }}
-          repository_format: unpack
-          repository_name: javadoc
-          files_path: ${{ github.workspace }}/target/site/apidocs
-          # bgpcep streams are named after their branches.
-          upload_path: org.opendaylight.bgpcep/${{ inputs.GERRIT_BRANCH }}
-
   vote:
     # A scheduled rebuild has no change to vote on.
     if: ${{ always() && github.event_name != 'schedule' }}
-    needs: [prepare, maven-merge, javadoc-publish]
+    needs: [prepare, maven-merge]
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
