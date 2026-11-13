@@ -26,11 +26,12 @@ its own VM.
 For BGP this has a further consequence. Peers are added to the peer
 registry by BGPClusterSingletonService, which runs only on the owner of
 the BGP singleton, so a speaker is accepted only when the member that won
-port 1790 is also that owner. A suite that drives a speaker against this
-cluster therefore cannot rely on connecting, and log_shared_port_owners
-records both the port holder and the member that instantiated the
-singleton, so a failed run shows whether the race or the ownership was the
-problem.
+port 1790 is also that owner -- and since the two are decided by unrelated
+races, usually it is not. align_bgp_listener brings them together by
+restarting the acceptor bundle on the owner alone, which is why BGP
+cluster suites ask for the odl_three_node_cluster_bgp fixture rather than
+the plain one. Any future listener with the same shape can be moved the
+same way through restart_listener_on.
 
 RESTCONF and the Karaf shell are unaffected -- those are configured per
 member from plain files -- so verifying datastore state on every member
@@ -38,6 +39,7 @@ works as expected, which is what the clustering suites are for.
 """
 
 import logging
+import time
 
 from libraries import infra
 from libraries.variables import variables
@@ -61,6 +63,11 @@ STANDALONE_DIR = "opendaylight"
 # of the BGP singleton, so its holder need not own it -- both are reported.
 SINGLETON_SHARED_PORTS = ((4189, "PCEP"), (12345, "BMP"))
 BGP_SHARED_PORT = 1790
+# Bundle whose blueprint builds BGPPeerAcceptorImpl. It exports a package
+# nothing else in the tree imports and no other class constructs the impl,
+# so it is a leaf and can be stopped on one member without disturbing
+# anything else running there. That is what makes the port movable.
+BGP_ACCEPTOR_BUNDLE = "org.opendaylight.bgpcep.bgp-peer-acceptor"
 
 log = logging.getLogger(__name__)
 
@@ -325,25 +332,6 @@ def wait_cluster_ready(timeout: int = 600):
         infra.wait_for_odl_ready(cwd, timeout=timeout)
 
 
-def _bgp_singleton_owner() -> str | None:
-    """Member whose log reports instantiating the BGP singleton.
-
-    Args:
-        None
-
-    Returns:
-        str | None: Member directory, or None if no member reports it.
-    """
-    for cwd in get_cluster_dirs():
-        _, hits = infra.shell(
-            "grep -c 'BGPClusterSingletonService .* instantiated' "
-            f"{cwd}/data/log/karaf.log 2>/dev/null || true"
-        )
-        if (hits or "").strip() not in ("", "0"):
-            return cwd
-    return None
-
-
 def log_shared_port_owners():
     """Logs which member currently holds each shared protocol port.
 
@@ -380,9 +368,9 @@ def log_shared_port_owners():
         owners[port] = member
         log.info(f"{protocol} port {port} held by {member} (pid {pid})")
 
-    singleton_owner = _bgp_singleton_owner()
+    singleton_owner = bgp_singleton_owner()
     if singleton_owner is None:
-        log.warning("no member reports instantiating the BGP singleton")
+        log.warning("no running member owns the BGP singleton")
     else:
         log.info(f"BGP singleton instantiated on {singleton_owner}")
         port_owner = owners.get(BGP_SHARED_PORT)
@@ -392,3 +380,193 @@ def log_shared_port_owners():
                 f"singleton runs on {singleton_owner}; speakers are refused"
             )
     return owners
+
+
+def is_member_running(member_dir: str) -> bool:
+    """Whether the member in `member_dir` still answers on its Karaf shell.
+
+    Lets callers skip a member a suite has deliberately killed, instead of
+    sending it a console command and waiting out the connection timeout.
+
+    Args:
+        member_dir (str): Member distribution directory.
+
+    Returns:
+        bool: True if the member's Karaf SSH port is listening.
+    """
+    member_ip = member_ip_for_dir(member_dir)
+    _, listening = infra.shell(
+        f"ss -ltn 'src {member_ip}:{infra.KARAF_SSH_PORT}' | grep -c LISTEN"
+    )
+    return (listening or "").strip() not in ("", "0")
+
+
+def running_members() -> list[str]:
+    """Member directories whose Karaf is currently up.
+
+    Args:
+        None
+
+    Returns:
+        list[str]: Member directories still answering on their Karaf shell,
+            in member order.
+    """
+    return [cwd for cwd in get_cluster_dirs() if is_member_running(cwd)]
+
+
+def bgp_singleton_owner() -> str | None:
+    """Member currently running the BGP cluster singleton.
+
+    A member logs the singleton being instantiated when it takes ownership
+    and logs it closing when it gives it up, so ownership is decided by
+    whichever of the two came last rather than by the presence of the first.
+    A member that has already handed ownership over would otherwise still
+    look like the owner for the rest of the run. Members that are no longer
+    running are skipped for the same reason: a killed owner never gets to
+    log the close, so its log keeps claiming ownership forever.
+
+    Args:
+        None
+
+    Returns:
+        str | None: Member directory, or None if no running member owns it.
+    """
+    for cwd in get_cluster_dirs():
+        if not is_member_running(cwd):
+            continue
+        _, last_event = infra.shell(
+            "grep -E 'BGPClusterSingletonService .* "
+            "(instantiated|close service instance)' "
+            f"{cwd}/data/log/karaf.log 2>/dev/null | tail -1 || true"
+        )
+        if (last_event or "").strip().endswith("instantiated"):
+            return cwd
+    return None
+
+
+def _port_owner(port: int) -> tuple[str, str] | None:
+    """Member directory and pid currently listening on `port`, if any.
+
+    Args:
+        port (int): TCP port to look up.
+
+    Returns:
+        tuple[str, str] | None: (member directory, pid), or None if free.
+    """
+    _, pids = infra.shell(
+        f"ss -ltnp 'sport = :{port}' 2>/dev/null | grep -oP 'pid=\\K[0-9]+' | head -1"
+    )
+    pid = (pids or "").strip()
+    if not pid:
+        return None
+    _, cwd = infra.shell(f"readlink /proc/{pid}/cwd || true")
+    return (cwd or "").strip().rstrip("/").split("/")[-1] or "unknown", pid
+
+
+def member_ip_for_dir(member_dir: str) -> str:
+    """Loopback address of the member running from `member_dir`.
+
+    Args:
+        member_dir (str): Member distribution directory.
+
+    Returns:
+        str: The member's configured IP.
+    """
+    return CLUSTER_MEMBER_IPS[get_cluster_dirs().index(member_dir)]
+
+
+def restart_listener_on(
+    bundle: str, port: int, target_dir: str, timeout: int = 60
+) -> str | None:
+    """Leaves exactly one member listening on a shared protocol port.
+
+    A listener whose bind address comes from the replicated configuration
+    datastore cannot be given a per-member address (see the module
+    docstring), so on a single host every member tries to bind the same
+    wildcard address and the winner is arbitrary. Stopping the bundle that
+    builds the listener frees the port on every member, and starting it
+    again on one member leaves that member as the only candidate; the
+    blueprint container is rebuilt on start, so the listener is constructed
+    afresh.
+
+    Members that are not running are skipped, so this still works after a
+    suite has killed one.
+
+    Args:
+        bundle (str): Symbolic name of the bundle that builds the listener.
+        port (int): Port the listener binds, used to confirm the move.
+        target_dir (str): Member distribution directory to end up with it.
+        timeout (int): Seconds to wait for the port to be freed and rebound.
+
+    Returns:
+        str | None: Member directory now holding the port, or None if
+            nothing bound it within the timeout.
+    """
+    live_members = running_members()
+    assert target_dir in live_members, (
+        f"cannot move {bundle} onto {target_dir}, which is not running"
+    )
+    target_ip = member_ip_for_dir(target_dir)
+
+    for cwd in live_members:
+        member_ip = member_ip_for_dir(cwd)
+        log.info(f"Stopping {bundle} on {cwd} ({member_ip})")
+        infra.execute_karaf_command(f"bundle:stop {bundle}", host=member_ip)
+
+    for _ in range(timeout):
+        if _port_owner(port) is None:
+            break
+        time.sleep(1)
+    else:
+        log.warning(f"port {port} was not released within {timeout}s")
+
+    log.info(f"Starting {bundle} on {target_dir} ({target_ip}) only")
+    infra.execute_karaf_command(f"bundle:start {bundle}", host=target_ip)
+
+    for _ in range(timeout):
+        holder = _port_owner(port)
+        if holder is not None:
+            log.info(f"port {port} is now held by {holder[0]} (pid {holder[1]})")
+            return holder[0]
+        time.sleep(1)
+
+    log.warning(f"nothing is listening on {port} after {timeout}s")
+    return None
+
+
+def align_bgp_listener(timeout: int = 60) -> str:
+    """Moves the BGP listener onto the member that owns the BGP singleton.
+
+    Peers are registered only by BGPClusterSingletonService, which runs on
+    one member, so a speaker reaching any other member's acceptor is
+    refused. The member that won port 1790 is unrelated to the member that
+    won the singleton, so the two have to be brought together before any
+    suite can drive a speaker against the cluster.
+
+    Fails loudly rather than returning quietly, because every BGP cluster
+    suite depends on this: reporting it here is the one chance to name the
+    real cause, instead of letting each suite time out later on a topology
+    that never fills.
+
+    Args:
+        timeout (int): Seconds to wait for the port to be freed and rebound.
+
+    Returns:
+        str: Member directory now holding the BGP port.
+    """
+    owner_dir = bgp_singleton_owner()
+    assert owner_dir is not None, (
+        "No running member owns the BGP singleton, so none of them can accept "
+        "a BGP speaker. Check that odl-bgpcep-bgp came up on every member."
+    )
+    holder = restart_listener_on(
+        BGP_ACCEPTOR_BUNDLE, BGP_SHARED_PORT, owner_dir, timeout=timeout
+    )
+    assert holder == owner_dir, (
+        f"Could not move the BGP listener onto {owner_dir}, which owns the BGP "
+        f"singleton: port {BGP_SHARED_PORT} is held by {holder}. Restarting "
+        f"bundle {BGP_ACCEPTOR_BUNDLE} is what moves the listener, so check "
+        f"that the bundle still carries that symbolic name and still builds "
+        f"BGPPeerAcceptorImpl from its blueprint."
+    )
+    return holder
