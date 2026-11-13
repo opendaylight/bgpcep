@@ -244,6 +244,32 @@ def odl_three_node_cluster():
         infra.stop_all_karaf_instances()
 
 
+@pytest.fixture(scope="session")
+def odl_three_node_cluster_bgp(odl_three_node_cluster):
+    """Fixture for a 3-node cluster a BGP speaker can actually connect to.
+
+    All three members bind the shared BGP port and one wins at random, but
+    peers are registered only by the member owning the BGP singleton, which
+    is a separate race. A speaker is therefore refused unless one member
+    happens to have won both, so the listener is moved onto the singleton
+    owner before any test runs. See libraries/cluster.py for why the port
+    cannot simply be given a per-member address.
+
+    Kept apart from odl_three_node_cluster so suites that never touch BGP do
+    not pay for a BGP-specific workaround, and so the plain fixture stays
+    usable by the PCEP and BMP clustering suites, whose listeners are bound
+    inside their singleton and so need no alignment.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    cluster.align_bgp_listener()
+    yield
+
+
 def _test_context_name(request: pytest.FixtureRequest) -> str:
     """Names the suite a test belongs to, for the karaf markers.
 
