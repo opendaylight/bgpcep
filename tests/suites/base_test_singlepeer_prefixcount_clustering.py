@@ -15,6 +15,7 @@ import logging
 import allure
 
 from libraries import bgp
+from libraries import cluster
 from libraries import prefix_counting
 from libraries import utils
 from libraries.variables import variables
@@ -47,6 +48,28 @@ class BaseTestSinglePeerPrefixCountClustering:
 
     bgp_speaker_process = None
 
+    @property
+    def hosts_to_check(self) -> list[str]:
+        """Nodes whose operational datastore every prefix check is run on.
+
+        The Robot originals assert the prefix count on all three members,
+        which is the point of a clustering suite: the routes have to be
+        visible wherever they are read, not just on the node that owns the
+        session. A standalone run gets a single-element list, so the same
+        flow serves both topologies unchanged.
+
+        Suites that are expected to see the routes on one node only --
+        the non-replicated RIB variants, which read the shard leader --
+        override this.
+
+        Args:
+            None
+
+        Returns:
+            list[str]: Node addresses to verify, in member order.
+        """
+        return cluster.active_nodes()
+
     def test_single_peer_prefix_count_clustering(
         self,
         allure_step_with_separate_logging,
@@ -69,12 +92,14 @@ class BaseTestSinglePeerPrefixCountClustering:
         ):
             # Wait for example-ipv4-topology to come up and empty.
             # Give large timeout for case when BGP boots slower than restconf.
-            utils.wait_until_function_pass(
-                INITIAL_RESTCONF_RETRIES,
-                INITIAL_RESTCONF_INTERVAL,
-                prefix_counting.check_ipv4_topology_is_empty,
-                EXAMPLE_IPV4_TOPOLOGY,
-            )
+            for host in self.hosts_to_check:
+                utils.wait_until_function_pass(
+                    INITIAL_RESTCONF_RETRIES,
+                    INITIAL_RESTCONF_INTERVAL,
+                    prefix_counting.check_ipv4_topology_is_empty,
+                    EXAMPLE_IPV4_TOPOLOGY,
+                    host=host,
+                )
 
         with allure_step_with_separate_logging(
             "step_reconfigure_odl_to_accept_connection"
@@ -110,20 +135,23 @@ class BaseTestSinglePeerPrefixCountClustering:
         ):
             # Wait until example-ipv4-topology becomes stable. This is done by
             # checking stability of prefix count.
-            prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
-                excluded_value=0,
-                timeout=bgp_filling_timeout,
-                wait_period=CHECK_PERIOD,
-                consecutive_times_stable_value=REPETITIONS,
-                topology=EXAMPLE_IPV4_TOPOLOGY,
-            )
+            for host in self.hosts_to_check:
+                prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
+                    excluded_value=0,
+                    timeout=bgp_filling_timeout,
+                    wait_period=CHECK_PERIOD,
+                    consecutive_times_stable_value=REPETITIONS,
+                    topology=EXAMPLE_IPV4_TOPOLOGY,
+                    host=host,
+                )
 
         with allure_step_with_separate_logging("step_check_talking_ip_topology_count"):
             # Count the routes in example-ipv4-topology and fail if the count is
             # not correct.
-            prefix_counting.check_ipv4_topology_prefixes_count(
-                prefixes_count, topology=EXAMPLE_IPV4_TOPOLOGY
-            )
+            for host in self.hosts_to_check:
+                prefix_counting.check_ipv4_topology_prefixes_count(
+                    prefixes_count, topology=EXAMPLE_IPV4_TOPOLOGY, host=host
+                )
 
         with allure_step_with_separate_logging("step_kill_talking_bgp_speaker"):
             # Abort the Python speaker.
@@ -133,19 +161,24 @@ class BaseTestSinglePeerPrefixCountClustering:
             "step_wait_for_stable_ip_topology_after_listening"
         ):
             # Wait until example-ipv4-topology becomes stable again.
-            prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
-                excluded_value=prefixes_count,
-                timeout=bgp_emptying_timeout,
-                wait_period=CHECK_PERIOD,
-                consecutive_times_stable_value=REPETITIONS,
-                topology=EXAMPLE_IPV4_TOPOLOGY,
-            )
+            for host in self.hosts_to_check:
+                prefix_counting.wait_for_ipv4_topology_prefixes_to_become_stable(
+                    excluded_value=prefixes_count,
+                    timeout=bgp_emptying_timeout,
+                    wait_period=CHECK_PERIOD,
+                    consecutive_times_stable_value=REPETITIONS,
+                    topology=EXAMPLE_IPV4_TOPOLOGY,
+                    host=host,
+                )
 
         with allure_step_with_separate_logging(
             "step_check_for_empty_ip_topology_after_listening"
         ):
             # Example-ipv4-topology should be empty.
-            prefix_counting.check_ipv4_topology_is_empty(EXAMPLE_IPV4_TOPOLOGY)
+            for host in self.hosts_to_check:
+                prefix_counting.check_ipv4_topology_is_empty(
+                    EXAMPLE_IPV4_TOPOLOGY, host=host
+                )
 
         with allure_step_with_separate_logging("step_delete_bgp_peer_configuration"):
             # Revert the BGP configuration to the original state: without any
