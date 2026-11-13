@@ -93,6 +93,30 @@
       },
       "revId": "e2d5939d9d6404b5f61903dd9eb00b363ec2005e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "0ef5c901_3cd61afc",
+        "filename": "bgp/extensions/linkstate/src/main/yang/bgp-linkstate.yang",
+        "patchSetId": 4
+      },
+      "lineNbr": 375,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-13T13:25:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ff5b7e11_9cfec778",
+      "range": {
+        "startLine": 375,
+        "startChar": 17,
+        "endLine": 375,
+        "endChar": 31
+      },
+      "revId": "e2d5939d9d6404b5f61903dd9eb00b363ec2005e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
