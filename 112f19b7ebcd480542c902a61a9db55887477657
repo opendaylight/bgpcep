@@ -16,6 +16,23 @@
       "message": "LGTM",
       "revId": "112f19b7ebcd480542c902a61a9db55887477657",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "1a955e96_ebaa00ba",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7231
+      },
+      "writtenOn": "2026-11-15T16:01:48Z",
+      "side": 1,
+      "message": "Hi Yaroslav,\n\nThe path is fine for me. However, do you have re-run the test you describe in JIRA to verify the bug is resolved? If yes, can you put the result?\n\nOnce done, I\u0027ll merge your patch\n\nOlivier",
+      "revId": "112f19b7ebcd480542c902a61a9db55887477657",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
