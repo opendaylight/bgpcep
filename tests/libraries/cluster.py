@@ -39,9 +39,11 @@ works as expected, which is what the clustering suites are for.
 """
 
 import logging
+import re
 import time
 
 from libraries import infra
+from libraries import templated_requests
 from libraries.variables import variables
 
 CLUSTER_MEMBER_IPS = variables.CLUSTER_MEMBER_IPS
@@ -68,6 +70,34 @@ BGP_SHARED_PORT = 1790
 # so it is a leaf and can be stopped on one member without disturbing
 # anything else running there. That is what makes the port movable.
 BGP_ACCEPTOR_BUNDLE = "org.opendaylight.bgpcep.bgp-peer-acceptor"
+# Bundle whose components build the BGP topology exporters. Each member
+# registers a candidate for every topology while it runs, so stopping it
+# withdraws that member from the election and lets the exporter be put on
+# a chosen member.
+BGP_TOPOLOGY_BUNDLE = "org.opendaylight.bgpcep.bgp-topology-provider"
+# Topology the prefix counting suites read, and the name of the singleton
+# service group that builds it.
+IPV4_TOPOLOGY = "example-ipv4-topology"
+
+# Modules the non-replicated RIB setup gives a shard of their own, as
+# name -> yang namespace. bgp_rib is the point of the exercise: a module
+# only gets its own shard, and so can only be left unreplicated, once it is
+# listed here. topology comes along because the suites read the leader of
+# the topology shard, which does not otherwise exist -- the distribution
+# ships every module commented out, so all data lands in the default shard.
+NONREPLICATED_RIB_MODULES = {
+    "bgp_rib": "urn:opendaylight:params:xml:ns:yang:bgp-rib",
+    "topology": "urn:TBD:params:xml:ns:yang:network-topology",
+}
+# File ODL's configuration script reads the module list from. It ships in
+# every distribution's bin/ with each module commented out.
+CUSTOM_SHARD_CONFIG = "bin/custom_shard_config.txt"
+MODULE_SHARDS_CONF = "configuration/initial/module-shards.conf"
+# Jolokia MBean holding a shard's raft state on the member serving it.
+SHARD_MBEAN_URI = (
+    "jolokia/read/org.opendaylight.controller:Category=Shards,"
+    "name=member-{index}-shard-{shard}-{datastore},type=Distributed{Type}Datastore"
+)
 
 log = logging.getLogger(__name__)
 
@@ -278,7 +308,10 @@ def _configure_member_cluster(cwd: str, index: int, member_ips: list[str]):
     )
 
 
-def setup_cluster():
+def setup_cluster(
+    modules: dict[str, str] | None = None,
+    local_only_shards: tuple[str, ...] = (),
+):
     """Configures every cluster member, without starting them.
 
     Copies one Karaf distribution per entry in CLUSTER_MEMBER_IPS, rebinds
@@ -286,7 +319,12 @@ def setup_cluster():
     the pekko cluster.
 
     Args:
-        None
+        modules (dict[str, str] | None): Modules to give a shard of their
+            own, as name -> yang namespace. Without this every module shares
+            the default shard, which is the stock layout.
+        local_only_shards (tuple[str, ...]): Shards each member should keep
+            to itself, leaving them unreplicated across the cluster. Naming
+            a shard here requires its module in `modules`.
 
     Returns:
         None
@@ -296,7 +334,11 @@ def setup_cluster():
         zip(cluster_dirs, CLUSTER_MEMBER_IPS), start=1
     ):
         _configure_member_network(cwd, member_ip)
+        if modules:
+            _write_custom_shard_config(cwd, modules)
         _configure_member_cluster(cwd, index, CLUSTER_MEMBER_IPS)
+        for shard in local_only_shards:
+            _restrict_shard_to_member(cwd, shard, f"member-{index}")
     set_is_cluster_run(True)
 
 
@@ -414,10 +456,10 @@ def running_members() -> list[str]:
     return [cwd for cwd in get_cluster_dirs() if is_member_running(cwd)]
 
 
-def bgp_singleton_owner() -> str | None:
-    """Member currently running the BGP cluster singleton.
+def _singleton_owner(pattern: str) -> str | None:
+    """Member whose log last reported taking the singleton `pattern` matches.
 
-    A member logs the singleton being instantiated when it takes ownership
+    A member logs a singleton being instantiated when it takes ownership
     and logs it closing when it gives it up, so ownership is decided by
     whichever of the two came last rather than by the presence of the first.
     A member that has already handed ownership over would otherwise still
@@ -426,7 +468,8 @@ def bgp_singleton_owner() -> str | None:
     log the close, so its log keeps claiming ownership forever.
 
     Args:
-        None
+        pattern (str): Expression matching both log lines of the singleton,
+            the one taking ownership and the one giving it up.
 
     Returns:
         str | None: Member directory, or None if no running member owns it.
@@ -435,13 +478,63 @@ def bgp_singleton_owner() -> str | None:
         if not is_member_running(cwd):
             continue
         _, last_event = infra.shell(
-            "grep -E 'BGPClusterSingletonService .* "
-            "(instantiated|close service instance)' "
-            f"{cwd}/data/log/karaf.log 2>/dev/null | tail -1 || true"
+            f"grep -E '{pattern}' {cwd}/data/log/karaf.log 2>/dev/null "
+            "| tail -1 || true"
         )
         if (last_event or "").strip().endswith("instantiated"):
             return cwd
     return None
+
+
+def bgp_singleton_owner() -> str | None:
+    """Member currently running the BGP cluster singleton.
+
+    Args:
+        None
+
+    Returns:
+        str | None: Member directory, or None if no running member owns it.
+    """
+    return _singleton_owner(
+        "BGPClusterSingletonService .* (instantiated|close service instance)"
+    )
+
+
+def topology_singleton_owner(topology: str = IPV4_TOPOLOGY) -> str | None:
+    """Member currently building `topology`.
+
+    Args:
+        topology (str): Name of the topology, which is also the name of its
+            singleton service group.
+
+    Returns:
+        str | None: Member directory, or None if no running member owns it.
+    """
+    return _singleton_owner(
+        f"Topology Singleton Service ServiceGroupIdentifier\\[value={topology}\\]"
+    )
+
+
+def bgp_singleton_owner_host() -> str:
+    """Address of the member running the BGP cluster singleton.
+
+    The singleton owner is the only member with a session, and so the only
+    one whose RIB holds the peer when the RIB is not replicated. Fails
+    rather than returning nothing, since a caller asking for it has no
+    sensible fallback.
+
+    Args:
+        None
+
+    Returns:
+        str: Address of the member owning the BGP singleton.
+    """
+    owner_dir = bgp_singleton_owner()
+    assert owner_dir is not None, (
+        "No running member owns the BGP singleton, so none of them holds a "
+        "session. Check that odl-bgpcep-bgp came up on every member."
+    )
+    return member_ip_for_dir(owner_dir)
 
 
 def _port_owner(port: int) -> tuple[str, str] | None:
@@ -583,3 +676,235 @@ def align_bgp_listener(timeout: int = 60) -> str:
         f"BGPPeerAcceptorImpl from its blueprint."
     )
     return holder
+
+
+def align_topology_builder(
+    topology: str = IPV4_TOPOLOGY, timeout: int = 60
+) -> str:
+    """Moves a BGP topology builder onto the member that owns the RIB.
+
+    The builder exports a topology by listening to the loc-rib of the BGP
+    RIB in the operational datastore, and it is a cluster singleton of its
+    own, elected separately from the RIB's. While the RIB is replicated the
+    two can sit on different members and nothing shows it, because the
+    builder reads the same replicated data wherever it runs. Once each
+    member keeps its own RIB, a builder anywhere but on the RIB owner reads
+    an empty shard and exports nothing at all, on any member, which looks
+    exactly like a speaker that never connected.
+
+    Stopping the bundle withdraws the member from the election, so stopping
+    it everywhere and starting it on the RIB owner leaves that member as
+    the only candidate. The other members keep serving the topology from
+    the datastore, which is all the suites read them for.
+
+    Args:
+        topology (str): Topology whose builder should be moved.
+        timeout (int): Seconds to wait for the singleton to change hands.
+
+    Returns:
+        str: Member directory now building the topology.
+    """
+    owner_dir = bgp_singleton_owner()
+    assert owner_dir is not None, (
+        "No running member owns the BGP singleton, so there is no RIB for a "
+        "topology builder to follow. Check that odl-bgpcep-bgp came up on "
+        "every member."
+    )
+
+    for cwd in running_members():
+        member_ip = member_ip_for_dir(cwd)
+        log.info(f"Stopping {BGP_TOPOLOGY_BUNDLE} on {cwd} ({member_ip})")
+        infra.execute_karaf_command(
+            f"bundle:stop {BGP_TOPOLOGY_BUNDLE}", host=member_ip
+        )
+
+    for _ in range(timeout):
+        if topology_singleton_owner(topology) is None:
+            break
+        time.sleep(1)
+    else:
+        log.warning(f"{topology} was still owned after {timeout}s")
+
+    target_ip = member_ip_for_dir(owner_dir)
+    log.info(f"Starting {BGP_TOPOLOGY_BUNDLE} on {owner_dir} ({target_ip}) only")
+    infra.execute_karaf_command(
+        f"bundle:start {BGP_TOPOLOGY_BUNDLE}", host=target_ip
+    )
+
+    holder = None
+    for _ in range(timeout):
+        holder = topology_singleton_owner(topology)
+        if holder is not None:
+            break
+        time.sleep(1)
+
+    assert holder == owner_dir, (
+        f"Could not move the {topology} builder onto {owner_dir}, which owns "
+        f"the BGP RIB: it is built by {holder}. Stopping bundle "
+        f"{BGP_TOPOLOGY_BUNDLE} is what withdraws a member from the election, "
+        f"so check that the bundle still carries that symbolic name and still "
+        f"registers the topology singleton."
+    )
+    log.info(f"{topology} is now built by {holder}")
+    return holder
+
+
+def _write_custom_shard_config(cwd: str, modules: dict[str, str]):
+    """Lists the modules that should each get a shard of their own.
+
+    ODL's configuration script rebuilds modules.conf and module-shards.conf
+    from this file whenever it exists, so it has to be written before the
+    script runs. The distribution ships it with every module commented out,
+    which is why a stock cluster keeps all data in the default shard.
+
+    Args:
+        cwd (str): Member's distribution directory.
+        modules (dict[str, str]): Module name -> yang namespace.
+
+    Returns:
+        None
+    """
+    lines = []
+    for position, (name, namespace) in enumerate(modules.items(), start=1):
+        lines.append(f"FRIENDLY_MODULE_NAMES[{position}]='{name}'")
+        lines.append(f"MODULE_NAMESPACES[{position}]='{namespace}'")
+    body = "\n".join(lines)
+    _checked_shell(f"cat > {CUSTOM_SHARD_CONFIG} <<'EOF'\n{body}\nEOF", cwd=cwd)
+
+
+def _restrict_shard_to_member(cwd: str, shard: str, member: str):
+    """Leaves `shard` with a single replica, on `member`.
+
+    The configuration script widens every replica list to the whole
+    membership as its last step, so narrowing one again has to happen after
+    it has run. A shard listed on one member only is served by that member
+    alone, which is what makes the RIB unreplicated.
+
+    Args:
+        cwd (str): Member's distribution directory.
+        shard (str): Shard name, as it appears in module-shards.conf.
+        member (str): Pekko member name to leave the shard on, e.g. member-2.
+
+    Returns:
+        None
+    """
+    path = f"{cwd}/{MODULE_SHARDS_CONF}"
+    with open(path) as config_file:
+        content = config_file.read()
+    pattern = re.compile(
+        rf'(name\s*=\s*"{re.escape(shard)}"\s*\n\s*replicas\s*=\s*\[)[^\]]*(\])'
+    )
+    content, substitutions = pattern.subn(rf'\g<1>"{member}"\g<2>', content)
+    assert substitutions == 1, (
+        f"expected exactly one replica list for shard {shard} in {path}, "
+        f"found {substitutions}; the file ODL's configuration script writes "
+        f"must have changed shape"
+    )
+    with open(path, "w") as config_file:
+        config_file.write(content)
+
+
+def shard_leader(shard: str, datastore: str = "operational", timeout: int = 60) -> str:
+    """Address of the member currently leading `shard`.
+
+    Raft elects one leader per shard, and the suites that read a single node
+    have to read that one: on an unreplicated RIB the other members hold no
+    copy of the data at all. Members that do not serve the shard answer with
+    an error rather than a state, and are skipped.
+
+    Leadership takes a moment to settle after startup, so the lookup is
+    retried rather than failing on the first look.
+
+    Args:
+        shard (str): Shard name, e.g. topology.
+        datastore (str): Either operational or config.
+        timeout (int): Seconds to keep looking for a leader.
+
+    Returns:
+        str: Address of the member whose raft state for the shard is Leader.
+    """
+    datastore_type = "Config" if datastore == "config" else "Operational"
+    leaders: list[str] = []
+    for _ in range(timeout):
+        leaders = []
+        for index, member_dir in enumerate(get_cluster_dirs(), start=1):
+            if not is_member_running(member_dir):
+                continue
+            member_ip = member_ip_for_dir(member_dir)
+            uri = SHARD_MBEAN_URI.format(
+                index=index, shard=shard, datastore=datastore, Type=datastore_type
+            )
+            try:
+                response = templated_requests.get_from_uri(uri, host=member_ip)
+                state = response.json().get("value", {}).get("RaftState")
+            except Exception:
+                continue
+            if state == "Leader":
+                leaders.append(member_ip)
+        if len(leaders) == 1:
+            log.info(f"{shard} {datastore} shard is led by {leaders[0]}")
+            return leaders[0]
+        time.sleep(1)
+    raise AssertionError(
+        f"No single leader for the {shard} {datastore} shard within {timeout}s; "
+        f"found {leaders}. Check that the shard exists -- a module only gets a "
+        f"shard of its own when it is listed in {CUSTOM_SHARD_CONFIG}."
+    )
+
+
+def verify_shards_are_local_only(
+    shards: tuple[str, ...], datastore: str = "operational", timeout: int = 60
+):
+    """Fails unless every running member serves each shard on its own.
+
+    A shard left on one member is a raft cluster of one, so with the
+    narrowing applied every member leads a copy of its own and none of them
+    has a follower; a replicated shard has one leader and the rest
+    following. The narrowing is a rewrite of a file the distribution ships,
+    applied after the configuration script has widened it, so it is the
+    kind of step that stops working quietly. Checking it here fails the
+    setup rather than letting a suite read one node and pass against a
+    cluster that replicates everything after all.
+
+    Args:
+        shards (tuple[str, ...]): Shards that should be unreplicated.
+        datastore (str): Either operational or config.
+        timeout (int): Seconds to wait for every member to report a state.
+
+    Returns:
+        None
+    """
+    datastore_type = "Config" if datastore == "config" else "Operational"
+    for shard in shards:
+        states: dict[str, str | None] = {}
+        for _ in range(timeout):
+            states = {}
+            for index, member_dir in enumerate(get_cluster_dirs(), start=1):
+                if not is_member_running(member_dir):
+                    continue
+                member_ip = member_ip_for_dir(member_dir)
+                uri = SHARD_MBEAN_URI.format(
+                    index=index,
+                    shard=shard,
+                    datastore=datastore,
+                    Type=datastore_type,
+                )
+                try:
+                    response = templated_requests.get_from_uri(uri, host=member_ip)
+                    states[member_ip] = response.json().get("value", {}).get(
+                        "RaftState"
+                    )
+                except Exception:
+                    states[member_ip] = None
+            if states and all(state == "Leader" for state in states.values()):
+                break
+            time.sleep(1)
+
+        assert states and all(state == "Leader" for state in states.values()), (
+            f"The {shard} {datastore} shard is still replicated: each member "
+            f"should lead a copy of its own, but they report {states}. The "
+            f"replica list is narrowed in {MODULE_SHARDS_CONF} after "
+            f"{CONFIGURE_CLUSTER_SCRIPT} has widened it, so check that the "
+            f"file still has the shape that rewrite expects."
+        )
+        log.info(f"{shard} {datastore} shard is served by each member alone")

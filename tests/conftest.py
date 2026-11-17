@@ -58,17 +58,32 @@ def pytest_addoption(parser):
 
 @pytest.hookimpl(trylast=True)
 def pytest_collection_modifyitems(items):
-    """Prevents standalone and cluster tests from running in the same session.
+    """Keeps a session down to one ODL, whatever shape it has.
 
-    Both fixtures stage their ODL from the same build output and use the same
-    ports, so running them together conflicts. When both are collected,
-    standalone takes priority and cluster tests are skipped.
+    Every ODL fixture here stages its distribution from the same build
+    output into the same directories and binds the same ports, and a
+    session fixture is torn down only once the session ends. A second one
+    in the same session is therefore set up on top of the first rather than
+    after it.
+
+    Two things are kept apart. Standalone and cluster tests cannot share a
+    session, and standalone takes priority. Neither can two cluster
+    layouts: `pytest -m cluster` collects suites wanting the shard layout
+    the distribution ships and suites wanting an unreplicated RIB, and the
+    layout of whichever runs first takes priority.
 
     Keyed on the fixtures rather than the markers, so a suite that requests
-    the cluster fixture without marking itself is still caught.
+    a cluster fixture without marking itself is still caught. Any fixture
+    whose name starts with odl_three_node_cluster counts, so a new cluster
+    variant is covered the day it is added, and two tests are taken to
+    share a cluster when they have one of those fixtures in common: a
+    fixture layered on another, such as odl_three_node_cluster_bgp, names
+    the one it builds on as well, while a separate layout names none of
+    them.
 
-    trylast=True ensures this runs after -m/-k filtering, so explicit
-    selections (like `-m cluster`) are not overridden.
+    trylast=True ensures this runs after -m/-k filtering and after the
+    ordering plugin, so explicit selections (like `-m cluster`) are not
+    overridden and the layout kept is the one that would have run first.
 
     Args:
         items (list[pytest.Item]): Tests collected for this session.
@@ -80,19 +95,44 @@ def pytest_collection_modifyitems(items):
     def uses(item: pytest.Item, fixture: str) -> bool:
         return fixture in getattr(item, "fixturenames", ())
 
-    has_standalone = any(uses(item, "odl_standalone") for item in items)
-    has_cluster = any(uses(item, "odl_three_node_cluster") for item in items)
+    def cluster_fixtures(item: pytest.Item) -> frozenset[str]:
+        return frozenset(
+            name
+            for name in getattr(item, "fixturenames", ())
+            if name.startswith("odl_three_node_cluster")
+        )
 
-    if not (has_standalone and has_cluster):
+    has_standalone = any(uses(item, "odl_standalone") for item in items)
+    has_cluster = any(cluster_fixtures(item) for item in items)
+
+    if has_standalone and has_cluster:
+        skip_cluster = pytest.mark.skip(
+            reason="Skipped: standalone and cluster tests cannot run in the "
+            "same session; standalone takes priority."
+        )
+        for item in items:
+            if cluster_fixtures(item):
+                item.add_marker(skip_cluster)
         return
 
-    skip_cluster = pytest.mark.skip(
-        reason="Skipped: standalone and cluster tests cannot run in the same "
-        "session; standalone takes priority."
-    )
+    kept: frozenset[str] = frozenset()
+    kept_name = ""
     for item in items:
-        if uses(item, "odl_three_node_cluster"):
-            item.add_marker(skip_cluster)
+        used = cluster_fixtures(item)
+        if not used:
+            continue
+        if not kept:
+            kept, kept_name = used, min(used)
+            continue
+        if used & kept:
+            kept |= used
+            continue
+        item.add_marker(
+            pytest.mark.skip(
+                reason="Skipped: a session can run only one cluster layout; "
+                f"the one {kept_name} sets up takes priority."
+            )
+        )
 
 
 @pytest.fixture
@@ -218,13 +258,59 @@ def odl_standalone():
         infra.stop_all_karaf_instances()
 
 
-@pytest.fixture(scope="session")
-def odl_three_node_cluster():
-    """Fixture for 3-node ODL cluster session setup.
+def _run_three_node_cluster(
+    modules: dict[str, str] | None = None,
+    local_only_shards: tuple[str, ...] = (),
+    align_bgp: bool = False,
+    align_topology: bool = False,
+) -> Iterator[None]:
+    """Runs a 3-node cluster for a session, in the given shard layout.
 
     Stages one Karaf distribution per entry in CLUSTER_MEMBER_IPS, wires them
     into a single pekko cluster and starts every member, then waits for all
     of them to become ready.
+
+    Args:
+        modules (dict[str, str] | None): Modules to give a shard of their
+            own, as name -> yang namespace.
+        local_only_shards (tuple[str, ...]): Shards left unreplicated, each
+            member keeping its own. Naming any is checked against the
+            running cluster, since a suite reading a single node passes
+            either way and would not notice the layout failing to apply.
+        align_bgp (bool): Whether to move the BGP listener onto the member
+            owning the BGP singleton, which suites driving a speaker need.
+        align_topology (bool): Whether to move the ipv4 topology builder
+            onto that member too, which suites reading a topology built
+            from an unreplicated RIB need.
+
+    Yields:
+        None
+    """
+    try:
+        cluster.setup_cluster(modules=modules, local_only_shards=local_only_shards)
+        cluster.start_cluster(ODL_FEATRUES)
+        cluster.wait_cluster_ready(timeout=580)
+        if local_only_shards:
+            cluster.verify_shards_are_local_only(local_only_shards)
+        cluster.log_shared_port_owners()
+        if align_bgp:
+            cluster.align_bgp_listener()
+        if align_topology:
+            cluster.align_topology_builder()
+        for member_ip in CLUSTER_MEMBER_IPS:
+            infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}", host=member_ip)
+        yield
+    finally:
+        infra.stop_all_karaf_instances()
+
+
+@pytest.fixture(scope="session")
+def odl_three_node_cluster():
+    """Fixture for 3-node ODL cluster session setup.
+
+    Every module shares the default shard, which is how the distribution
+    ships. Suites needing a module in a shard of its own ask for a fixture
+    that says so, such as odl_three_node_cluster_nonreplicated_rib.
 
     Args:
         None
@@ -232,16 +318,7 @@ def odl_three_node_cluster():
     Returns:
         None
     """
-    try:
-        cluster.setup_cluster()
-        cluster.start_cluster(ODL_FEATRUES)
-        cluster.wait_cluster_ready(timeout=580)
-        cluster.log_shared_port_owners()
-        for member_ip in CLUSTER_MEMBER_IPS:
-            infra.execute_karaf_command(f"log:set {KARAF_LOG_LEVEL}", host=member_ip)
-        yield
-    finally:
-        infra.stop_all_karaf_instances()
+    yield from _run_three_node_cluster()
 
 
 @pytest.fixture(scope="session")
@@ -268,6 +345,41 @@ def odl_three_node_cluster_bgp(odl_three_node_cluster):
     """
     cluster.align_bgp_listener()
     yield
+
+
+@pytest.fixture(scope="session")
+def odl_three_node_cluster_nonreplicated_rib():
+    """Fixture for a 3-node cluster whose BGP RIB is not replicated.
+
+    Each member keeps its own bgp_rib shard instead of sharing one, which is
+    what the nonreplicated_rib Robot suites set up before they run. Routes
+    therefore reach only the member holding the session. The topology they
+    are exported into is replicated as usual, so every member can still
+    serve it; those suites read the topology shard leader because the Robot
+    originals do, not because the others have nothing to show.
+
+    bgp_rib and topology are given shards of their own here: a module cannot
+    be left unreplicated while it shares the default shard, and the topology
+    shard whose leader the suites look up does not otherwise exist.
+
+    The BGP listener is aligned as in odl_three_node_cluster_bgp, since these
+    suites drive a speaker too, and the ipv4 topology builder is moved onto
+    that same member. The builder is a singleton elected separately from the
+    RIB's, so it can land on a member whose own bgp_rib shard stays empty,
+    and then no member has a topology to read.
+
+    Args:
+        None
+
+    Returns:
+        None
+    """
+    yield from _run_three_node_cluster(
+        modules=cluster.NONREPLICATED_RIB_MODULES,
+        local_only_shards=("bgp_rib",),
+        align_bgp=True,
+        align_topology=True,
+    )
 
 
 def _test_context_name(request: pytest.FixtureRequest) -> str:
