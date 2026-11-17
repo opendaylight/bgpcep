@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "e71828bc_13b2ce3c",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 8
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-11-17T15:35:42Z",
+      "side": 1,
+      "message": "Tested with two Arista cEOS 4.37.0F, ODL as route reflector. The reported\nissue is fixed. A withdraw without a label now removes the route from all RIB\ntables. But the patch breaks outgoing labeled routes. The label stack is no\nlonger sent, so the reflected route is rejected by the receiver (see\nLUNlriParser.java#111).\n\nThe tests do not cover the reported issue, because the withdraw uses the same\nlabel stack as the announce. Please add a test that withdraws a route without\na label stack.",
+      "revId": "105ca50e837fbda0a122fc560803c827b8f01722",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a9a8ee02_21f2c9ff",
+        "filename": "bgp/extensions/labeled-unicast/src/test/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParserTest.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-11-17T15:35:42Z",
+      "side": 1,
+      "message": "These vectors follow from the removed label stack, see LUNlriParser.java#111.\nPer RFC 8277 sec. 2.2/2.4 the serialized NLRI must keep the label (0x800000\nfor withdraw empty label), so the expected bytes should stay as before.",
+      "revId": "105ca50e837fbda0a122fc560803c827b8f01722",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
