@@ -70,6 +70,23 @@ class BaseTestSinglePeerPrefixCountClustering:
         """
         return cluster.active_nodes()
 
+    @property
+    def rib_host(self) -> str:
+        """Node whose RIB is read to confirm the speaker is connected.
+
+        Only the member holding the session has the peer in its RIB, so a
+        suite running against an unreplicated RIB has to read that member;
+        with a replicated one any node will do, and the default keeps the
+        request where every other suite sends it.
+
+        Args:
+            None
+
+        Returns:
+            str: Node address to verify the session on.
+        """
+        return ODL_IP
+
     def test_single_peer_prefix_count_clustering(
         self,
         allure_step_with_separate_logging,
@@ -117,6 +134,7 @@ class BaseTestSinglePeerPrefixCountClustering:
             # Start Python speaker to connect to ODL.
             self.bgp_speaker_process = bgp.start_bgp_speaker_with_verify_and_retry(
                 speaker_ips=TOOLS_IP,
+                verify_host=self.rib_host,
                 my_ip=TOOLS_IP,
                 my_port=BGP_TOOL_PORT,
                 peer_ip=ODL_IP,

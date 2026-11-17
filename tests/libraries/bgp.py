@@ -485,6 +485,7 @@ def start_bgp_speaker_and_verify_connected(
     speaker_ips: str | List[str] = "127.0.0.1",
     retry_count: int = 7,
     interval: int = 2,
+    verify_host: str = ODL_IP,
     *args,
     **kwargs,
 ) -> subprocess.Popen:
@@ -496,6 +497,9 @@ def start_bgp_speaker_and_verify_connected(
         retry_count (int): Maximum number of retries to see the speaker
             connected.
         interval (int): Number of seconds to wait between retries.
+        verify_host (str): Node whose RIB is read to see the session. Only
+            the member holding the session has the peer when the RIB is not
+            replicated, so those suites pass that member.
         *args: Bgp speaker positional arguments.
         **kwargs: Bgp speaker keyword arguments.
 
@@ -510,6 +514,7 @@ def start_bgp_speaker_and_verify_connected(
             verify_bgp_speaker_connected,
             speaker_ips=speaker_ips,
             connected=True,
+            host=verify_host,
         )
     except Exception as e:
         stop_bgp_speaker(bgp_speaker_process, gracefully=False)
@@ -518,7 +523,11 @@ def start_bgp_speaker_and_verify_connected(
 
 
 def start_bgp_speaker_with_verify_and_retry(
-    retries: int = 3, speaker_ips: str | List[str] = "127.0.0.1", *args, **kwargs
+    retries: int = 3,
+    speaker_ips: str | List[str] = "127.0.0.1",
+    verify_host: str = ODL_IP,
+    *args,
+    **kwargs,
 ) -> subprocess.Popen:
     """Retries to start BGP speaker multiple times until it is connected.
 
@@ -526,6 +535,7 @@ def start_bgp_speaker_with_verify_and_retry(
         retries (int): Number of retries to start the BGP speaker.
         speaker_ip (str): (str | List[str]): Single or list of BGP speaker
             ip addresses if manypeer scenario.
+        verify_host (str): Node whose RIB is read to see the session.
         *args: Bgp speaker positional arguments.
         **kwargs: Bgp speaker keyword arguments.
 
@@ -537,6 +547,7 @@ def start_bgp_speaker_with_verify_and_retry(
         interval=1,
         function=start_bgp_speaker_and_verify_connected,
         speaker_ips=speaker_ips,
+        verify_host=verify_host,
         *args,
         **kwargs,
     )
