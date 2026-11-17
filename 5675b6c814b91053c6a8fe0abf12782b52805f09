@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "a7143fec_08a8b5f7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-17T14:15:48Z",
+      "side": 1,
+      "message": "done in previous patch",
+      "revId": "5675b6c814b91053c6a8fe0abf12782b52805f09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "25922d39_9905f456",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyTracker.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-17T14:15:48Z",
+      "side": 1,
+      "message": "we can divide to have constructor and activate method",
+      "revId": "5675b6c814b91053c6a8fe0abf12782b52805f09",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
