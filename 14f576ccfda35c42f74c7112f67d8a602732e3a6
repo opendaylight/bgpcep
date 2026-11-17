@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "4da40b38_0c212af9",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyTracker.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-17T16:12:33Z",
+      "side": 1,
+      "message": "too much comments IMO",
+      "revId": "14f576ccfda35c42f74c7112f67d8a602732e3a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
