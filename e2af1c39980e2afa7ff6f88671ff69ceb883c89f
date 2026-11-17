@@ -16,6 +16,24 @@
       "message": "The same as parent commit. If it would be possible to keep the cluster setup as in the original robot test, it would be preferable.",
       "revId": "e2af1c39980e2afa7ff6f88671ff69ceb883c89f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "6dc9352c_5a2d8ab5",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-11-17T08:48:13Z",
+      "side": 1,
+      "message": "Done;\n\nsuite now runs on three nodes like the Robot original (every cycle checks prefixcount on each member). Also rebased onto the two changes stacked under this one (`127778`/`127779`), since they provide the cluster fixture and `hosts_to_check` (also drops the stale copy of 125390 that was here). \n\nAlso, `--longevity` now selects the soak suites alone; otherwise a cluster soak would be silently skipped by collection hook that drops cluster stests when standalone ones are collected in the same session.\n\nVerified on 3-node clusted with longevity duration set to 600s: 4 iters.",
+      "parentUuid": "31de7d8a_1bc377af",
+      "revId": "e2af1c39980e2afa7ff6f88671ff69ceb883c89f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
