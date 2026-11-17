@@ -33,6 +33,24 @@
       "message": "Hi Yaroslav,\n\nThe path is fine for me. However, do you have re-run the test you describe in JIRA to verify the bug is resolved? If yes, can you put the result?\n\nOnce done, I\u0027ll merge your patch\n\nOlivier",
       "revId": "112f19b7ebcd480542c902a61a9db55887477657",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "62800610_c3c455c2",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 3
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 9173
+      },
+      "writtenOn": "2026-11-17T11:50:52Z",
+      "side": 1,
+      "message": "Hi Olivier,                                                                                                                                                                                                                              \n                                                                                                                                                                                                                                           \n  Yes, I re-ran the scenario from the JIRA against a karaf build that includes this patch: 70 iBGP peers started in 7 batches of 10 with play.py, plus 100k IPv4 prefixes injected through the application peer.                                                                                                                                                                                                                                                              \n  I ran the full scenario 6 times, which is 420 peer sessions in total. Every peer received all 100,000 prefixes, with no missing or partial ones",
+      "parentUuid": "1a955e96_ebaa00ba",
+      "revId": "112f19b7ebcd480542c902a61a9db55887477657",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
