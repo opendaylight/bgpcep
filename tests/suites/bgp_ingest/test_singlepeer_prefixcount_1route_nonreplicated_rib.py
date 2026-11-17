@@ -13,9 +13,8 @@ import textwrap
 
 import pytest
 
-from libraries import cluster
-from suites.base_test_singlepeer_prefixcount_clustering import (
-    BaseTestSinglePeerPrefixCountClustering,
+from suites.base_test_singlepeer_prefixcount_nonreplicated_rib import (
+    BaseTestSinglePeerPrefixCountNonreplicatedRib,
 )
 from suites.suite_order import SuiteOrder
 
@@ -41,7 +40,7 @@ PREFILL = 0
     order=SuiteOrder.BGP_INGEST_SINGLEPEER_PREFIXCOUNT_1ROUTE_NONREPLICATED_RIB
 )
 class TestSinglePeerPrefixCount1RouteNonreplicatedRib(
-    BaseTestSinglePeerPrefixCountClustering
+    BaseTestSinglePeerPrefixCountNonreplicatedRib
 ):
     """The 1route flow against a cluster whose BGP RIB is not replicated.
 
@@ -50,48 +49,6 @@ class TestSinglePeerPrefixCount1RouteNonreplicatedRib(
     flow itself is the shared base class, unchanged; the fixture and the node
     the counts are read from are the whole difference.
     """
-
-    _topology_leader: str | None = None
-    _rib_host: str | None = None
-
-    @property
-    def hosts_to_check(self) -> list[str]:
-        """The topology shard leader, which is the only node to see routes.
-
-        Looked up once and kept, the way the Robot original resolves it into
-        a suite variable before the flow starts. Re-reading it between steps
-        would quietly follow a leader that moved mid-test, turning a failed
-        hand-over into a pass.
-
-        Args:
-            None
-
-        Returns:
-            list[str]: Address of the topology operational shard leader.
-        """
-        if self._topology_leader is None:
-            type(self)._topology_leader = cluster.shard_leader(
-                "topology", "operational"
-            )
-        return [self._topology_leader]
-
-    @property
-    def rib_host(self) -> str:
-        """The member owning the BGP singleton, the only one with the peer.
-
-        Its RIB is not replicated to the others, so asking any other member
-        whether the speaker connected answers that the data does not exist,
-        whatever the session is doing.
-
-        Args:
-            None
-
-        Returns:
-            str: Address of the member owning the BGP singleton.
-        """
-        if self._rib_host is None:
-            type(self)._rib_host = cluster.bgp_singleton_owner_host()
-        return self._rib_host
 
     test_description = textwrap.dedent(
         """
