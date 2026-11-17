@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "59d2c7f6_d93badcf",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyInstance.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-17T15:58:52Z",
+      "side": 1,
+      "message": "that practically the same like using boolean closed - maybe closed is even more natural in this setup",
+      "parentUuid": "8e0ccd6d_7e4124a1",
+      "revId": "1ef9d202b33e32e4a1d05464d246d6cd251847e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "24404cab_3ace319a",
@@ -31,6 +49,24 @@
       "writtenOn": "2026-11-17T14:15:44Z",
       "side": 1,
       "message": "we can move heavy operation away from constructor, activate and deactivate methods",
+      "revId": "1ef9d202b33e32e4a1d05464d246d6cd251847e2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d68962c5_b6b8ec97",
+        "filename": "pcep/topology/topology-provider/src/main/java/org/opendaylight/bgpcep/pcep/topology/provider/PCEPTopologyInstance.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-17T15:58:52Z",
+      "side": 1,
+      "message": "it would result in API change at least in one of modified classes, lets leave it as is",
+      "parentUuid": "24404cab_3ace319a",
       "revId": "1ef9d202b33e32e4a1d05464d246d6cd251847e2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
