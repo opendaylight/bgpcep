@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b1791df8_2b7ecc1b",
+        "filename": "tests/libraries/cluster.py",
+        "patchSetId": 2
+      },
+      "lineNbr": 558,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-18T20:24:03Z",
+      "side": 1,
+      "message": "`align_bgp_listener()` checks for the singleton owner only once, right after `\"System ready\"`. `\"System ready\"` doesn\u0027t guarantee the BGP singleton already has an owner, so on a slow host this can fail the whole cluster session in setup. Could you poll `bgp_singleton_owner()` with a timeout before the assert?",
+      "revId": "ac55b070a3160e849943af45e0ef852b8780f3ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
