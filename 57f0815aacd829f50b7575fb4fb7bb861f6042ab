@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "b5486216_bbf6ab31",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_100kroutes_nonreplicated_rib.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-11-19T12:26:57Z",
+      "side": 1,
+      "message": "At 100000 prefixes the after-listening wait in BaseTestSinglePeerPrefixCountClustering gets bgp_emptying_timeout, about 71s, while the 020 Robot suite passes bgp_filling_timeout(95s) to that same step. With 4x5 s stability reads that leaves roughly 56 s to withdraw 100k routes. Was there a reason not to use the same bgp_filling_timeout and use the shorter one instead?",
+      "revId": "57f0815aacd829f50b7575fb4fb7bb861f6042ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
