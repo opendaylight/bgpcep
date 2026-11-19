@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "9317643d_993fd4dd",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_1Mroutes.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-11-19T13:19:12Z",
+      "side": 1,
+      "message": "The same concern as the 100k - the original robot test waited 635s (bgp_filling_timeout), here we wait only 476s. Was dropping that headroom intended?",
+      "revId": "eaae9b8faafeaddbe30359bef313116f0b818d3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "71d9f4db_7b6c8b23",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_1Mroutes.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-11-19T13:19:12Z",
+      "side": 1,
+      "message": "The Robot original runs against a three node cluster and checks the count on every member, but this suite runs on a standalone controller, and the description drops \"in three node cluster configuration\". Could the description and the commit message say that replication is not covered, so nobody retires the bgpclustering Robot suites on the strength of this port?",
+      "revId": "eaae9b8faafeaddbe30359bef313116f0b818d3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
