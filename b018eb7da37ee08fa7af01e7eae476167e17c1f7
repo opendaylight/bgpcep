@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "5c80cfce_c2f9eb01",
+        "filename": "tests/conftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-11-19T09:11:34Z",
+      "side": 1,
+      "message": "This is a second session-scoped fixture that stages and starts its own three members in the same directories and on the same ports as odl_three_node_cluster. Pytest keeps both alive until the session ends, so `pytest -m cluster` starts a second cluster on top of the first. Could the layout become a session-scoped parameter of a single fixture (indirect parametrization), or could collection at least skip all but one cluster variant?",
+      "revId": "b018eb7da37ee08fa7af01e7eae476167e17c1f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "60f08c80_560c968a",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_1route_nonreplicated_rib.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-11-19T09:11:34Z",
+      "side": 1,
+      "message": "Only bgp_rib is made local-only. The topology shard is still widened to all three members, so example-ipv4-topology is visible on every node, as align_topology_builder notes at cluster.py:684. Could this docstring, the class docstring and the one at conftest.py:320 say that the RIB is private but the topology is replicated, and that the leader is read for Robot parity? Or should this suite just keep the base class default of checking every member? Just a thought.",
+      "revId": "b018eb7da37ee08fa7af01e7eae476167e17c1f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "298e1cda_60d20898",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_1route_nonreplicated_rib.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 8324
+      },
+      "writtenOn": "2026-11-19T09:11:34Z",
+      "side": 1,
+      "message": "Am I right that every check in this flow would also pass on a replicated RIB? The owner has the peer and the topology fills either way. Could we add one negative check, for example verify_bgp_speaker_connected(connected\u003dFalse) on a member that does not own the BGP singleton, or a Jolokia check that bgp_rib has no peers, so a layout that silently did not apply fails here?",
+      "revId": "b018eb7da37ee08fa7af01e7eae476167e17c1f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
