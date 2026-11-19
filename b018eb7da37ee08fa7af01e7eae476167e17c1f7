@@ -18,6 +18,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "a5e33a66_63531459",
+        "filename": "tests/conftest.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 315,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-11-19T12:02:14Z",
+      "side": 1,
+      "message": "Right, confirmed with `--setup-plan -m cluster`: both fixtures were set up, the second over the first -\u003e Collection now keeps the layout that runs first and skips tests wanting another, the same way it already chooses between `standalone` and `cluster`.\n\n(I tried the indirect parameter first, but pytest does not gather the groups, so two layouts over three suites staged three clusters, the first one twice --\u003e skipping is cheaper)",
+      "parentUuid": "5c80cfce_c2f9eb01",
+      "revId": "b018eb7da37ee08fa7af01e7eae476167e17c1f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "60f08c80_560c968a",
@@ -35,6 +53,24 @@
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     },
     {
+      "unresolved": false,
+      "key": {
+        "uuid": "db257253_00c1b6d1",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_1route_nonreplicated_rib.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-11-19T12:02:14Z",
+      "side": 1,
+      "message": "All three docstrings now say the RIB is private while the topology is replicated, and that the leader is read because the Robot original reads it.",
+      "parentUuid": "60f08c80_560c968a",
+      "revId": "b018eb7da37ee08fa7af01e7eae476167e17c1f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
       "unresolved": true,
       "key": {
         "uuid": "298e1cda_60d20898",
@@ -48,6 +84,24 @@
       "writtenOn": "2026-11-19T09:11:34Z",
       "side": 1,
       "message": "Am I right that every check in this flow would also pass on a replicated RIB? The owner has the peer and the topology fills either way. Could we add one negative check, for example verify_bgp_speaker_connected(connected\u003dFalse) on a member that does not own the BGP singleton, or a Jolokia check that bgp_rib has no peers, so a layout that silently did not apply fails here?",
+      "revId": "b018eb7da37ee08fa7af01e7eae476167e17c1f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "fe2ee470_19fe38e8",
+        "filename": "tests/suites/bgp_ingest/test_singlepeer_prefixcount_1route_nonreplicated_rib.py",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 9422
+      },
+      "writtenOn": "2026-11-19T12:02:14Z",
+      "side": 1,
+      "message": "The fixture now checks the layout directly.\n\nA per-member peer check would need a hook in the shared flow two commits down, so I kept to the structural one.",
+      "parentUuid": "298e1cda_60d20898",
       "revId": "b018eb7da37ee08fa7af01e7eae476167e17c1f7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
