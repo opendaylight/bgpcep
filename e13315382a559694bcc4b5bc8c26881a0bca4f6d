@@ -16,6 +16,23 @@
       "message": "I\u0027m not sure this sentence about \"this is the last of the three singlepeer prefix...\" needs to be here. It\u0027s kinda pointless - not to mention that it\u0027s obviously followed up by the 1M variant (so this one isn\u0027t the last one).",
       "revId": "e13315382a559694bcc4b5bc8c26881a0bca4f6d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "499a7873_2c8d215e",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-20T08:35:41Z",
+      "side": 1,
+      "message": "But first parent change has to be approved https://git.opendaylight.org/gerrit/c/bgpcep/+/125390",
+      "revId": "e13315382a559694bcc4b5bc8c26881a0bca4f6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
