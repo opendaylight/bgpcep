@@ -18,13 +18,10 @@ import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+// FIXME: rename to AdjTables or similar
 @NonNullByDefault
 final class AdjRibInTables {
-    private static final Logger LOG = LoggerFactory.getLogger(AdjRibInTables.class);
-
     static final AdjRibInTables EMPTY = new AdjRibInTables(Map.of());
 
     private final Map<TablesKey, AdjRibInTable> tables;

@@ -8,21 +8,16 @@
 package org.opendaylight.protocol.bgp.rib.impl;
 
 import static java.util.Objects.requireNonNull;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
-import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.errorprone.annotations.CheckReturnValue;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
@@ -33,27 +28,16 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeReadOperations;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
-import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
-import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
 import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.SendReceive;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.reach.MpReachNlri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.attributes.unreach.MpUnreachNlri;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
-import org.opendaylight.yangtools.yang.common.QName;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier;
-import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifierWithPredicates;
 import org.opendaylight.yangtools.yang.data.api.schema.MapEntryNode;
 import org.opendaylight.yangtools.yang.data.api.schema.MapNode;
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
-import org.opendaylight.yangtools.yang.data.spi.node.ImmutableNodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,12 +48,8 @@ import org.slf4j.LoggerFactory;
 final class AdjRibInWriter {
     private static final Logger LOG = LoggerFactory.getLogger(AdjRibInWriter.class);
 
-    private static final @NonNull NodeIdentifier PEER_TABLES = NodeIdentifier.create(SupportedTables.QNAME);
-    private static final @NonNull QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
-
     private final @NonNull DOMTransactionChain chain;
     private final @NonNull AdjRibInTables tables;
-    private final @NonNull PeerRole role;
 
     @GuardedBy("this")
     private final HashMap<TablesKey, Collection<NodeIdentifierWithPredicates>> staleRoutesRegistry = new HashMap<>();
@@ -77,67 +57,9 @@ final class AdjRibInWriter {
     private FluentFuture<? extends CommitInfo> submitted;
 
     @NonNullByDefault
-    AdjRibInWriter(final DOMTransactionChain chain, final PeerRole role, final AdjRibInTables tables) {
+    AdjRibInWriter(final DOMTransactionChain chain, final AdjRibInTables tables) {
         this.chain = requireNonNull(chain);
         this.tables = requireNonNull(tables);
-        this.role = requireNonNull(role);
-    }
-
-    /**
-     * Transform this writer to a new writer, which is in charge of specified tables.
-     * Empty tables are created for new entries and old tables are deleted. Once this
-     * method returns, the old instance must not be reasonably used.
-     *
-     * @param newPeerId         new peer BGP identifier
-     * @param peerPath          path of the peer in the datastore
-     * @param addPathTablesType supported add path tables
-     * @return a {@link FluentFuture}
-     */
-    @CheckReturnValue
-    @NonNullByDefault
-    FluentFuture<? extends CommitInfo> initialize(final PeerId newPeerId, final YangInstanceIdentifier peerPath,
-            final Map<TablesKey, SendReceive> addPathTablesType) {
-        final var tx = chain.newWriteOnlyTransaction();
-        final var peerKey = IdentifierUtils.domPeerId(newPeerId);
-        tx.put(LogicalDatastoreType.OPERATIONAL, peerPath, peerSkeleton(peerKey, newPeerId.getValue()));
-        LOG.debug("New peer {} structure installed.", peerPath);
-
-        tables.forEach((tableType, table) -> {
-            installAdjRibInTables(tableType, table, tx);
-            installAdjRibsOutTables(peerPath, table.ribSupport(), addPathTablesType.get(tableType), tx);
-        });
-
-        return tx.commit();
-    }
-
-    private static void installAdjRibInTables(final TablesKey tableKey, final AdjRibInTable table,
-            final DOMDataTreeWriteOperations tx) {
-        final var tablePath = table.path();
-        table.ribSupport().createEmptyTableStructure(tx, tablePath);
-        tx.merge(LogicalDatastoreType.OPERATIONAL, tablePath.node(ATTRIBUTES_NID).node(UPTODATE_NID),
-            RIBNormalizedNodes.ATTRIBUTES_UPTODATE_FALSE);
-        LOG.debug("Created table instance {}", tablePath);
-    }
-
-    private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
-            final SendReceive sendReceive, final DOMDataTreeWriteOperations tx) {
-        final var tableKey = rs.ribSupport().tablesKey();
-        final var supTablesKey = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, tableKey.asMap());
-        final var tt = ImmutableNodes.newMapEntryBuilder().withNodeIdentifier(supTablesKey);
-        for (var e : supTablesKey.entrySet()) {
-            tt.withChild(ImmutableNodes.leafNode(e.getKey(), e.getValue()));
-        }
-        if (sendReceive != null) {
-            tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.getName()));
-        }
-        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
-        rs.createEmptyTableStructure(tx, newPeerPath.node(ADJRIBOUT_NID).node(TABLES_NID).node(tableKey));
-    }
-
-    @NonNullByDefault
-    @VisibleForTesting
-    MapEntryNode peerSkeleton(final NodeIdentifierWithPredicates peerKey, final String peerId) {
-        return AbstractPeer.skeletonOf(peerKey, peerId, role);
     }
 
     void markTableUptodate(final @NonNull TablesKey tableTypes) {

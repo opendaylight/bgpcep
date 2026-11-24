@@ -7,7 +7,6 @@
  */
 package org.opendaylight.protocol.bgp.rib.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -25,10 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.opendaylight.mdsal.common.api.CommitInfo;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteTransaction;
-import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
+import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.spi.AbstractRIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
@@ -48,7 +45,7 @@ import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdent
 import org.opendaylight.yangtools.yang.data.api.schema.NormalizedNode;
 
 @ExtendWith(MockitoExtension.class)
-class AdjRibsInWriterTest {
+class AbstractPeerDatastoreTest {
     private static final TablesKey K4 = new TablesKey(Ipv4AddressFamily.VALUE, UnicastSubsequentAddressFamily.VALUE);
     private static final NodeIdentifierWithPredicates DOM_K4 = NodeIdentifierWithPredicates.of(Tables.QNAME, Map.of(
         RIBQNames.AFI_QNAME, Ipv4AddressFamily.QNAME, RIBQNames.SAFI_QNAME, UnicastSubsequentAddressFamily.QNAME));
@@ -57,18 +54,14 @@ class AdjRibsInWriterTest {
     private static final String PEER_IP = "12.34.56.78";
 
     @Mock
-    private DOMTransactionChain chain;
-    @Mock
-    private DOMDataTreeWriteTransaction tx;
+    private DOMDataTreeWriteOperations tx;
     @Mock
     private RIBSupportContext context;
     @Mock
     private AbstractRIBSupport<?, ?, ?> support;
 
     @Test
-    void testInitialize() {
-        doReturn(tx).when(chain).newWriteOnlyTransaction();
-        doReturn(CommitInfo.emptyFluentFuture()).when(tx).commit();
+    void initializeDatastoreWorksAsExpected() {
         doNothing().when(tx).put(eq(LogicalDatastoreType.OPERATIONAL),
                 any(YangInstanceIdentifier.class), any(NormalizedNode.class));
         doNothing().when(tx).merge(eq(LogicalDatastoreType.OPERATIONAL),
@@ -81,12 +74,13 @@ class AdjRibsInWriterTest {
             .node(RIB_NID)
             .node(Peer.QNAME).nodeWithKey(Peer.QNAME, RIBQNames.PEER_ID_QNAME, PEER_IP)
             .build();
-        final var writer = new AdjRibInWriter(chain, PeerRole.Ebgp, AdjRibInTables.of(peerPath, TABLE_TYPES,
-            tableType -> context));
-        assertThat(writer.initialize(new PeerId(PEER_IP), peerPath, ADD_PATH_TABLE_MAPS)).isDone();
+
+        AbstractPeer.initializeDatastore(tx, peerPath, new PeerId(PEER_IP), PeerRole.Ebgp,
+            AdjRibInTables.of(peerPath, TABLE_TYPES, tableType -> context), ADD_PATH_TABLE_MAPS::get);
 
         verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath),
-            eq(writer.peerSkeleton(IdentifierUtils.peerKey(peerPath), PEER_IP)));
+            // FIXME: exact assertion
+            eq(AbstractPeer.skeletonOf(IdentifierUtils.peerKey(peerPath), PEER_IP, PeerRole.Ebgp)));
         // verify supported tables were inserted for ipv4
         verify(tx).put(eq(LogicalDatastoreType.OPERATIONAL), eq(peerPath.node(SupportedTables.QNAME)
             .node(NodeIdentifierWithPredicates.of(SupportedTables.QNAME, DOM_K4.asMap()))), any(NormalizedNode.class));
