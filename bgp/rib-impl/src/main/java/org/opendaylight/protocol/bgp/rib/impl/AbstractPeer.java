@@ -9,7 +9,11 @@ package org.opendaylight.protocol.bgp.rib.impl;
 
 import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ADJRIBOUT_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.ATTRIBUTES_NID;
 import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.PEER_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.TABLES_NID;
+import static org.opendaylight.protocol.bgp.rib.spi.RIBNodeIdentifiers.UPTODATE_NID;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.util.concurrent.FluentFuture;
@@ -20,6 +24,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.eclipse.jdt.annotation.Nullable;
@@ -28,9 +33,11 @@ import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
 import org.opendaylight.mdsal.dom.api.DOMDataTreeWriteOperations;
 import org.opendaylight.mdsal.dom.api.DOMTransactionChain;
 import org.opendaylight.protocol.bgp.rib.impl.spi.RIB;
+import org.opendaylight.protocol.bgp.rib.impl.spi.RIBSupportContext;
 import org.opendaylight.protocol.bgp.rib.impl.state.BGPPeerStateImpl;
 import org.opendaylight.protocol.bgp.rib.spi.BGPSession;
 import org.opendaylight.protocol.bgp.rib.spi.IdentifierUtils;
+import org.opendaylight.protocol.bgp.rib.spi.RIBNormalizedNodes;
 import org.opendaylight.protocol.bgp.rib.spi.RIBQNames;
 import org.opendaylight.protocol.bgp.rib.spi.RIBSupport;
 import org.opendaylight.protocol.bgp.rib.spi.entry.AbstractAdvertizedRoute;
@@ -51,6 +58,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mult
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.PeerRole;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.Peer;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp.rib.rib.peer.SupportedTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.rib.TablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.types.rev200120.ClusterIdentifier;
 import org.opendaylight.yangtools.yang.common.Empty;
@@ -72,6 +80,8 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     private static final @NonNull QName PEER_ROLE_QNAME = QName.create(Peer.QNAME, "peer-role").intern();
     private static final @NonNull NodeIdentifier PEER_ID = NodeIdentifier.create(RIBQNames.PEER_ID_QNAME);
     private static final @NonNull NodeIdentifier PEER_ROLE = NodeIdentifier.create(PEER_ROLE_QNAME);
+    private static final @NonNull NodeIdentifier PEER_TABLES = NodeIdentifier.create(SupportedTables.QNAME);
+    private static final @NonNull QName SEND_RECEIVE = QName.create(SupportedTables.QNAME, "send-receive").intern();
 
     final @NonNull RTCClientRouteCache rtCache = new RTCClientRouteCache();
     final @NonNull RIB rib;
@@ -560,16 +570,63 @@ abstract sealed class AbstractPeer extends BGPPeerStateImpl
     final @NonNull FluentFuture<? extends @NonNull CommitInfo> initializeDatastore(final Set<TablesKey> tables,
             final Map<TablesKey, SendReceive> addPathTablesType) {
         final var localPeerPath = peerPath();
+        final var newPeerId = requirePeerId();
         final var supportRegistry = rib.getRibSupportContext();
-        adjRibInWriter = new AdjRibInWriter(createDomChain(), role, AdjRibInTables.of(localPeerPath, tables,
+        final var adjTables = AdjRibInTables.of(localPeerPath, tables,
             tableType -> {
                 final var supportContext = supportRegistry.getRIBSupportContext(tableType);
                 if (supportContext == null) {
                     LOG.warn("No support for table type {}, skipping it", tableType);
                 }
                 return supportContext;
-            }));
-        return adjRibInWriter.initialize(requirePeerId(), localPeerPath, addPathTablesType);
+            });
+
+        final var chain = createDomChain();
+        final var tx = chain.newWriteOnlyTransaction();
+        initializeDatastore(tx, localPeerPath, newPeerId, role, adjTables, addPathTablesType::get);
+
+        final var ret = tx.commit();
+        adjRibInWriter = new AdjRibInWriter(chain, adjTables);
+        return ret;
+    }
+
+    @VisibleForTesting
+    static final void initializeDatastore(final DOMDataTreeWriteOperations tx, final YangInstanceIdentifier peerPath,
+            final PeerId peerId, final PeerRole role, final AdjRibInTables adjTables,
+            final Function<TablesKey, @Nullable SendReceive> sendReceive) {
+        final var peerKey = IdentifierUtils.domPeerId(peerId);
+
+        tx.put(LogicalDatastoreType.OPERATIONAL, peerPath, skeletonOf(peerKey, peerId.getValue(), role));
+        LOG.debug("New peer {} structure installed.", peerPath);
+
+        adjTables.forEach((tableType, table) -> {
+            installAdjRibInTables(tableType, table, tx);
+            installAdjRibsOutTables(peerPath, table.ribSupport(), sendReceive.apply(tableType), tx);
+        });
+    }
+
+    private static void installAdjRibInTables(final TablesKey tableKey, final AdjRibInTable table,
+            final DOMDataTreeWriteOperations tx) {
+        final var tablePath = table.path();
+        table.ribSupport().createEmptyTableStructure(tx, tablePath);
+        tx.merge(LogicalDatastoreType.OPERATIONAL, tablePath.node(ATTRIBUTES_NID).node(UPTODATE_NID),
+            RIBNormalizedNodes.ATTRIBUTES_UPTODATE_FALSE);
+        LOG.debug("Created table instance {}", tablePath);
+    }
+
+    private static void installAdjRibsOutTables(final YangInstanceIdentifier newPeerPath, final RIBSupportContext rs,
+            final SendReceive sendReceive, final DOMDataTreeWriteOperations tx) {
+        final var tableKey = rs.ribSupport().tablesKey();
+        final var supTablesKey = NodeIdentifierWithPredicates.of(SupportedTables.QNAME, tableKey.asMap());
+        final var tt = ImmutableNodes.newMapEntryBuilder().withNodeIdentifier(supTablesKey);
+        for (var entry : supTablesKey.entrySet()) {
+            tt.withChild(ImmutableNodes.leafNode(entry.getKey(), entry.getValue()));
+        }
+        if (sendReceive != null) {
+            tt.withChild(ImmutableNodes.leafNode(SEND_RECEIVE, sendReceive.getName()));
+        }
+        tx.put(LogicalDatastoreType.OPERATIONAL, newPeerPath.node(PEER_TABLES).node(supTablesKey), tt.build());
+        rs.createEmptyTableStructure(tx, newPeerPath.node(ADJRIBOUT_NID).node(TABLES_NID).node(tableKey));
     }
 
     @GuardedBy("this")
