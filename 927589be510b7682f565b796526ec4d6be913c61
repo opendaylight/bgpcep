@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "46d1ee76_c12a7d96",
+        "filename": "pcep/topology/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Bgpcep1098TopologyInstanceTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-24T12:37:16Z",
+      "side": 1,
+      "message": "why?",
+      "revId": "927589be510b7682f565b796526ec4d6be913c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "94f6d170_991608fd",
+        "filename": "pcep/topology/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Bgpcep1098TopologyInstanceTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-24T12:37:16Z",
+      "side": 1,
+      "message": "@Mock Registration",
+      "revId": "927589be510b7682f565b796526ec4d6be913c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "c8b809e7_ccb13d50",
+        "filename": "pcep/topology/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Bgpcep1098TopologyTrackerTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-24T12:37:16Z",
+      "side": 1,
+      "message": "why?",
+      "revId": "927589be510b7682f565b796526ec4d6be913c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "3c74a208_d52e059f",
+        "filename": "pcep/topology/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Bgpcep1098TopologyTrackerTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-24T12:37:16Z",
+      "side": 1,
+      "message": "how to avoid catches?",
+      "revId": "927589be510b7682f565b796526ec4d6be913c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "ed4313fa_7f4c8bab",
+        "filename": "pcep/topology/topology-provider/src/test/java/org/opendaylight/bgpcep/pcep/topology/provider/Bgpcep1098TopologyTrackerTest.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 8144
+      },
+      "writtenOn": "2026-11-24T12:37:16Z",
+      "side": 1,
+      "message": "@Mock Registration?",
+      "revId": "927589be510b7682f565b796526ec4d6be913c61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    }
+  ]
+}
