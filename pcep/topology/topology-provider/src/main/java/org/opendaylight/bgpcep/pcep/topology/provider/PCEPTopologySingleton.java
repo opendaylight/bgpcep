@@ -7,16 +7,17 @@
  */
 package org.opendaylight.bgpcep.pcep.topology.provider;
 
-import static com.google.common.base.Verify.verify;
 import static com.google.common.base.Verify.verifyNotNull;
 import static java.util.Objects.requireNonNull;
 
+import com.google.common.base.VerifyException;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.concurrent.ExecutionException;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.api.ServiceGroupIdentifier;
@@ -31,13 +32,13 @@ import org.slf4j.LoggerFactory;
  * {@link ClusterSingletonService} for a particular topology.
  */
 final class PCEPTopologySingleton {
-    // Common class for possible states
-    private abstract static class State {
+    // Common interface for possible states
+    private sealed interface State {
         // Nothing here
     }
 
     // The state for alive-and-kickin'. We are registered for cluster-wide instantiation
-    private final class Active extends State implements ClusterSingletonService {
+    private final class Active implements State, ClusterSingletonService {
         private final InstructionScheduler scheduler;
 
         @GuardedBy("this")
@@ -101,7 +102,7 @@ final class PCEPTopologySingleton {
             return close;
         }
 
-        ListenableFuture<?> terminate() {
+        @NonNull ListenableFuture<?> terminate() {
             // Acquire the service termination future and shut down the scheduler once it completes
             final var future = lockedTerminate();
             future.addListener(scheduler::close, MoreExecutors.directExecutor());
@@ -109,7 +110,7 @@ final class PCEPTopologySingleton {
         }
 
         // This part of the shutdown procedure needs to synchronize with instantiation and closure
-        private synchronized ListenableFuture<?> lockedTerminate() {
+        private synchronized @NonNull ListenableFuture<?> lockedTerminate() {
             verifyNotNull(reg, "Topology %s instance %s already terminating", topologyId(), PCEPTopologySingleton.this);
 
             final ListenableFuture<?> ret;
@@ -133,20 +134,18 @@ final class PCEPTopologySingleton {
     }
 
     // Instance terminating, we never get out of this state
-    private static final class Terminating extends State {
-        final @NonNull ListenableFuture<?> future;
-
-        Terminating(final ListenableFuture<?> future) {
-            this.future = requireNonNull(future);
+    @NonNullByDefault
+    private record Terminating(ListenableFuture<?> future) implements State {
+        Terminating {
+            requireNonNull(future);
         }
     }
 
     // Instance is waiting for a previous incarnation to finish terminating
-    private static final class Waiting extends State {
-        final @NonNull ListenableFuture<?> future;
-
-        Waiting(final ListenableFuture<?> future) {
-            this.future = requireNonNull(future);
+    @NonNullByDefault
+    private record Waiting(ListenableFuture<?> future) implements State {
+        Waiting {
+            requireNonNull(future);
         }
     }
 
@@ -158,6 +157,7 @@ final class PCEPTopologySingleton {
     @GuardedBy("this")
     private State state;
 
+    @NonNullByDefault
     private PCEPTopologySingleton(final PCEPTopologySingleton previous, final ListenableFuture<?> future) {
         tracker = previous.tracker;
         topology = previous.topology;
@@ -172,15 +172,17 @@ final class PCEPTopologySingleton {
     }
 
     synchronized void destroy() {
-        if (state instanceof Active) {
-            LOG.trace("Starting destruction of topology {} instance {}", topologyId(), this);
-            becomeTerminating(((Active) state).terminate());
-        } else if (state instanceof Waiting) {
-            LOG.trace("Topology {} instance {} destroyed while waiting", topologyId(), this);
-            becomeTerminating(((Waiting) state).future);
-        } else {
-            verify(state instanceof Terminating, "Unexpected state %s", state);
-            LOG.trace("Topology {} instance {} is already being destroyed", topologyId(), this);
+        switch (state) {
+            case Active active -> {
+                LOG.trace("Starting destruction of topology {} instance {}", topologyId(), this);
+                becomeTerminating(active.terminate());
+            }
+            case Waiting(var future) -> {
+                LOG.trace("Topology {} instance {} destroyed while waiting", topologyId(), this);
+                becomeTerminating(future);
+            }
+            case Terminating terminating ->
+                LOG.trace("Topology {} instance {} is already being destroyed", topologyId(), this);
         }
     }
 
@@ -214,15 +216,17 @@ final class PCEPTopologySingleton {
     }
 
     @GuardedBy("this")
-    private void becomeTerminating(final ListenableFuture<?> future) {
+    private void becomeTerminating(final @NonNull ListenableFuture<?> future) {
         state = new Terminating(future);
         future.addListener(() -> tracker.finishDestroy(topology, this), MoreExecutors.directExecutor());
     }
 
     @GuardedBy("this")
-    private Terminating verifyTerminating() {
-        verify(state instanceof Terminating, "Unexpected topology %s instance %s state %s", topologyId(), this, state);
-        return (Terminating) state;
+    private @NonNull Terminating verifyTerminating() {
+        if (state instanceof Terminating terminating) {
+            return terminating;
+        }
+        throw new VerifyException("Unexpected topology %s instance %s state %s".formatted(topologyId(), this, state));
     }
 
     private String topologyId() {
