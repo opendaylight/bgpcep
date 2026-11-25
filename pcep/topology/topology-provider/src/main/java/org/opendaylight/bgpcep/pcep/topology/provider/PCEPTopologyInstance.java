@@ -15,10 +15,9 @@ import com.google.errorprone.annotations.concurrent.GuardedBy;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.NonNullByDefault;
-import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
+import org.opendaylight.mdsal.binding.api.DataBroker;
 import org.opendaylight.mdsal.binding.api.DataListener;
 import org.opendaylight.mdsal.common.api.LogicalDatastoreType;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier;
@@ -44,18 +43,11 @@ final class PCEPTopologyInstance implements DataListener<Topology> {
     private boolean initialReceived;
 
     @NonNullByDefault
-    PCEPTopologyInstance(final TopologyKey topology, final PCEPTopologyProviderDependencies dependencies,
-            final InstructionScheduler scheduler) {
-        this.topology = requireNonNull(topology);
-
-        final var instanceIdentifier = DataObjectIdentifier.builder(NetworkTopology.class)
-            .child(Topology.class, topology)
-            .build();
-
-        // FIXME: inject provider from the caller for clarity of dependencies
-        provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
-        reg = dependencies.getDataBroker()
-            .registerDataListener(LogicalDatastoreType.CONFIGURATION, instanceIdentifier, this);
+    PCEPTopologyInstance(final DataObjectIdentifier<Topology> topologyPath, final PCEPTopologyProvider provider,
+            final DataBroker dataBroker) {
+        topology = topologyPath.getFirstKeyOf(Topology.class);
+        this.provider = requireNonNull(provider);
+        reg = requireNonNull(dataBroker).registerDataListener(LogicalDatastoreType.CONFIGURATION, topologyPath, this);
         LOG.info("Topology instance for {} initialized", topologyId());
     }
 
