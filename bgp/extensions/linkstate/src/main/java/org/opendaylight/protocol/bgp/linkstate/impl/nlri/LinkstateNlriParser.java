@@ -184,7 +184,7 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
             .setRouteDistinguisher(RouteDistinguisherUtil.extractRouteDistinguisher(linkstate, DISTINGUISHER_NID));
         final var protocolId = linkstate.childByArg(PROTOCOL_ID_NID);
         if (protocolId != null) {
-            builder.setProtocolId(ProtocolId.forName((String) protocolId.body()));
+            builder.setProtocolId(ProtocolId.ofName((String) protocolId.body()));
         }
         final var identifier = linkstate.childByArg(IDENTIFIER_NID);
         if (identifier != null) {
