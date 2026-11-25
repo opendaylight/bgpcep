@@ -803,10 +803,12 @@ public final class LinkAttributesParser {
         if (srv6LanEndXSid != null) {
             final ByteBuf output = Unpooled.buffer();
             SRv6AttributesParser.serializeSrv6LanEndXSid(srv6LanEndXSid, output);
-            if (srv6LanEndXSid.getNeighborType() instanceof IsisNeighborCase) {
-                TlvUtil.writeTLV(ISIS_SRV6_LAN_SID, output, byteAggregator);
-            } else if (srv6LanEndXSid.getNeighborType() instanceof Ospfv3NeighborCase) {
-                TlvUtil.writeTLV(OSPFV3_SRV6_LAN_SID, output, byteAggregator);
+            switch (srv6LanEndXSid.getNeighborType()) {
+                case IsisNeighborCase isis -> TlvUtil.writeTLV(ISIS_SRV6_LAN_SID, output, byteAggregator);
+                case Ospfv3NeighborCase ospf -> TlvUtil.writeTLV(OSPFV3_SRV6_LAN_SID, output, byteAggregator);
+                case null, default -> {
+                    // no-op
+                }
             }
         }
     }
