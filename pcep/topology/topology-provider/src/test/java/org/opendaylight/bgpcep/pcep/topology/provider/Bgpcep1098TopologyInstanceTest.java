@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.pcep.config.SessionConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.network.topology.topology.topology.types.TopologyPcepBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
@@ -109,7 +110,11 @@ class Bgpcep1098TopologyInstanceTest {
         }).when(dataBroker).registerDataListener(eq(LogicalDatastoreType.CONFIGURATION),
             any(DataObjectIdentifier.class), any());
 
-        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, scheduler);
+        final var instanceIdentifier = DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, TOPOLOGY_KEY)
+            .build();
+        final var provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
+        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, provider, instanceIdentifier);
 
         // The provider must have been handed the configuration, which is when it creates the operational topology
         verify(dataBroker).newWriteOnlyTransaction();
@@ -128,7 +133,12 @@ class Bgpcep1098TopologyInstanceTest {
         }).when(dataBroker).registerDataListener(eq(LogicalDatastoreType.CONFIGURATION),
             any(DataObjectIdentifier.class), any());
 
-        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, scheduler);
+        final var instanceIdentifier = DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, TOPOLOGY_KEY)
+            .build();
+
+        final var provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
+        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, provider, instanceIdentifier);
 
         verify(dataBroker).newWriteOnlyTransaction();
     }
@@ -144,7 +154,11 @@ class Bgpcep1098TopologyInstanceTest {
         doReturn(noopRegistration).when(dataBroker).registerDataListener(eq(LogicalDatastoreType.CONFIGURATION),
             any(DataObjectIdentifier.class), listener.capture());
 
-        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, scheduler).terminate();
+        final var instanceIdentifier = DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, TOPOLOGY_KEY)
+            .build();
+        final var provider = new PCEPTopologyProvider(instanceIdentifier, dependencies, scheduler);
+        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, provider, instanceIdentifier).terminate();
 
         listener.getValue().dataChangedTo(configuration());
 
