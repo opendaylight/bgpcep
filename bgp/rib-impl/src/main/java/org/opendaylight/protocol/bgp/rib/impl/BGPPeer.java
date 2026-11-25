@@ -19,7 +19,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -392,6 +391,12 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     public synchronized void onSessionUp(final BGPSession session) {
         currentSession = session;
         sessionUp = true;
+        if (treatAsWithdraw) {
+            session.addDecoderConstraint(RevisedErrorHandlingSupport.class, switch (getRole()) {
+                case Ebgp -> RevisedErrorHandlingSupportImpl.forExternalPeer();
+                case Ibgp, Internal, RrClient -> RevisedErrorHandlingSupportImpl.forInternalPeer();
+            });
+        }
 
         final var chain = rib.createPeerDOMChain();
         ribOutChain = chain;
@@ -407,12 +412,9 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             }
         });
 
-        if (currentSession instanceof BGPSessionStateProvider stateProvider) {
+        if (session instanceof BGPSessionStateProvider stateProvider) {
             stateProvider.registerMessagesCounter(this);
         }
-        final var advertisedGracefulRestartCapability = session.getAdvertisedGracefulRestartCapability();
-        final var advertisedTables = advertisedGracefulRestartCapability.getTables();
-        final var advertisedLLTables = session.getAdvertisedLlGracefulRestartCapability().getTables();
 
         final var addPathTablesType = session.getAdvertisedAddPathTableTypes();
         final var advertizedTableTypes = session.getAdvertisedTableTypes();
@@ -425,107 +427,91 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         tables = newTables;
 
         addPathTableMaps = mapTableTypesFamilies(addPathTablesType);
-
-        // FIXME: separate methods from this based on this boolean
-        if (!localRestarting) {
-            addBgp4Support();
-        }
-        if (!isRestartingGracefully()) {
-            final var peerId = RouterIds.createPeerId(session.getBgpId());
-            final var peerPath = setPeerId(peerId);
-
-            peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
-
-            createEffRibInWriter();
-            registerPrefixesCounters(effRibInWriter, effRibInWriter);
-
-            trackerRegistration = rib.getPeerTracker().registerPeer(this);
-            effRibInWriter.init();
-
-            initializeDatastore(tables, addPathTableMaps);
-
-            if (rpcRegistry != null) {
-                final var bgpPeerHandler = new BgpPeerRpc(this, session, tables);
-                rpcRegistration = rpcRegistry.registerRpcImplementations(List.of(
-                    (ResetSession) bgpPeerHandler::resetSession,
-                    (RestartGracefully) bgpPeerHandler::restartGracefully,
-                    (RouteRefreshRequest) bgpPeerHandler::routeRefreshRequest),
-                    ImmutableSet.of(rib.getInstanceIdentifier().toBuilder()
-                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp
-                            .rib.rib.Peer.class, new PeerKey(peerId))
-                        .build()));
-            }
+        if (localRestarting) {
+            onLocalRestartUp();
+        } else if (peerRestarting) {
+            onPeerRestartUp();
         } else {
-            final var forwardingTables = advertisedTables == null ? Set.<TablesKey>of()
-                : advertisedTables.values().stream()
-                    .filter(table -> {
-                        final var afiFlags = table.getAfiFlags();
-                        return afiFlags != null && afiFlags.getForwardingState();
-                    })
-                    .map(table -> new TablesKey(table.getAfi(), table.getSafi()))
-                    .collect(Collectors.toSet());
-            adjRibInWriter.clearTables(Sets.difference(tables, forwardingTables));
-            if (localRestarting) {
-                effRibInWriter.close();
-                peerRestartStopwatch = Stopwatch.createStarted();
-                handleSelectionReferralTimer();
-                missingEOT.addAll(tables);
-            }
-        }
-        setAdvertizedGracefulRestartTableTypes(advertisedTables == null ? List.of() : advertisedTables.values().stream()
-            .map(table -> new TablesKey(table.getAfi(), table.getSafi()))
-            .collect(Collectors.toList()));
-
-        peerRestartTime = advertisedGracefulRestartCapability.getRestartTime().toJava();
-        peerRestarting = false;
-
-        final Map<TablesKey, Uint24> llTablesReceived;
-        if (advertisedLLTables != null) {
-            llTablesReceived = new HashMap<>();
-            for (var table : advertisedLLTables.values()) {
-                llTablesReceived.put(new TablesKey(table.getAfi(), table.getSafi()), table.requireLongLivedStaleTime());
-            }
-        } else {
-            llTablesReceived = Map.of();
-        }
-        setAdvertizedLlGracefulRestartTableTypes(llTablesReceived);
-
-        if (!llTablesReceived.isEmpty()) {
-            supportsLLGR = true;
-            // FIXME: propagate preserved tables
-        } else {
-            // FIXME: clear preserved tables
-            supportsLLGR = false;
-        }
-
-        if (!localRestarting) {
-            if (!newTables.contains(IPV4_UCAST_TABLE_KEY)) {
-                createAdjRibOutListener(IPV4_UCAST_TABLE_KEY, false);
-            }
-            for (var key : getAfiSafisAdvertized()) {
-                createAdjRibOutListener(key, true);
-            }
-        }
-
-        // This initialization is separated from the !isRestartingGracefully() check at the top of this method
-        // to enforce execution ordering. The listeners (created just above) must be created before the containers
-        // are created. The peer lock prevents route advertisements until initialization finishes.
-        if (!isRestartingGracefully()) {
-            initializeAdjRibOutTables();
-        }
-
-        if (treatAsWithdraw) {
-            currentSession.addDecoderConstraint(RevisedErrorHandlingSupport.class, switch (getRole()) {
-                case Ebgp -> RevisedErrorHandlingSupportImpl.forExternalPeer();
-                case Ibgp, Internal, RrClient -> RevisedErrorHandlingSupportImpl.forInternalPeer();
-            });
+            onRegularUp();
         }
     }
 
     @GuardedBy("this")
-    private void initializeAdjRibOutTables() {
-        // Explicitly initialize the adj-rib-out and tables containers for new session.
-        // This prevents a crash if the peer sends an immediate WITHDRAW before any routes are advertised.
+    private void onLocalRestartUp() {
+        clearNonGracefulTables();
+
+        effRibInWriter.close();
+        peerRestartStopwatch = Stopwatch.createStarted();
+        handleSelectionReferralTimer();
+        missingEOT.addAll(tables);
+
+        initializeGracefulRestart();
+    }
+
+    @GuardedBy("this")
+    private void onPeerRestartUp() {
+        clearNonGracefulTables();
+
+        initializeGracefulRestart();
+
+        createAdjRibOutListeners();
+    }
+
+    @GuardedBy("this")
+    private void clearNonGracefulTables() {
+        final var advertisedTables = currentSession.getAdvertisedGracefulRestartCapability().getTables();
+        if (advertisedTables == null || advertisedTables.isEmpty()) {
+            adjRibInWriter.clearTables(tables);
+            return;
+        }
+
+        final var tablesToClear = new HashSet<>(tables);
+        for (var table : advertisedTables.values()) {
+            final var afiFlags = table.getAfiFlags();
+            if (afiFlags != null && afiFlags.getForwardingState()) {
+                tablesToClear.remove(new TablesKey(table.requireAfi(), table.requireSafi()));
+            }
+        }
+        adjRibInWriter.clearTables(tablesToClear);
+    }
+
+    @GuardedBy("this")
+    private void onRegularUp() {
+        addBgp4Support();
+
+        final var peerId = RouterIds.createPeerId(currentSession.getBgpId());
+        final var peerPath = setPeerId(peerId);
+
+        peerRibOutIId = peerPath.node(ADJRIBOUT_NID);
+
+        createEffRibInWriter();
+        registerPrefixesCounters(effRibInWriter, effRibInWriter);
+
+        trackerRegistration = rib.getPeerTracker().registerPeer(this);
+        effRibInWriter.init();
+
+        initializeDatastore(tables, addPathTableMaps);
+
+        if (rpcRegistry != null) {
+            final var bgpPeerHandler = new BgpPeerRpc(this, currentSession, tables);
+            rpcRegistration = rpcRegistry.registerRpcImplementations(List.of(
+                (ResetSession) bgpPeerHandler::resetSession,
+                (RestartGracefully) bgpPeerHandler::restartGracefully,
+                (RouteRefreshRequest) bgpPeerHandler::routeRefreshRequest),
+                ImmutableSet.of(rib.getInstanceIdentifier().toBuilder()
+                    .child(org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.rib.rev180329.bgp
+                        .rib.rib.Peer.class, new PeerKey(peerId))
+                    .build()));
+        }
+
+        initializeGracefulRestart();
+
+        // Explicitly initialize the adj-rib-out and tables containers for new session. This prevents a crash
+        // if the peer sends an immediate WITHDRAW before any routes are advertised.
+        // The listeners (created just above) must be created before the containers
+        // are created. The peer lock prevents route advertisements until initialization finishes.
+        createAdjRibOutListeners();
+
         final var tx = ribOutChain.newWriteOnlyTransaction();
         tx.merge(OPERATIONAL, peerRibOutIId, ImmutableNodes.newContainerBuilder()
             .withNodeIdentifier(ADJRIBOUT_NID)
@@ -548,10 +534,35 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         }, MoreExecutors.directExecutor());
     }
 
-    // FIXME: inline this into callers once we have split onSessionUp() based on localRestarting
-    @GuardedBy("this")
-    private boolean isRestartingGracefully() {
-        return localRestarting || peerRestarting;
+    private void initializeGracefulRestart() {
+        final var advertisedGracefulRestartCapability = currentSession.getAdvertisedGracefulRestartCapability();
+        final var advertisedTables = advertisedGracefulRestartCapability.getTables();
+        final var advertisedLLTables = currentSession.getAdvertisedLlGracefulRestartCapability().getTables();
+
+        setAdvertizedGracefulRestartTableTypes(advertisedTables == null ? List.of()
+            : advertisedTables.values().stream().map(table -> new TablesKey(table.getAfi(), table.getSafi())).toList());
+
+        peerRestartTime = advertisedGracefulRestartCapability.getRestartTime().toJava();
+        peerRestarting = false;
+
+        final Map<TablesKey, Uint24> llTablesReceived;
+        if (advertisedLLTables != null) {
+            llTablesReceived = new HashMap<>();
+            for (var table : advertisedLLTables.values()) {
+                llTablesReceived.put(new TablesKey(table.getAfi(), table.getSafi()), table.requireLongLivedStaleTime());
+            }
+        } else {
+            llTablesReceived = Map.of();
+        }
+        setAdvertizedLlGracefulRestartTableTypes(llTablesReceived);
+
+        if (!llTablesReceived.isEmpty()) {
+            supportsLLGR = true;
+            // FIXME: propagate preserved tables
+        } else {
+            // FIXME: clear preserved tables
+            supportsLLGR = false;
+        }
     }
 
     @GuardedBy("this")
@@ -570,6 +581,15 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
             final var newSet = new HashSet<>(tables);
             newSet.add(IPV4_UCAST_TABLE_KEY);
             tables = ImmutableSet.copyOf(newSet);
+        }
+    }
+
+    private void createAdjRibOutListeners() {
+        if (!tables.contains(IPV4_UCAST_TABLE_KEY)) {
+            createAdjRibOutListener(IPV4_UCAST_TABLE_KEY, false);
+        }
+        for (var key : getAfiSafisAdvertized()) {
+            createAdjRibOutListener(key, true);
         }
     }
 
@@ -627,7 +647,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
         // FIXME: this is a typical example of something which should be handled by a behavior into which we have
         //        transitioned way before this method is called. This really begs to be an abstract base class with
         //        a 'clearTables' or similar callout
-        if (isRestartingGracefully()) {
+        if (localRestarting || peerRestarting) {
             future = adjRibInWriter.retainTables(tables, getGracefulTables());
             if (peerRestarting) {
                 peerRestartStopwatch = Stopwatch.createStarted();
@@ -647,7 +667,7 @@ public final class BGPPeer extends AbstractPeer implements BGPSessionListener {
     private void closeSession() {
         if (currentSession != null) {
             try {
-                if (isRestartingGracefully()) {
+                if (localRestarting || peerRestarting) {
                     currentSession.closeWithoutMessage();
                 } else {
                     currentSession.close();
