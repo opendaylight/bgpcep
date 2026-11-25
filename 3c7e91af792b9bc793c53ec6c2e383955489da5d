@@ -16,6 +16,24 @@
       "message": "Removing this line drops the label stack from every labeled route ODL sends (RFC 8277 sec. 2.2). Reflecting a route with label 3 from one device to another, the receiver rejects it:\n\n  Inbound updates dropped by reason:\n    Malformed MPBGP routes: 1",
       "revId": "3c7e91af792b9bc793c53ec6c2e383955489da5d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "d9a5d5d1_97a3c1a0",
+        "filename": "bgp/extensions/labeled-unicast/src/main/java/org/opendaylight/protocol/bgp/labeled/unicast/LUNlriParser.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 8449
+      },
+      "writtenOn": "2026-11-25T08:38:53Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "bc16c3c9_909a794a",
+      "revId": "3c7e91af792b9bc793c53ec6c2e383955489da5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
