@@ -9,6 +9,7 @@ package org.opendaylight.protocol.bgp.linkstate;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.OspfRouteTlvParser.OSPF_ROUTE_NID;
 import static org.opendaylight.protocol.bgp.linkstate.impl.tlvs.ReachTlvParser.IP_REACH_NID;
@@ -45,8 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.node._case.NodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.AdvertisingNodeDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.prefix._case.PrefixDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6NodeDescriptors;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.linkstate.object.type.srv6.sid._case.Srv6SidDescriptors;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisPseudonodeCaseBuilder;
@@ -381,12 +380,13 @@ class LinkstateNlriParserTest {
     void testSrv6Nlri() throws BGPParsingException {
         setUp(srv6Nlri);
 
+        // test BA form
         assertNull(dest.getRouteDistinguisher());
         assertEquals(ProtocolId.IsisLevel2, dest.getProtocolId());
         assertEquals(Uint64.ONE, dest.getIdentifier().getValue());
-        final Srv6SidCase srv6Case = (Srv6SidCase) dest.getObjectType();
+        final var srv6Case = assertInstanceOf(Srv6SidCase.class, dest.getObjectType());
 
-        final Srv6NodeDescriptors nodeD = srv6Case.getSrv6NodeDescriptors();
+        final var nodeD = srv6Case.getSrv6NodeDescriptors();
         assertEquals(new AsNumber(Uint32.valueOf(72)), nodeD.getAsNumber());
         assertEquals(new DomainIdentifier(Uint32.valueOf(0x28282828L)), nodeD.getDomainId());
         assertEquals(new IsisPseudonodeCaseBuilder().setIsisPseudonode(
@@ -395,13 +395,46 @@ class LinkstateNlriParserTest {
                     new IsoSystemIdentifier(new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 })).build()).build()).build(),
             nodeD.getCRouterIdentifier());
 
-        final Srv6SidDescriptors sidDescriptor = srv6Case.getSrv6SidDescriptors();
+        final var sidDescriptor = srv6Case.getSrv6SidDescriptors();
         assertArrayEquals(new byte [] {0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 1},
             sidDescriptor.getSrv6Sid().getValue());
 
-        final ByteBuf buffer = Unpooled.buffer();
+        final var buffer = Unpooled.buffer();
         registry.serializeNlriType(dest, buffer);
         assertArrayEquals(srv6Nlri, ByteArray.readAllBytes(buffer));
+
+        // test BI form
+        assertEquals(dest, LinkstateNlriParser.extractLinkstateDestination(ImmutableNodes.newUnkeyedListEntryBuilder()
+            .withNodeIdentifier(C_LINKSTATE_NID)
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.PROTOCOL_ID_NID, "isis-level2"))
+            .withChild(ImmutableNodes.leafNode(LinkstateNlriParser.IDENTIFIER_NID, Uint64.ONE))
+            .withChild(ImmutableNodes.newChoiceBuilder()
+                .withNodeIdentifier(LinkstateNlriParser.OBJECT_TYPE_NID)
+                .withChild(ImmutableNodes.newContainerBuilder()
+                    .withNodeIdentifier(LinkstateNlriParser.SRV6_NODE_DESCRIPTORS_NID)
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.AREA_NID, Uint32.valueOf(2697513L)))
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.AS_NUMBER_NID, Uint32.valueOf(72)))
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.DOMAIN_NID, Uint32.valueOf(673720360L)))
+                    .withChild(ImmutableNodes.newChoiceBuilder()
+                        .withNodeIdentifier(C_ROUTER_ID_NID)
+                        .withChild(ImmutableNodes.newContainerBuilder()
+                            .withNodeIdentifier(NodeNlriParser.ISIS_PSEUDONODE_NID)
+                            .withChild(ImmutableNodes.newContainerBuilder()
+                                .withNodeIdentifier(NodeNlriParser.ISIS_ROUTER_NID)
+                                .withChild(ImmutableNodes.leafNode(NodeNlriParser.ISO_SYSTEM_NID,
+                                    new byte[] { 0, 0, 0, 0, 0, (byte) 0x39 }))
+                                .build())
+                            .withChild(ImmutableNodes.leafNode(NodeNlriParser.PSN_NID, Uint8.valueOf(5)))
+                            .build())
+                        .build())
+                    .build())
+                .withChild(ImmutableNodes.newContainerBuilder()
+                    .withNodeIdentifier(LinkstateNlriParser.SRV6_SID_DESCRIPTORS_NID)
+                    .withChild(ImmutableNodes.leafNode(NodeNlriParser.SRV6_SID_SID,
+                        new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 0, 0, 0, 0, 0, 0, 0, 1}))
+                    .build())
+                .build())
+            .build()));
     }
 
     @Test
