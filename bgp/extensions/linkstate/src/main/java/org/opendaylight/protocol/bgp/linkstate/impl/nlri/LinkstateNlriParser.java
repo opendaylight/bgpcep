@@ -179,28 +179,12 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
         }
     }
 
-    // FIXME : use codec
-    private static int domProtocolIdValue(final String protocolId) {
-        return switch (protocolId) {
-            case "isis-level1" -> ProtocolId.IsisLevel1.getIntValue();
-            case "isis-level2" -> ProtocolId.IsisLevel2.getIntValue();
-            case "ospf" -> ProtocolId.Ospf.getIntValue();
-            case "direct" -> ProtocolId.Direct.getIntValue();
-            case "static" -> ProtocolId.Static.getIntValue();
-            case "ospf-v3" -> ProtocolId.OspfV3.getIntValue();
-            case "bgp-epe" -> ProtocolId.BgpEpe.getIntValue();
-            case "segment-routing" -> ProtocolId.SegmentRouting.getIntValue();
-            default -> 0;
-        };
-    }
-
     public static CLinkstateDestination extractLinkstateDestination(final DataContainerNode linkstate) {
         final var builder = new CLinkstateDestinationBuilder()
             .setRouteDistinguisher(RouteDistinguisherUtil.extractRouteDistinguisher(linkstate, DISTINGUISHER_NID));
         final var protocolId = linkstate.childByArg(PROTOCOL_ID_NID);
         if (protocolId != null) {
-            // DOM representation contains values as are in the model, not as are in generated enum
-            builder.setProtocolId(ProtocolId.forValue(domProtocolIdValue((String) protocolId.body())));
+            builder.setProtocolId(ProtocolId.forName((String) protocolId.body()));
         }
         final var identifier = linkstate.childByArg(IDENTIFIER_NID);
         if (identifier != null) {
