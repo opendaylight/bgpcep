@@ -22,7 +22,10 @@ import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
 import org.opendaylight.mdsal.singleton.api.ClusterSingletonService;
 import org.opendaylight.mdsal.singleton.api.ServiceGroupIdentifier;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yangtools.binding.DataObjectIdentifier;
 import org.opendaylight.yangtools.concepts.Registration;
 import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
@@ -70,7 +73,10 @@ final class PCEPTopologySingleton {
             }
 
             LOG.trace("Topology {} instance {} instantiating", topologyId(), PCEPTopologySingleton.this);
-            instance = new PCEPTopologyInstance(topology, tracker, scheduler);
+            instance = new PCEPTopologyInstance(tracker.getDataBroker(),
+                new PCEPTopologyProvider(
+                    DataObjectIdentifier.builder(NetworkTopology.class).child(Topology.class, topology).build(),
+                    tracker, scheduler));
         }
 
         @Override
