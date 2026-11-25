@@ -241,11 +241,15 @@ public final class LinkstateNlriParser implements NlriParser, NlriSerializer {
 
         final var srv6Node = objectType.childByArg(SRV6_NODE_DESCRIPTORS_NID);
         if (srv6Node != null) {
-            // SRv6 descriptors
-            return new Srv6SidCaseBuilder()
-                .setSrv6NodeDescriptors(NodeNlriParser.serializeSrv6NodeDescriptors((ContainerNode) srv6Node))
-                .setSrv6SidDescriptors(NodeNlriParser.serializeSrv6SidDescriptors((ContainerNode) srv6Node))
-                .build();
+            // node descriptors
+            final var builder = new Srv6SidCaseBuilder()
+                .setSrv6NodeDescriptors(NodeNlriParser.serializeSrv6NodeDescriptors((ContainerNode) srv6Node));
+            // SID descriptiors
+            final var srv6Sid = objectType.childByArg(SRV6_SID_DESCRIPTORS_NID);
+            if (srv6Sid != null) {
+                builder.setSrv6SidDescriptors(NodeNlriParser.serializeSrv6SidDescriptors((ContainerNode) srv6Sid));
+            }
+            return builder.build();
         }
 
         LOG.warn("Ignoring unknown Object Type: {}.", objectType);
