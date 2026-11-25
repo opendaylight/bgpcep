@@ -8,10 +8,10 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.tlvs;
 
 import io.netty.buffer.ByteBuf;
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.protocol.bgp.linkstate.spi.LinkstateTlvParser;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.OspfInterfaceIdentifier;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.isis.lan.identifier.IsIsRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.isis.lan.identifier.IsIsRouterIdentifierBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.CRouterIdentifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.IsisNodeCase;
@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.common.Uint8;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 
 public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdentifier>,
@@ -61,29 +62,40 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
 
     @Override
     public CRouterIdentifier parseTlvBody(final ByteBuf value) {
-        if (value.readableBytes() == ISO_SYSTEM_ID_LENGTH || value.readableBytes() == ISO_SYSTEM_ID_LENGTH + PSN_LENGTH
-                && value.getByte(ISO_SYSTEM_ID_LENGTH) == 0) {
-            return new IsisNodeCaseBuilder().setIsisNode(
-                    new IsisNodeBuilder().setIsoSystemId(new IsoSystemIdentifier(
-                        ByteArray.readBytes(value, ISO_SYSTEM_ID_LENGTH))).build()).build();
-        }
-        if (value.readableBytes() == ISO_SYSTEM_ID_LENGTH + PSN_LENGTH) {
-            final IsIsRouterIdentifier iri = new IsIsRouterIdentifierBuilder().setIsoSystemId(
-                    new IsoSystemIdentifier(ByteArray.readBytes(value, ISO_SYSTEM_ID_LENGTH))).build();
-            return new IsisPseudonodeCaseBuilder().setIsisPseudonode(new IsisPseudonodeBuilder()
-                .setIsIsRouterIdentifier(iri).setPsn(ByteBufUtils.readUint8(value)).build()).build();
-        }
-        if (value.readableBytes() == OSPF_ROUTER_ID_LENGTH) {
-            return new OspfNodeCaseBuilder().setOspfNode(
-                    new OspfNodeBuilder().setOspfRouterId(ByteBufUtils.readUint32(value)).build()).build();
+        return switch (value.readableBytes()) {
+            case ISO_SYSTEM_ID_LENGTH -> newIsisNodeCase(readSystemId(value));
+            case ISO_SYSTEM_ID_LENGTH + PSN_LENGTH -> {
+                final var systemId = readSystemId(value);
+                final var psn = ByteBufUtils.readUint8(value);
+                yield psn.equals(Uint8.ZERO) ? newIsisNodeCase(systemId)
+                    : new IsisPseudonodeCaseBuilder()
+                        .setIsisPseudonode(new IsisPseudonodeBuilder()
+                            .setIsIsRouterIdentifier(new IsIsRouterIdentifierBuilder().setIsoSystemId(systemId).build())
+                            .setPsn(psn)
+                            .build())
+                        .build();
+            }
+            case OSPF_ROUTER_ID_LENGTH -> new OspfNodeCaseBuilder()
+                .setOspfNode(new OspfNodeBuilder().setOspfRouterId(ByteBufUtils.readUint32(value)).build())
+                .build();
+            case OSPF_PSEUDONODE_ROUTER_ID_LENGTH -> new OspfPseudonodeCaseBuilder()
+                .setOspfPseudonode(new OspfPseudonodeBuilder()
+                    .setOspfRouterId(ByteBufUtils.readUint32(value))
+                    .setLanInterface(new OspfInterfaceIdentifier(ByteBufUtils.readUint32(value)))
+                    .build())
+                .build();
+            default -> null;
+        };
+    }
 
-        }
-        if (value.readableBytes() == OSPF_PSEUDONODE_ROUTER_ID_LENGTH) {
-            return new OspfPseudonodeCaseBuilder().setOspfPseudonode(
-                    new OspfPseudonodeBuilder().setOspfRouterId(ByteBufUtils.readUint32(value))
-                    .setLanInterface(new OspfInterfaceIdentifier(ByteBufUtils.readUint32(value))).build()).build();
-        }
-        return null;
+    @NonNullByDefault
+    private static IsisNodeCase newIsisNodeCase(final IsoSystemIdentifier systemId) {
+        return new IsisNodeCaseBuilder().setIsisNode(new IsisNodeBuilder().setIsoSystemId(systemId).build()).build();
+    }
+
+    @NonNullByDefault
+    private static IsoSystemIdentifier readSystemId(final ByteBuf value) {
+        return new IsoSystemIdentifier(ByteArray.readBytes(value, ISO_SYSTEM_ID_LENGTH));
     }
 
     @Override
