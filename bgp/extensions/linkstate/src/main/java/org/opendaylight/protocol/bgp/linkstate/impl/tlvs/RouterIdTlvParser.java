@@ -22,12 +22,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.OspfNodeCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.OspfPseudonodeCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.OspfPseudonodeCaseBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.isis.node._case.IsisNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.isis.node._case.IsisNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.isis.pseudonode._case.IsisPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.ospf.node._case.OspfNodeBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.node.identifier.c.router.identifier.ospf.pseudonode._case.OspfPseudonodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IsoSystemIdentifier;
 import org.opendaylight.yangtools.yang.common.QName;
@@ -43,19 +40,22 @@ public final class RouterIdTlvParser implements LinkstateTlvParser<CRouterIdenti
 
     @Override
     public void serializeTlvBody(final CRouterIdentifier tlv, final ByteBuf body) {
-        if (tlv instanceof IsisNodeCase) {
-            final IsisNode isis = ((IsisNodeCase) tlv).getIsisNode();
-            body.writeBytes(isis.getIsoSystemId().getValue());
-        } else if (tlv instanceof IsisPseudonodeCase) {
-            final IsisPseudonode isis = ((IsisPseudonodeCase) tlv).getIsisPseudonode();
-            body.writeBytes(isis.getIsIsRouterIdentifier().getIsoSystemId().getValue());
-            ByteBufUtils.writeOrZero(body, isis.getPsn());
-        } else if (tlv instanceof OspfNodeCase) {
-            ByteBufUtils.writeOrZero(body, ((OspfNodeCase) tlv).getOspfNode().getOspfRouterId());
-        } else if (tlv instanceof OspfPseudonodeCase) {
-            final OspfPseudonode node = ((OspfPseudonodeCase) tlv).getOspfPseudonode();
-            ByteBufUtils.writeOrZero(body, node.getOspfRouterId());
-            ByteBufUtils.write(body, node.getLanInterface().getValue());
+        switch (tlv) {
+            case IsisNodeCase isis -> body.writeBytes(isis.getIsisNode().getIsoSystemId().getValue());
+            case IsisPseudonodeCase isis -> {
+                final var pseudonode = isis.getIsisPseudonode();
+                body.writeBytes(pseudonode.getIsIsRouterIdentifier().getIsoSystemId().getValue());
+                ByteBufUtils.writeOrZero(body, pseudonode.getPsn());
+            }
+            case OspfNodeCase ospf -> ByteBufUtils.writeOrZero(body, ospf.getOspfNode().getOspfRouterId());
+            case OspfPseudonodeCase ospf -> {
+                final var pseudonode = ospf.getOspfPseudonode();
+                ByteBufUtils.writeOrZero(body, pseudonode.getOspfRouterId());
+                ByteBufUtils.write(body, pseudonode.getLanInterface().getValue());
+            }
+            case null, default -> {
+                // no-op
+            }
         }
     }
 
