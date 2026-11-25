@@ -152,17 +152,15 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
         }
         final var linkState = pathAttributes1.getLinkStateAttribute();
         final ByteBuf lsBuffer = Unpooled.buffer();
-        if (linkState instanceof LinkAttributesCase la) {
-            LinkAttributesParser.serializeLinkAttributes(la, lsBuffer);
-        } else if (linkState instanceof NodeAttributesCase na) {
-            NodeAttributesParser.serializeNodeAttributes(na, lsBuffer);
-        } else if (linkState instanceof PrefixAttributesCase pa) {
-            PrefixAttributesParser.serializePrefixAttributes(pa, lsBuffer);
-        } else if (linkState instanceof Srv6SidAttributesCase sa) {
-            Srv6SidAttributesParser.serializeSrv6SidAttributes(sa, lsBuffer);
-        } else {
-            LOG.warn("Unknown LinkStateAttribute type {}", linkState);
-            return;
+        switch (linkState) {
+            case LinkAttributesCase la -> LinkAttributesParser.serializeLinkAttributes(la, lsBuffer);
+            case NodeAttributesCase na -> NodeAttributesParser.serializeNodeAttributes(na, lsBuffer);
+            case PrefixAttributesCase pa -> PrefixAttributesParser.serializePrefixAttributes(pa, lsBuffer);
+            case Srv6SidAttributesCase sa -> Srv6SidAttributesParser.serializeSrv6SidAttributes(sa, lsBuffer);
+            case null, default -> {
+                LOG.warn("Unknown LinkStateAttribute type {}", linkState);
+                return;
+            }
         }
         AttributeUtil.formatAttribute(AttributeUtil.OPTIONAL, getType(), lsBuffer, byteAggregator);
     }
