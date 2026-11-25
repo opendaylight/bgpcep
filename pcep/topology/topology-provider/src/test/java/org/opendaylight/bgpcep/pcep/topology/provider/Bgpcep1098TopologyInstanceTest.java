@@ -19,7 +19,6 @@ import com.google.common.util.concurrent.FluentFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,6 +37,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.pcep.config.rev250930.pcep.config.SessionConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.TopologyTypes1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.topology.pcep.rev260528.network.topology.topology.topology.types.TopologyPcepBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyBuilder;
@@ -57,7 +57,10 @@ import org.opendaylight.yangtools.yang.common.Uint8;
 @ExtendWith(MockitoExtension.class)
 @Timeout(10)
 class Bgpcep1098TopologyInstanceTest {
-    private static final TopologyKey TOPOLOGY_KEY = new TopologyKey(new TopologyId("pcep-topology"));
+    private static final DataObjectIdentifier.WithKey<Topology, TopologyKey> TOPOLOGY_PATH =
+        DataObjectIdentifier.builder(NetworkTopology.class)
+            .child(Topology.class, new TopologyKey(new TopologyId("pcep-topology")))
+            .build();
 
     @Mock
     private DataBroker dataBroker;
@@ -69,11 +72,6 @@ class Bgpcep1098TopologyInstanceTest {
     private WriteTransaction tx;
     @Mock
     private Registration noopRegistration;
-
-    @BeforeEach
-    void setUp() {
-        doReturn(dataBroker).when(dependencies).getDataBroker();
-    }
 
     /**
      * Stub the operational topology creation performed by {@link PCEPTopologyProvider} once it receives its
@@ -109,7 +107,7 @@ class Bgpcep1098TopologyInstanceTest {
         }).when(dataBroker).registerDataListener(eq(LogicalDatastoreType.CONFIGURATION),
             any(DataObjectIdentifier.class), any());
 
-        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, scheduler);
+        newTopologyInstance();
 
         // The provider must have been handed the configuration, which is when it creates the operational topology
         verify(dataBroker).newWriteOnlyTransaction();
@@ -128,7 +126,7 @@ class Bgpcep1098TopologyInstanceTest {
         }).when(dataBroker).registerDataListener(eq(LogicalDatastoreType.CONFIGURATION),
             any(DataObjectIdentifier.class), any());
 
-        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, scheduler);
+        newTopologyInstance();
 
         verify(dataBroker).newWriteOnlyTransaction();
     }
@@ -144,16 +142,20 @@ class Bgpcep1098TopologyInstanceTest {
         doReturn(noopRegistration).when(dataBroker).registerDataListener(eq(LogicalDatastoreType.CONFIGURATION),
             any(DataObjectIdentifier.class), listener.capture());
 
-        new PCEPTopologyInstance(TOPOLOGY_KEY, dependencies, scheduler).terminate();
+        newTopologyInstance().terminate();
 
         listener.getValue().dataChangedTo(configuration());
 
         verify(dataBroker, never()).newWriteOnlyTransaction();
     }
 
+    private PCEPTopologyInstance newTopologyInstance() {
+        return new PCEPTopologyInstance(dataBroker, new PCEPTopologyProvider(TOPOLOGY_PATH, dependencies, scheduler));
+    }
+
     private static Topology configuration() {
         return new TopologyBuilder()
-            .withKey(TOPOLOGY_KEY)
+            .withKey(TOPOLOGY_PATH.key())
             .setTopologyTypes(new TopologyTypesBuilder()
                 .addAugmentation(new TopologyTypes1Builder()
                     .setTopologyPcep(new TopologyPcepBuilder()
