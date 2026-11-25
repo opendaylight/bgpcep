@@ -42,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.link
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.Loss;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.MplsProtocolMask;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.ProtocolId;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.asla.tlv.AslaSubtlvs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.asla.tlv.AslaSubtlvsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.asla.tlv.StandardBitMaskBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.linkstate.rev241219.l2.bundle.member.L2Subtlvs;
@@ -141,12 +140,13 @@ public final class LinkAttributesParser {
     private static final int ASLA = 1122;
     private static final int FLAGS_FOUR_SIZE = 4;
     private static final int FLAGS_EIGHT_SIZE = 8;
+    private static final int RESERVED = 2;
+
+    // see https://www.iana.org/assignments/igp-parameters#link-attribute-application-identifiers
     private static final int SABM_RSVP_FLAG = 0;
     private static final int SABM_SR_FLAG = 1;
     private static final int SABM_LFA_FLAG = 2;
     private static final int SABM_FLEX_ALGO_FLAG = 3;
-    private static final int RESERVED = 2;
-
 
     // L2 bundle RFC9085
     private static final int L2_BUNDLE_MEMBER = 1172;
@@ -820,33 +820,18 @@ public final class LinkAttributesParser {
         }
     }
 
+    // see https://www.rfc-editor.org/info/rfc9294/#figure-1
     private static void serializeAsla(final AslaMetric asla, final ByteBuf byteAggregator) {
         if (asla == null) {
             return;
         }
 
         final ByteBuf output = Unpooled.buffer();
-        final AslaSubtlvs aslaSubtlv = asla.getAslaSubtlvs();
+        final var aslaSubtlv = asla.getAslaSubtlvs();
 
         LOG.trace("Started serializing ASLA attributes");
-        output.writeByte(asla.getSabmLength().getIntValue());
-        output.writeByte(asla.getUdabmLength().getIntValue());
-        output.writeZero(RESERVED);
-        if (asla.getSabmLength() != AbmLength.Zero) {
-            final BitArray bs = new BitArray(FLAGS_FOUR_SIZE);
-            bs.set(SABM_RSVP_FLAG, asla.getStandardBitMask().getRsvpTe());
-            bs.set(SABM_SR_FLAG, asla.getStandardBitMask().getSr());
-            bs.set(SABM_LFA_FLAG, asla.getStandardBitMask().getLfa());
-            bs.toByteBuf(output);
-        } else if (asla.getSabmLength() == AbmLength.Eight) {
-            output.writeZero(RESERVED);
-        }
-        if (asla.getUdabmLength() == AbmLength.Four) {
-            writeUint32(output, asla.getUserBitMask().toUint32());
-        } else if (asla.getUdabmLength() == AbmLength.Eight) {
-            writeUint64(output, asla.getUserBitMask());
-        }
-
+        // application identifier
+        serializeApplicationIdentifier(asla, output);
         // Asla SubTlvs
         ifPresentApply(aslaSubtlv.getAdminGroup(), value -> TlvUtil.writeTLV(ADMIN_GROUP,
             Unpooled.copyInt(value.getValue().intValue()), output));
@@ -872,6 +857,49 @@ public final class LinkAttributesParser {
 
         LOG.trace("Finished serializing L2 Bundle");
         TlvUtil.writeTLV(ASLA, output, byteAggregator);
+    }
+
+    // see https://www.rfc-editor.org/info/rfc9294/#section-2-4
+    private static void serializeApplicationIdentifier(final AslaMetric asla, final ByteBuf output) {
+        //         0                   1                   2                   3
+        //         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+        //        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        //        | SABM Length   | UDABM Length  |            Reserved           |
+        //        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        final var sabmLength = asla.getSabmLength().getIntValue();
+        final var udabmLength = asla.getUdabmLength();
+        output.writeByte(sabmLength);
+        output.writeByte(udabmLength.getIntValue());
+        output.writeZero(RESERVED);
+
+        //        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        //        |     Standard Application Identifier Bit Mask (variable)      //
+        //        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        // see https://www.rfc-editor.org/info/rfc8919/#section-4.1-4.6.1
+        // see https://www.rfc-editor.org/info/rfc9350/#section-12-4
+        if (sabmLength != 0) {
+            final var bitMask = asla.getStandardBitMask();
+            final var bs = new BitArray(Byte.SIZE);
+            bs.set(SABM_RSVP_FLAG, bitMask.getRsvpTe());
+            bs.set(SABM_SR_FLAG, bitMask.getSr());
+            bs.set(SABM_LFA_FLAG, bitMask.getLfa());
+            bs.set(SABM_FLEX_ALGO_FLAG, bitMask.getFlexAlgo());
+            bs.toByteBuf(output);
+            output.writeZero(sabmLength - 1);
+        }
+
+        //        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        //        |    User-Defined Application Identifier Bit Mask (variable)   //
+        //        +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+        // see https://www.rfc-editor.org/info/rfc8919/#section-4.1-4.8.1
+        switch (udabmLength) {
+            case null -> throw new NullPointerException();
+            case Zero -> {
+                // no-op as per https://www.rfc-editor.org/info/rfc8919/#section-4.1-4.8.4
+            }
+            case Four -> writeUint32(output, asla.getUserBitMask().toUint32());
+            case Eight -> writeUint64(output, asla.getUserBitMask());
+        }
     }
 
     private static void serializeExtendedAdminGroup(final Set<ExtendedAdminGroup> eags, final ByteBuf byteAggregator) {
