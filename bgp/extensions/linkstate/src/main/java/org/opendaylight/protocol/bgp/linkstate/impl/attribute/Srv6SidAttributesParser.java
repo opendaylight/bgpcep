@@ -65,16 +65,19 @@ public final class Srv6SidAttributesParser {
             LOG.trace("Parse SRv6 attribute TLV {}", key);
             switch (key) {
                 case ENDPOINT_BEHAVIOR -> {
-                    srv6AttrBuilder.setSrv6EndpointBehavior(parseSrv6EndpointBehavior(value));
-                    LOG.debug("Parsed SRv6 Endpoint Behavior {}", srv6AttrBuilder.getSrv6EndpointBehavior());
+                    final var parsed = parseSrv6EndpointBehavior(value);
+                    LOG.debug("Parsed SRv6 Endpoint Behavior {}", parsed);
+                    srv6AttrBuilder.setSrv6EndpointBehavior(parsed);
                 }
                 case BGP_PEER_NODE -> {
-                    srv6AttrBuilder.setSrv6BgpPeerNode(parseSrv6BgpPeerNode(value));
-                    LOG.debug("Parsed SRv6 BGP Peer Node {}", srv6AttrBuilder.getSrv6BgpPeerNode());
+                    final var parsed = parseSrv6BgpPeerNode(value);
+                    LOG.debug("Parsed SRv6 BGP Peer Node {}", parsed);
+                    srv6AttrBuilder.setSrv6BgpPeerNode(parsed);
                 }
                 case SID_STRUCTURE -> {
-                    srv6AttrBuilder.setSrv6SidStructure(SRv6AttributesParser.parseSrv6SidStructure(value));
-                    LOG.debug("Parsed SRv6 SID Structure {}", srv6AttrBuilder.getSrv6SidStructure());
+                    final var parsed = SRv6AttributesParser.parseSrv6SidStructure(value);
+                    LOG.debug("Parsed SRv6 SID Structure {}", parsed);
+                    srv6AttrBuilder.setSrv6SidStructure(parsed);
                 }
                 default -> LOG.warn("Unexpected TLV type {} in Srv6 SID Attributes. Skipping.", key);
             }
@@ -148,5 +151,4 @@ public final class Srv6SidAttributesParser {
         Ipv4Util.writeIpv4Address(srv6BgpPeerNode.getPeerBgpId(), buffer);
         TlvUtil.writeTLV(BGP_PEER_NODE, buffer, output);
     }
-
 }
