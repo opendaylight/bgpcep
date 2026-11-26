@@ -10,6 +10,7 @@ package org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
+import com.google.common.annotations.VisibleForTesting;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import java.util.ArrayList;
@@ -69,29 +70,26 @@ public final class SrLinkAttributesParser {
     private static final int PERSISTENT_EPE = 3;
     private static final int FLAGS_BITS_SIZE = 8;
 
-    /*
-       OSPF flags
-       0 1 2 3 4 5 6 7
-      +-+-+-+-+-+-+-+-+
-      |B|V|L|S|P|     |
-      +-+-+-+-+-+-+-+-+
-
-       ISIS flags
-       0 1 2 3 4 5 6 7
-      +-+-+-+-+-+-+-+-+
-      |F|B|V|L|S|P|   |
-      +-+-+-+-+-+-+-+-+
-
-       EPE flags
-       0 1 2 3 4 5 6 7
-      +-+-+-+-+-+-+-+-+
-      |V|L|B|P|       |
-      +-+-+-+-+-+-+-+-+
-
-     */
+    //       OSPF flags
+    //       0 1 2 3 4 5 6 7
+    //      +-+-+-+-+-+-+-+-+
+    //      |B|V|L|S|P|     |
+    //      +-+-+-+-+-+-+-+-+
+    //
+    //       ISIS flags
+    //       0 1 2 3 4 5 6 7
+    //      +-+-+-+-+-+-+-+-+
+    //      |F|B|V|L|S|P|   |
+    //      +-+-+-+-+-+-+-+-+
+    //
+    //       EPE flags
+    //       0 1 2 3 4 5 6 7
+    //      +-+-+-+-+-+-+-+-+
+    //      |V|L|B|P|       |
+    //      +-+-+-+-+-+-+-+-+
 
     private SrLinkAttributesParser() {
-
+        // hidden on purpose
     }
 
     public static SrAdjIds parseAdjacencySegmentIdentifier(final ByteBuf buffer, final ProtocolId protocolId) {
@@ -256,7 +254,8 @@ public final class SrLinkAttributesParser {
         }
     }
 
-    public static ByteBuf serializeAdjacencySegmentIdentifier(final SrAdjIds srAdjId) {
+    @VisibleForTesting
+    static ByteBuf serializeAdjacencySegmentIdentifier(final SrAdjIds srAdjId) {
         final var output = Unpooled.buffer();
         serializeAdjFlags(srAdjId.getFlags(), srAdjId.getSidLabelIndex()).toByteBuf(output);
         writeUint8(output, srAdjId.getWeight().getValue());
@@ -272,7 +271,8 @@ public final class SrLinkAttributesParser {
         }
     }
 
-    public static ByteBuf serializeLanAdjacencySegmentIdentifier(final SrLanAdjIds srLanAdjId) {
+    @VisibleForTesting
+    static ByteBuf serializeLanAdjacencySegmentIdentifier(final SrLanAdjIds srLanAdjId) {
         final var output = Unpooled.buffer();
         serializeAdjFlags(srLanAdjId.getFlags(), srLanAdjId.getSidLabelIndex()).toByteBuf(output);
         writeUint8(output, srLanAdjId.getWeight().getValue());
