@@ -57,18 +57,18 @@ public final class SessionAttributeLspObjectParser extends AbstractRSVPObjectPar
     public void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
         checkArgument(teLspObject instanceof BasicSessionAttributeObject, "SessionAttributeObject is mandatory.");
 
-        final BasicSessionAttributeObject sessionObject = (BasicSessionAttributeObject) teLspObject;
+        final var sessionObject = (BasicSessionAttributeObject) teLspObject;
         final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject
             .getSessionName()));
         final int pad = getPadding(sessionName.readableBytes());
         serializeAttributeHeader(BODY_SIZE_C7 + pad + sessionName.readableBytes(), CLASS_NUM, CTYPE, output);
         writeUint8(output, sessionObject.getSetupPriority());
         writeUint8(output, sessionObject.getHoldPriority());
-        final BitArray bs = new BitArray(FLAGS_SIZE);
-        bs.set(LOCAL_PROTECTION, sessionObject.getLocalProtectionDesired());
-        bs.set(LABEL_RECORDING, sessionObject.getLabelRecordingDesired());
-        bs.set(SE_STYLE, sessionObject.getSeStyleDesired());
-        bs.toByteBuf(output);
+        new BitArray(FLAGS_SIZE)
+            .set(LOCAL_PROTECTION, sessionObject.getLocalProtectionDesired())
+            .set(LABEL_RECORDING, sessionObject.getLabelRecordingDesired())
+            .set(SE_STYLE, sessionObject.getSeStyleDesired())
+            .toByteBuf(output);
         output.writeByte(sessionName.readableBytes());
         output.writeBytes(sessionName);
         output.writeZero(pad);

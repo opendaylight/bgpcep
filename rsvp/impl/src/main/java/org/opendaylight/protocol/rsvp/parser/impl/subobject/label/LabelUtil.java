@@ -19,12 +19,12 @@ public final class LabelUtil {
         // Hidden on purpose
     }
 
-    public static void formatLabel(final int type, final Boolean unidirectional, final Boolean global, final ByteBuf
-        body, final ByteBuf buffer) {
-        final BitArray reserved = new BitArray(FLAGS_SIZE);
-        reserved.set(UNIDIRECTIONAL, unidirectional);
-        reserved.set(GLOBAL, global);
-        reserved.toByteBuf(buffer);
+    public static void formatLabel(final int type, final Boolean unidirectional, final Boolean global,
+            final ByteBuf body, final ByteBuf buffer) {
+        new BitArray(FLAGS_SIZE)
+            .set(UNIDIRECTIONAL, unidirectional)
+            .set(GLOBAL, global)
+            .toByteBuf(buffer);
         buffer.writeByte(type);
         buffer.writeBytes(body);
     }

@@ -173,9 +173,9 @@ public final class SrFlexAlgoParser {
                 final var flags = fas.getFlags();
                 if (flags != null) {
                     final var buffer = Unpooled.buffer();
-                    final var bs = new BitArray(DEFINITION_FLAGS_SIZE);
-                    bs.set(M_FLAG, flags.getInterArea());
-                    bs.toByteBuf(buffer);
+                    new BitArray(DEFINITION_FLAGS_SIZE)
+                        .set(M_FLAG, flags.getInterArea())
+                        .toByteBuf(buffer);
                     TlvUtil.writeTLV(FLEX_ALGO_DEFINITION_FLAGS, buffer, fadBuffer);
                 }
                 final var es = fas.getExcludeSrlg();

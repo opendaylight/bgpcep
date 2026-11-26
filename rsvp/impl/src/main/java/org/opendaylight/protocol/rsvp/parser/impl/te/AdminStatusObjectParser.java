@@ -41,16 +41,16 @@ public final class AdminStatusObjectParser extends AbstractRSVPObjectParser {
     @Override
     protected void localSerializeObject(final RsvpTeObject teLspObject, final ByteBuf output) {
         Preconditions.checkArgument(teLspObject instanceof AdminStatusObject, "AssociationObject is mandatory.");
-        final AdminStatusObject addObject = (AdminStatusObject) teLspObject;
+        final var addObject = (AdminStatusObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE, CLASS_NUM, CTYPE, output);
-        final BitArray reflect = new BitArray(FLAGS_SIZE);
-        reflect.set(REFLECT, addObject.getReflect());
-        reflect.toByteBuf(output);
+        new BitArray(FLAGS_SIZE)
+            .set(REFLECT, addObject.getReflect())
+            .toByteBuf(output);
         output.writeShort(0);
-        final BitArray flags = new BitArray(FLAGS_SIZE);
-        flags.set(TESTING, addObject.getTesting());
-        flags.set(DOWN, addObject.getAdministrativelyDown());
-        flags.set(DELETION, addObject.getDeletionInProgress());
-        flags.toByteBuf(output);
+        new BitArray(FLAGS_SIZE)
+            .set(TESTING, addObject.getTesting())
+            .set(DOWN, addObject.getAdministrativelyDown())
+            .set(DELETION, addObject.getDeletionInProgress())
+            .toByteBuf(output);
     }
 }

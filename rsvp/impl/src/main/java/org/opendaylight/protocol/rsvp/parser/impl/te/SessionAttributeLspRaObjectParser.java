@@ -31,13 +31,12 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
 
     @Override
     protected RsvpTeObject localParseObject(final ByteBuf byteBuf) throws RSVPParsingException {
-        final SessionAttributeObjectWithResourcesAffinitiesBuilder builder =
-                new SessionAttributeObjectWithResourcesAffinitiesBuilder()
-                    .setIncludeAny(new AttributeFilter(readUint32(byteBuf)))
-                    .setExcludeAny(new AttributeFilter(readUint32(byteBuf)))
-                    .setIncludeAll(new AttributeFilter(readUint32(byteBuf)))
-                    .setSetupPriority(readUint8(byteBuf))
-                    .setHoldPriority(readUint8(byteBuf));
+        final var builder = new SessionAttributeObjectWithResourcesAffinitiesBuilder()
+            .setIncludeAny(new AttributeFilter(readUint32(byteBuf)))
+            .setExcludeAny(new AttributeFilter(readUint32(byteBuf)))
+            .setIncludeAll(new AttributeFilter(readUint32(byteBuf)))
+            .setSetupPriority(readUint8(byteBuf))
+            .setHoldPriority(readUint8(byteBuf));
 
         final BitArray bs = BitArray.valueOf(byteBuf.readByte());
         builder.setLocalProtectionDesired(bs.get(SessionAttributeLspObjectParser.LOCAL_PROTECTION));
@@ -55,8 +54,7 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
         checkArgument(teLspObject instanceof SessionAttributeObjectWithResourcesAffinities,
             "SessionAttributeObject is mandatory.");
 
-        final SessionAttributeObjectWithResourcesAffinities sessionObject =
-            (SessionAttributeObjectWithResourcesAffinities) teLspObject;
+        final var sessionObject = (SessionAttributeObjectWithResourcesAffinities) teLspObject;
         final ByteBuf sessionName = Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject
             .getSessionName()));
         final int pad = SessionAttributeLspObjectParser.getPadding(sessionName.readableBytes());
@@ -67,11 +65,11 @@ public final class SessionAttributeLspRaObjectParser extends AbstractRSVPObjectP
         writeAttributeFilter(sessionObject.getIncludeAll(), output);
         writeUint8(output, sessionObject.getSetupPriority());
         writeUint8(output, sessionObject.getHoldPriority());
-        final BitArray bs = new BitArray(FLAGS_SIZE);
-        bs.set(SessionAttributeLspObjectParser.LOCAL_PROTECTION, sessionObject.getLocalProtectionDesired());
-        bs.set(SessionAttributeLspObjectParser.LABEL_RECORDING, sessionObject.getLabelRecordingDesired());
-        bs.set(SessionAttributeLspObjectParser.SE_STYLE, sessionObject.getSeStyleDesired());
-        bs.toByteBuf(output);
+        new BitArray(FLAGS_SIZE)
+            .set(SessionAttributeLspObjectParser.LOCAL_PROTECTION, sessionObject.getLocalProtectionDesired())
+            .set(SessionAttributeLspObjectParser.LABEL_RECORDING, sessionObject.getLabelRecordingDesired())
+            .set(SessionAttributeLspObjectParser.SE_STYLE, sessionObject.getSeStyleDesired())
+            .toByteBuf(output);
         output.writeByte(sessionName.readableBytes());
         output.writeBytes(Unpooled.wrappedBuffer(StandardCharsets.US_ASCII.encode(sessionObject.getSessionName())));
         output.writeZero(pad);

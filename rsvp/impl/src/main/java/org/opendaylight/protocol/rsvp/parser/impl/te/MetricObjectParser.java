@@ -49,10 +49,10 @@ public final class MetricObjectParser extends AbstractRSVPObjectParser {
         final MetricObject metric = (MetricObject) teLspObject;
         serializeAttributeHeader(BODY_SIZE, CLASS_NUM, CTYPE, output);
         output.writeShort(0);
-        final BitArray reflect = new BitArray(FLAGS_SIZE);
-        reflect.set(BOUND, metric.getBound());
-        reflect.set(COMPUTED, metric.getComputed());
-        reflect.toByteBuf(output);
+        new BitArray(FLAGS_SIZE)
+            .set(BOUND, metric.getBound())
+            .set(COMPUTED, metric.getComputed())
+            .toByteBuf(output);
         writeUint8(output, metric.getMetricType());
         writeFloat32(metric.getValue(), output);
     }

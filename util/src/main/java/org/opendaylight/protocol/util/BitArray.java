@@ -11,6 +11,8 @@ import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
+import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.Nullable;
 
 /**
  * This class was created to minimize usage of Java BitSet class, as this one
@@ -18,12 +20,9 @@ import io.netty.buffer.ByteBuf;
  * order.
  */
 public final class BitArray {
-
-    private final int size;
-
     private final byte[] backingArray;
-
     private final int offset;
+    private final int size;
 
     /**
      * Creates a BitArray with fixed size of bits. For sizes smaller than
@@ -99,13 +98,38 @@ public final class BitArray {
      * bit as 0 to size -1 being the leftmost bit.
      *
      * @param index position of bit that will be set
-     * @param value Boolean
+     * @param value a {@link Boolean}
+     * @return this BitArray
+     * @see #set(int, boolean)
      */
-    public void set(final int index, final Boolean value) {
-        Preconditions.checkArgument(index < size, "Index out of bounds.");
-        if (value == null || value.equals(Boolean.FALSE)) {
-            return;
+    public @NonNull BitArray set(final int index, final @Nullable Boolean value) {
+        checkIndex(index);
+        if (Boolean.TRUE.equals(value)) {
+            setBit(index);
         }
+        return this;
+    }
+
+    /**
+     * If the value given is {@code true}, sets bit on given position.
+     * Checks for null value. Index is counted from the rightmost
+     * bit as 0 to size -1 being the leftmost bit.
+     *
+     * @param index position of bit that will be set
+     * @param value a {@code boolean}
+     * @return this BitArray
+     * @see #set(int, Boolean)
+     * @since 3.0.0
+     */
+    public @NonNull BitArray set(final int index, final boolean value) {
+        checkIndex(index);
+        if (value) {
+            setBit(index);
+        }
+        return this;
+    }
+
+    private void setBit(final int index) {
         final int pos = calculatePosition(index);
         final byte b = backingArray[pos];
         backingArray[pos] = (byte) (Byte.toUnsignedInt(b) | mask(index));
@@ -120,7 +144,7 @@ public final class BitArray {
      * @return boolean value
      */
     public boolean get(final int index) {
-        Preconditions.checkArgument(index < size, "Index out of bounds.");
+        checkIndex(index);
         final byte b = backingArray[calculatePosition(index)];
         return (byte) (Byte.toUnsignedInt(b) & mask(index)) != 0;
     }
@@ -176,14 +200,19 @@ public final class BitArray {
 
     @Override
     public String toString() {
-        final StringBuilder b = new StringBuilder("BitArray [");
+        final var sb = new StringBuilder("BitArray [");
         for (int i = 0; i < backingArray.length; i++) {
-            b.append(Integer.toBinaryString(Byte.toUnsignedInt(backingArray[i])));
+            sb.append(Integer.toBinaryString(Byte.toUnsignedInt(backingArray[i])));
             if (i != backingArray.length - 1) {
-                b.append(' ');
+                sb.append(' ');
             }
         }
-        b.append(']');
-        return b.toString();
+        return sb.append(']').toString();
+    }
+
+    private void checkIndex(final int index) {
+        if (index >= size) {
+            throw new IllegalArgumentException("Index out of bounds.");
+        }
     }
 }
