@@ -24,11 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SRv6AttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrFlexAlgoParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.LinkIdTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvWriter;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -674,33 +677,62 @@ public final class LinkAttributesParser {
         }
     }
 
+    @NonNullByDefault
     static void serializeLinkAttributes(final LinkAttributesCase linkAttributesCase, final ByteBuf output) {
         final var linkAttributes = linkAttributesCase.getLinkAttributes();
         LOG.trace("Started serializing Link Attributes");
+
+        final var tw = new TlvWriter(output);
+
         // Standard Attributes
-        ifPresentApply(linkAttributes.getLocalIpv4RouterId(), value -> TlvUtil.writeTLV(TlvUtil.LOCAL_IPV4_ROUTER_ID,
-            Ipv4Util.byteBufForAddress(value), output));
-        ifPresentApply(linkAttributes.getLocalIpv6RouterId(), value -> TlvUtil.writeTLV(TlvUtil.LOCAL_IPV6_ROUTER_ID,
-            Ipv6Util.byteBufForAddress(value), output));
-        ifPresentApply(linkAttributes.getRemoteIpv4RouterId(), value -> TlvUtil.writeTLV(REMOTE_IPV4_ROUTER_ID,
-            Ipv4Util.byteBufForAddress(value), output));
-        ifPresentApply(linkAttributes.getRemoteIpv6RouterId(), value -> TlvUtil.writeTLV(REMOTE_IPV6_ROUTER_ID,
-            Ipv6Util.byteBufForAddress(value), output));
+        tw.append(linkAttributes.getLocalIpv4RouterId(), (value, ipv4RouterIdentifier) -> {
+            value.write4(ipv4RouterIdentifier);
+            return TlvUtil.LOCAL_IPV4_ROUTER_ID;
+        });
+        tw.append(linkAttributes.getLocalIpv6RouterId(), (value, ipv6RouterIdentifier) -> {
+            value.write16(ipv6RouterIdentifier);
+            return TlvUtil.LOCAL_IPV6_ROUTER_ID;
+        });
+        tw.append(linkAttributes.getRemoteIpv4RouterId(), (value, ipv4RouterIdentifier) -> {
+            value.write4(ipv4RouterIdentifier);
+            return REMOTE_IPV4_ROUTER_ID;
+        });
+        tw.append(linkAttributes.getRemoteIpv6RouterId(), (value, ipv6RouterIdentifier) -> {
+            value.write16(ipv6RouterIdentifier);
+            return REMOTE_IPV6_ROUTER_ID;
+        });
         final var sm = linkAttributes.getStandardMetric();
         if (sm != null) {
-            ifPresentApply(sm.getAdminGroup(), value -> TlvUtil.writeTLV(ADMIN_GROUP,
-                Unpooled.copyInt(value.getValue().intValue()), output));
-            ifPresentApply(sm.getMaxLinkBandwidth(), value -> TlvUtil.writeTLV(MAX_BANDWIDTH,
-                Unpooled.wrappedBuffer(value.getValue()), output));
-            ifPresentApply(sm.getMaxReservableBandwidth(), value -> TlvUtil.writeTLV(MAX_RESERVABLE_BANDWIDTH,
-                Unpooled.wrappedBuffer(value.getValue()), output));
+            tw.append(sm.getAdminGroup(), (value, administrativeGroup) -> {
+                value.write4(administrativeGroup);
+                return ADMIN_GROUP;
+            });
+            tw.append(sm.getMaxLinkBandwidth(), (value, bandwidth) -> {
+                value.write4(bandwidth);
+                return MAX_BANDWIDTH;
+            });
+            tw.append(sm.getMaxReservableBandwidth(), (value, bandwidth) -> {
+                value.write4(bandwidth);
+                return MAX_RESERVABLE_BANDWIDTH;
+            });
             serializeUnreservedBw(sm.getUnreservedBandwidth(), output);
             ifPresentApply(sm.getTeMetric(), value -> TlvUtil.writeTLV(TE_METRIC,
                 Unpooled.copyLong(value.getValue().toJava()), output));
-            ifPresentApply(sm.getLinkProtection(), value -> TlvUtil.writeTLV(LINK_PROTECTION_TYPE,
-                Unpooled.copyShort(value.getIntValue()), output));
+
+            tw.append(sm.getLinkProtection(), (value, linkProtectionType) -> {
+                value.write2(linkProtectionType);
+                return LINK_PROTECTION_TYPE;
+            });
         }
-        serializeMplsProtocolMask(linkAttributes.getMplsProtocol(), output);
+
+        tw.append(linkAttributes.getMplsProtocol(), (value, mplsProtocolMask) -> {
+            final var ba = new BitArray(FLAGS_SIZE);
+            ba.set(LDP_BIT, mplsProtocolMask.getLdp());
+            ba.set(RSVP_BIT, mplsProtocolMask.getRsvpte());
+            value.write1(ba.toByte());
+            return MPLS_PROTOCOL;
+        });
+
         ifPresentApply(linkAttributes.getMetric(), value -> TlvUtil.writeTLV(METRIC,
             Unpooled.copyMedium(value.getValue().intValue()), output));
         serializeSrlg(linkAttributes.getSharedRiskLinkGroups(), output);
@@ -737,19 +769,29 @@ public final class LinkAttributesParser {
         // Performance Metrics
         final var pm = linkAttributes.getPerformanceMetric();
         if (pm != null) {
-            ifPresentApply(pm.getLinkDelay(), value -> TlvUtil.writeTLV(LINK_DELAY,
-                Unpooled.copyInt(value.getValue().intValue()), output));
+            tw.append(pm.getLinkDelay(), (value, delay) -> {
+                value.write4(delay);
+                return LINK_DELAY;
+            });
             serializeLinkMinMaxDelay(pm.getLinkMinMaxDelay(), output);
-            ifPresentApply(pm.getDelayVariation(), value -> TlvUtil.writeTLV(DELAY_VARIATION,
-                Unpooled.copyInt(value.getValue().intValue()), output));
+            tw.append(pm.getDelayVariation(), (value, delay) -> {
+                value.write4(delay);
+                return DELAY_VARIATION;
+            });
             ifPresentApply(pm.getLinkLoss(), value -> TlvUtil.writeTLV(LINK_LOSS,
                 Unpooled.copyInt(value.getValue().intValue()), output));
-            ifPresentApply(pm.getResidualBandwidth(), value -> TlvUtil.writeTLV(RESIDUAL_BANDWIDTH,
-                Unpooled.wrappedBuffer(value.getValue()), output));
-            ifPresentApply(pm.getAvailableBandwidth(), value -> TlvUtil.writeTLV(AVAILABLE_BANDWIDTH,
-                Unpooled.wrappedBuffer(value.getValue()), output));
-            ifPresentApply(pm.getUtilizedBandwidth(), value -> TlvUtil.writeTLV(UTILIZED_BANDWIDTH,
-                Unpooled.wrappedBuffer(value.getValue()), output));
+            tw.append(pm.getResidualBandwidth(), (value, bandwidth) -> {
+                value.write4(bandwidth);
+                return RESIDUAL_BANDWIDTH;
+            });
+            tw.append(pm.getAvailableBandwidth(), (value, bandwidth) -> {
+                value.write4(bandwidth);
+                return AVAILABLE_BANDWIDTH;
+            });
+            tw.append(pm.getUtilizedBandwidth(), (value, bandwidth) -> {
+                value.write4(bandwidth);
+                return UTILIZED_BANDWIDTH;
+            });
         }
         // Application Specific Link Attributes
         serializeAsla(linkAttributes.getAslaMetric(), output);
@@ -760,36 +802,26 @@ public final class LinkAttributesParser {
         LOG.trace("Finished serializing Link Attributes");
     }
 
-    private static void serializeUnreservedBw(final Map<UnreservedBandwidthKey, UnreservedBandwidth> ubList,
-            final ByteBuf byteAggregator) {
-        // this sub-TLV contains eight 32-bit IEEE floating point numbers
-        if (ubList != null) {
-            final ByteBuf unreservedBandwithBuf = Unpooled.buffer();
-            for (var unreservedBandwidth : ubList.values()) {
-                unreservedBandwithBuf.writeBytes(unreservedBandwidth.getBandwidth().getValue());
+    @NonNullByDefault
+    private static void serializeUnreservedBw(
+            final @Nullable Map<UnreservedBandwidthKey, UnreservedBandwidth> unreservedBandwidths, final ByteBuf buf) {
+        TlvWriter.append(buf, unreservedBandwidths, (value, map) -> {
+            // this sub-TLV contains eight 32-bit IEEE floating point numbers
+            for (var unreservedBandwidth : map.values()) {
+                value.write4(unreservedBandwidth.requireBandwidth());
             }
-            TlvUtil.writeTLV(UNRESERVED_BANDWIDTH, unreservedBandwithBuf, byteAggregator);
-        }
+            return UNRESERVED_BANDWIDTH;
+        });
     }
 
-    private static void serializeSrlg(final Set<SrlgId> srlgList, final ByteBuf byteAggregator) {
-        if (srlgList != null) {
-            final ByteBuf srlgBuff = Unpooled.buffer();
-            srlgList.forEach(srlgId -> writeUint32(srlgBuff, srlgId.getValue()));
-            TlvUtil.writeTLV(SHARED_RISK_LINK_GROUP, srlgBuff, byteAggregator);
-        }
-    }
-
-    private static void serializeMplsProtocolMask(final MplsProtocolMask mplsProtocolMask,
-            final ByteBuf byteAggregator) {
-        if (mplsProtocolMask != null) {
-            final ByteBuf mplsProtocolMaskBuf = Unpooled.buffer(1);
-            final BitArray mask = new BitArray(FLAGS_SIZE);
-            mask.set(LDP_BIT, mplsProtocolMask.getLdp());
-            mask.set(RSVP_BIT, mplsProtocolMask.getRsvpte());
-            mask.toByteBuf(mplsProtocolMaskBuf);
-            TlvUtil.writeTLV(MPLS_PROTOCOL, mplsProtocolMaskBuf, byteAggregator);
-        }
+    @NonNullByDefault
+    private static void serializeSrlg(final @Nullable Set<SrlgId> sharedRiskLinkGroups, final ByteBuf buf) {
+        TlvWriter.append(buf, sharedRiskLinkGroups, (value, srlgIds) -> {
+            for (var srlgId : srlgIds) {
+                value.write4(srlgId);
+            }
+            return SHARED_RISK_LINK_GROUP;
+        });
     }
 
     private static void serializedSrv6EndXSID(final Srv6EndXSid srv6EndXSid, final ByteBuf byteAggregator) {
@@ -814,12 +846,13 @@ public final class LinkAttributesParser {
         }
     }
 
-    private static void serializeLinkMinMaxDelay(final LinkMinMaxDelay linkMinMaxDelay, final ByteBuf byteAggregator) {
+    @NonNullByDefault
+    private static void serializeLinkMinMaxDelay(final @Nullable LinkMinMaxDelay linkMinMaxDelay, final ByteBuf buf) {
         if (linkMinMaxDelay != null) {
-            final ByteBuf linkMinMaxDelayBuf = Unpooled.buffer(8);
-            writeUint32(linkMinMaxDelayBuf, linkMinMaxDelay.getMinDelay().getValue());
-            writeUint32(linkMinMaxDelayBuf, linkMinMaxDelay.getMaxDelay().getValue());
-            TlvUtil.writeTLV(LINK_MIN_MAX_DELAY, linkMinMaxDelayBuf, byteAggregator);
+            TlvWriter.startTlv(buf)
+                .write4(linkMinMaxDelay.requireMinDelay())
+                .write4(linkMinMaxDelay.requireMaxDelay())
+                .endTlv(LINK_MIN_MAX_DELAY);
         }
     }
 

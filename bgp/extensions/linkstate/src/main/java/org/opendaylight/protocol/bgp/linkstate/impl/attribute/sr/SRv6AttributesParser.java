@@ -15,8 +15,8 @@ import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUin
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvWriter;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -190,13 +190,14 @@ public final class SRv6AttributesParser {
             .build();
     }
 
-    public static void serializeSrv6SidStructure(final Srv6SidStructure srv6SidStructure, final ByteBuf aggregator) {
-        final ByteBuf output = Unpooled.buffer();
-        writeUint8(output, srv6SidStructure.getLocatorBlockLength());
-        writeUint8(output, srv6SidStructure.getLocatorNodeLength());
-        writeUint8(output, srv6SidStructure.getFunctionLength());
-        writeUint8(output, srv6SidStructure.getArgumentLength());
-        TlvUtil.writeTLV(SRV6_SID_STRUCTURE, output, aggregator);
+    @NonNullByDefault
+    public static void serializeSrv6SidStructure(final Srv6SidStructure srv6SidStructure, final ByteBuf buf) {
+        TlvWriter.startTlv(buf)
+            .write1(srv6SidStructure.requireLocatorBlockLength())
+            .write1(srv6SidStructure.requireLocatorNodeLength())
+            .write1(srv6SidStructure.requireFunctionLength())
+            .write1(srv6SidStructure.requireArgumentLength())
+            .endTlv(SRV6_SID_STRUCTURE);
     }
 
     // Prefix Attributes SRv6 Locator

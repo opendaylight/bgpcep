@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
-import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -18,11 +17,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
-import java.util.Set;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SRv6AttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrFlexAlgoParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvWriter;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -203,8 +202,27 @@ public final class NodeAttributesParser {
     static void serializeNodeAttributes(final NodeAttributesCase nodeAttributesCase, final ByteBuf byteAggregator) {
         LOG.trace("Started serializing Node Attributes");
         final var nodeAttributes = nodeAttributesCase.getNodeAttributes();
-        serializeTopologyId(nodeAttributes.getTopologyIdentifier(), byteAggregator);
-        serializeNodeFlagBits(nodeAttributes.getNodeFlags(), byteAggregator);
+
+        final var tw = new TlvWriter(byteAggregator);
+
+        tw.append(nodeAttributes.getTopologyIdentifier(), (value, topologyIdentifier) -> {
+            for (var topologyId : topologyIdentifier) {
+                value.write2(topologyId);
+            }
+            return TlvUtil.MULTI_TOPOLOGY_ID;
+        });
+
+        tw.append(nodeAttributes.getNodeFlags(), (value, nodeFlags) -> {
+            final var flags = new BitArray(FLAGS_SIZE);
+            flags.set(OVERLOAD_BIT, nodeFlags.getOverload());
+            flags.set(ATTACHED_BIT, nodeFlags.getAttached());
+            flags.set(EXTERNAL_BIT, nodeFlags.getExternal());
+            flags.set(ABBR_BIT, nodeFlags.getAbr());
+            flags.set(ROUTER_BIT, nodeFlags.getRouter());
+            flags.set(V6_BIT, nodeFlags.getV6());
+            value.write1(flags.toByte());
+            return NODE_FLAG_BITS;
+        });
 
         final var dh = nodeAttributes.getDynamicHostname();
         if (dh != null) {
@@ -272,30 +290,5 @@ public final class NodeAttributesParser {
             }
         }
         LOG.trace("Finished serializing Node Attributes");
-    }
-
-    private static void serializeTopologyId(final Set<TopologyIdentifier> topList, final ByteBuf byteAggregator) {
-        if (topList != null) {
-            final var mpIdBuf = Unpooled.buffer();
-            for (final TopologyIdentifier topologyIdentifier : topList) {
-                writeUint16(mpIdBuf, topologyIdentifier.getValue());
-            }
-            TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, mpIdBuf, byteAggregator);
-        }
-    }
-
-    private static void serializeNodeFlagBits(final NodeFlagBits nodeFlagBits, final ByteBuf byteAggregator) {
-        if (nodeFlagBits != null) {
-            final var nodeFlagBuf = Unpooled.buffer(1);
-            final var flags = new BitArray(FLAGS_SIZE);
-            flags.set(OVERLOAD_BIT, nodeFlagBits.getOverload());
-            flags.set(ATTACHED_BIT, nodeFlagBits.getAttached());
-            flags.set(EXTERNAL_BIT, nodeFlagBits.getExternal());
-            flags.set(ABBR_BIT, nodeFlagBits.getAbr());
-            flags.set(ROUTER_BIT, nodeFlagBits.getRouter());
-            flags.set(V6_BIT, nodeFlagBits.getV6());
-            flags.toByteBuf(nodeFlagBuf);
-            TlvUtil.writeTLV(NODE_FLAG_BITS, nodeFlagBuf, byteAggregator);
-        }
     }
 }
