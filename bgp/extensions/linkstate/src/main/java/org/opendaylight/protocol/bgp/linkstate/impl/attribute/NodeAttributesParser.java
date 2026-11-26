@@ -81,20 +81,20 @@ public final class NodeAttributesParser {
      * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parseNodeAttributes(final Multimap<Integer, ByteBuf> attributes,
+    static LinkStateAttribute parseNodeAttributes(final Multimap<Uint16, ByteBuf> attributes,
             final ProtocolId protocolId) {
         final var topologyMembership = ImmutableSet.<TopologyIdentifier>builder();
         final var areaMembership = ImmutableSet.<IsisAreaIdentifier>builder();
-        final NodeAttributesBuilder builder = new NodeAttributesBuilder();
-        final SegmentRoutingBuilder srBuilder = new SegmentRoutingBuilder();
-        final SrMplsCapabilitiesBuilder srMplsBuilder = new SrMplsCapabilitiesBuilder();
+        final var builder = new NodeAttributesBuilder();
+        final var srBuilder = new SegmentRoutingBuilder();
+        final var srMplsBuilder = new SrMplsCapabilitiesBuilder();
         boolean srMpls = false;
         boolean srCapabilities = false;
         for (var entry : attributes.entries()) {
-            final int key = entry.getKey();
-            final ByteBuf value = entry.getValue();
-            LOG.trace("Node attribute TLV {}", key);
-            switch (key) {
+            final var type = entry.getKey();
+            final var value = entry.getValue();
+            LOG.trace("Node attribute TLV {}", type);
+            switch (type.toJava()) {
                 case TlvUtil.MULTI_TOPOLOGY_ID -> parseTopologyId(topologyMembership, value);
                 case NODE_FLAG_BITS -> parseNodeFlags(value, builder);
                 case NODE_OPAQUE -> {
@@ -163,7 +163,7 @@ public final class NodeAttributesParser {
                     srBuilder.setFlexAlgoDefinition(fad);
                     srCapabilities = true;
                 }
-                default -> LOG.warn("TLV {} is not a valid node attribute, ignoring it", key);
+                default -> LOG.warn("TLV {} is not a valid node attribute, ignoring it", type);
             }
             if (srMpls) {
                 srBuilder.setSrMplsCapabilities(srMplsBuilder.build());
