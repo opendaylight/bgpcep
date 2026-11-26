@@ -8,7 +8,6 @@
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint8;
-import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint16;
 import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.writeUint8;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -19,10 +18,13 @@ import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import java.nio.charset.StandardCharsets;
 import java.util.Set;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SRv6AttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrFlexAlgoParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrNodeAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvWriter;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -274,13 +276,14 @@ public final class NodeAttributesParser {
         LOG.trace("Finished serializing Node Attributes");
     }
 
-    private static void serializeTopologyId(final Set<TopologyIdentifier> topList, final ByteBuf byteAggregator) {
-        if (topList != null) {
-            final var mpIdBuf = Unpooled.buffer();
-            for (final TopologyIdentifier topologyIdentifier : topList) {
-                writeUint16(mpIdBuf, topologyIdentifier.getValue());
+    @NonNullByDefault
+    private static void serializeTopologyId(final @Nullable Set<TopologyIdentifier> topologyIds, final ByteBuf buf) {
+        if (topologyIds != null) {
+            final var tlv = new TlvWriter(buf);
+            for (var topologyId : topologyIds) {
+                tlv.write2(topologyId.getValue());
             }
-            TlvUtil.writeTLV(TlvUtil.MULTI_TOPOLOGY_ID, mpIdBuf, byteAggregator);
+            tlv.commit(TlvUtil.MULTI_TOPOLOGY_ID);
         }
     }
 

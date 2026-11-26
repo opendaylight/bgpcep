@@ -24,11 +24,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.eclipse.jdt.annotation.NonNull;
+import org.eclipse.jdt.annotation.NonNullByDefault;
+import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SRv6AttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrFlexAlgoParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.attribute.sr.SrLinkAttributesParser;
 import org.opendaylight.protocol.bgp.linkstate.impl.tlvs.LinkIdTlvParser;
 import org.opendaylight.protocol.bgp.linkstate.spi.TlvUtil;
+import org.opendaylight.protocol.bgp.linkstate.spi.TlvWriter;
 import org.opendaylight.protocol.util.BitArray;
 import org.opendaylight.protocol.util.ByteArray;
 import org.opendaylight.protocol.util.Ipv4Util;
@@ -760,23 +763,27 @@ public final class LinkAttributesParser {
         LOG.trace("Finished serializing Link Attributes");
     }
 
-    private static void serializeUnreservedBw(final Map<UnreservedBandwidthKey, UnreservedBandwidth> ubList,
-            final ByteBuf byteAggregator) {
+    @NonNullByDefault
+    private static void serializeUnreservedBw(
+            final @Nullable Map<UnreservedBandwidthKey, UnreservedBandwidth> unreservedBandwidths, final ByteBuf buf) {
         // this sub-TLV contains eight 32-bit IEEE floating point numbers
-        if (ubList != null) {
-            final ByteBuf unreservedBandwithBuf = Unpooled.buffer();
-            for (var unreservedBandwidth : ubList.values()) {
-                unreservedBandwithBuf.writeBytes(unreservedBandwidth.getBandwidth().getValue());
+        if (unreservedBandwidths != null) {
+            final var tlv = new TlvWriter(buf);
+            for (var unreservedBandwidth : unreservedBandwidths.values()) {
+                tlv.write4(unreservedBandwidth.requireBandwidth());
             }
-            TlvUtil.writeTLV(UNRESERVED_BANDWIDTH, unreservedBandwithBuf, byteAggregator);
+            tlv.commit(UNRESERVED_BANDWIDTH);
         }
     }
 
-    private static void serializeSrlg(final Set<SrlgId> srlgList, final ByteBuf byteAggregator) {
-        if (srlgList != null) {
-            final ByteBuf srlgBuff = Unpooled.buffer();
-            srlgList.forEach(srlgId -> writeUint32(srlgBuff, srlgId.getValue()));
-            TlvUtil.writeTLV(SHARED_RISK_LINK_GROUP, srlgBuff, byteAggregator);
+    @NonNullByDefault
+    private static void serializeSrlg(final @Nullable Set<SrlgId> srlgIds, final ByteBuf buf) {
+        if (srlgIds != null) {
+            final var tlv = new TlvWriter(buf);
+            for (var srlgId : srlgIds) {
+                tlv.write4(srlgId.getValue());
+            }
+            tlv.commit(SHARED_RISK_LINK_GROUP);
         }
     }
 
@@ -814,12 +821,13 @@ public final class LinkAttributesParser {
         }
     }
 
-    private static void serializeLinkMinMaxDelay(final LinkMinMaxDelay linkMinMaxDelay, final ByteBuf byteAggregator) {
+    @NonNullByDefault
+    private static void serializeLinkMinMaxDelay(final @Nullable LinkMinMaxDelay linkMinMaxDelay, final ByteBuf buf) {
         if (linkMinMaxDelay != null) {
-            final ByteBuf linkMinMaxDelayBuf = Unpooled.buffer(8);
-            writeUint32(linkMinMaxDelayBuf, linkMinMaxDelay.getMinDelay().getValue());
-            writeUint32(linkMinMaxDelayBuf, linkMinMaxDelay.getMaxDelay().getValue());
-            TlvUtil.writeTLV(LINK_MIN_MAX_DELAY, linkMinMaxDelayBuf, byteAggregator);
+            new TlvWriter(buf)
+                .write4(linkMinMaxDelay.requireMinDelay())
+                .write4(linkMinMaxDelay.requireMaxDelay())
+                .commit(LINK_MIN_MAX_DELAY);
         }
     }
 
