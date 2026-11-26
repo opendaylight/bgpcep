@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.attributes.Srv6BgpPeerNodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.attributes.Srv6EndpointBehavior;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.srv6.attributes.Srv6EndpointBehaviorBuilder;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,14 +57,14 @@ public final class Srv6SidAttributesParser {
      * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parseSrv6SidAttributes(final Multimap<Integer, ByteBuf> attributes,
+    static LinkStateAttribute parseSrv6SidAttributes(final Multimap<Uint16, ByteBuf> attributes,
             final ProtocolId protocolId) {
         final var srv6AttrBuilder = new Srv6SidAttributesBuilder();
         for (var entry : attributes.entries()) {
-            final int key = entry.getKey();
-            final ByteBuf value = entry.getValue();
-            LOG.trace("Parse SRv6 attribute TLV {}", key);
-            switch (key) {
+            final var type = entry.getKey();
+            final var value = entry.getValue();
+            LOG.trace("Parse SRv6 attribute TLV {}", type);
+            switch (type.toJava()) {
                 case ENDPOINT_BEHAVIOR -> {
                     final var parsed = parseSrv6EndpointBehavior(value);
                     LOG.debug("Parsed SRv6 Endpoint Behavior {}", parsed);
@@ -79,7 +80,7 @@ public final class Srv6SidAttributesParser {
                     LOG.debug("Parsed SRv6 SID Structure {}", parsed);
                     srv6AttrBuilder.setSrv6SidStructure(parsed);
                 }
-                default -> LOG.warn("Unexpected TLV type {} in Srv6 SID Attributes. Skipping.", key);
+                default -> LOG.warn("Unexpected TLV type {} in Srv6 SID Attributes. Skipping.", type);
             }
         }
 
