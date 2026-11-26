@@ -7,6 +7,8 @@
  */
 package org.opendaylight.protocol.bgp.linkstate.impl.attribute;
 
+import static org.opendaylight.yangtools.yang.common.netty.ByteBufUtils.readUint16;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import io.netty.buffer.ByteBuf;
@@ -37,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.mess
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.message.rev200120.path.attributes.AttributesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesReach;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.multiprotocol.rev180329.AttributesUnreach;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,16 +61,15 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
         type = isIanaAssignedType ? TYPE : LEGACY_TYPE;
     }
 
-    public static Multimap<Integer, ByteBuf> getAttributesMap(final ByteBuf buffer) {
+    public static Multimap<Uint16, ByteBuf> getAttributesMap(final ByteBuf buffer) {
         /*
          * e.g. IS-IS Area Identifier TLV can occur multiple times
          */
-        final var map = HashMultimap.<Integer, ByteBuf>create();
+        final var map = HashMultimap.<Uint16, ByteBuf>create();
         while (buffer.isReadable()) {
-            final int type = buffer.readUnsignedShort();
-            final int length = buffer.readUnsignedShort();
-            final ByteBuf value = buffer.readSlice(length);
-            map.put(type, value);
+            final var type = readUint16(buffer);
+            final var length = buffer.readUnsignedShort();
+            map.put(type, buffer.readSlice(length));
         }
         return map;
     }
@@ -127,7 +129,7 @@ public final class LinkstateAttributeParser extends AbstractAttributeParser impl
 
     private static LinkStateAttribute parseLinkState(final ObjectType nlri, final ProtocolId protocolId,
             final ByteBuf buffer) throws BGPParsingException {
-        final BiFunction<Multimap<Integer, ByteBuf>, ProtocolId, LinkStateAttribute> parse = switch (nlri) {
+        final BiFunction<Multimap<Uint16, ByteBuf>, ProtocolId, LinkStateAttribute> parse = switch (nlri) {
             case PrefixCase prefix -> PrefixAttributesParser::parsePrefixAttributes;
             case LinkCase link -> LinkAttributesParser::parseLinkAttributes;
             case NodeCase node -> NodeAttributesParser::parseNodeAttributes;

@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segm
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.prefix.attribute.flags.igp.attribute.flags.Ospfv3AttributeFlagsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.bgp.segment.routing.rev241219.prefix.attribute.flags.igp.attribute.flags.Ospfv3AttributeFlagsCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.IgpMetric;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.netty.ByteBufUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,27 +104,31 @@ public final class PrefixAttributesParser {
      * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parsePrefixAttributes(final Multimap<Integer, ByteBuf> attributes,
+    static LinkStateAttribute parsePrefixAttributes(final Multimap<Uint16, ByteBuf> attributes,
             final ProtocolId protocolId) {
-        final PrefixAttributesBuilder builder = new PrefixAttributesBuilder();
+        final var builder = new PrefixAttributesBuilder();
         final var routeTags = new ArrayList<RouteTag>();
         final var exRouteTags = new ArrayList<ExtendedRouteTag>();
         for (var entry : attributes.entries()) {
-            final int key = entry.getKey();
-            final ByteBuf value = entry.getValue();
-            LOG.trace("Prefix attribute TLV {}", key);
-            parseAttribute(key, value, protocolId, builder, routeTags, exRouteTags);
+            final var type = entry.getKey();
+            final var value = entry.getValue();
+            LOG.trace("Prefix attribute TLV {}", type);
+            parseAttribute(type, value, protocolId, builder, routeTags, exRouteTags);
         }
+
         LOG.trace("Finished parsing Prefix Attributes.");
-        builder.setRouteTags(ImmutableSet.copyOf(routeTags));
-        builder.setExtendedTags(ImmutableSet.copyOf(exRouteTags));
-        return new PrefixAttributesCaseBuilder().setPrefixAttributes(builder.build()).build();
+        return new PrefixAttributesCaseBuilder()
+            .setPrefixAttributes(builder
+                .setRouteTags(ImmutableSet.copyOf(routeTags))
+                .setExtendedTags(ImmutableSet.copyOf(exRouteTags))
+                .build())
+            .build();
     }
 
-    private static void parseAttribute(final int key, final ByteBuf value, final ProtocolId protocolId,
+    private static void parseAttribute(final Uint16 type, final ByteBuf value, final ProtocolId protocolId,
             final PrefixAttributesBuilder builder, final List<RouteTag> routeTags,
             final List<ExtendedRouteTag> exRouteTags) {
-        switch (key) {
+        switch (type.toJava()) {
             case IGP_FLAGS -> parseIgpFlags(builder, value);
             case ROUTE_TAG -> parseRouteTags(routeTags, value);
             case EXTENDED_ROUTE_TAG -> parseExtendedRouteTags(exRouteTags, value);
@@ -177,7 +182,7 @@ public final class PrefixAttributesParser {
                 LOG.debug("Parsed OSPF Source Router ID {}", ori);
                 builder.setSourceOspfRouterId(ori);
             }
-            default -> LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", key);
+            default -> LOG.warn("TLV {} is not a valid prefix attribute, ignoring it", type);
         }
     }
 
