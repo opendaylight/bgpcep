@@ -40,8 +40,7 @@ public final class TlvUtil {
         byteAggregator.writeShort(value.writerIndex());
         byteAggregator.writeBytes(value);
         if (LOG.isDebugEnabled()) {
-            value.readerIndex(0);
-            LOG.debug("Serialized tlv type {} to: {}", type, ByteBufUtil.hexDump(value));
+            LOG.debug("Serialized tlv type {} to: {}", type, ByteBufUtil.hexDump(value.readerIndex(0)));
         }
     }
 }
