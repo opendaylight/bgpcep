@@ -51,6 +51,23 @@
       "message": "But first parent change has to be approved https://git.opendaylight.org/gerrit/c/bgpcep/+/125390",
       "revId": "e13315382a559694bcc4b5bc8c26881a0bca4f6d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "8b018b51_278d8d24",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 4
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2026-11-26T12:27:28Z",
+      "side": 1,
+      "message": "needs a manual rebase",
+      "revId": "e13315382a559694bcc4b5bc8c26881a0bca4f6d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
