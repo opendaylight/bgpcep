@@ -78,9 +78,9 @@ public final class SrFlexAlgoParser {
     private static FlexAlgoSubtlvs parseSrFlexAlgoSubTLVs(final ByteBuf buffer) {
         final var fasBuilder = new FlexAlgoSubtlvsBuilder();
         for (var entry : LinkstateAttributeParser.getAttributesMap(buffer).entries()) {
-            final int type = entry.getKey();
-            final ByteBuf value = entry.getValue();
-            switch (type) {
+            final var type = entry.getKey();
+            final var value = entry.getValue();
+            switch (type.toJava()) {
                 case FLEX_ALGO_EXCLUDE_ANY -> fasBuilder.setExcludeAny(parseExtendedAdminGroup(value));
                 case FLEX_ALGO_INCLUDE_ANY -> fasBuilder.setIncludeAny(parseExtendedAdminGroup(value));
                 case FLEX_ALGO_INCLUDE_ALL -> fasBuilder.setIncludeAll(parseExtendedAdminGroup(value));
