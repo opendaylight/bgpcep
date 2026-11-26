@@ -26,7 +26,7 @@ import java.util.stream.Stream;
 import org.eclipse.jdt.annotation.NonNull;
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.bgpcep.programming.spi.InstructionScheduler;
-import org.opendaylight.bgpcep.topology.DefaultTopologyReference;
+import org.opendaylight.bgpcep.topology.TopologyReference;
 import org.opendaylight.mdsal.binding.api.RpcProviderService;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -36,12 +36,12 @@ import org.opendaylight.yangtools.yang.common.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-final class PCEPTopologyProvider extends DefaultTopologyReference {
+final class PCEPTopologyProvider implements TopologyReference {
     private static final Logger LOG = LoggerFactory.getLogger(PCEPTopologyProvider.class);
 
-    private final WithKey<Topology, TopologyKey> instanceIdentifier;
-    private final PCEPTopologyProviderDependencies dependencies;
-    private final InstructionScheduler scheduler;
+    private final @NonNull WithKey<Topology, TopologyKey> instanceIdentifier;
+    private final @NonNull PCEPTopologyProviderDependencies dependencies;
+    private final @NonNull InstructionScheduler scheduler;
 
     // High-level state bits: currently running asynchronous operation, current configuration and the next configuration
     // to apply after the async operation completes
@@ -70,10 +70,14 @@ final class PCEPTopologyProvider extends DefaultTopologyReference {
 
     PCEPTopologyProvider(final WithKey<Topology, TopologyKey> instanceIdentifier,
             final PCEPTopologyProviderDependencies dependencies, final InstructionScheduler scheduler) {
-        super(instanceIdentifier);
         this.instanceIdentifier = requireNonNull(instanceIdentifier);
         this.dependencies = requireNonNull(dependencies);
         this.scheduler = requireNonNull(scheduler);
+    }
+
+    @Override
+    public WithKey<Topology, TopologyKey> instanceIdentifier() {
+        return instanceIdentifier;
     }
 
     synchronized ListenableFuture<?> stop() {

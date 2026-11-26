@@ -7,13 +7,16 @@
  */
 package org.opendaylight.bgpcep.topology;
 
-import org.opendaylight.protocol.concepts.DefaultInstanceReference;
+import static java.util.Objects.requireNonNull;
+
+import org.eclipse.jdt.annotation.NonNullByDefault;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yangtools.binding.DataObjectIdentifier.WithKey;
 
-public class DefaultTopologyReference extends DefaultInstanceReference<Topology> implements TopologyReference {
-    public DefaultTopologyReference(final WithKey<Topology, TopologyKey> instanceIdentifier) {
-        super(instanceIdentifier);
+@NonNullByDefault
+record DefaultTopologyReference(WithKey<Topology, TopologyKey> instanceIdentifier) implements TopologyReference {
+    DefaultTopologyReference {
+        requireNonNull(instanceIdentifier);
     }
 }
