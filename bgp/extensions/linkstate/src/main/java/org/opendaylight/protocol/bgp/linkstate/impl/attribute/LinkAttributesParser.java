@@ -81,6 +81,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.network.concepts.rev131125.TeMetric;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.rsvp.rev150820.SrlgId;
 import org.opendaylight.yangtools.binding.util.BindingMap;
+import org.opendaylight.yangtools.yang.common.Uint16;
 import org.opendaylight.yangtools.yang.common.Uint32;
 import org.opendaylight.yangtools.yang.common.Uint8;
 import org.slf4j.Logger;
@@ -171,7 +172,7 @@ public final class LinkAttributesParser {
      * @param protocolId to differentiate parsing methods
      * @return {@link LinkStateAttribute}
      */
-    static LinkStateAttribute parseLinkAttributes(final Multimap<Integer, ByteBuf> attributes,
+    static LinkStateAttribute parseLinkAttributes(final Multimap<Uint16, ByteBuf> attributes,
             final ProtocolId protocolId) {
         final LinkAttributesBuilder builder = new LinkAttributesBuilder();
         final StandardMetricBuilder smBuilder = new StandardMetricBuilder();
@@ -190,11 +191,11 @@ public final class LinkAttributesParser {
         boolean srv6 = false;
 
         for (var entry : attributes.entries()) {
-            final int key = entry.getKey();
-            LOG.trace("Link attribute TLV {}", key);
+            final var type = entry.getKey();
+            LOG.trace("Link attribute TLV {}", type);
 
-            final ByteBuf value = entry.getValue();
-            switch (key) {
+            final var value = entry.getValue();
+            switch (type.toJava()) {
                 case LinkIdTlvParser.LINK_LR_IDENTIFIERS -> {
                     final var lli = readUint32(value);
                     final var lri = readUint32(value);
@@ -409,7 +410,7 @@ public final class LinkAttributesParser {
                     LOG.debug("Parsed L2 Bundle Member: {}", bm);
                     l2bundles.add(bm);
                 }
-                default -> LOG.warn("TLV {} is not a recognized link attribute, ignoring it", key);
+                default -> LOG.warn("TLV {} is not a recognized link attribute, ignoring it", type);
             }
         }
         if (!srAdjIds.isEmpty()) {
@@ -491,9 +492,9 @@ public final class LinkAttributesParser {
         // Then read ASLA subTLVs
         final var subTlvBuilder = new AslaSubtlvsBuilder();
         for (var entry : LinkstateAttributeParser.getAttributesMap(buffer).entries()) {
-            final int type = entry.getKey();
-            final ByteBuf value = entry.getValue();
-            switch (type) {
+            final var type = entry.getKey();
+            final var value = entry.getValue();
+            switch (type.toJava()) {
                 case ADMIN_GROUP -> {
                     final var ag = new AdministrativeGroup(readUint32(value));
                     LOG.debug("Parsed ASLA Administrative Group {}", ag);
@@ -571,9 +572,9 @@ public final class LinkAttributesParser {
         final var srAdjIds = new ArrayList<SrAdjIds>();
         final var srLanAdjIds = new ArrayList<SrLanAdjIds>();
         for (var entry : LinkstateAttributeParser.getAttributesMap(buffer).entries()) {
-            final int type = entry.getKey();
-            final ByteBuf value = entry.getValue();
-            switch (type) {
+            final var type = entry.getKey();
+            final var value = entry.getValue();
+            switch (type.toJava()) {
                 case ADMIN_GROUP -> {
                     final var ag = new AdministrativeGroup(readUint32(value));
                     LOG.debug("Parsed L2 Administrative Group {}", ag);
