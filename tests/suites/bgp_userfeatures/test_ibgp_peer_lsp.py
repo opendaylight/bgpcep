@@ -9,6 +9,7 @@
 # https://github.com/opendaylight/integration-test/blob/901c7e139945b436d95a44b3b592904c3d7a4f9f/csit/suites/bgpcep/bgpuser/ibgp_peer_lsp.robot
 #
 
+import ipaddress
 import logging
 import textwrap
 
@@ -30,6 +31,7 @@ BGP_TOOL_PORT = variables.BGP_TOOL_PORT
 ODL_BGP_PORT = variables.ODL_BGP_PORT
 BGP_VARIABLES_FOLDER = "variables/bgpuser/"
 COUNT = 1
+LS_IDENTIFIER = 1
 HOLDTIME = 180
 DEFAULT_RIB_CHECK_PERIOD = 1
 DEFAULT_RIB_CHECK_COUNTS = 10
@@ -38,15 +40,15 @@ BGP_PEER_LOG_FILE = "tmp/bgp_peer.log"
 BGP_PEER_COMMAND = (
     f"python3 tools/fastbgp/play.py --amount {COUNT} --myip={TOOLS_IP} "
     f"--myport={BGP_TOOL_PORT} --peerip={ODL_IP} --peerport={ODL_BGP_PORT} "
-    f"--{BGP_PEER_LOG_LEVEL} --logfile {BGP_PEER_LOG_FILE} --bgpls True"
+    f"--{BGP_PEER_LOG_LEVEL} --logfile {BGP_PEER_LOG_FILE} --bgpls True "
+    f"--lsid {LS_IDENTIFIER}"
 )
-BGP_PEER_OPTIONS = f"2>&1 >tmp/{BGP_PEER_LOG_FILE}"
+BGP_PEER_OPTIONS = f"2>&1 >{BGP_PEER_LOG_FILE}"
 JSONKEYSTR = "linkstate-route"
 BGP_PEER_NAME = "example-bgp-peer"
 SKIP_PARAMS = "--skipattr"
 RIB_INSTANCE = "example-bgp-rib"
 PROTOCOL_OPENCONFIG = RIB_INSTANCE
-ROUTE_KEY = "AAUAFQcAAAAAAAAAAQECAwQAAQABBQYHCA=="
 
 log = logging.getLogger(__name__)
 
@@ -68,9 +70,9 @@ class TestIbgpPeerLsp:
             """
             **Basic tests for iBGP peers.**
 
-            Test suite performs basic iBGP functional test case for carrying LSP State \
-            Information in BGP as described in \
-            *http://tools.ietf.org/html/draft-ietf-idr-te-lsp-distribution-03*
+            Test suite performs basic iBGP functional test case for carrying SRv6 SID \
+            information in BGP-LS as described in \
+            *https://www.rfc-editor.org/rfc/rfc9514*
         """
         )
     )
@@ -165,7 +167,12 @@ class TestIbgpPeerLsp:
 
         with allure_step_with_separate_logging("step_tc2_check_example_bgp_rib"):
             # Check RIB for linkstate-route(s) and check all of their attributes.
-            mapping = {"IP": TOOLS_IP, "ROUTE_KEY": ROUTE_KEY}
+            mapping = {
+                "IP": TOOLS_IP,
+                "IDENTIFIER": LS_IDENTIFIER,
+                "ROUTER_ID": int(ipaddress.IPv4Address(TOOLS_IP)),
+                "ROUTE_KEY": bgp.get_srv6_sid_route_key(LS_IDENTIFIER, TOOLS_IP),
+            }
             utils.wait_until_function_pass(
                 DEFAULT_RIB_CHECK_COUNTS,
                 DEFAULT_RIB_CHECK_PERIOD,
