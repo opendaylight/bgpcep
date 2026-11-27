@@ -704,6 +704,24 @@
       "message": "The route-key should be checked if correct\n\n```\nODL (in data.json): AAYAGQQAAAAAAAAAAQEAAAgCAAAEAAD78AIGAAA\u003d, 29 bytes\nCorrect (what play.py sends): AAYAMQQAAAAAAAAAAQEAABACAAAEAAD78AIEAAR/AAEAAgYAECABDbgAAAAAAAAAAAAAAAE\u003d, 53 bytes\n\nField                           play.py sends           ODL key            Status\nNLRI type                       0006 (SRv6 SID)         0006               OK\nNLRI length                     0031 (49)               0019 (25)          Different\nProtocol-ID                     04 (Direct)             04                 OK\nIdentifier                      0000000000000001        same\t           OK\nTLV 256 Local Node Desc.        0100 0010 (len 16)      0100 0008 (len 8)  shortened\n↳ sub-TLV 512 AS                0200 0004 0000fbf0 (64496)  same           OK\n↳ sub-TLV 516 BGP Router-ID     0204 0004 7f000100 (127.0.1.0)             missing\nTLV 518 SRv6 SID Info           0206 0010 + 20010db8…0001 (2001:db8::1)\t0206 0000\tempty: SID missing, and the TLV is malformed\n```\n\nUpdating tests could be done in a separate change, ticket.",
       "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
+    },
+    {
+      "unresolved": false,
+      "key": {
+        "uuid": "117c24d4_3ecfc857",
+        "filename": "tests/variables/bgpuser/lsp/effective_rib_in/data.json",
+        "patchSetId": 7
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 8907
+      },
+      "writtenOn": "2026-11-27T08:38:58Z",
+      "side": 1,
+      "message": "it was a problem in route-key value, updated test for this issue.",
+      "parentUuid": "90daf4c1_72749a28",
+      "revId": "e3b350cb4f4c301ab48f52e3a4680d35cf4ace24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81"
     }
   ]
 }
