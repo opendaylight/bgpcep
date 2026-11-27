@@ -6,7 +6,10 @@
 # and is available at http://www.eclipse.org/legal/epl-v10.html
 #
 
+import base64
+import ipaddress
 import logging
+import struct
 import subprocess
 from typing import List
 
@@ -1139,3 +1142,37 @@ def check_example_bgp_rib_does_not_contain(substr: str, host: str = ODL_IP):
         f"Did not expect {substr} to be present in example-bgp-rib config:\n"
         f"{response.text}"
     )
+
+
+def compute_srv6_sid_route_key(
+    identifier: int, router_id: str, sid: str = "2001:db8::1"
+) -> str:
+    """Return the route key of an SRv6 SID NLRI.
+
+    The key is the base64 encoded NLRI as ODL serializes it: Protocol-ID
+    Direct, the identifier, Local Node Descriptors with AS number 64496
+    (512) and the IGP Router-ID (515), and an SRv6 SID Information TLV
+    (518) carrying the SID.
+
+    Args:
+        identifier (int): Link-State NLRI identifier.
+        router_id (str): IGP Router-ID as an IPv4 address.
+        sid (str): SRv6 SID.
+
+    Returns:
+        str: Base64 encoded route key.
+    """
+    node_descriptors = (
+        struct.pack(">HHI", 512, 4, 64496)
+        + struct.pack(">HH", 515, 4)
+        + ipaddress.IPv4Address(router_id).packed
+    )
+    sid_bytes = ipaddress.IPv6Address(sid).packed
+    nlri = (
+        struct.pack(">BQ", 4, identifier)
+        + struct.pack(">HH", 256, len(node_descriptors))
+        + node_descriptors
+        + struct.pack(">HH", 518, len(sid_bytes))
+        + sid_bytes
+    )
+    return base64.b64encode(struct.pack(">HH", 6, len(nlri)) + nlri).decode()
