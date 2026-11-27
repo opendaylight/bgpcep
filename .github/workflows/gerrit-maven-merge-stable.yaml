@@ -32,6 +32,7 @@ jobs:
       fail-fast: false
       matrix:
         GERRIT_BRANCH:
+          - "2.0.x"
           - "0.23.x"
     concurrency:
       # Shares the group gerrit-maven-merge.yaml uses, because job-level and
